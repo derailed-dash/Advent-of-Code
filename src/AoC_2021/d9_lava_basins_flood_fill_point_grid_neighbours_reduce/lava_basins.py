@@ -1,0 +1,166 @@
+"""
+Author: Darren
+Date: 09/12/2021
+
+Solving https://adventofcode.com/2021/day/9
+
+We want to avoid lava smoke. Smoke flows to the lowest point.
+We have a heightmap as a 2D grid.  9 is heighest point and 0 is lowest.
+Risk score is given by height+1, at any given point.
+
+Part 1:
+    Find all the lowest points, i.e. points that are lower than adjacent orthagonal.
+    Point2D class knows how to yield its neighbours.
+    Grid class knows height at a given point. Easy.
+    
+Part 2:
+    We need the product of sizes of the three largest basins.  
+    A basin has a low point, and any surrounding points that are greater or equal, excluding 9.
+    All basins have a perimeter of 9s (which are not part of the basin).
+
+    Determine a basin for each low point we already have.
+    We can do this with a flood-fill BFS. 
+    Use the same yield_neighbours() to return all neighbours, 
+    and add all points < 9.  Mark any points already seen.  Don't look at neighbours of 9.
+"""
+from __future__ import annotations
+import logging
+import os
+import time
+from collections import deque
+from dataclasses import dataclass
+from functools import reduce
+from typing import Iterator
+
+SCRIPT_DIR = os.path.dirname(__file__) 
+INPUT_FILE = "input/input.txt"
+# INPUT_FILE = "input/sample_input.txt"
+
+logging.basicConfig(level=logging.DEBUG, 
+                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+
+@dataclass(frozen=True)
+class Point():
+    """ Our immutable point data class """
+    ADJACENT_DELTAS = [(dx,dy) for dx in range(-1, 2) 
+                               for dy in range(-1, 2) if abs(dy) != abs(dx)]
+    
+    x: int
+    y: int
+    
+    def yield_neighbours(self) -> Iterator[Point]:
+        """ Yield adjacent (orthogonal) neighbour points """
+        for vector in Point.ADJACENT_DELTAS:
+            yield Point(self.x + vector[0], self.y + vector[1])        
+    
+class Grid():
+    """ 2D grid of point values. Knows how to:
+       - Determine value at any point
+       - Whether the point is lower than adjancent
+       - Determine the entire basin, given a low point """
+    def __init__(self, grid_array: list) -> None:
+        self._array = grid_array
+        self._width = len(self._array[0])
+        self._height = len(self._array)
+        
+    @property
+    def x_size(self):
+        return self._width
+    
+    @property
+    def y_size(self):
+        return self._height
+
+    def height_at_point(self, point: Point) -> int:
+        """ Height is given by the value at this point """
+        return self._array[point.y][point.x]
+    
+    def risk_at_point(self, point: Point) -> int:
+        """ Risk is given by height at point + 1 """
+        return self.height_at_point(point) + 1
+    
+    def low_points(self) -> set:
+        """ Returns all low points in the grid """
+        low_points = set()
+        
+        for y in range(self.y_size):
+            for x in range(self.x_size):
+                point = Point(x, y)
+                if self.is_low_point(point):
+                    low_points.add(point)
+                    
+        return low_points
+    
+    def is_low_point(self, point: Point) -> bool:
+        """ Determines if this point is a low point, i.e. surrounded by higher values. """
+        value = self.height_at_point(point)
+        
+        for neighbour in point.yield_neighbours():
+            if self.valid_location(neighbour):
+                if self.height_at_point(neighbour) <= value:
+                    return False
+                
+        return True
+                   
+    def valid_location(self, point: Point) -> bool:
+        """ Check if a location is within the grid """
+        if (0 <= point.x < self.x_size and  0 <= point.y < self.y_size):
+            return True
+        
+        return False
+    
+    def get_basin(self, low_point: Point) -> set:
+        """ Given a low point, determine all the surrounding points that make up a basin.
+        Any points with height 9 mark the boundary of the basin and are NOT part of the basin. """
+        
+        assert self.is_low_point(low_point), "We should never start with a point that isn't a low point"
+        
+        basin_points = set()            # The points we'll return
+        points_to_assess: deque[Point] = deque()  # Points we want to get value of, and get neighbours for
+        assessed = set()                # Points we don't want to assess again
+        points_to_assess.append(low_point)  # where we start
+        
+        while points_to_assess:     # They should only ever be valid points
+            point_to_assess = points_to_assess.pop()
+            if point_to_assess in assessed:     
+                continue    # We've seen this before, so skip it
+            
+            assessed.add(point_to_assess)   # So we don't look at this again
+            
+            if self.height_at_point(point_to_assess) < 9:   # Points lower than 9 count as basin
+                basin_points.add(point_to_assess)         
+            
+                for neighbour in point_to_assess.yield_neighbours():
+                    if self.valid_location(neighbour):
+                        if neighbour not in assessed:   # We will need to assess this point
+                            points_to_assess.append(neighbour)
+        
+        return basin_points
+
+def main():
+    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
+    with open(input_file, mode="rt") as f:
+        data = [[int(posn) for posn in row] for row in f.read().splitlines()]
+        
+    grid = Grid(data)
+    low_points = grid.low_points()
+    risk_by_point = {point: grid.risk_at_point(point) for point in low_points}
+    logger.info("Part 1: low_point_risks = %d", sum(risk_by_point.values()))
+    
+    basin_sizes = []
+    for point in low_points:    # basins are generated from low points
+        basin = grid.get_basin(point)
+        basin_sizes.append(len(basin))
+
+    qty_required = 3
+    basin_sizes.sort(reverse=True)  # descending size order
+    biggest_basins = basin_sizes[0:qty_required]  # top n basins
+    logger.info("Part 2: product = %d", reduce((lambda x, y: x * y), biggest_basins))         
+
+if __name__ == "__main__":
+    t1 = time.perf_counter()
+    main()
+    t2 = time.perf_counter()
+    logger.info("Execution time: %0.4f seconds", t2 - t1)
