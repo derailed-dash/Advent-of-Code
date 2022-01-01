@@ -12,6 +12,9 @@ NH -> C
 
 E.g. CH becomes CBH, and CB becomes CHB.
 Inserted elements are not considered to be part of a pair until the next cycle.
+E.g. template   N       N       C       B
+     step 1     N   C   N   B   C   H   B
+     step 2     N B C C N B B B C B H C B  
 
 Part 1:
     Apply 10 steps of polymerisation, and then find most and least common elements.
@@ -35,8 +38,8 @@ import time
 from collections import Counter
 
 SCRIPT_DIR = os.path.dirname(__file__) 
-# INPUT_FILE = "input/input.txt"
-INPUT_FILE = "input/sample_input.txt"
+INPUT_FILE = "input/input.txt"
+# INPUT_FILE = "input/sample_input.txt"
 
 logging.basicConfig(level=logging.INFO, 
                     format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
@@ -53,7 +56,7 @@ def main():
     # Part 1
     steps = 10
     res = recursive_replace(steps-1, template, rules)
-    char_counts = Counter(res).most_common()
+    char_counts = Counter(res).most_common()    # [(char1, count1), (char2, count2)...]
     logger.info("Part 1 with recursive replace: Most common count - least common count = %d", 
                 char_counts[0][1] - char_counts[-1][1])
 
@@ -69,20 +72,34 @@ def main():
                 element_counts[0][1] - element_counts[-1][1])
 
 def count_by_pairs(template, rules, steps) -> Counter:
-    pairs_counter = Counter()  # Initialise the counts
-    for i in range(len(template)-1):
-        pair = template[i:i+2]
-        pairs_counter[pair] += 1     # increment count for pair, e.g. XY
+    """ Expand the pairs according to the supplied rules, for the given number of steps.
+    Simply counts how many of each type of pair we have after each step.
 
+    Args:
+        input (str): The initial template, e.g. 'NNCB'
+        steps (int): How many iterations.
+        rules (dict): Dict of {'XY': 'Z', ...}, such that XY becomes XZY """
+    pairs_counter = Counter()  # Initialise the counts
+    
+    # Find each overlapping pair in the template
+    for i in range(len(template)-1):  # E.g. NNCB
+        pair = template[i:i+2]  # E.g. NN, NC, CB
+        pairs_counter[pair] += 1     # increment count for pair, e.g. {'NN': 1, 'NC': 1, ...}
+
+    # With each step, increment counts of all daughter pairs by the count of source pairs
     for _ in range(steps):
         counts_this_step = Counter()
-        for pair in pairs_counter:  # E.g. NC
-            # Rule NC -> B converts NC -> NB + BC
+        for pair in pairs_counter:  # E.g. NN, NC..
+            # Rule NN -> C converts NN -> NC + CN
+            
+            # Increment count of new left and right pairs by the count of source pair
+            # E.g. count of NC and CN both increment by count of NN
             counts_this_step[pair[0] + rules[pair]] += pairs_counter[pair]  # NB
             counts_this_step[rules[pair] + pair[1]] += pairs_counter[pair]  # BC
         
         pairs_counter = counts_this_step
     
+    # We've got counts of pairs, but we need counts of the individual elements
     element_counts = Counter()  # i.e. a counter for each char
     for pair in pairs_counter:  # e.g. NB
         # Apart from the char at the end, 
@@ -102,7 +119,7 @@ def recursive_replace(steps: int, to_expand: str, rules: dict) -> str:
     Args:
         steps (int): How many iterations. Decremented with each recursion. Recursion ends when step=0.
         input (str): Input str. The str to be replaced at this recursion depth
-        rules (dict): Map of XY -> Z, such that XY becomes XZY """
+        rules (dict): Map of XY: Z, such that XY becomes XZY """
     res = to_expand     # E.g. NNCB first iteration, NCN on second iteration, NBC on third...
     chars_inserted = 0  # This grows as we insert horizontally, to allow indexing
     for i in range(len(to_expand)-1):  # sliding window of 2 chars; stop at len-1
@@ -122,8 +139,12 @@ def recursive_replace(steps: int, to_expand: str, rules: dict) -> str:
     return res
        
 def process_data(data: str) -> tuple[str, dict[str, str]]:
-    """ One row of template, then an empty line, then rows of rules """
-    
+    """ Process one row of template, then an empty line, then rows of rules
+
+    Returns:
+        tuple[str, dict[str, str]]: (template, rules-dict)
+            where rules-dict looks like {'CH':'B', 'HH':'N', ...}
+    """
     template, _, rules_lines = data.partition('\n\n')
     rules = {}
     for line in rules_lines.splitlines():
