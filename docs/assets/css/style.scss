@@ -1,9 +1,7 @@
 ---
 ---
 
-@import "rouge-base16-dark";
-@import url('https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700');
-
+@import "{{ site.theme }}";
 html {
   background:#6C7989;
   background: #6C7989 linear-gradient(#6C7989, #434B55) fixed;
@@ -346,3 +344,6 @@ footer {
     content:'at https://github.com/';
   }
 }
+
+@import "rouge-base16-dark";
+@import url('https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700');

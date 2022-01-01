@@ -27,10 +27,12 @@ twitter_username: DerailedDash
 github_username:  Derailed-Dash
 
 # Build settings
-theme: jekyll-theme-modernist
+remote_theme: pages-themes/modernist@v0.2.0
+# theme: jekyll-theme-modernist
 #theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-remote-theme
 
 # Exclude from processing.
 # The following items will not be processed, by default.
