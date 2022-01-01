@@ -22,12 +22,11 @@ Part 2:
     This uses regex to substitute inefficient instructions for more efficient instructions.
     Gets us down to under a second.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time
 import re
-from d12_assembunny_computer_class_instrospection.assembunny_instructions import Computer
+from AoC_2016.d12_assembunny_computer_class_instrospection.assembunny_instructions import Computer
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

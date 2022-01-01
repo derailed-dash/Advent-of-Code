@@ -7,7 +7,6 @@ Solving https://adventofcode.com/2016/day/2
 Solution:
     Use numpy array to represent the buttons in the keypad.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

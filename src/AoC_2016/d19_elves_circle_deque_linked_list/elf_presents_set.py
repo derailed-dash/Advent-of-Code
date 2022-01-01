@@ -20,7 +20,6 @@ Part 2:
     Sets aren't going to work for part 2!
     
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

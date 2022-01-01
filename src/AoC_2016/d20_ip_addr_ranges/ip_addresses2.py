@@ -8,7 +8,6 @@ Solution:
     Found this solution when mine wasn't working for part 2
 
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

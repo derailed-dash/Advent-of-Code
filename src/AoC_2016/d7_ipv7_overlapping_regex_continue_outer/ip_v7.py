@@ -25,11 +25,10 @@ Part 2:
         aba_pattern.findall(supernet, overlapped=True)
 
 """
-from __future__ import absolute_import
 import logging
 import os
 import time
-import regex
+import regex    # enhanced regex lib that supports finding overlapping matches
 
 # pylint: disable=logging-fstring-interpolation
 

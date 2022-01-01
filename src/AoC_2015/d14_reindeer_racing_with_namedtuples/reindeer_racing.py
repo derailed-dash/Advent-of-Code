@@ -20,7 +20,6 @@ Part 2:
 """
 import os
 import re
-import sys
 import time
 from collections import defaultdict, namedtuple
 
@@ -112,7 +111,6 @@ def process_reindeer_data(data) -> list:
         reindeer_list.append(reindeer(reindeer_name, int(speed), int(duration), int(rest_time)))
 
     return reindeer_list
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

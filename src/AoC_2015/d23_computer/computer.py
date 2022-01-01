@@ -16,7 +16,6 @@ Part 2:
     Same as before, but reg b initalised to 1, rather than 0.
 
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

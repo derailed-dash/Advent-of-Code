@@ -28,7 +28,6 @@ Part 1:
 Part 2:
     - Determine how many safe tiles for 400000 rows
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

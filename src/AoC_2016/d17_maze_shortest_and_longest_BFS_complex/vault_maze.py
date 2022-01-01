@@ -47,7 +47,7 @@ Part 2:
     
     Now it takes about 1s.
 """
-from __future__ import absolute_import, annotations
+from __future__ import annotations
 import heapq
 import hashlib
 import logging

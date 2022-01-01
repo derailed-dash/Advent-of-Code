@@ -8,8 +8,6 @@ Solving https://adventofcode.com/2015/day/1
 
 Part 2: after how many instructions are we in the basement (-1)
 """
-
-import sys
 import os
 import time
 

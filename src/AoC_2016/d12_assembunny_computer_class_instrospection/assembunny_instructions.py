@@ -14,7 +14,6 @@ Solution:
     Computer class contains methods for each instr.
     Use self.__getattribute__(f"_op_{instr}")(instr_parms) to call appropriate method
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

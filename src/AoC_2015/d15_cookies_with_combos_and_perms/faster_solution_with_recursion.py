@@ -19,7 +19,6 @@ Solution 2 of 2:
     This approach is much faster (but more complicated) than using itertools product / combinations / permutations.
     Overall solution time is ~0.2s.
 """
-from __future__ import absolute_import
 import re
 import os
 import time

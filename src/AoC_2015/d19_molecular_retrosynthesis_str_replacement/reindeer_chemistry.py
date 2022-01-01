@@ -40,7 +40,6 @@ Part 2:
 
     Once no more updates are possible, perform substition to get back to e.
 """
-from __future__ import absolute_import
 import os
 import time
 import re

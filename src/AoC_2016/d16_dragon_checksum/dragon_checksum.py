@@ -10,7 +10,6 @@ Part 1:
 Part 2:
     Same as part 1, but with a much longer target.  No changes required.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

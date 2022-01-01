@@ -32,7 +32,6 @@ Part 2:
     Use set difference to remove these from factors returned.
     (Having the exclude list as a set rather than a list is MUCH faster!)
 """
-from __future__ import absolute_import
 import os
 import time
 from collections import defaultdict

@@ -13,7 +13,6 @@ Part 2:
     As part 1, but using min instead of max.
 
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

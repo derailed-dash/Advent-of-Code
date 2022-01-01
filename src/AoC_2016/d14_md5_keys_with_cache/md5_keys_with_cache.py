@@ -11,7 +11,6 @@ Solution 2 of 2:
     it's much more efficient if we store previously calculated hashes in a dict against the index.
     In this solution, we use the LRU_cache to store the previous hashes.
 """
-from __future__ import absolute_import
 import hashlib
 import logging
 import os

@@ -24,7 +24,6 @@ Part 2:
     This is flippin' fast at returning a count of 10bn+.
 
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

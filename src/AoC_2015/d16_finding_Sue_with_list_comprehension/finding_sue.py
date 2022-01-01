@@ -24,7 +24,6 @@ Part 2:
     Cats and trees readings indicates that there are greater than that many
     Pomeranians and goldfish readings indicate that there are fewer than that many
 """
-from __future__ import absolute_import
 import os
 import time
 
@@ -110,7 +109,6 @@ def process_input(data):
         sue_list.append([int(name), props_dict])
 
     return sue_list
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

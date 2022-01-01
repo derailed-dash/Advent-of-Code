@@ -22,7 +22,6 @@ Part 1:
 Part 2:
     Maximum distance to visit all locations. I.e. max of all the total distances.
 """
-import sys
 import os
 import time
 import re

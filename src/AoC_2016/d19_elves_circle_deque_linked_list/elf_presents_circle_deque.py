@@ -48,7 +48,6 @@ Part 2:
 
     This performs really well!  t(n) = O(n).  Whole program in <2s.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

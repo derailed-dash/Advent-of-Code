@@ -13,7 +13,6 @@ Part 2:
     Ribbon required is shortest distance around sides, i.e. smallest perimeter of any face
         + bow length b, where b = volume of box.
 """
-import sys
 import os
 import time
 import re
@@ -73,7 +72,6 @@ def get_boxes(data):
         boxes.append(sorted(dims))
 
     return boxes
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

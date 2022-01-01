@@ -49,7 +49,6 @@ Part 2:
     
     Then one final step to place the G data in the accessible node.
 """
-from __future__ import absolute_import
 from collections import defaultdict
 from itertools import permutations
 import heapq

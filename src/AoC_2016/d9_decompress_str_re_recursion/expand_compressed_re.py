@@ -30,7 +30,6 @@ Part 2:
     
     This solution is going to take hours to complete!
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

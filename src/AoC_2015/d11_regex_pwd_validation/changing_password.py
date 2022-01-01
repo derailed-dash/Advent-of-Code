@@ -26,7 +26,6 @@ PAIRS_CHARS_MATCH = re.compile(r"(.)\1.*(.)\2")
 # match any of i, o, u
 BAD_CHARS_MATCH = re.compile(r"[iol]")
 
-
 def main():
     old_pwd = 'cqjxjnds'
 

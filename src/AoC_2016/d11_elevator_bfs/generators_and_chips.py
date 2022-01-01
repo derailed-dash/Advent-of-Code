@@ -69,7 +69,7 @@ Part 2:
     Score: 56, Priority: 0, Parent count: 61
     Execution time: 0.1418 seconds
 """
-from __future__ import absolute_import, annotations, generator_stop, generators
+from __future__ import annotations, generator_stop, generators
 import heapq
 import logging
 import os

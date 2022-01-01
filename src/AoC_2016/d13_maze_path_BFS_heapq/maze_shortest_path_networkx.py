@@ -34,7 +34,6 @@ Part 2:
     We need all destinations that can be reached in no more than 50 steps.
     Solve using nx.single_source_shortest_path(g, START, cutoff=50) 
 """
-from __future__ import absolute_import
 from __future__ import annotations
 import logging
 import os

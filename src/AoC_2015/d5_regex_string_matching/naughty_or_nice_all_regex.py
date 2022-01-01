@@ -18,7 +18,6 @@ Nice includes ALL of:
     Any two chars that repeat anywhere in the remaining string.
     Any two chars that repeat, with a single char between them.
 """
-import sys
 import os
 import time
 import re

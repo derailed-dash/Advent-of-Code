@@ -34,7 +34,6 @@ Part 2:
     So, we just add location 0 to the end of all the permutations.
     Then sum up all the journeys once more.
 """
-from __future__ import absolute_import
 import heapq
 import logging
 import os

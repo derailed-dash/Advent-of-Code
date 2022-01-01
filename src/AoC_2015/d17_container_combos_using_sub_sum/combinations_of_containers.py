@@ -13,7 +13,6 @@ Part 2:
     Determine the minimum number of containers to achieve the target.
     Determine how many combinations there are, using this minimum number of containers.
 """
-from __future__ import absolute_import
 import os
 import time
 
@@ -91,7 +90,6 @@ def subset_sum(numbers: list, target: int, partial=[], results=[]) -> list:
 
 def process_input(data):
     return [int(x) for x in data]
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

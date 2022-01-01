@@ -22,12 +22,10 @@ Part 2:
     Union with this set at the beginning of every iteration.
     When processing each iteration, ignore rules for corners.
 """
-from __future__ import absolute_import
 from typing import Dict, List, Set, Tuple
 import os
 import time
 from itertools import product
-
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

@@ -10,7 +10,6 @@ Solution:
     and because those 1000 hashes are typically overlapping, 
     it's much more efficient if we store previously calculated hashes in a dict against the index.
 """
-from __future__ import absolute_import
 import hashlib
 import logging
 import os

@@ -16,7 +16,6 @@ Solution:
         This solution zips all the rows, in order to transpose the rows and cols.
         Then we flatten with itertools.chain().
 """
-from __future__ import absolute_import
 import logging
 import os
 from itertools import chain

@@ -24,7 +24,6 @@ Part 2:
     Repeat approach to get cookie with highest score, from this new subset.
 """
 from __future__ import annotations
-import sys
 import os
 import time
 from math import prod

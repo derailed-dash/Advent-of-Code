@@ -45,7 +45,6 @@ def main():
             print(f"Part 2. With input {data}, hash = {hash_hex}")
             part2_solved = True         
 
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()

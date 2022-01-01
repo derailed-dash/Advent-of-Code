@@ -15,11 +15,8 @@ Solution:
     Store the count whenever we find a different char, or at the end.
 
 """
-import sys
 import os
 import time
-import re
-from collections import defaultdict
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

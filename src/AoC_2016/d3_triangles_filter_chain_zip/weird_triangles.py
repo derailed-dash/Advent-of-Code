@@ -17,7 +17,6 @@ Solution:
         and appends to each column for each number in the current row.
         We then use itertools.chain() to stick all the lists together into one list.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time

@@ -36,7 +36,6 @@ Part 2:
         filtered_locations = dict(filter(lambda item: len(item[1]) <= max_steps, my_dict.items()))   
 
 """
-from __future__ import absolute_import
 from __future__ import annotations
 import logging
 import os

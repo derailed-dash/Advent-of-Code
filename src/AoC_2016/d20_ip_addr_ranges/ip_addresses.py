@@ -21,7 +21,6 @@ Part 1:
 Part 2:
     Sum the allowed ranges.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time
