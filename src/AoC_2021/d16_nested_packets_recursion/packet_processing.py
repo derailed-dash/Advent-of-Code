@@ -108,11 +108,7 @@ class Packet():
     @property
     def version_sum(self) -> int:
         """ The sum of the version of this packet, as well as the versions of all subpackets. """
-        version_sum = self._version
-        for sub_packet in self._sub_packets:
-            version_sum += sub_packet.version_sum
-        
-        return version_sum
+        return self._version + sum(sub_packet.version_sum for sub_packet in self._sub_packets)
 
     @property
     def remaining_from_stream(self):
