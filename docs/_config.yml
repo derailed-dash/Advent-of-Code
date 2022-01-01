@@ -21,8 +21,10 @@
 title: Advent of Code!
 description: >- # this means to ignore newlines until "baseurl:"
   Advent of Code, written in Python
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: /Advent-of-Code
+url: https://derailed-dash.github.io
+# baseurl: "" # the subpath of your site, e.g. /blog
+# url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: DerailedDash
 github_username:  Derailed-Dash
 
