@@ -1,3 +1,6 @@
+---
+title: Advent of Code Main Navigation
+---
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/derailed-dash/Advent-of-Code/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
