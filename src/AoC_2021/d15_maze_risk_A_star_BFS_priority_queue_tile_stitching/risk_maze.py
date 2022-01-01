@@ -4,16 +4,26 @@ Date: 15/12/2021
 
 Solving https://adventofcode.com/2021/day/15
 
-We need to find a way from start (top left) to end (bottom right)
-of an array of risk values.  We want lowest risk.
+We're in a cavern with a low ceiling just above us, 
+so we can only navigate in two dimensions.
+The cavern makes up a graph of connected locations.
+Each location has a risk level to enter, based on hazards on the walls. 
+  
+We need to find a way from start (top left) to end (bottom right),
+picking the route with lowest risk.
 
 Part 1:
-    Use an A* BFS, where priority is the sum of cumulative risk and 
+    Use an Dijkstra/A* BFS, where priority is the sum of cumulative risk and 
     manhatten distance to the goal. Use heapq for the priority queue for our frontier.
     For each point, store the point we came from.
     Thus, we can rebuild the overall path, once we reach our goal.
 
 Part 2:
+    The cave is 5x larger than Part 1 in both x and y dimensions.
+    Thus Part 1 is a single tile at the top left of a 5x5 grid of tiles.
+    With each repeating tile, the location risk is 1 higher than the corresponding risk above or left.
+    As before, find the path from top left to bottom right.
+    
     Update Grid class so it knows how to increment all its risk values.
     Update Grid class so it knows how to stich on a new grid to the right.
     Compute the 10 different grids we need to stich together in the 5x5 uber array.
@@ -22,12 +32,12 @@ Part 2:
     Finally, run through the A* BFS from Part 1.
 """
 from __future__ import annotations
-from collections import namedtuple
 from copy import deepcopy
 import logging
 import os
 import time
 import heapq
+from typing import NamedTuple
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -38,25 +48,29 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
-Point = namedtuple("Point", "x y")  # Make it easier to index point x and y
+class Point(NamedTuple):
+    """ Point class, which knows how to return a list of all adjacent coordinates """
+    
+    # Return all adjacent orthogonal (not diagonal) coordinates
+    DELTAS = [(dx,dy) for dx in range(-1, 2) for dy in range(-1, 2) if abs(dy) != abs(dx)]
+    
+    x: int
+    y: int
+    
+    def neighbours(self) -> list[Point]:
+        """ Return all adjacent orthogonal (not diagonal) Points """
+        return [Point(self.x+dx, self.y+dy) for dx,dy in Point.DELTAS]
 
 class Grid():
     """ 2D grid of point values. Knows how to:
        - Determine value at any point
        - Determine all neighbouring points of a given point
        - Stitch together an adjacent grid to create a new grid
-       - Increment all values in the grid, according to cycle rules """
+       - Increment all values in the grid, according to the increment rules """
        
     def __init__(self, grid_array: list) -> None:
         """ Generate Grid instance from 2D array. 
-        This works on a deep copy of the input data, so as not to mutate the input. """
-        
-        # generate list of dx,dy to get to all adjacent points, EXCLUDING diags
-        delta = 1   # delta distance to use when finding neighbours
-        self._adjacent_deltas = [(dx,dy) for dx in range(-delta, delta+1)
-                                         for dy in range(-delta, delta+1)
-                                         if abs(dy) != abs(dx)]
-                                         
+        This works on a deep copy of the input data, so as not to mutate the input. """                                         
         self._array = deepcopy(grid_array)  # Store a deep copy of input data
         self._x_size = len(self._array[0])
         self._y_size = len(self._array)
@@ -100,10 +114,9 @@ class Grid():
         
         return False
     
-    def yield_neighbours(self, point:Point):
+    def valid_neighbours(self, point:Point):
         """ Yield adjacent neighbour points """
-        for dx,dy in self._adjacent_deltas:
-            neighbour = Point(point.x+dx, point.y+dy)
+        for neighbour in point.neighbours():
             if self._valid_location(neighbour):
                 yield neighbour
                 
@@ -148,10 +161,15 @@ def main():
     logger.info("Part 2 total risk: %d", total_risk)
 
 def build_uber_grid(start_grid: Grid, rows: int, cols:int) -> Grid:
-    # First, generate 10 possible permutations of our original grid
+    """ Build an uber grid, made up of y*x tiles, where each tile is the size of the start grid.
+    With each tile to the right or down, all values increase by 1, according to increment rules. 
+    """
+    
+    # First, generate the 9 possible permutations of our original grid
+    # (since grid values can only be 1-9 inclusive).
     grids: dict[int, Grid] = {}
     grids[0] = start_grid
-    for i in range(1, 10):
+    for i in range(1, 9):
         uber_grid_row = Grid(grids[i-1].array)
         uber_grid_row.increment_grid()
         grids[i] = uber_grid_row
@@ -160,7 +178,7 @@ def build_uber_grid(start_grid: Grid, rows: int, cols:int) -> Grid:
     for row in range(rows):
         # Now stich each adjacent tile together to make an uber row
         uber_grid_row = grids[row]
-        for col in range(1, cols):
+        for col in range(1, cols):   # e.g. 0-4 (inclusive)
             uber_grid_row = uber_grid_row.append_grid(grids[row+col])
             
         uber_grid_rows.append(uber_grid_row)
@@ -174,11 +192,11 @@ def build_uber_grid(start_grid: Grid, rows: int, cols:int) -> Grid:
     return Grid(uber_rows)      
   
 def navigate_grid(grid: Grid) -> list[tuple[Point, int]]:
-    """ An A* BFS to get from top right to bottom left """
+    """ An Dijkstra BFS to get from top left to bottom bottom """
     
-    start = (Point(0,0))
-    current = start
-    end = (Point(grid.x_size-1, grid.y_size-1))
+    start: Point = (Point(0,0))
+    current: Point = start
+    end: Point = (Point(grid.x_size-1, grid.y_size-1))
     
     frontier = []
     heapq.heappush(frontier, (0, current))   # (priority, location)
@@ -194,7 +212,7 @@ def navigate_grid(grid: Grid) -> list[tuple[Point, int]]:
         if current == end:
             break   # Goal reached
         
-        for neighbour in grid.yield_neighbours(current):
+        for neighbour in grid.valid_neighbours(current):
             new_risk = risk_so_far[current] + grid.value_at_point(neighbour)
             if neighbour not in risk_so_far or new_risk < risk_so_far[neighbour]:
                 risk_so_far[neighbour] = new_risk
