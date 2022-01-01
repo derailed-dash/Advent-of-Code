@@ -68,7 +68,7 @@ class Grid():
        - Stitch together an adjacent grid to create a new grid
        - Increment all values in the grid, according to the increment rules """
        
-    def __init__(self, grid_array: list) -> None:
+    def __init__(self, grid_array: list[list[int]]) -> None:
         """ Generate Grid instance from 2D array. 
         This works on a deep copy of the input data, so as not to mutate the input. """                                         
         self._array = deepcopy(grid_array)  # Store a deep copy of input data
@@ -165,28 +165,28 @@ def build_uber_grid(start_grid: Grid, rows: int, cols:int) -> Grid:
     With each tile to the right or down, all values increase by 1, according to increment rules. 
     """
     
-    # First, generate the 9 possible permutations of our original grid
-    # (since grid values can only be 1-9 inclusive).
-    grids: dict[int, Grid] = {}
-    grids[0] = start_grid
+    # Create the nine permutations of the starting tile 
+    # (since each digit in the tile can only be from 1-9 inclusive)
+    tile_permutations: dict[int, Grid] = {}
+    tile_permutations[0] = start_grid
     for i in range(1, 9):
-        uber_grid_row = Grid(grids[i-1].array)
-        uber_grid_row.increment_grid()
-        grids[i] = uber_grid_row
-            
-    uber_grid_rows: list[Grid] = []
+        tile = Grid(tile_permutations[i-1].array)
+        tile.increment_grid()
+        tile_permutations[i] = tile  # each tile is an increment of the grid before
+
+    # Now stich each adjacent tile together to make an uber row            
+    tile_rows: list[Grid] = []  # to hold y rows of very wide arrays
     for row in range(rows):
-        # Now stich each adjacent tile together to make an uber row
-        uber_grid_row = grids[row]
-        for col in range(1, cols):   # e.g. 0-4 (inclusive)
-            uber_grid_row = uber_grid_row.append_grid(grids[row+col])
+        tile_row = tile_permutations[row] # set the first tile in the row
+        for col in range(1, cols):   # now add additional tiles to make the complete row
+            tile_row = tile_row.append_grid(tile_permutations[row+col])
             
-        uber_grid_rows.append(uber_grid_row)
+        tile_rows.append(tile_row)
     
-    # now convert our five uber_grid_rows to a single uber grid
+    # now convert our five long grids into a single list of rows
     uber_rows = []
-    for uber_grid_row in uber_grid_rows:
-        for row in uber_grid_row.array:
+    for tile_row in tile_rows:
+        for row in tile_row.array:
             uber_rows.append(row)
             
     return Grid(uber_rows)      
@@ -204,7 +204,7 @@ def navigate_grid(grid: Grid) -> list[tuple[Point, int]]:
     came_from = {}  # So we can rebuild winning path from breadcrumbs later
     came_from[current] = None
     
-    risk_so_far = {}    # Store cumulative risk from grid values
+    risk_so_far: dict[Point, int] = {}    # Store cumulative risk from grid values
     risk_so_far[current] = 0
     
     while frontier:
@@ -228,9 +228,7 @@ def navigate_grid(grid: Grid) -> list[tuple[Point, int]]:
         current = came_from[current]
     
     path.reverse()
-    
     return path
-
     
 if __name__ == "__main__":
     t1 = time.perf_counter()
