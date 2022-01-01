@@ -4,7 +4,12 @@ Date: 16/12/2021
 
 Solving https://adventofcode.com/2021/day/16
 
-Input data is a single packet containing many packets.  Each packet may contain other packets.
+We've received a transmission in BITS format. This is a single line hex string, e.g.
+C200B40A82
+
+The input data is a single outer packet, which contains one or more adjacent packets.
+In turn, these packets can contain other packets.
+Hex values should be converted to binary before decoding.
 
 Individual packet structure:
 vvvttt[n*p][x*0]
@@ -16,7 +21,8 @@ where v = 3 bit packet version
 If t=4, then packet type is l (literal); else packet type is o (operator).
 
 Part 1:
-    Sum of version numbers of all packets.  Subpackets have version numbers, so we need to sum them.
+    We want the su of version numbers of all packets.  
+    Subpackets have version numbers, so we need to sum them.
     Parse input and convert from hex to binary. Create outer Packet from this data.
     Process the input bits according to the rules, and track how many bits consumed.
     Hold a list of subpackets.  Track the depth of subpackets.
@@ -26,7 +32,7 @@ Part 1:
 
 Part 2:
     Now we need to calculate a value based on the packet type.
-    This is pretty trivial.  Recuse in the same way as we did for the version sum.
+    This is pretty trivial.  Recurse in the same way as we did for the version sum.
 """
 import logging
 import os
@@ -36,12 +42,13 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
+logging.basicConfig(level=logging.INFO, 
                     format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 class Packet():
+    """ Processes a BITS packet, including recursive processing of any inner packets. """
     VER_START = 0
     TYPE_START = 3
     VAL_START = 6
@@ -54,7 +61,7 @@ class Packet():
         self._processed_bin_digits = 0  # Increment this throughout stages
         self._level = level     # Nesting level.  Starts at level 0
 
-        # print(f"Lvl={self._level}: raw bin={self._bin_in_str}")
+        logger.debug("Lvl=%s: raw bin=%s", self._level, self._bin_in_str)
         
         self._literal_val = 0
         self._sub_packets: list[Packet] = []      # any nested packets
@@ -178,8 +185,6 @@ class Packet():
             num_subpackets = int(self._bin_in_str[Packet.VAL_START+1: sub_packets_start], 2)
             sub_packets_data = self._bin_in_str[sub_packets_start:]
             
-            # ? Do I have to do anything with what's left?
-            
             # Parse these n subpackets sequentially, until no more remain
             processed_bits = 0
             while len(self._sub_packets) < num_subpackets:
@@ -190,14 +195,18 @@ class Packet():
             
             self._processed_bin_digits += processed_bits               
             
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         """ Short representation at top level only """
         hex_repr = hex(int(self._bin_in_str, 2)).upper()[2:]
+        show_len = 10
+        if len(hex_repr) > show_len:
+            hex_repr = hex_repr[:show_len] + "..."
+        
         return (f"Packet:LVL={self._level},VSum={self.version_sum},Val={self.value}," + 
                  f"V={self._version},T={self._type},hex={hex_repr}")
     
-    def __str__(self) -> str:
-        """ Recursive detail """
+    def __repr__(self) -> str:
+        """ Show packet information, including recursive detail """
         if self._sub_packets:
             val = "[" + ",".join(str(sub_packet) for sub_packet in self._sub_packets) + "]"
         else:
@@ -208,12 +217,13 @@ class Packet():
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
-        # each line has a single outer packet
+        # Aach line has a single outer packet
+        # Actual input is only one line, but our test data has many lines
         outer_packets_data = [hex_to_bin(line) for line in f.read().splitlines()]
     
     for outer_packet_data in outer_packets_data:
         packet = Packet(outer_packet_data)
-        logger.info(repr(packet))
+        logger.info(packet)
 
 def hex_to_bin(hex_value) -> str:
     """ Convert all hex digits to binary representation, with leading zeroes """
