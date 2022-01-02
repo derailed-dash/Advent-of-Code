@@ -20,13 +20,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = "input/input.txt"
-INPUT_FILE = "input/sample_input.txt"
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
 
 def main():
-    input_file = Path(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
+        
+    logger.debug(data)
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

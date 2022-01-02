@@ -52,7 +52,7 @@ Part 2:
     and we haven't yet visited twice, then we can enqueue with visited twice option.
 """
 import logging
-import os
+from pathlib import Path
 import time
 from collections import defaultdict, deque
 import matplotlib.pyplot as plt
@@ -63,13 +63,13 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
-SCRIPT_DIR = os.path.dirname(__file__) 
+SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
 RENDER = True
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output/")
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "cave_graph.png")  # where we'll save the animation to
+OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
+OUTPUT_FILE = Path(OUTPUT_DIR, "cave_graph.png")  # where we'll save the animation to
 
 class CaveGraph():
     """ Stores pairs of connected caves, i.e. edges. 
@@ -113,9 +113,9 @@ class CaveGraph():
         subax1 = plt.subplot(121)
         nx.draw_spring(self._graph, with_labels=True)
         
-        dir_path = os.path.dirname(file)
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
+        dir_path = Path(file).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
         plt.savefig(file)
                  
     @property
@@ -183,7 +183,7 @@ class CaveGraph():
         return unique_paths
 
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
+    input_file = Path(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         edges = set(tuple(line.split("-")) for line in f.read().splitlines())
         
