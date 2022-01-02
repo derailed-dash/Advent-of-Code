@@ -10,22 +10,21 @@ Part 2:
 
 """
 from __future__ import annotations
+from pathlib import Path
 import logging
-import os
 import time
-import re
 
-SCRIPT_DIR = os.path.dirname(__file__) 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = "input/input.txt"
 INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
-
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
+    input_file = Path(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
 

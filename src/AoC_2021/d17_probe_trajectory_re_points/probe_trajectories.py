@@ -41,10 +41,21 @@ Part 2:
     at any time t.
 """
 import logging
-import os
+from pathlib import Path
 import time
 import re
 from typing import NamedTuple
+from matplotlib import pyplot as plt
+
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+VIS = True
+SCRIPT_DIR = Path(__file__).parent
+# INPUT_FILE = "input/input.txt"
+INPUT_FILE = "input/sample_input.txt"
 
 class Point(NamedTuple):
     x: int
@@ -64,45 +75,78 @@ class Rect(NamedTuple):
         return (self.left_x <= point.x <= self.right_x 
                 and self.bottom_y <= point.y <= self.top_y)
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-# INPUT_FILE = "input/sample_input.txt"
-
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
-
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
+    input_file = Path(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         data = f.read().strip()
     
     # Note that x and y values can be -ve
     match = re.search(r"x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)", data)
+    assert match, "Don't expect invalid input data"
     target = Rect(*map(int, match.groups()))
     logger.info(target)
     
     successful_peaks = {}    # init_velocity: peak
+    highest_trajectory = []
+    max_y = 0
     for x in range(1, target.right_x+1):   # No point having x larger than max target distance
         for y in range(target.bottom_y, abs(target.bottom_y)):   # remember we can fire up
             init_v = Velocity(x, y)
-            hit, res = evaluate_trajectory(target, init_v)
-            if hit:
-                successful_peaks[init_v] = res
+            hit, trajectory = evaluate_trajectory(target, init_v)
+            if hit:     # if this was a good trajectory to hit the target
+                this_max_y = max(point.y for point in trajectory) 
+                successful_peaks[init_v] = this_max_y  # store the heighest point for this init_v               
+                if this_max_y > max_y:  # If this trajectory has given a new highest point
+                    highest_trajectory = trajectory
+                    max_y = this_max_y             
     
-    logger.info("Max peak=%d", max(successful_peaks.values()))
+    logger.debug("Testing debug")
+    logger.info("Max peak=%d", max_y)
     logger.info("Count of valid shots=%d", sum(1 for peak in successful_peaks))
+    
+    if VIS:
+        plot_trajectory(highest_trajectory, target)
 
-def evaluate_trajectory(target: Rect, initial_v: Velocity) -> tuple[bool, int]:
+def plot_trajectory(trajectory: list[Point], target: Rect):
+    """ Render this trajectory as a plot """
+    BORDER = 5
+    
+    axes = plt.gca()
+    
+    # Add axis lines at x=0 and y=0
+    plt.axhline(0, color='green')
+    plt.axvline(0, color='green')    
+    axes.grid(True) # grid lines on
+    # axes.set_aspect('equal', adjustable='box')  # equal aspect ratio
+    axes.set_xlim(0, target.right_x)
+    axes.set_ylim(target.bottom_y-BORDER, max(point.y for point in trajectory)+BORDER)
+    axes.set_title("Trajectory")
+    
+    all_x, all_y = zip(*trajectory)
+    plt.plot(all_x, all_y, marker="o", markerfacecolor="red", markersize=4)
+    plt.show()
+
+def evaluate_trajectory(target: Rect, initial_v: Velocity) -> tuple[bool, list[Point]]:
+    """ Given a target region to hit and an initial velocity, 
+    determine if we will hit the target on any step.
+
+    Args:
+        target (Rect): Region we need to hit
+        initial_v (Velocity): Initial x, y velocity at t=0
+
+    Returns:
+        tuple[bool, list[Point]]: Whether trajectory hit the target, and the path taken.
+    """
     t = 0
     location = Point(0,0)  # Where we launch our probe from
+    trajectory: list[Point] = [location]
     max_y_so_far_this_trajectory = target.bottom_y
     hit_target = False
     
     while not hit_target:
         vel = velocity_at_step(initial_v, t)
-        location = Point(location.x + vel.x, location.y + vel.y)             
+        location = Point(location.x + vel.x, location.y + vel.y)
+        trajectory.append(location)            
         max_y_so_far_this_trajectory = max(location.y, max_y_so_far_this_trajectory)
                 
         if (vel.x == 0 and location.x < target.left_x):
@@ -118,7 +162,7 @@ def evaluate_trajectory(target: Rect, initial_v: Velocity) -> tuple[bool, int]:
         # If we're here, we haven't yet reached the target
         t += 1
         
-    return hit_target, max_y_so_far_this_trajectory
+    return hit_target, trajectory
                 
 def velocity_at_step(init: Velocity, t: int) -> Velocity:
     """ Returns the velocity (x,y) at a given step. """
