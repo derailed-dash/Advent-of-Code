@@ -5,8 +5,8 @@ Date: 19/12/2021
 Solving https://adventofcode.com/2021/day/19
 
 Scanners can detect any beacons within 1000 units.
-Beacon positions are reported back, relative to scanners.
-Scanners don't know their own positions.
+Scanners report back these beacon positions, relative to the scanners.
+Scanners don't know their own positions; nor can they detect other scanners.
 We don't know scanner orientations, but probe vectors are always orthoganol.
 We're guaranteed at least 12 overlapping beacons per scanner.
 
