@@ -9,7 +9,9 @@ Snailfish numbers are always pairs, where each element is either an int or a nes
 E.g. [9,[8,7]] - a pair, where left is a number, and right is a nested pair.
 
 We must 'add' a bunch of snailfish numbers, where each number is a line in the input.
-To add snailfish numbers, concatenate the two numbers, then perform 'reduction':
+To add snailfish numbers, first concatenate the two lists, and then perform 'reduction'.
+
+Reduction:
     1 If any pair nested in 4 pairs, leftmost pair explodes.
     2 If any regular number is >=10, leftmost regular number splits.
     
@@ -17,13 +19,16 @@ To add snailfish numbers, concatenate the two numbers, then perform 'reduction':
     - Only perform one explode/split per iteration.
     - Assume we never start with a pair more than 5 deep.
 
-Explding removes an inner bracket:
-    - Add x to first avail number on the left.
-    - Add y to first avail number on the right.
+Exploding removes an inner bracket and adds the inner numbers to either side:
+    - Add x to first avail number on the left (if there is one)
+    - Add y to first avail number on the right (if there is one)
     - Then, replace the original pair (and its brackets) with 0.
+    - This has the result of reducing the overall list depth by 1.
 
 Splitting creates a bracketed pair (x,y) from a regular number:
-    - x = math.floor(n/2), y = math.ceil(n/2)
+    - Essentially, it splits an int into a pair (x,y) of two halves:
+      x = math.floor(n/2), y = math.ceil(n/2)
+    - This adds a new pair with a depth of n+1.
 
 Part 1:
     Here we need to add up all the numbers in the input data, 
