@@ -52,11 +52,11 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(m
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-RENDER = True
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = "input/input.txt"
 INPUT_FILE = "input/sample_input.txt"
 
+RENDER = True
 OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
 OUTPUT_FILE = Path(OUTPUT_DIR, "trajectory.png")
 
