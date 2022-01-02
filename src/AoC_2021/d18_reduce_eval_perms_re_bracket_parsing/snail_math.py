@@ -4,22 +4,26 @@ Date: 18/12/2021
 
 Solving https://adventofcode.com/2021/day/18
 
-Add line 1 to line 2, evaluate, then reduce with line 3, etc.
-Assume we never start with a pair more than 5 deep.
+We need to help the snailfish with their homework.
+Snailfish numbers are always pairs, where each element is either an int or a nested pair.
+E.g. [9,[8,7]] - a pair, where left is a number, and right is a nested pair.
 
-Reduction:
-Repeat first action that applies, until no action applies -
-1 If any pair nested in 4 pairs, leftmost pair explodes.
-2 If any regular number is >=10, leftmost regular number splits.
-Only perform one explode/split per iteration.
+We must 'add' a bunch of snailfish numbers, where each number is a line in the input.
+To add snailfish numbers, concatenate the two numbers, then perform 'reduction':
+    1 If any pair nested in 4 pairs, leftmost pair explodes.
+    2 If any regular number is >=10, leftmost regular number splits.
+    
+    - Repeat first action that applies, until no action applies.
+    - Only perform one explode/split per iteration.
+    - Assume we never start with a pair more than 5 deep.
 
 Explding removes an inner bracket:
-Add x to first avail number on the left, and y to first avail number on the right.
-(If there are numbers to add to.)
-Then, replace the original pair (and its brackets) with 0.
+    - Add x to first avail number on the left.
+    - Add y to first avail number on the right.
+    - Then, replace the original pair (and its brackets) with 0.
 
-Splitting creates a bracketed pair from a regular number:
-x = math.floor(n/2), math.ceil(n/2)
+Splitting creates a bracketed pair (x,y) from a regular number:
+    - x = math.floor(n/2), y = math.ceil(n/2)
 
 Part 1:
     Here we need to add up all the numbers in the input data, 
@@ -27,6 +31,8 @@ Part 1:
     
     Magnitude of any pair |x,y| = 3*|x| + 2|y|
     Magnitude of any int x is simply x.
+    
+    Add line 1 to line 2, evaluate, then reduce with line 3, etc.
     
     Create a FishNumber class to store the fish number as a list.
     Use literal_eval to read in the list and store as Python list.
@@ -125,8 +131,7 @@ class FishNumber():
 
     def _explode(self) -> list:
         """ Explodes the current list.
-        Looks for first opening bracket that is sufficiently nested.
-        Takes the pair of digits within.  
+        Looks for first opening bracket that is sufficiently nested. Takes the pair of digits within.  
         Adds LH to first digit on the left. (If there is one.)
         Adds RH to the first digit on the right. (If there is one.)
         Then replaces the entire bracket with 0. """
