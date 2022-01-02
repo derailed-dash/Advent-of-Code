@@ -31,7 +31,6 @@ import time
 from math import sin, cos, radians
 import matplotlib.pyplot as plt
 
-
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/nav.txt"
 SAMPLE_INPUT_FILE = "input/sample_nav.txt"
@@ -47,7 +46,6 @@ VECTORS = {
     "E": [1, 0],
     "W": [-1, 0]
 }
-
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)

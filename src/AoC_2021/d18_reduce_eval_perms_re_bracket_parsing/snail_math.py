@@ -14,8 +14,8 @@ Repeat first action that applies, until no action applies -
 Only perform one explode/split per iteration.
 
 Explding removes an inner bracket:
-Add x to first avail number on the left.
-Add y to first avail number on the right.
+Add x to first avail number on the left, and y to first avail number on the right.
+(If there are numbers to add to.)
 Then, replace the original pair (and its brackets) with 0.
 
 Splitting creates a bracketed pair from a regular number:
@@ -24,14 +24,15 @@ x = math.floor(n/2), math.ceil(n/2)
 Part 1:
     Here we need to add up all the numbers in the input data, 
     and return the resulting magnitude.
-
+    
+    Magnitude of any pair |x,y| = 3*|x| + 2|y|
+    Magnitude of any int x is simply x.
+    
     Create a FishNumber class to store the fish number as a list.
     Use literal_eval to read in the list and store as Python list.
     Use functools.reduce() to pairwise add all the lines in the input data.
     Explode logic works by counting brackets, and some regex.
     Split logic works by regex to look for numbers with > 1 char.
-    Magnitude is a recursive static function that 
-    performs (3*LHS+2*RHS) if the item is a list pair, otherwise returns the value.
     
 Part 2:
     Here we need to add up all permutations of pairs of the input data,
@@ -42,7 +43,7 @@ Part 2:
 """
 from __future__ import annotations
 import logging
-import os
+from pathlib import Path
 import time
 import re
 from functools import reduce
@@ -50,18 +51,17 @@ from math import ceil, floor
 from itertools import permutations
 from ast import literal_eval
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-# INPUT_FILE = "input/sample_input.txt"
+SCRIPT_DIR = Path(__file__).parent
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class FishNumber():
     """ FishNumber stores a snailfish number internally.
-    A snailfish number is a nested list.
     This class knows how to:
     - Add two FishNumbers to create a new FishNumber. 
     - Reduce snailfish numbers according to rules. """
@@ -70,10 +70,10 @@ class FishNumber():
     SPLIT_MIN = 10
     
     def __init__(self, fish_list: list) -> None:
-        self._number = fish_list
+        self._number = fish_list # internal representation as a list
          
     @property
-    def number(self) -> list:
+    def number(self):
         return self._number
 
     @staticmethod
@@ -84,7 +84,7 @@ class FishNumber():
         If the value is not part of a pair, simply return the value. """
         mag = 0
         
-        # First check if this is a pair
+        # First check if this is a pair (list)
         if isinstance(fish_num, list):
             mag = 3*FishNumber.magnitude(fish_num[0]) + 2*FishNumber.magnitude(fish_num[1])
         elif isinstance(fish_num, int): # must be a single value
@@ -94,10 +94,11 @@ class FishNumber():
    
     def add(self, other: FishNumber) -> FishNumber:
         """ Creates a new FishNumber by concatenating two FishNumbers.
-        Effectively, this is list extension.] """
+        Effectively, this is list extension. """
         return FishNumber([self.number] + [other.number])
         
     def reduce(self):
+        """ Performs 'reduction' logic. I.e. explode and split, as required. """
         while True:
             if self._can_explode():
                 self._number = self._explode()
@@ -125,8 +126,8 @@ class FishNumber():
     def _explode(self) -> list:
         """ Explodes the current list.
         Looks for first opening bracket that is sufficiently nested.
-        Takes the pair of digits within.  A
-        dds LH to first digit on the left. (If there is one.)
+        Takes the pair of digits within.  
+        Adds LH to first digit on the left. (If there is one.)
         Adds RH to the first digit on the right. (If there is one.)
         Then replaces the entire bracket with 0. """
         
@@ -211,8 +212,7 @@ class FishNumber():
         return str(self.number)
 
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         # Each input line is a nested list. 
         # Use literal_eval to convert to Python lists.
         data = [FishNumber(literal_eval(line)) for line in f.read().splitlines()]
