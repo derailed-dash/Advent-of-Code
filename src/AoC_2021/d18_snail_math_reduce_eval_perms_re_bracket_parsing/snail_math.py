@@ -6,6 +6,7 @@ Solving https://adventofcode.com/2021/day/18
 
 We need to help the snailfish with their homework.
 Snailfish numbers are always pairs, where each element is either an int or a nested pair.
+E.g. [1,2] - the simplest snailfish number
 E.g. [9,[8,7]] - a pair, where left is a number, and right is a nested pair.
 
 We must 'add' a bunch of snailfish numbers, where each number is a line in the input.
@@ -63,8 +64,8 @@ from itertools import permutations
 from ast import literal_eval
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
