@@ -69,42 +69,49 @@ class FishNumber:
     SPLIT_MIN = 10
     
     def __init__(self, val=None):
-        """ Create a new FishNumber """
+        """ Create a new FishNumber. 
+        If val is an int, then this is a leaf, and left/right will be None. """
         self.val = val  # leaf node value
         self.left: FishNumber = None
         self.right: FishNumber = None
         self.parent = None
     
-    def __repr__(self):
+    def __str__(self):
         if isinstance(self.val, int):
             return str(self.val)
         
         assert isinstance(self.left, FishNumber) and isinstance(self.right, FishNumber)
         return f"[{str(self.left)},{str(self.right)}]" # print recursively
     
+    def __repr__(self):
+        msg = str(self.val) if isinstance(self.val, int) else f"[{str(self.left)},{str(self.right)}]"           
+        return msg if self.parent else "FishNumber(" + msg + ")"
+
     def magnitude(self):
         """ Magnitude is given by 3*LHS + 2*RHS for any pair of values. 
         If the values are themselves lists, we must recurse.
-        If the values are themselves ints, we return the int value. 
-        If the value is not part of a pair, simply return the value. """
+        If the values are themselves ints, we return the int value. """
         if isinstance(self.val, int):
             return self.val
 
         return 3 * self.left.magnitude() + 2 * self.right.magnitude()
     
     def fish_reduce(self):
-        """ Reduce a FishNumber """
+        """ Reduce a FishNumber 
+        - Explode any pairs that are more than four deep.
+          Repeat explode until no more explosions possible.
+        - Split any numbers that are > 10.
+          Repeat split until no more splits are possible. """
         
         done = False
         while not done:
             done = True
             
-            # DFS through the tree
+            # DFS through the tree, starting at the root
             stack: deque[tuple[FishNumber, int]] = deque()
             stack.append((self, 0))    # (tree, depth)
 
             while len(stack) > 0:
-                # A preorder traversal will have the right order
                 node, depth = stack.pop()
 
                 if node is None:
@@ -118,7 +125,7 @@ class FishNumber:
                     done = False
                     break
 
-                # DFS through the children
+                # DFS through the children, ensuring left is always popped first
                 stack.append((node.right, depth + 1))
                 stack.append((node.left, depth + 1))
 
@@ -128,6 +135,7 @@ class FishNumber:
             # No explosions, so now try splitting
             assert done, "Done exploding"
 
+            # Append to stack, from the top
             stack: deque[tuple[FishNumber]] = deque()
             stack.append(self)    # We don't care about depth now
             while len(stack) > 0:
@@ -135,7 +143,7 @@ class FishNumber:
                 if node is None:
                     continue
 
-                if node.val is not None:
+                if node.val is not None:    # we've found our leaf
                     assert node.left is None and node.right is None
                     if node.val >= FishNumber.SPLIT_MIN:
                         self._split(node)
@@ -146,41 +154,64 @@ class FishNumber:
                 stack.append(node.left)
 
     def _split(self, node):
-        node.left = FishNumber(node.val//2)
-        node.right = FishNumber(node.val - (node.val//2))
-        node.left.parent = node
-        node.right.parent = node
-        node.val = None
+        """ Split a single value into a pair of two halves.
+        (Rounding down on the left, and rounding up on the right.)
+        The current node becomes the parent of new left/right nodes. """
+        assert node.val >= 10, "We can only split numbers >= 10"
+        
+        node.left = FishNumber(node.val//2) # new left val
+        node.right = FishNumber(node.val - (node.val//2)) # new right val
+        node.left.parent = node   # left node parent is current node
+        node.right.parent = node  # right node parent is current node
+        node.val = None  # current node value is cleared
 
-    def _explode(self, node):
-        # Go up the stack to find left node
+    def _explode(self, node: FishNumber):
+        """ Left node value is added to first adjacent node on the left.
+        Right node value is added to first adjacent node on the right.
+        Current node value is then set to 0. 
+
+        Args:
+            node ([FishNumber]): The node pair we need to explode
+        """
+        
+        # First explode the left side
         prev_node = node.left
         current_node = node
+        
+        # traverse up the tree until we identify a node with a left (different) child
+        # or until we can go no further
         while (current_node is not None and 
                (current_node.left == prev_node or current_node.left is None)):
-            prev_node = current_node
-            current_node = current_node.parent
+            prev_node = current_node  # prev node moves up one
+            current_node = current_node.parent  # current node now points to parent
 
-        if current_node is not None:   # Left node must exist
-            # Now cur_idx has a left child; we go all the way down
+        # current node will be null if we previously reached the root (so no left value)
+        # otherwise, we must have identified a left node, so come back down the left
+        if current_node is not None:
             current_node = current_node.left
-            while current_node.val is None:
+            while current_node.val is None: # must have two children
                 if current_node.right is not None:
                     current_node = current_node.right
                 else:
                     current_node = current_node.left
 
-            current_node.val += node.left.val
+            assert current_node.val is not None, "We've reached the value on the left"
+            current_node.val += node.left.val   # add to the left
 
-        # Go up the stack to find right node
+        # Now explode the right side
         prev_node = node.right
         current_node = node
-        while current_node is not None and (current_node.right == prev_node or current_node.right is None):
+        
+        # traverse up the tree until we identify a node with a right (different) child
+        # or until we can go no further
+        while (current_node is not None and 
+                (current_node.right == prev_node or current_node.right is None)):
             prev_node = current_node
             current_node = current_node.parent
 
-        if current_node is not None: # Right node must exist
-            # Now cur_idx has a left child; we go all the way down
+        # current node will be null if we previously reached the root (so no right value)
+        # otherwise, we must have identified a right node, so come back down the right
+        if current_node is not None: 
             current_node = current_node.right
             while current_node.val is None:
                 if current_node.left is not None:
@@ -188,39 +219,41 @@ class FishNumber:
                 else:
                     current_node = current_node.right
 
-            current_node.val += node.right.val
+            current_node.val += node.right.val  # add to the right
 
-        # Final explode updates
-        node.val = 0
+        # Final explode updates - set original node value to 0 and clear the children
+        node.val = 0 
         node.left = None
         node.right = None
 
     @staticmethod
-    def parse(fish_num: list|int) -> FishNumber:
-        """ Parse a list into a FishNumber. Recurses any nested lists, including leaf values. """
+    def parse(parse_input: list|int) -> FishNumber:
+        """ Parse a list and convert to a FishNumber. 
+        Recurses any nested lists, including leaf values. """
         root = FishNumber()
-        if isinstance(fish_num, int):   # if a leaf node with no children
-            root.val = fish_num
+        if isinstance(parse_input, int):   # If a leaf node with no children
+            root.val = parse_input
             return root
 
-        root.left = FishNumber.parse(fish_num[0])
-        root.right = FishNumber.parse(fish_num[1])
+        assert len(parse_input) == 2, "Must be a pair in a list"
+        root.left = FishNumber.parse(parse_input[0])
+        root.right = FishNumber.parse(parse_input[1])
         root.left.parent = root
         root.right.parent = root
 
         return root
 
 def add(left_tree: FishNumber, right_tree: FishNumber) -> FishNumber:
-    """ Add two FishNumbers together """
+    """ Add two FishNumbers together.
+    Creates a new parent node, with the supplied left and right set to its children. """
     new_root = FishNumber()
     
-    # These deep copies slow it down a lot
     new_root.left = left_tree
     new_root.right = right_tree
     new_root.left.parent = new_root
     new_root.right.parent = new_root
     
-    new_root.fish_reduce()
+    new_root.fish_reduce()  # Note that this modifies the roiginal supplied FishNumbers
     return new_root
 
 def main():
@@ -230,7 +263,7 @@ def main():
         data = [literal_eval(line) for line in f.read().splitlines()]
         
     # Part 1 - Sum all numbers and report magnitude
-    result = reduce(add, map(FishNumber.parse, data))  # Reduce to add n to n+1, then the sum to n+2, etc
+    result = reduce(add, map(FishNumber.parse, data))  # Reduce to add n to n+1, then to n+2, etc
     logger.info("Result = %s", result)
     logger.info("Part 1 magnitude = %d", result.magnitude())
     
