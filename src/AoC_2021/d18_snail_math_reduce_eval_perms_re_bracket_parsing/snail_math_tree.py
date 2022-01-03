@@ -4,6 +4,10 @@ Date: 18/12/2021
 
 Solving https://adventofcode.com/2021/day/18
 
+Solution 2 of 2:
+    This solution creates a binary tree from the input data.
+    Much quicker than the str manipulation of solution 1.
+    
 We need to help the snailfish with their homework.
 Snailfish numbers are always pairs, where each element is either an int or a nested pair.
 E.g. [1,2] - the simplest snailfish number
@@ -36,211 +40,208 @@ Part 1:
     Top node is the root.  Every other node is associated with one parent.
     Each node can have only two children: left and right.
     
-    
 Part 2:
-
+    We want the maximum magnitude from adding of any two input fish numbers.
+    Simply add all permutations.
 """
 from __future__ import annotations
 from ast import literal_eval
+from functools import reduce
+from itertools import permutations
+from collections import deque
 import logging
 from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class Node:
+class FishNumber:
+    """ A FishNumber is either a leaf node or a pair of FishNumbers """
+    
+    EXPLODE_BRACKETS = 4
+    SPLIT_MIN = 10
+    
     def __init__(self, val=None):
-        self.val = val
-        self.left = None
-        self.right = None
-        self.par = None
-
-    def __str__(self):
+        """ Create a new FishNumber """
+        self.val = val  # leaf node value
+        self.left: FishNumber = None
+        self.right: FishNumber = None
+        self.parent = None
+    
+    def __repr__(self):
         if isinstance(self.val, int):
             return str(self.val)
-        return f"[{str(self.left)},{str(self.right)}]"
+        
+        assert isinstance(self.left, FishNumber) and isinstance(self.right, FishNumber)
+        return f"[{str(self.left)},{str(self.right)}]" # print recursively
+    
+    def magnitude(self):
+        """ Magnitude is given by 3*LHS + 2*RHS for any pair of values. 
+        If the values are themselves lists, we must recurse.
+        If the values are themselves ints, we return the int value. 
+        If the value is not part of a pair, simply return the value. """
+        if isinstance(self.val, int):
+            return self.val
 
+        return 3 * self.left.magnitude() + 2 * self.right.magnitude()
+    
+    def fish_reduce(self):
+        """ Reduce a FishNumber """
+        
+        done = False
+        while not done:
+            done = True
+            
+            # DFS through the tree
+            stack: deque[tuple[FishNumber, int]] = deque()
+            stack.append((self, 0))    # (tree, depth)
 
-def parse(fish_num):
-    """
-    Parse a big list into a tree
-    """
-    root = Node()
-    if isinstance(fish_num, int):
-        root.val = fish_num
+            while len(stack) > 0:
+                # A preorder traversal will have the right order
+                node, depth = stack.pop()
+
+                if node is None:
+                    continue
+
+                condition = ((node.left is None and node.right is None) or 
+                            (node.left.val is not None and node.right.val is not None))
+
+                if depth >= FishNumber.EXPLODE_BRACKETS and node.val is None and condition:
+                    self._explode(node)
+                    done = False
+                    break
+
+                # DFS through the children
+                stack.append((node.right, depth + 1))
+                stack.append((node.left, depth + 1))
+
+            if not done:   # We've just exploded
+                continue
+            
+            # No explosions, so now try splitting
+            assert done, "Done exploding"
+
+            stack: deque[tuple[FishNumber]] = deque()
+            stack.append(self)    # We don't care about depth now
+            while len(stack) > 0:
+                node = stack.pop()
+                if node is None:
+                    continue
+
+                if node.val is not None:
+                    assert node.left is None and node.right is None
+                    if node.val >= FishNumber.SPLIT_MIN:
+                        self._split(node)
+                        done = False
+                        break
+
+                stack.append(node.right)
+                stack.append(node.left)
+
+    def _split(self, node):
+        node.left = FishNumber(node.val//2)
+        node.right = FishNumber(node.val - (node.val//2))
+        node.left.parent = node
+        node.right.parent = node
+        node.val = None
+
+    def _explode(self, node):
+        # Go up the stack to find left node
+        prev_node = node.left
+        current_node = node
+        while (current_node is not None and 
+               (current_node.left == prev_node or current_node.left is None)):
+            prev_node = current_node
+            current_node = current_node.parent
+
+        if current_node is not None:   # Left node must exist
+            # Now cur_idx has a left child; we go all the way down
+            current_node = current_node.left
+            while current_node.val is None:
+                if current_node.right is not None:
+                    current_node = current_node.right
+                else:
+                    current_node = current_node.left
+
+            current_node.val += node.left.val
+
+        # Go up the stack to find right node
+        prev_node = node.right
+        current_node = node
+        while current_node is not None and (current_node.right == prev_node or current_node.right is None):
+            prev_node = current_node
+            current_node = current_node.parent
+
+        if current_node is not None: # Right node must exist
+            # Now cur_idx has a left child; we go all the way down
+            current_node = current_node.right
+            while current_node.val is None:
+                if current_node.left is not None:
+                    current_node = current_node.left
+                else:
+                    current_node = current_node.right
+
+            current_node.val += node.right.val
+
+        # Final explode updates
+        node.val = 0
+        node.left = None
+        node.right = None
+
+    @staticmethod
+    def parse(fish_num: list|int) -> FishNumber:
+        """ Parse a list into a FishNumber. Recurses any nested lists, including leaf values. """
+        root = FishNumber()
+        if isinstance(fish_num, int):   # if a leaf node with no children
+            root.val = fish_num
+            return root
+
+        root.left = FishNumber.parse(fish_num[0])
+        root.right = FishNumber.parse(fish_num[1])
+        root.left.parent = root
+        root.right.parent = root
+
         return root
 
-    root.left = parse(fish_num[0])
-    root.right = parse(fish_num[1])
-    root.left.par = root
-    root.right.par = root
-
-    return root
-
-def add(a, b):
-    """
-    Add two trees together
-    """
-    root = Node()
-    root.left = a
-    root.right = b
-    root.left.par = root
-    root.right.par = root
-    reduce(root)
-    return root
-
-
-def magnitude(root):
-    if isinstance(root.val, int):
-        return root.val
-
-    return 3 * magnitude(root.left) + 2 * magnitude(root.right)
-
-def reduce(root):
-    """
-    Reduce a tree
-    """
-    done = True
-
-    # Do a DFS through the tree
-    stack = [(root, 0)]
-
-    while len(stack) > 0:
-        # A preorder traversal will have the right order
-        node, depth = stack.pop()
-
-        if node == None:
-            continue
-
-        condition = (node.left == None and node.right == None) or (
-            node.left.val != None and node.right.val != None)
-
-        if depth >= 4 and node.val == None and condition:
-            # Go up the stack to find left node
-            prev_node = node.left
-            cur_node = node
-            while cur_node != None and (cur_node.left == prev_node or cur_node.left == None):
-                prev_node = cur_node
-                cur_node = cur_node.par
-
-            # Left node must exist
-            if cur_node != None:
-
-                # Now cur_idx has a left child; we go all the way down
-                cur_node = cur_node.left
-                while cur_node.val == None:
-                    if cur_node.right != None:
-                        cur_node = cur_node.right
-                    else:
-                        cur_node = cur_node.left
-
-                # Update some values!
-                cur_node.val += node.left.val
-
-            # Go up the stack to find right node
-            prev_node = node.right
-            cur_node = node
-            while cur_node != None and (cur_node.right == prev_node or cur_node.right == None):
-                prev_node = cur_node
-                cur_node = cur_node.par
-
-            # Right node must exist
-            if cur_node != None:
-
-                # Now cur_idx has a left child; we go all the way down
-                cur_node = cur_node.right
-                while cur_node.val == None:
-                    if cur_node.left != None:
-                        cur_node = cur_node.left
-                    else:
-                        cur_node = cur_node.right
-
-                # Update some values!
-                cur_node.val += node.right.val
-
-            # Final explode updates
-            node.val = 0
-            node.left = None
-            node.right = None
-
-            # Stop the DFS
-            done = False
-            break
-
-        # DFS through the children
-        stack.append((node.right, depth + 1))
-        stack.append((node.left, depth + 1))
-
-    # Look for splits later
-    if not done:
-        reduce(root)
-        return
-
-    stack = [root]
-    while len(stack) > 0:
-        node = stack.pop()
-        if node == None:
-            continue
-
-        if node.val != None:
-            # Split!
-            assert node.left == None and node.right == None
-            if node.val >= 10:
-                node.left = Node(node.val//2)
-                node.right = Node(node.val - (node.val//2))
-                node.left.par = node
-                node.right.par = node
-                node.val = None
-
-                done = False
-                break
-
-        stack.append(node.right)
-        stack.append(node.left)
-
-    # If not done, keep going
-    if not done:
-        reduce(root)
-        
-# Alright great
-def get_mag(a, b):
-    return magnitude(add(a, b))
+def add(left_tree: FishNumber, right_tree: FishNumber) -> FishNumber:
+    """ Add two FishNumbers together """
+    new_root = FishNumber()
+    
+    # These deep copies slow it down a lot
+    new_root.left = left_tree
+    new_root.right = right_tree
+    new_root.left.parent = new_root
+    new_root.right.parent = new_root
+    
+    new_root.fish_reduce()
+    return new_root
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         # Each input line is a nested list. 
-        # Use literal_eval to convert to Python lists.
+        # Use literal_eval to convert each to a Python list.
         data = [literal_eval(line) for line in f.read().splitlines()]
-
-    root = parse(data[0])
-    i = 1
-    while i < len(data):
-        root = add(root, parse(data[i]))
-        i += 1
-
-    ans = magnitude(root)
-    print(ans)    
-
-    ans = 0
-    for i in range(len(data)):
-        for j in range(len(data)):
-            if i == j:
-                continue
-
-            a, b = parse(data[i]), parse(data[j])
-
-            if get_mag(a, b) > ans:
-                ans = get_mag(a, b)
-
-    print(ans)
+        
+    # Part 1 - Sum all numbers and report magnitude
+    result = reduce(add, map(FishNumber.parse, data))  # Reduce to add n to n+1, then the sum to n+2, etc
+    logger.info("Result = %s", result)
+    logger.info("Part 1 magnitude = %d", result.magnitude())
     
+    # Part 2
+    mags = []
+    for perm in permutations(data, 2): # All permutations of 2 fish numbers
+        # Quicker to parse the input data each time than deepcopy a FishNumber
+        result = add(FishNumber.parse(perm[0]), FishNumber.parse(perm[1]))
+        mags.append(result.magnitude())
+        
+    logger.info("Part 2: max magnitude = %d", max(mags))
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

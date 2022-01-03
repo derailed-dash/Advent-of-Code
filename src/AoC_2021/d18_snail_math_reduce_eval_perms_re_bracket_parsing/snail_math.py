@@ -4,6 +4,9 @@ Date: 18/12/2021
 
 Solving https://adventofcode.com/2021/day/18
 
+Solution 1 of 2:
+    This solution works, but is a bit slow due to all the string manipulation.
+
 We need to help the snailfish with their homework.
 Snailfish numbers are always pairs, where each element is either an int or a nested pair.
 E.g. [1,2] - the simplest snailfish number
@@ -42,7 +45,7 @@ Part 1:
     
     Create a FishNumber class to store the fish number as a list.
     Use literal_eval to read in the list and store as Python list.
-    Use functools.reduce() to pairwise add all the lines in the input data.
+    Use functools.reduce() to add all the lines in the input data, one pair at a time.
     Explode logic works by counting brackets, and some regex.
     Split logic works by regex to look for numbers with > 1 char.
     
