@@ -30,16 +30,16 @@ Part 2:
 """
 from __future__ import annotations
 import logging
-import os
+from pathlib import Path
 import time
 import re
 from collections import Counter, defaultdict
 from typing import NamedTuple
 from itertools import combinations, permutations
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-# INPUT_FILE = "input/sample_input.txt"
+SCRIPT_DIR = Path(__file__).parent
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR,s "input/sample_input.txt")
 
 logging.basicConfig(level=logging.DEBUG, 
                     format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
@@ -65,13 +65,15 @@ class Vector(NamedTuple):
                       self.z + other.z)
         
     def manhattan_distance_from(self, other: Vector) -> int:
-        return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)    
+        return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
+    
+    def __str__(self):
+        return f"({self.x},{self.y},{self.z})"
         
 MIN_OVERLAPPING_BEACONS = 12
 
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         data = f.read()
     
     beacons_by_scanner = get_beacons_and_scanners(data)  # {int: set(Vector)}
@@ -93,12 +95,12 @@ def main():
                                                    for vec in beacons_by_scanner[scanner]]
 
     while scanners_not_located:
-        found_location_found = None
+        scanner_location_found = None
         
         scanner = None
         for scanner in scanners_not_located:
-            if found_location_found:
-                continue   # restart the loop, with one fewer unlocated scanner
+            if scanner_location_found:
+                break   # restart the loop, with one fewer unlocated scanner
 
             # We now iterate through all the possible adjustments, one at a time
             for adjustment_ind in range(len(orientations)):
@@ -124,10 +126,12 @@ def main():
                         # via the scanner we've just located.
                         all_beacons.add(vec.add(scanner_vector))
                         
-                    found_location_found = scanner
-        
-        assert found_location_found, f"Can't get here if we haven't found our {scanner} location"    
-        scanners_not_located.remove(found_location_found)  # remove from list
+                    scanner_location_found = scanner
+                    logger.debug("Found scanner %d at %s; remaining=%d", 
+                                 scanner, scanner_vector, len(scanners_not_located))
+                    break
+           
+        scanners_not_located.remove(scanner_location_found)  # remove from list
       
     # Part 1
     logger.info("Part 1: Number of beacons = %d", len(all_beacons))
