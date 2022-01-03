@@ -4,20 +4,30 @@ Date: 19/12/2021
 
 Solving https://adventofcode.com/2021/day/19
 
+This solution takes about a minute to run for the real data.
+
+Input data is of multiple scanners, with each reporting the locations of many beacons.
+E.g.    --- scanner 0 ---
+        404,-588,-901
+        528,-643,409
+        -838,591,734
+        ...    
 Scanners can detect any beacons within 1000 units.
-Scanners report back these beacon positions, relative to the scanners.
+Scanners report back these beacon positions, relative to a given scanner.
 Scanners don't know their own positions; nor can they detect other scanners.
-We don't know scanner orientations, but probe vectors are always orthoganol.
+We don't know scanner orientations, but orientations are always orthogonal to other scanners.
 We're guaranteed at least 12 overlapping beacons per scanner.
 
 Part 1:
-    Assemble the map of beacon locations.  How mnay beacons are there?
+    Assemble the map of beacon locations.  How many beacons are there?
     
-    Read in all scanners and their beacon locations, as dict[scanner_num, dict[beacon_num, Vector]]
-    Create sets of located scanners and set of unlocated scanners.
-    Assume scanner 0 at Point 0,0,0 and is located.
+    Read in all scanners and their beacon locations, as dict[scanner_num, set(beacon vectors)]
+    Create a set of all located beacon vectors, relative to scanner 0.
+    Create a dict of located scanners (scanner #, vector) and a set of unlocated scanners.
+    Assume scanner 0 at Point 0,0,0.
+    Prepopulate all vectors for each scanner, given all possible scanner orientations.
     For at least two scanners, we should have vectors that when added, 
-    will match for n overlapping beacons.  
+    will match for n>=12 overlapping beacons.  
     Use these addition vectors to determine location of the the new beacons, relative to scanner 0.
     Union in these new locations to Scanner 0, and mark off the set as located.
     We need a predictable arrangement of orientations for each vector.
@@ -86,12 +96,15 @@ def main():
     scanners_not_located.remove(0)
 
     # Prepopulate all orientations per vector, per scanner
-    # will end up with dict of {scanner:{orientation_id:[vec1, vec2...]}}
+    # First, get the 48 possible (x,y,z) orientations, in predictable order
     orientations = get_orientations()
+    
+    # now apply the orientations to each set of beacons,
+    # to end up with dict of {scanner:{orientation_id:[vec1, vec2...]}}
     orientations_by_scanner = defaultdict(dict)
     for scanner in range(total_scanners):
-        for i, orientation in enumerate(orientations):
-            orientations_by_scanner[scanner][i] = [apply_orientation(orientation, vec) 
+        for orientation_index, orientation in enumerate(orientations):
+            orientations_by_scanner[scanner][orientation_index] = [apply_orientation(orientation, vec) 
                                                    for vec in beacons_by_scanner[scanner]]
 
     while scanners_not_located:
@@ -145,10 +158,14 @@ def main():
 
 def get_orientations() -> list[tuple]:
     """ Returns a set of 48 orientation parameters that can be applied to any vector
-    to deliver a consistent list of re-oriented vectors"""
+    to deliver a consistent list of re-oriented vectors
+    There are six permutations of (x,y,z), and for each, 
+    there are 8 permutations of inversions of axes x,y,z. """
     orientations = []
+    # The perms are the [x, y, z] index positions, i.e.
+    # [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
     for perm in list(permutations([0, 1, 2])):
-        orientations.append((perm, (0,0,0)))
+        orientations.append((perm, (0,0,0))) # e.g. ((0, 1, 2), (0, 0, 0))
         orientations.append((perm, (1,0,0)))
         orientations.append((perm, (0,1,0)))
         orientations.append((perm, (0,0,1)))
@@ -157,7 +174,7 @@ def get_orientations() -> list[tuple]:
         orientations.append((perm, (1,0,1)))
         orientations.append((perm, (1,1,1)))  # This one IS needed!    
         
-    return orientations
+    return orientations # [((0, 1, 2), (0, 0, 0)), ...]
         
 def apply_orientation(orientation: tuple, vector: Vector) -> Vector:
     """  Get a predictable orientation of a vector, given a permutation.
