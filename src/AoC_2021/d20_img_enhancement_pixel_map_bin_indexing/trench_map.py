@@ -4,7 +4,28 @@ Date: 20/12/2021
 
 Solving https://adventofcode.com/2021/day/20
 
+Mapping the ocean trench floor.  Input data made up of:
+- A single line 512-char image enhancement algorithm, e.g. ..#.#..#####.#.#.#.###.##.....###. etc.
+- A 2D grid of light pixels (#) and dark pixels (.)
+  E.g.  #..#.
+        #....
+        ##..#
+        ..#..
+        ..###
+
+The image enhancement algorithm takes each pixel in the grid, 
+looks at the 3x3 grid of pixels centred on that pixel, and coverts the grid to a 9-bit value 
+(where .=0 and #=1). The resulting number is a lookup index value for the algorithm line.
+Note that 0b111111111 = 511, so a 3x3 grid of all # would result in a lookup index of 511,
+i.e. the last char of the algorithm line. 
+The algorithm should be applied to each source pixel SIMULTANEOUSLY. 
+
+Consider the original image to be on an infinite canvas of dark pixels.
+Each pass of enhancement will change the original pixels, but will also grow the image at the border.
+
 Part 1:
+    How many pixels are lit after two iterations?
+    
     Store lit pixels in a set, usings coords from input str.
     Determine the bounds of the set.
     ImageArray class creates a set of deltas in order to generate a 3x3 grid of any given point.
@@ -21,13 +42,30 @@ Part 2:
 """
 from __future__ import annotations
 import logging
-import os
+from pathlib import Path
 import time
 from typing import NamedTuple
 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+SCRIPT_DIR = Path(__file__).parent
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+
 class Point(NamedTuple):
+    """ Point class, which knows how to return a 3x3 grid of all Points centred on itself. """    
+    
+    DELTAS = [(dx,dy) for dy in range(-1, 2) for dx in range(-1, 2)] 
+   
     x: int
     y: int
+    
+    def neighbours(self) -> list[Point]:
+        """ Return 3x3 grid of all points centered on itself """
+        return [Point(self.x+dx, self.y+dy) for dx,dy in Point.DELTAS] 
 
 class ImageArray():
     """ Stores array of pixels (points) in a set. 
@@ -36,33 +74,30 @@ class ImageArray():
     DARK = "."  # 0
     BIN_MAP = { DARK: '0', LIGHT: '1'}
     
-    def __init__(self, image_data, img_enhancement_map: str, canvas_char='.') -> None:
+    def __init__(self, image_data: str|set, img_enhancement_map: str, canvas_char='.') -> None:
         """ Create a new ImageArray, containing a set of lit pixels.
 
         Args:
-            image_data ([type]): Str representation or set.
+            image_data (str|set): Str representation or set.
             img_enhancement_map (str): Map used for enhancing the image.
-            expansion_char (str, optional): Typically DARK, but can be lit depending on enhancement map.
+            canvas_char (str, optional): Typically DARK, but can be lit depending on enhancement map.
         """
-        
-        delta = 1   # delta distance to use when finding neighbours
-        self._adjacent_deltas = [(dx,dy) for dy in range(-delta, delta+1) for dx in range(-delta, delta+1)]
-
         self._img_enhancement_map = img_enhancement_map
         
         if isinstance(image_data, str):
-            self._pixels = self._process_img_str(image_data)
+            self._pixels = self._process_img_str(image_data)    # convert to set
         else:
             assert isinstance(image_data, set)
             self._pixels = image_data
         
-        # bounds of set
+        # bounds of set, based on min and max coords in the set
         self._min_x = min(pixel.x for pixel in self._pixels)
         self._max_x = max(pixel.x for pixel in self._pixels)
         self._min_y = min(pixel.y for pixel in self._pixels)
         self._max_y = max(pixel.y for pixel in self._pixels)
         
-        self._canvas_char = canvas_char
+        # The background canvas char can be changed, depending on first and last chars of the enhancement map
+        self._canvas_char = canvas_char 
         
     def _process_img_str(self, image_data: str) -> set[Point]:
         """ Take a str of image data and convert to a set.
@@ -71,7 +106,7 @@ class ImageArray():
         
         for y, line in enumerate(image_data.splitlines()):
             for x, char in enumerate(line):
-                if char == ImageArray.LIGHT:
+                if char == ImageArray.LIGHT:    # only store lit pixels
                     pixels.add(Point(x, y))
         
         return pixels
@@ -90,13 +125,13 @@ class ImageArray():
         return "\n".join(lines)
                             
     @property
-    def lit(self) -> int:
+    def lit_count(self) -> int:
         """ Return count of lit pixels """
         return len(self._pixels)
 
     def enhance(self) -> ImageArray:
         """ Process all squares simultaneously, i.e. based on current state of all pixels.
-        Returns: ImageArray: New ImageArray, which will 1px bigger in all directions. """
+        Returns: New ImageArray, which will 1px bigger in all directions. """
         new_pixels = set()
         # Process using rules, with a 1px border around existing bounds
         for y in range(self._min_y-1, self._max_y+2):
@@ -111,6 +146,11 @@ class ImageArray():
         next_canvas_char = self._img_enhancement_map[ImageArray._surrounded_by_index(self._canvas_char)]   
         return ImageArray(new_pixels, self._img_enhancement_map, canvas_char=next_canvas_char)
     
+    def _outside_bounds(self, point: Point) -> bool:
+        """ Determine if the specified point is within the existing bounds of the image. """
+        return (point.x < self._min_x or point.x > self._max_x or
+                point.y < self._min_y or point.y > self._max_y)
+    
     @classmethod
     def _surrounded_by_index(cls, char: str) -> int:
         """ Get the mapping index for any char surrounded by . or # 
@@ -120,28 +160,25 @@ class ImageArray():
     
     def _image_enhancement_index(self, point: Point) -> int:
         """ Determine the decimal value of the 9-bit representation of this point.
-        The 9-bit representation of the point is based on the 3x3 grid of pixels 
-        with this point at the centre. Where any px is lit, the repr is 1, else 0.
+        The 9-bit representation of the point is based on the 3x3 grid of pixels with this point at the centre. 
+        Pixel lit (#) = 1, else 0.
         E.g. if only BR it lit, then the binary repr is 000000001.  If TL is lit, then 100000000.
         If the infinite canvas should be lit, then treat any pixels outside of 
         the current boundary as a lit pixel. """
         
         nine_box_bin = ""
-        for nine_box_point in self._yield_neighbours(point):
+        for nine_box_point in point.neighbours():   # process pixel by pixel
             if nine_box_point in self._pixels:  # If this is lit
                 nine_box_bin += ImageArray.BIN_MAP[ImageArray.LIGHT]
-            elif (nine_box_point.x < self._min_x or nine_box_point.x > self._max_x or
-                        nine_box_point.y < self._min_y or nine_box_point.y > self._max_y):
-                # Outside the bounds, i.e. in the infinite canvas area
+            elif (self._outside_bounds(nine_box_point)): # in the infinite canvas area
                 if self._canvas_char == ImageArray.LIGHT:
                     nine_box_bin += ImageArray.BIN_MAP[ImageArray.LIGHT]
                 else:
                     nine_box_bin += ImageArray.BIN_MAP[ImageArray.DARK]
-            else:
+            else:   # dark pixel, and within bounds
                 nine_box_bin += ImageArray.BIN_MAP[ImageArray.DARK]
         
-        res = int(nine_box_bin, 2)
-        return res
+        return int(nine_box_bin, 2)
     
     @staticmethod
     def convert_to_dec(input_str: str) -> int:
@@ -149,39 +186,30 @@ class ImageArray():
         assert len(input_str) == 9, "Valid input should be a nine-box str representation"
         return int(input_str, 2)
         
-    def _yield_neighbours(self, point:Point):
-        """ Yield 9x9 grid of points, surrounding and including self, starting TL and ending BR. """
-        for dx,dy in self._adjacent_deltas:
-            neighbour = Point(point.x+dx, point.y+dy)
-            yield neighbour
-                
     def __repr__(self) -> str:
         return self.render()
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-# INPUT_FILE = "input/sample_input.txt"
-
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
-
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         data = f.read().split("\n\n")
         
-    image_enhance_map = data[0] # 512 byte str
-    input_img = data[1]
-    
+    image_enhance_map, input_img = data
     image = ImageArray(input_img, image_enhance_map)
+
+    # Part 1 - Stop at 2 cycles
+    for i in range(2):
+        logger.debug("Image iteration %d", i)
+        image = image.enhance()
+
+    logger.debug("\n%s", image)
+    logger.info("Part 1: Lit=%d\n", image.lit_count)   
     
-    for i in range(50):
+    # Part 2 - Stop at 50 cycles
+    for i in range(2, 50):
         logger.debug("Image iteration %d", i)
         image = image.enhance()
         
-    logger.debug("%s\nLit=%d\n", image, image.lit)    
+    logger.info("Part 2: Lit=%d\n", image.lit_count)    
   
 if __name__ == "__main__":
     t1 = time.perf_counter()
