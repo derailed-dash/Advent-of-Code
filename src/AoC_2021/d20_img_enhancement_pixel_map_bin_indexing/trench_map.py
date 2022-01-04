@@ -57,6 +57,7 @@ SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 RENDER = True
+IMAGE_SIZE = 400
 OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
 OUTPUT_FILE = Path(OUTPUT_DIR, "trench_anim.gif")
 
@@ -116,7 +117,7 @@ class ImageArray():
         
         return pixels
     
-    def render(self) -> str:
+    def render_as_str(self) -> str:
         """ Generate str representation """
         lines = []    
         for y in range(self._min_y, self._max_y+1):
@@ -130,27 +131,23 @@ class ImageArray():
         return "\n".join(lines)
     
     def render_image(self) -> Image.Image:
-        '''Render this infinity bitmap as an image.'''
-        width = self._max_x - self._min_x + 1
-        height = self._max_y - self._min_y + 1
+        """ Render as an image """
+        width = (self._max_x+1) - self._min_x
+        height = (self._max_y+1) - self._min_y
 
-        WHITE = (255, 255, 255)
-        BLACK = (0, 0, 0)
-        GRAY = (127, 127, 127)
-
-        image = Image.new('RGB', (width, height), WHITE)
+        image = Image.new(mode='RGB', size=(width, height))
         image_data = []
         
-        for x in range(width):
-            for y in range(height):
+        for y in range(width):
+            for x in range(height):
                 x_val = x + self._min_x
                 y_val = y + self._min_y
                 point = Point(x_val, y_val)
 
                 if point in self._pixels:
-                    image_data.append(WHITE)
+                    image_data.append((255, 255, 255)) # lit pixels
                 else:
-                    image_data.append(BLACK)
+                    image_data.append((128, 0, 0)) # dark pixels
 
         image.putdata(image_data)
         return image   
@@ -218,40 +215,44 @@ class ImageArray():
         return int(input_str, 2)
         
     def __repr__(self) -> str:
-        return self.render()
+        return self.render_as_str()
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().split("\n\n")
         
     image_enhance_map, input_img = data
-    image = ImageArray(input_img, image_enhance_map)
+    trench_image = ImageArray(input_img, image_enhance_map)
     
-    base_image = image.render_image().resize((400, 400), Image.NEAREST)
     frames = []
+    if RENDER:
+        base_image = trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST)
 
     # Part 1 - Stop at 2 cycles
     for i in range(2):
         logger.debug("Image iteration %d", i)
-        image = image.enhance()
-        frames.append(image.render_image().resize((400, 400), Image.NEAREST))
+        trench_image = trench_image.enhance()
+        if RENDER:
+            frames.append(trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST))
     
-    if RENDER:
-        dir_path = Path(OUTPUT_FILE).parent
-        if not Path.exists(dir_path):
-            Path.mkdir(dir_path)
-        base_image.save(OUTPUT_FILE, save_all=True, duration=200, append_images=frames)
-        logger.info("Animation saved to %s", OUTPUT_FILE)        
-    
-    logger.info("Part 1: Lit=%d\n", image.lit_count)   
+    logger.info("Part 1: Lit=%d", trench_image.lit_count)   
     
     # Part 2 - Stop at 50 cycles
     for i in range(2, 50):
         logger.debug("Image iteration %d", i)
-        image = image.enhance()
-        
-    logger.info("Part 2: Lit=%d\n", image.lit_count)    
-  
+        trench_image = trench_image.enhance()
+        if RENDER:
+            frames.append(trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST))
+    
+    logger.info("Part 2: Lit=%d", trench_image.lit_count)   
+
+    if RENDER:
+        dir_path = Path(OUTPUT_FILE).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+        base_image.save(OUTPUT_FILE, save_all=True, duration=150, append_images=frames)
+        logger.info("Animation saved to %s", OUTPUT_FILE)
+
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()

@@ -4,21 +4,34 @@ Date: 21/12/2021
 
 Solving https://adventofcode.com/2021/day/21
 
+Dirac dice. Circular board wtih spaces marked 1-10.
+Starting space chosen randomly (input). Player 1 goes first.
+Player rolls die 3 times, adds up the score, and moves around the circle
+that many spaces.  Score is increased by the space the player lands on.
+Game ends when either player reaches 1000.
+
 Part 1:
+    - We're using deterministic die.
+      The value of each rolling increases by 1.  Wraps back around to 1 after 100. 
     - Player class to store player position and cumulative score.
     - Die class to store total rolls and return a die roll.
     - Game class that stores players and die, and knows how to play a game.
     - Game execution is through calling the _turn() method once per player, until target is reached.
     
 Part 2:
-    - 3-sided die. Each roll of the die splits the universe.
+    - We have a 3-sided die. Each roll of the die splits the universe.
+      In the three universes, the die outcomes are each of 1, 2, and 3.
+    - Determine every possible outcome.  Determine the player that wins in more universes.
+      Determine in how many universes that player wins.
+
+    - This requires a completely new solution, so we're not reusing Part 1.
     - Solve with dynamic processing, i.e. brute force + caching of game states.
-      Create a recursive function that returns the number of ways a player can win,
+    - Create a recursive function that returns the number of ways a player can win,
       with given position and score for both players.
       If score >= 21, that player has won.  For any other state, roll all possible roll triplets,
       update the player's position and score accordingly, then recurse next state with other player.
-      Cache using lru_cache decorator, 
-      which cases a function's return value with a key of the current function args.
+    - Cache using lru_cache decorator, 
+      which caches a function's return value with a key of the current function args.
 """
 from __future__ import annotations
 from functools import lru_cache
@@ -83,7 +96,7 @@ class Game():
     ROLLS_PER_TURN = 3    
     
     def __init__(self, players: list[Player], die: AbstractDie, target: int) -> None:
-        self._players = players  # OUr two players.
+        self._players = players  # Our two players.
         self._die = die          # Our die may be deterministic, so we need to store die state
         self._target = target    # The score a player needs to reach, to win the game    
     
@@ -117,8 +130,7 @@ class Game():
         new_total = old_total + new_posn  # Add new board position to existing player score
         self.players[player_num] = Player(new_posn, new_total)  # Update the player
         
-        return new_total     
-
+        return new_total
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -137,7 +149,7 @@ def main():
     won = game.play()
     
     total_rolls = game.die.total_rolls
-    logger.debug("Die has been rolled %d times", total_rolls)
+    logger.info("Die has been rolled %d times", total_rolls)
     logger.info("Player %d won with score of: %d", won+1, players[won].score)
     logger.info("Part 1 result = %d\n", total_rolls * min(player.score for player in game.players))
     
@@ -161,7 +173,7 @@ def count_wins(posn_a: int, posn_b: int, score_a: int, score_b: int) -> tuple[in
     Player a's turn.
 
     Returns:
-        tuple[int, int]: Ways to win for player a, player a
+        tuple[int, int]: (Ways to win for player a, ways to win for player b)
     """
     if score_a >= 21:
         return (1, 0)   # Player A has won; player B has lost. No other options are possible.
@@ -172,11 +184,13 @@ def count_wins(posn_a: int, posn_b: int, score_a: int, score_b: int) -> tuple[in
     result = (0, 0)     # Initialise; no wins yet
     
     # Sums of possible die rolls, i.e. 3**3 = 27 different ways of performing three rolls with 3-sided die.
+    # I.e. 1 way to score 3, 3 ways to score 4, 6 ways to score 5, etc.
+    # I.e. there are always 27 possible next game states from any given state.
     triple_roll_sums = [sum(prod) for prod in product(range(1, 4), repeat=3)] 
     
-    # For each triplet of die rolls the player could perform on their turn,
+    # For each triplet of die rolls Player A could perform on their turn,
     # perform the triplet roll to get a new game state, and then handover to player B to take their turn
-    for score in triple_roll_sums:  # 1x3, 3x4, 6x5, etc.
+    for score in triple_roll_sums:
         new_posn_a = (posn_a + score - 1) % Game.SPACES + 1     # move player
         new_score_a = score_a + new_posn_a                      # update player score
         

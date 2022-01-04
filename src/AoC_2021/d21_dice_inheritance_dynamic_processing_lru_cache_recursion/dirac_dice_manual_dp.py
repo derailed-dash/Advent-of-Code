@@ -4,20 +4,28 @@ Date: 21/12/2021
 
 Solving https://adventofcode.com/2021/day/21
 
+Dirac dice. Circular board wtih spaces marked 1-10.
+Starting space chosen randomly (input). Player 1 goes first.
+Player rolls die 3 times, adds up the score, and moves around the circle
+that many spaces.  Score is increased by the space the player lands on.
+Game ends when either player reaches 1000.
+
 Part 1:
+    - We're using deterministic die.
+      The value of each rolling increases by 1.  Wraps back around to 1 after 100. 
     - Player class to store player position and cumulative score.
     - Die class to store total rolls and return a die roll.
     - Game class that stores players and die, and knows how to play a game.
-        - Game execution is through calling the _turn() method once per player, until target is reached.
+    - Game execution is through calling the _turn() method once per player, until target is reached.
     
 Part 2:
     - 3-sided die. Each roll of the die splits the universe.
     - Solve with dynamic processing, i.e. brute force + caching of game states.
-      Create a recursive function that returns the number of ways a player can win,
+    - Create a recursive function that returns the number of ways a player can win,
       with given position and score for both players.
       If score >= 21, that player has won.  For any other state, roll all possible roll triplets,
       update the player's position and score accordingly, then recurse next state with other player.
-      Cache using a dict, which stores the arguments as key. 
+    - Cache using a dict, which stores the arguments as key. 
 """
 from __future__ import annotations
 import logging
@@ -146,7 +154,6 @@ def main():
     # How many ways can they win from this state?
     players = deepcopy(init_players)
     
-
     wins = count_wins(players[0].posn, players[1].posn, players[0].score, players[1].score)
     for i, win in enumerate(wins):
         logger.info("Player %d wins: %d", i+1, win)
