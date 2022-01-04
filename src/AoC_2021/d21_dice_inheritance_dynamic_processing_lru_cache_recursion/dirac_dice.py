@@ -21,7 +21,6 @@ Part 2:
       which cases a function's return value with a key of the current function args.
 """
 from __future__ import annotations
-from collections import Counter
 from functools import lru_cache
 import logging
 import os
@@ -34,10 +33,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class Player(NamedTuple):
     """ A player has a current position on the board, and a cumulative score """

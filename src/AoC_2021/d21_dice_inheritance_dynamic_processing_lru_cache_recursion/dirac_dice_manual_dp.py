@@ -20,8 +20,6 @@ Part 2:
       Cache using a dict, which stores the arguments as key. 
 """
 from __future__ import annotations
-from collections import Counter
-from functools import lru_cache
 import logging
 import os
 import time
@@ -33,10 +31,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 dp_cache = {} # Cache game states for our recursion
 
