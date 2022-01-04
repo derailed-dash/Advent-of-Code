@@ -45,6 +45,7 @@ import logging
 from pathlib import Path
 import time
 from typing import NamedTuple
+from PIL import Image
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
@@ -52,8 +53,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+
+RENDER = True
+OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
+OUTPUT_FILE = Path(OUTPUT_DIR, "trench_anim.gif")
 
 class Point(NamedTuple):
     """ Point class, which knows how to return a 3x3 grid of all Points centred on itself. """    
@@ -123,6 +128,32 @@ class ImageArray():
             lines.append(line)
             
         return "\n".join(lines)
+    
+    def render_image(self) -> Image.Image:
+        '''Render this infinity bitmap as an image.'''
+        width = self._max_x - self._min_x + 1
+        height = self._max_y - self._min_y + 1
+
+        WHITE = (255, 255, 255)
+        BLACK = (0, 0, 0)
+        GRAY = (127, 127, 127)
+
+        image = Image.new('RGB', (width, height), WHITE)
+        image_data = []
+        
+        for x in range(width):
+            for y in range(height):
+                x_val = x + self._min_x
+                y_val = y + self._min_y
+                point = Point(x_val, y_val)
+
+                if point in self._pixels:
+                    image_data.append(WHITE)
+                else:
+                    image_data.append(BLACK)
+
+        image.putdata(image_data)
+        return image   
                             
     @property
     def lit_count(self) -> int:
@@ -195,13 +226,23 @@ def main():
         
     image_enhance_map, input_img = data
     image = ImageArray(input_img, image_enhance_map)
+    
+    base_image = image.render_image().resize((400, 400), Image.NEAREST)
+    frames = []
 
     # Part 1 - Stop at 2 cycles
     for i in range(2):
         logger.debug("Image iteration %d", i)
         image = image.enhance()
-
-    logger.debug("\n%s", image)
+        frames.append(image.render_image().resize((400, 400), Image.NEAREST))
+    
+    if RENDER:
+        dir_path = Path(OUTPUT_FILE).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+        base_image.save(OUTPUT_FILE, save_all=True, duration=200, append_images=frames)
+        logger.info("Animation saved to %s", OUTPUT_FILE)        
+    
     logger.info("Part 1: Lit=%d\n", image.lit_count)   
     
     # Part 2 - Stop at 50 cycles
