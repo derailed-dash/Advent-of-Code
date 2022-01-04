@@ -4,7 +4,19 @@ Date: 22/12/2021
 
 Solving https://adventofcode.com/2021/day/22
 
+We need to reboot the reactor. The reactor is a large 3D grid of cubes.
+Each cube can be on or off. All off at the start of the reboot process.
+Follow a set of instructions to turn cubes on or off. Instructions are inclusive.
+
+Input looks like:   on x=10..12,y=10..12,z=10..12
+                    on x=11..13,y=11..13,z=11..13
+                    off x=9..11,y=9..11,z=9..11
+                    on x=10..10,y=10..10,z=10..10
+
 Part 1:
+    Only consider cubes where x,y,z are all in the range -50 to 50.
+    How many cubes are on at the end of the reboot?
+    
     Store a set of all 'on' cells.
     Use set algebra to union and diff, given instructions in the instr cuboid. 
     Only need to work within the bounds, which means a total solution space of 100x100x100, so only 1m cells.
@@ -26,6 +38,15 @@ import os
 import time
 import re
 from typing import NamedTuple
+
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+SCRIPT_DIR = os.path.dirname(__file__) 
+# INPUT_FILE = "input/input.txt"
+INPUT_FILE = "input/sample_input.txt"
 
 class Cuboid(NamedTuple):
     """ Stores the x, y and z coordinates that make up a cuboid.
@@ -122,6 +143,7 @@ class CuboidDeterminator():
     Then we sort them in each dimension, and have a map of each to an interval length. 
     Finally, intervals and their corresponding lengths can be used to determine 
     the size of 'on' cuboids. """
+    
     def __init__(self, instructions: list[tuple[str, Cuboid]], bound:int=0) -> None:
         self._instructions = instructions   # e.g. ("on", ((x1, x2), (y1, y2), (z1, z2)))
         self._bound = bound
@@ -178,10 +200,10 @@ class CuboidDeterminator():
         
         # Now apply on and off instructions
         # I.e. add or remove cuboids in the right order
-        for instruction in self._instructions:
+        for i, instruction in enumerate(self._instructions):
             instr = instruction[0]  # e.g. "on"
             cuboid = instruction[1]
-            logger.debug("%s: %s", instr, cuboid)
+            logger.debug("Instruction %d (of %d)=%s: %s", i+1, len(self._instructions), instr, cuboid)
             
             # unpack the vertices of this cuboid
             # E.g. (10, 12), (10, 12), (10, 12)
@@ -245,15 +267,6 @@ class CuboidDeterminator():
         self._max_y = max(self._max_y, cuboid.y_range[1])
         self._max_z = max(self._max_z, cuboid.z_range[1])
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-# INPUT_FILE = "input/sample_input.txt"
-
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
-
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
@@ -269,7 +282,8 @@ def main():
     
     # Part 1 - Count how many cubes are on, with small bounds
     cuboid = CuboidSet(bound=50)
-    for instr in instructions:
+    for i, instr in enumerate(instructions):
+        logger.debug("Processing instruction %d; there are %d left", i+1, len(instructions)-(i+1))
         cuboid.update(instr[0], instr[1])
 
     logger.info("Part 1 using CuboidSet - cubes on: %s\n", cuboid.cells_on)
