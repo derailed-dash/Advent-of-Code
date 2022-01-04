@@ -55,6 +55,7 @@ import re
 from collections import Counter, defaultdict
 from typing import NamedTuple
 from itertools import combinations, permutations
+import matplotlib.pyplot as plt
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
@@ -64,6 +65,10 @@ logger.setLevel(logging.DEBUG)
 SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+
+RENDER = True
+OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
+OUTPUT_FILE = Path(OUTPUT_DIR, "trajectory.png")
 
 MIN_OVERLAPPING_BEACONS = 12
 class Vector(NamedTuple):
@@ -92,6 +97,51 @@ class Vector(NamedTuple):
     def __str__(self):
         return f"({self.x},{self.y},{self.z})"
 
+def plot(scanner_locations: dict[int, Vector], beacon_locations: set[Vector], outputfile=None):
+    _ = plt.figure(111)
+    axes = plt.axes(projection="3d")
+    axes.set_xlabel("x")
+    axes.set_ylabel("y")
+    axes.set_zlabel("z")
+
+    axes.grid(True) # grid lines on
+    
+    x,y,z = zip(*scanner_locations.values())    # scanner locations
+    axes.scatter3D(x, y, z, marker="o", color='r', s=40, label="Sensor")
+    offset=50
+    for x, y, z, scanner in zip(x, y, z, scanner_locations.keys()): # add scanner numbers
+        axes.text3D(x+offset, y+offset, z+offset, s=scanner, color="red", fontweight="bold")
+    
+    x,y,z = zip(*beacon_locations)
+    axes.scatter3D(x, y, z, marker=".", c='blue', label="Probe", s=10)
+    
+    x_line = [min(x), max(x)]
+    y_line = [0, 0]
+    z_line = [0, 0]
+    plt.plot(x_line, y_line, z_line, color="black", linewidth=1)
+    
+    x_line = [0, 0]
+    y_line = [min(y), max(y)]
+    z_line = [0, 0]
+    plt.plot(x_line, y_line, z_line, color="black", linewidth=1)
+    
+    x_line = [0, 0]
+    y_line = [0, 0]
+    z_line = [min(z), max(z)]
+    plt.plot(x_line, y_line, z_line, color="black", linewidth=1)
+    
+    axes.legend()
+    plt.title("Scanner and Beacon Locations", fontweight="bold")
+
+    if outputfile:
+        dir_path = Path(outputfile).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+        plt.savefig(outputfile)
+        logger.info("Plot saved to %s", outputfile)        
+    else:
+        plt.show()
+    
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read()
@@ -167,6 +217,11 @@ def main():
         distances.append(combo[0].manhattan_distance_to(combo[1]))
         
     logger.info("Part 2: Max Manhattan distance = %d", max(distances))
+
+    if RENDER:
+        plot(scanner_locations, all_located_beacons) # show the plot    
+    else:
+        plot(scanner_locations, all_located_beacons, OUTPUT_FILE) # save the plot
 
 def get_orientations() -> tuple:
     """ Creates a set of 48 orientation parameters that can be applied to any vector
