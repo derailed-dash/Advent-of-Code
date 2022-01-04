@@ -52,6 +52,7 @@ from collections import deque
 import logging
 from pathlib import Path
 import time
+from typing import Optional
 
 SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
@@ -71,10 +72,10 @@ class FishNumber:
     def __init__(self, val=None):
         """ Create a new FishNumber. 
         If val is an int, then this is a leaf, and left/right will be None. """
-        self.val = val  # leaf node value
-        self.left: FishNumber = None
-        self.right: FishNumber = None
-        self.parent = None
+        self.val: Optional[int] = val  # leaf node value
+        self.left: Optional[FishNumber] = None
+        self.right: Optional[FishNumber] = None
+        self.parent: Optional[FishNumber] = None
     
     def __str__(self):
         if isinstance(self.val, int):
@@ -94,6 +95,7 @@ class FishNumber:
         if isinstance(self.val, int):
             return self.val
 
+        assert self.left and self.right, "Must have children"
         return 3 * self.left.magnitude() + 2 * self.right.magnitude()
     
     def fish_reduce(self):
@@ -108,7 +110,7 @@ class FishNumber:
             done = True
             
             # DFS through the tree, starting at the root
-            stack: deque[tuple[FishNumber, int]] = deque()
+            stack = deque()
             stack.append((self, 0))    # (tree, depth)
 
             while len(stack) > 0:
@@ -136,7 +138,7 @@ class FishNumber:
             assert done, "Done exploding"
 
             # Append to stack, from the top
-            stack: deque[tuple[FishNumber]] = deque()
+            stack = deque()
             stack.append(self)    # We don't care about depth now
             while len(stack) > 0:
                 node = stack.pop()
@@ -188,6 +190,7 @@ class FishNumber:
         # current node will be null if we previously reached the root (so no left value)
         # otherwise, we must have identified a left node, so come back down the left
         if current_node is not None:
+            assert current_node.left is not None, "There must be a left node"
             current_node = current_node.left
             while current_node.val is None: # must have two children
                 if current_node.right is not None:
