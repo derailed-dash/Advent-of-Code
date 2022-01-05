@@ -5,7 +5,7 @@ title: Dazbo's Advent of Code Walkthroughs
 
 I've been using [Advent of Code](https://adventofcode.com/){:target="_blank"} as a way to improve my Python skills. 
 Here I document my solutions across the various AoC years. 
-My hope is that this guide can help others to:
+My hope is that this guide will help others to:
 
 - Become more proficient with Python.
 - Solve AoC problems they might be stuck with.
