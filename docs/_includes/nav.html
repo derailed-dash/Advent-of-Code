@@ -1,12 +1,11 @@
 <nav>
     <ol class="breadcrumb">
-        <li class="breadcrumb-item{% if page.url == '/' %} active{% endif %}"><a href="{{ site.url }}/{{ site.baseurl }}/index.html">Home</a></li>
-        <li class="breadcrumb-item{% if page.url == '/2021/' %} active{% endif %}"><a href="{{ site.url }}/{{ site.baseurl }}/2021">2021</a></li>
-        <li class="breadcrumb-item">2020</li>
-        <li class="breadcrumb-item">2019</li>
-        <li class="breadcrumb-item">2018</li>
-        <li class="breadcrumb-item">2017</li>
-        <li class="breadcrumb-item">2016</li>
-        <li class="breadcrumb-item">2015</li>
+        {% for item in site.data.navigation %}
+        {% if item.mainnav %}
+        <li class="breadcrumb-item{% if page.url == item.link %} active{% endif %}">
+            <a href="{{ site.url }}/{{ site.baseurl }}/{{ item.link }}">{{ item.name }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
     </ol>
 </nav>

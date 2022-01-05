@@ -1,0 +1,15 @@
+# Tag any year as type "year"
+# Tag any day as type "day"
+# If a link should appear on the main nav, set mainnav: True
+- name: Home
+  link: /
+  mainnav: True
+- name: "2021"
+  link: /2021/
+  type: "year"
+  mainnav: True
+- name: 1
+  link: /2021/1
+  type: "day"
+  year: "2021"
+  mainnav: False

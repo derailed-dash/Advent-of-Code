@@ -1,13 +1,14 @@
 ---
 title: Advent of Code 2021
 ---
-# Welcome to {{ page.title }} 
-
-## {{ page.url }}
+# {{ page.title }} 
 
 ## Day Index
 
-- [Day 1](1)
-- TBC.
-
-{{ page.url }}
+<ul>
+  {% for item in site.data.navigation %}
+  {% if item.type == "day" and item.year == "2021" %}
+      <li><a href="{{ site.url }}/{{ site.baseurl }}/{{ item.link }}">{{ item.name }}</a></li>
+  {% endif %}
+  {% endfor %}
+</ul>

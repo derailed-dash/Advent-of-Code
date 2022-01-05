@@ -4,6 +4,13 @@ Date: 01/12/2021
 
 Solving https://adventofcode.com/2021/day/1
 
+Input looks like:
+199
+200
+208
+210
+200
+
 Part 1:
     From a list of depth figures, count how many times the depth increases.
 
@@ -12,7 +19,6 @@ Part 2:
     Let's use a deque (stack) with a window size of three.
 
 """
-from __future__ import absolute_import
 import logging
 import os
 import time
@@ -22,10 +28,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -59,8 +65,7 @@ def main():
     
     logger.info("Depth increases %d times", increase_counter)
 
-if __name__ == "__main__":
-    t1 = time.perf_counter()
-    main()
-    t2 = time.perf_counter()
-    logger.info("Execution time: %0.4f seconds", t2 - t1)
+t1 = time.perf_counter()
+main()
+t2 = time.perf_counter()
+logger.info("Execution time: %0.4f seconds", t2 - t1)
