@@ -2,6 +2,7 @@
 ---
 
 @import "{{ site.theme }}";
+
 html {
   background:#6C7989;
   background: #6C7989 linear-gradient(#9dafac, #3b4646) fixed;
@@ -53,6 +54,37 @@ header {
   padding:15px 20px;
   border-bottom:1px solid #B2D2E1;
 
+  .breadcrumb {
+    padding: 0px;
+    padding-top: 10px;
+    padding-right: 20px;    
+    font-size: 14px;
+    margin: 0; 
+    color:rgb(223, 112, 8);
+
+    .breadcrumb-item {
+      display: inline;
+      padding-right: 20px;
+
+      a {
+        color: #c5bdac;      
+      }
+    }
+
+    .active {
+      display: inline;
+      font-weight: bold;
+      
+      a {
+        color: #ffffff;          
+      }
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }    
+  }
+  
   h1 {
     margin:0;
     padding:0;
@@ -80,7 +112,7 @@ header {
       -webkit-font-smoothing:antialiased;
 
       a {
-        color:#06c;
+        color:rgb(208, 209, 188);
       }
 
       small {
@@ -99,7 +131,7 @@ header {
     top:20px;
     height:38px;
     padding:1px 0;
-    background:#1699b1;
+    background:#d3d2b0;
     background: linear-gradient(#835119, #1b150c);
     border-radius:5px;
     box-shadow: inset rgba(rgb(3, 3, 3), 0.45) 0 1px 0, inset rgba(#000, 0.2) 0 -1px 0;
@@ -113,15 +145,15 @@ header {
       top:-4px;
       right:-5px;
       bottom:-6px;
-      background:rgba(rgba(1, 29, 31, 0.959), 0.5);
+      background:rgba(rgba(41, 38, 25, 0.959), 0.5);
       border-radius: 8px;
-      box-shadow: rgba(rgb(8, 71, 80), 0.3) 0 -1px 0, inset rgba(rgb(126, 246, 255), 0.7) 0 -1px 0;
+      box-shadow: rgba(rgb(69, 76, 77), 0.3) 0 -1px 0, inset rgba(rgb(255, 250, 183), 0.7) 0 -1px 0;
     }
 
     li {
       width:79px;
       float:left;
-      border-right:1px solid #3A7CBE;
+      border-right:1px solid #80794c;
       height:38px;
 
       &.single {
