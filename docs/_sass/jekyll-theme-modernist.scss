@@ -3,15 +3,15 @@
 
 html {
   background:#6C7989;
-  background: #6C7989 linear-gradient(#6C7989, #434B55) fixed;
+  background: #6C7989 linear-gradient(#9dafac, #3b4646) fixed;
   height: 100%;
 }
 
 body {
   padding:50px 0;
   margin:0;
-  font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color:#555;
+  font:15px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color:rgb(39, 42, 43);
   font-weight:300;
   background:url('../images/checker.png') fixed;
   min-height: calc(100% - 100px);
@@ -30,7 +30,7 @@ header, section, footer {
 }
 
 a {
-  color:#069;
+  color:rgb(223, 112, 8);
   text-decoration:none;
 }
 
@@ -47,7 +47,7 @@ strong {
 header {
   border-radius: 8px 8px 0 0;
   background:#C6EAFA;
-  background: linear-gradient(#DDFBFC, #C6EAFA);
+  background: linear-gradient(#c05b09, #3d250e);
   position:relative;
   padding:15px 20px;
   border-bottom:1px solid #B2D2E1;
@@ -57,8 +57,8 @@ header {
     padding:0;
     font-size:24px;
     line-height:1.2;
-    color:#069;
-    text-shadow:rgba(#fff, 0.9) 0 1px 0;
+    color:#fff;
+    text-shadow:rgba(rgb(223, 146, 58), 0.9) 0 1px 0;
   }
 
   &.without-description h1 {
@@ -67,9 +67,10 @@ header {
 
   p {
     margin:0;
-    color:#61778B;
-    width:300px;
+    color:#ebebeb;
+    width:600px;
     font-size:13px;
+    font-weight: bold;
 
     &.view {
       display:none;
@@ -97,10 +98,10 @@ header {
     top:20px;
     height:38px;
     padding:1px 0;
-    background:#5198DF;
-    background: linear-gradient(#77B9FB, #3782CD);
+    background:#1699b1;
+    background: linear-gradient(#835119, #1b150c);
     border-radius:5px;
-    box-shadow: inset rgba(#fff, 0.45) 0 1px 0, inset rgba(#000, 0.2) 0 -1px 0;
+    box-shadow: inset rgba(rgb(3, 3, 3), 0.45) 0 1px 0, inset rgba(#000, 0.2) 0 -1px 0;
     width:auto;
 
     &:before {
@@ -111,9 +112,9 @@ header {
       top:-4px;
       right:-5px;
       bottom:-6px;
-      background:rgba(#000, 0.1);
+      background:rgba(rgba(1, 29, 31, 0.959), 0.5);
       border-radius: 8px;
-      box-shadow: rgba(#000, 0.2) 0 -1px 0, inset rgba(#fff, 0.7) 0 -1px 0;
+      box-shadow: rgba(rgb(8, 71, 80), 0.3) 0 -1px 0, inset rgba(rgb(126, 246, 255), 0.7) 0 -1px 0;
     }
 
     li {
@@ -161,7 +162,7 @@ header {
 
 section {
   padding:15px 20px;
-  font-size:15px;
+  font-size:16px;
   border-top:1px solid #fff;
   background: linear-gradient(#fafafa, #DEDEDE 700px);
   border-radius: 0 0 8px 8px;
@@ -277,10 +278,10 @@ kbd {
 }
 
 footer {
-  width:640px;
+  width:760px;
   margin:0 auto;
   padding:20px 0 0;
-  color:#ccc;
+  color:#ddd;
   overflow:hidden;
 
   a {
