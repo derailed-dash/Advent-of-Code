@@ -139,7 +139,6 @@ def vis_state(black_tiles, all_tiles, iteration):
     # plt.show()
     anim_frame_files.append(filename)
 
-
 def build_anim():
     with imageio.get_writer(ANIM_FILE, mode='I', fps=0.75) as writer:
         for filename in anim_frame_files:
