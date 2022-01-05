@@ -150,7 +150,7 @@ class Grid():
         # dynamically compute the marker size
         fig.canvas.draw()
         mkr_size = ((axes.get_window_extent().width / (max_x-min_x) * (45/fig.dpi)) ** 2)
-        return axes,mkr_size
+        return axes, mkr_size
     
     def build_anim(self):
         if not RENDER:

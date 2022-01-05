@@ -45,7 +45,7 @@ import logging
 from pathlib import Path
 import time
 from typing import NamedTuple
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
@@ -233,7 +233,9 @@ def main():
         logger.debug("Image iteration %d", i)
         trench_image = trench_image.enhance()
         if RENDER:
-            frames.append(trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST))
+            image = trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST)
+            add_cycle_count(image, i+1)
+            frames.append(image)
     
     logger.info("Part 1: Lit=%d", trench_image.lit_count)   
     
@@ -242,8 +244,9 @@ def main():
         logger.debug("Image iteration %d", i)
         trench_image = trench_image.enhance()
         if RENDER:
-            frames.append(trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST))
-    
+            image = trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST)
+            add_cycle_count(image, i+1)
+            frames.append(image)
     logger.info("Part 2: Lit=%d", trench_image.lit_count)   
 
     if RENDER:
@@ -252,7 +255,20 @@ def main():
             Path.mkdir(dir_path)
         base_image.save(OUTPUT_FILE, save_all=True, duration=150, append_images=frames)
         logger.info("Animation saved to %s", OUTPUT_FILE)
-
+        
+def add_cycle_count(image: Image.Image, counter: int):
+    # Add our cycle count text to the bottom right of the image
+    image_draw = ImageDraw.Draw(image)        
+    font = ImageFont.truetype('arial.ttf', 24)
+    text = str(counter)
+    rgba = (255, 255, 255, 255) # light blue
+    textwidth, textheight = image_draw.textsize(text, font)
+    im_width, im_height = image.size
+    margin = 10     # margin we want round the text to the edge
+    x_locn = im_width - textwidth - margin
+    y_locn = im_height - textheight - margin
+    image_draw.text((x_locn, y_locn), text, font=font, fill=rgba)
+        
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
