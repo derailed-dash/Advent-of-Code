@@ -36,6 +36,28 @@ a {
   text-decoration:none;
 }
 
+.dazbo-button {
+  background-color: #333;
+  color: white;
+  font-size: 20px;
+  transition-duration: 0.4s;
+  text-align: center;
+  display: inline-block;
+  border-radius: 2px; // rounded corners
+  border: 0px;
+  margin-right: 6px;
+  width: 36px;
+  height: 32px;
+  padding: 0px;
+  line-height: 32px;
+  vertical-align: middle;
+}
+
+.dazbo-button:hover {
+  background-color: #c05b09;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.3), 0 20px 35px 0 rgba(0,0,0,0.2);
+}
+
 p {
   margin:0 0 20px;
   padding:0;

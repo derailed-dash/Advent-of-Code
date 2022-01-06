@@ -1,16 +1,27 @@
 ---
 year: 2021
-day: 1
+day: 3
 title: Day 1
 ---
 {% assign the_year = site.data.navigation.pages | where: 'name', page.year %}
+{% assign prev = the_year[0].members | where: 'name', page.prev %}
+{% assign next = the_year[0].members | where: 'name', page.next %}
+{% assign prev = day | decrement %}
+{{ prev }}
+
 # {{ page.AoC }} {{ page.year }} - {{ page.title }}
 
 ## Key Links
+{% if prev_page[0] %}
+<button class="dazbo-button" onclick="window.location.href='{{ prev_page[0].link | relative_url }}';">&#8249;</button>
+{%- endif -%}
+{%- if next_page[0] -%}
+<button class="dazbo-button" onclick="window.location.href='{{ next_page[0].link | relative_url }}';">&#8250;</button>
+{% endif %}
+
 - [2021 Main Page]({{ the_year[0].link | relative_url }})
 - [My solution code]({{ site.github.repository_url }}/tree/master/src/AoC_2021){:target="_blank"}
 - AoC page: [Sonar Sweep](https://adventofcode.com/{{ page.year }}/day/{{ page.day }}){:target="_blank"}
-
 
 ## Solution Intro
 
