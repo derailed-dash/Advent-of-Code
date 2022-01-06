@@ -35,10 +35,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.DEBUG)
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -104,7 +104,6 @@ def filter_diag_vals(diag_values: list[str], least_common=False):
             break
             
     return diag_values[0] 
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

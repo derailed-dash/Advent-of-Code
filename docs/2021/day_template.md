@@ -2,16 +2,18 @@
 year: 2021
 day: 3
 title: Day 1
+aoc_title: Binary Diagnostic
 ---
 {% assign the_year = site.data.navigation.pages | where: 'name', page.year %}
-{% assign prev = the_year[0].members | where: 'name', page.prev %}
-{% assign next = the_year[0].members | where: 'name', page.next %}
-{% assign prev = day | decrement %}
-{{ prev }}
+{% assign next = page.day | plus: 1 %}
+{% assign prev = page.day | minus: 1 %}
+{% assign prev_page = the_year[0].members | where: 'name', prev %}
+{% assign next_page = the_year[0].members | where: 'name', next %}
+<img src="{{'/assets/images/sub_diving.jpg' | relative_url }}" alt="diving" style="margin:15px 10px 10px 10px; float: right; width:400px" />
 
 # {{ page.AoC }} {{ page.year }} - {{ page.title }}
 
-## Key Links
+## Useful Links
 {% if prev_page[0] %}
 <button class="dazbo-button" onclick="window.location.href='{{ prev_page[0].link | relative_url }}';">&#8249;</button>
 {%- endif -%}
@@ -25,7 +27,12 @@ title: Day 1
 
 ## Solution Intro
 
-As is typical for AoC, {{ title }} is a trivial challenge. 
+We need to...
+
+Input looks like...
+
+```
+```
 
 I wrote two different solutions to this problem.
 
@@ -33,6 +40,8 @@ I wrote two different solutions to this problem.
 - [Solution #2](#solution-2) - Making use of Numpy
 
 ## Solution #1
+
+### Setup
 
 ### Part 1
 
@@ -86,3 +95,10 @@ The rest of the setup is the same as before.
 ```
 
 And that's it!
+
+{% if prev_page[0] %}
+<button class="dazbo-button" onclick="window.location.href='{{ prev_page[0].link | relative_url }}';">&#8249;</button>
+{%- endif -%}
+{%- if next_page[0] -%}
+<button class="dazbo-button" onclick="window.location.href='{{ next_page[0].link | relative_url }}';">&#8250;</button>
+{% endif %}
