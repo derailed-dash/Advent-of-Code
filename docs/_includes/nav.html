@@ -1,9 +1,9 @@
 <nav>
     <ol class="breadcrumb">
-        {% assign navitems = site.data.navigation | where: 'mainnav', true %}
+        {% assign navitems = site.data.navigation.pages | where: 'mainnav', true %}
         {% for item in navitems %}
         <li class="breadcrumb-item{% if page.url == item.link %} active{% endif %}">
-            <a href="{{ site.url }}{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a>
+            <a href="{{ item.link | relative_url }}">{{ item.name }}</a>
         </li>
         {% endfor %}
     </ol>

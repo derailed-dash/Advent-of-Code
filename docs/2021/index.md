@@ -8,8 +8,8 @@ year: "2021"
 ## Day Index
 
 <ul>
-  {% assign the_year = site.data.navigation | where: 'name', page.year %}
+  {% assign the_year = site.data.navigation.pages | where: 'name', page.year %}
   {% for member in the_year[0].members %}
-      <li><a href="{{ site.url }}{{ site.baseurl }}{{ member.link }}">{{ member.name }}</a></li>
+      <li><a href="{{ member.link | relative_url }}">{{ member.name }}</a></li>
   {% endfor %}
 </ul>

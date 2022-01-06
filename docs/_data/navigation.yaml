@@ -1,6 +1,8 @@
 # Tag any year as type "year"
 # Tag any day as type "day"
 # If a link should appear on the main nav, set mainnav: True
+docs_title: Navigation
+pages:
 - name: Home
   link: /
   mainnav: True

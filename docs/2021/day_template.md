@@ -3,9 +3,11 @@ year: 2021
 day: 1
 title: Day 1
 ---
+{% assign the_year = site.data.navigation.pages | where: 'name', page.year %}
 # {{ page.AoC }} {{ page.year }} - {{ page.title }}
 
 ## Key Links
+- [2021 Main Page]({{ the_year[0].link | relative_url }})
 - [My solution code]({{ site.github.repository_url }}/tree/master/src/AoC_2021){:target="_blank"}
 - AoC page: [Sonar Sweep](https://adventofcode.com/{{ page.year }}/day/{{ page.day }}){:target="_blank"}
 

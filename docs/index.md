@@ -31,11 +31,11 @@ All the previous [AoC](https://adventofcode.com/2021/events){:target="_blank"} e
 Each day is split into a Part 1 and a Part 2.  A star is awarded for each completed challenge.
 **If you get 50 stars, you save Christmas!**
 
-[![Advent of Code](./assets/images/AoC-collect-stars.png)](https://adventofcode.com/2021/about){:target="_blank"}
+[![Advent of Code]({{ './assets/images/AoC-collect-stars.png' | relative_url }})](https://adventofcode.com/2021/about){:target="_blank"}
 
 ## My Solutions
 
 Feel free to peruse the [source code]({{ site.github.repository_url }}){:target="_blank"} directly.
 Each day gets its own folder, which is named for some of the key Python modules and techniques used in that solution.
 
-[<img src="./assets/images/AoC_src_folders.png" alt="drawing" style="width:300px;"/>]({{ site.github.repository_url }}/tree/master/src/){:target="_blank"}
+[<img src="{{ './assets/images/AoC_src_folders.png' | relative_url }}" alt="drawing" style="width:300px;"/>]({{ site.github.repository_url }}/tree/master/src/){:target="_blank"}
