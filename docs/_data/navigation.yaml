@@ -6,10 +6,9 @@
   mainnav: True
 - name: "2021"
   link: /2021/
-  type: "year"
   mainnav: True
-- name: 1
-  link: /2021/1
-  type: "day"
-  year: "2021"
-  mainnav: False
+  members:
+  - name: 1
+    link: /2021/1
+  - name: 2
+    link: /2021/2

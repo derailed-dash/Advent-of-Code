@@ -1,14 +1,15 @@
 ---
-title: Advent of Code 2021
+title: Advent of Code
+year: "2021"
 ---
-# {{ page.title }} 
+
+# {{ page.title }}-{{ page.year }} 
 
 ## Day Index
 
 <ul>
-  {% for item in site.data.navigation %}
-  {% if item.type == "day" and item.year == "2021" %}
-      <li><a href="{{ site.url }}{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a></li>
-  {% endif %}
+  {% assign the_year = site.data.navigation | where: 'name', page.year %}
+  {% for member in the_year[0].members %}
+      <li><a href="{{ site.url }}{{ site.baseurl }}{{ member.link }}">{{ member.name }}</a></li>
   {% endfor %}
 </ul>
