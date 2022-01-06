@@ -36,7 +36,7 @@ INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.DEBUG)
 
