@@ -53,7 +53,7 @@ def main():
     
     # Create a boolean np array of the same shape as bingo_cards, all False
     # E.g. with 100 bingo cards, the shape would be (100, 5, 5)
-    card_completion = np.full(bingo_cards.shape, False)
+    card_completion: np.ndarray = np.full(bingo_cards.shape, False)
     
     cards_winning = set()   # store each card that has won so far (just store the position ints)
     
@@ -63,7 +63,7 @@ def main():
         
         # find all locations on the card where we've matched THIS number
         # create a new np (bool) array accordingly
-        where_true = (bingo_cards == num_drawn) # where_true has same shape as cards
+        where_true: np.ndarray = (bingo_cards == num_drawn) # where_true has same shape as cards
         card_completion |= where_true   # update card completion array
         
         # Now determine which cards have won at this point
