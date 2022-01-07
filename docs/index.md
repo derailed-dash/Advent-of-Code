@@ -1,9 +1,11 @@
 ---
 title: Dazbo's Advent of Code Walkthroughs
 ---
+<img src="{{'/assets/images/AoC-tree.png' | relative_url }}" alt="Advent of Code" style="margin:15px 10px 10px 15px; float: right; width:225px" />
+
 # Welcome to {{ page.title }}
 
-I've been using [Advent of Code](https://adventofcode.com/){:target="_blank"} as a way to improve my Python skills. 
+I've been using [Advent of Code](https://adventofcode.com/){:target="_blank"} as a way to improve my [Python](https://www.python.org/){:target="_blank"} skills. 
 Here I document my solutions across the various AoC years. 
 My hope is that this guide will help others to:
 
