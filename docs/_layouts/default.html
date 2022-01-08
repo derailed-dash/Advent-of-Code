@@ -23,15 +23,14 @@
         {% if site.description or site.github.project_tagline %}
           <p>{{ site.description | default: site.github.project_tagline }}</p>
         {% endif %}
-        <p class="view"><a href="{{ site.github.repository_url }}" target="_blank">View the Project on GitHub <small>{{ github_name }}</small></a></p>
+        {% include nav.html %}
         <ul>
         {% if site.show_downloads %}
-          <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
-          <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="{{ site.github.zip_url }}" target="_blank">Download <strong>ZIP File</strong></a></li>
+          <li><a href="{{ site.github.tar_url }}" target="_blank">Download <strong>TAR Ball</strong></a></li>
         {% endif %}
           <li><a href="{{ site.github.repository_url }}" target="_blank">View On <strong>GitHub</strong></a></li>
         </ul>
-        {% include nav.html %}
       </header>
       <section>
       {{ content }}

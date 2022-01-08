@@ -24,8 +24,10 @@ description: Dazbo's Advent of Code solutions, written in Python
 # We need the URLs below otherwise overriding CSS wont work
 baseurl: /Advent-of-Code
 url: https://derailed-dash.github.io
+
 twitter_username: DerailedDash
 github_username:  Derailed-Dash
+author: Dazbo
 
 # Build settings
 theme: jekyll-theme-modernist
