@@ -20,3 +20,6 @@ pages:
     link: /2021/4
   - name: 5
     link: /2021/5
+- name: "2020"
+  link: /2020/
+  mainnav: True
