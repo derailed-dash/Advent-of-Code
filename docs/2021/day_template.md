@@ -1,7 +1,4 @@
 ---
-layout: day-page
-topic: Advent of Code
-year: 2021
 day: 3
 title: Day 3
 problem: Binary Diagnostic

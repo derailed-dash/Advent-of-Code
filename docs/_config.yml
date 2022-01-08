@@ -28,7 +28,6 @@ twitter_username: DerailedDash
 github_username:  Derailed-Dash
 
 # Build settings
-# remote_theme: pages-themes/modernist@v0.2.0
 theme: jekyll-theme-modernist
 #theme: minima
 plugins:
@@ -54,3 +53,14 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+defaults:
+  - scope:
+      path: ""  # Everything
+    values:
+      layout: "day-page"  # most of our pages will use this layout; use default for index
+      topic: "Advent of Code"
+  - scope:
+      path: "2021"  # only apply to files in this folder
+    values:
+      year: 2021

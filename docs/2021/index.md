@@ -1,9 +1,8 @@
 ---
-title: Advent of Code
-year: "2021"
+layout: default
+title: Advent of Code 2021
 ---
-
-# {{ page.title }}-{{ page.year }} 
+# {{ page.topic}} {{ page.year }}
 
 ## Day Index
 

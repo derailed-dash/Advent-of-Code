@@ -1,4 +1,5 @@
 ---
+layout: default
 title: Dazbo's Advent of Code Walkthroughs
 ---
 <img src="{{'/assets/images/AoC-tree.png' | relative_url }}" alt="Advent of Code" style="margin:15px 10px 10px 15px; float: right; width:225px" />
