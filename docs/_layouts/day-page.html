@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+{% seo %}
+
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <script src="{{ '/assets/js/scale.fix.js' | relative_url }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    {% include head-custom.html %}
+  </head>
+  <body>
+    <div class="wrapper">
+      <header {% unless site.description or site.github.project_tagline %} class="without-description" {% endunless %}>
+        <h1>{{ site.title | default: site.github.repository_name }}</h1>
+        {% if site.description or site.github.project_tagline %}
+          <p>{{ site.description | default: site.github.project_tagline }}</p>
+        {% endif %}
+        <p class="view"><a href="{{ site.github.repository_url }}" target="_blank">View the Project on GitHub <small>{{ github_name }}</small></a></p>
+        <ul>
+        {% if site.show_downloads %}
+          <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
+          <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
+        {% endif %}
+          <li><a href="{{ site.github.repository_url }}" target="_blank">View On <strong>GitHub</strong></a></li>
+        </ul>
+        {% include nav.html %}
+      </header>
+      <section>
+{% assign the_year = site.data.navigation.pages | where: 'name', page.year %}
+{% assign next = page.day | plus: 1 %}
+{% assign prev = page.day | minus: 1 %}
+{% assign prev_page = the_year[0].members | where: 'name', prev %}
+{% assign next_page = the_year[0].members | where: 'name', next %}
+<img src="{{ page.main_img.link | relative_url }}" alt="{{ page.main_img.name }}" style="margin:15px 10px 10px 10px; float: right; width:330px" />
+
+<h1>{{ page.topic}} {{ page.year }}</h1>
+
+<p>
+  <a class="dazbo-link-button" href='https://adventofcode.com/{{ page.year }}/day/{{ page.day }}' target="_blank">{{ page.title }}: {{ page.problem }}</a>
+</p>
+
+<h2>Useful Links</h2>
+
+<p>
+{% if prev_page[0] %}<a class="dazbo-link-button nav-button" href="{{ prev_page[0].link | relative_url }}">&#8249;</a>{%- endif -%}
+{%- if next_page[0] -%}<a class="dazbo-link-button nav-button" href="{{ next_page[0].link | relative_url }}">&#8250;</a>{% endif %}
+</p>
+
+<ul>
+  <li><a href="{{ the_year[0].link | relative_url }}">{{ page.year }} Main Page</a></li>
+  <li><a href="{{ site.github.repository_url }}/tree/master/src/AoC_2021" target="_blank">My solution code</a></li>
+</ul>
+
+<h2>Concepts and Packages Demonstrated</h2>
+
+<p>{% for item in page.tags %}
+{%- if item.link -%}
+<a class="dazbo-link-button" href='{{ item.link }}' target="_blank">{{ item.name }}</a>
+{%- endif -%}
+{% endfor %}
+</p>
+
+<p>
+{% for item in page.tags %}
+{%- if item.link == Nil -%}
+<span class="dazbo-nolink-button">{{ item.name }}</span>
+{%- endif -%}
+{% endfor %}
+</p>
+{{ content }}
+
+<p>
+  {% if prev_page[0] %}<a class="dazbo-link-button nav-button" href="{{ prev_page[0].link | relative_url }}">&#8249;</a>{%- endif -%}
+  {%- if next_page[0] -%}<a class="dazbo-link-button nav-button" href="{{ next_page[0].link | relative_url }}">&#8250;</a>{% endif %}
+</p>
+      </section>
+    </div>
+    <footer>
+    {% if site.github.is_project_page %}
+      <p>Project maintained by <a href="{{ site.github.owner_url }}" target="_blank">{{ site.github.owner_name }}</a></p>
+    {% endif %}
+      <p>Hosted on GitHub Pages</p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+  </body>
+</html>
