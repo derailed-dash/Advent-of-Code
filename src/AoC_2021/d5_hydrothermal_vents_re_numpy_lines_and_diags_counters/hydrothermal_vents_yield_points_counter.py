@@ -33,10 +33,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 class Point(NamedTuple):
     x: int
@@ -93,6 +93,7 @@ def main():
     dangerous_vents = sum(1 for point, count in vents_counter.items() if count >= 2)
     logger.info("Part 1 dangerous vents: %d", dangerous_vents)
     
+    # Part 2
     vents_counter = Counter()    
     for line in vents:
         for point in line.points():
