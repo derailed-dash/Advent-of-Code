@@ -50,7 +50,6 @@ Part 2:
     Finally, return the map of str to digit values, and use to lookup, 
     for the outputs of each matching row.
 """
-from __future__ import absolute_import
 import logging
 import os
 import time
