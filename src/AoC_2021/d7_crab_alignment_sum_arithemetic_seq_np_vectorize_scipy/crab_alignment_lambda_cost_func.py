@@ -44,7 +44,6 @@ def main():
     with open(input_file, mode="rt") as f:
         data = [int(x) for x in f.read().split(",")]
     
-    data.sort()     # in place sort
     logger.info("Part 1 min cost: %s", get_min_cost(data))
     logger.info("Part 2 min cost: %s", get_min_cost(data, lambda n: n*(n+1)/2)) 
 
@@ -67,7 +66,7 @@ def get_min_cost(data, cost_func=lambda x: x) -> tuple:
         for posn in data:
             individual_costs.append(cost_func(abs(posn - i)))
         
-        costs[i] = sum(individual_costs)    # sun of all the costs to reach this position
+        costs[i] = int(sum(individual_costs))    # sun of all the costs to reach this position
 
     min_cost = min(costs.items(), key=lambda x: x[1])
     return min_cost   

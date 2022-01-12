@@ -51,10 +51,10 @@ def main():
     cost_part_1 = optimize.minimize_scalar(cost, args=(data))
     logger.info("Part 1 min cost: %s", round(cost_part_1.fun))
     
-    cost_part_2 = optimize.minimize_scalar(cost, args=(data, lambda x: x*(x+1)/2))
+    cost_part_2 = optimize.minimize_scalar(cost, args=(data, lambda n: n*(n+1)/2))
     logger.info("Part 2 min cost: %s", round(cost_part_2.fun)) 
-
-def cost(posn: int, data: np.ndarray, cost_func=lambda x: 1*x) -> int:
+        
+def cost(posn: int, data: np.ndarray, cost_func=lambda n: n) -> int:
     """ Return the sum of applying the cost_func to get to position n, for every item in the array.
 
     Args:
@@ -62,7 +62,7 @@ def cost(posn: int, data: np.ndarray, cost_func=lambda x: 1*x) -> int:
         data (ndarray): The initial crab positions
         cost_func (func, optional): Determines the cost for a given distance.
                                     Defaults to a cost of 1 per unit distance. """
-    return np.abs(cost_func(posn-data)).sum()
+    return cost_func(np.abs(posn-data)).sum()
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
