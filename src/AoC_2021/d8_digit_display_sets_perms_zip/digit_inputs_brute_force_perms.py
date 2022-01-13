@@ -91,15 +91,15 @@ def main():
         outputs.append(["".join(sorted(signal)) for signal in four_digit_outputs.split()])
     
     # Count how many segments are used for each digit      
-    simple_digits_counts = defaultdict(list)
-    for simple_digit_segments in VALID_DIGITS:
-        # store as {count: [digit_segments]}
-        simple_digits_counts[len(simple_digit_segments)].append(simple_digit_segments)
+    digit_counts = defaultdict(list)
+    for digit_segments in VALID_DIGITS:
+        # store as {count: [digit_segments]}, e.g. 2: ['cf'], 5: ['acdeg', 'acdfg', 'abdfg']
+        digit_counts[len(digit_segments)].append(digit_segments)
+    
     # filter simple_digits to include only ["cf", "bcdf", "acf", "abcdefg"]:
-    simple_digits = [v[0] for k, v in simple_digits_counts.items() if len(v) == 1]  
+    simple_digits = [v[0] for k, v in digit_counts.items() if len(v) == 1]  
     
     count_simple_digits_in_output = 0
-
     numeric_outputs = []
     
     # process each row of data; different rows require different perms
@@ -116,13 +116,10 @@ def main():
             unscramble_map = dict(zip(SEGMENTS, perm))
             
             try:    # use try-except pattern for continuing outer loop
-                unscrambled_input = []
                 for word in input_row:
                     unscrambled_word = unscramble(word, unscramble_map)
                     if unscrambled_word not in VALID_DIGITS:
                         raise StopIteration     # if any unscrambled not in valid
-                    else:
-                        unscrambled_input.append(unscrambled_word)
             except StopIteration:
                 continue    # continue to next permutation
             
