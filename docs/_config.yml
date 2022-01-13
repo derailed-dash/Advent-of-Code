@@ -22,6 +22,7 @@ title: Advent of Code Walkthroughs
 description: Dazbo's Advent of Code solutions, written in Python
 
 # We need the URLs below otherwise overriding CSS wont work
+repository: derailed-dash/derailed-dash.github.io
 baseurl: /Advent-of-Code
 url: https://derailed-dash.github.io
 
