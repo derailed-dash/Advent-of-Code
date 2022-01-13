@@ -34,7 +34,7 @@ Solution 2:
 Part 1:
     Counting digits in output values only, how many times do digits 1, 4, 7 and 8 appear?
     
-    Read in inputs and outputs into two lists of sorted strings.
+    Read in signals and outputs into two lists of sorted strings.
     Only digits 1, 4, 7 and 8 are rendered by unique counts of segments.
     Work out which digits corresponds to these unique counts for each row of output.
     Then count the total of all the digits.  Easy!
@@ -84,11 +84,11 @@ def main():
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
     
-    input_signals = []      # list of lists of 10 * sorted input values
+    signals = []      # list of lists of 10 * sorted input values
     outputs = []            # list of lists of  4 * sorted output values
     for line in data:
-        four_digit_signals, four_digit_outputs = line.split("|")
-        input_signals.append(["".join(sorted(signal)) for signal in four_digit_signals.split()])
+        digit_signals, four_digit_outputs = line.split("|")
+        signals.append(["".join(sorted(signal)) for signal in digit_signals.split()])
         outputs.append(["".join(sorted(signal)) for signal in four_digit_outputs.split()])
     
     numeric_outputs = []
@@ -104,7 +104,7 @@ def main():
     count_simple_digits_in_output = 0
     
     # process each row of data; different rows require different perms
-    for row_num, input_row in enumerate(input_signals): 
+    for row_num, input_row in enumerate(signals): 
         
         # There are 5040 (7!) permutations of input signals (segments)
         # Only one will be valid for any given line

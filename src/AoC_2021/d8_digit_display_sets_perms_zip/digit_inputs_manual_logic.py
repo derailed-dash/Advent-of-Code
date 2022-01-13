@@ -27,7 +27,7 @@ Solution 1:
 Part 1:
     Counting digits in output values only, how many times to 1, 4, 7 and 8 appear?
     
-    Read in inputs and outputs into two lists of sorted strings.
+    Read in signals and outputs into two lists of sorted strings.
     Only digits 1, 4, 7 and 8 are rendered by unique counts of segments.
     Work out which digits corresponds to these unique counts for each row of output.
     Then count the total of all the digits.  Easy!
@@ -63,19 +63,6 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
-valid_digits = {    # {digit_num: set(inputs)}
-    0: "abcefg",
-    1: "cf",
-    2: "acdeg",
-    3: "acdfg",
-    4: "bcdf",
-    5: "abdfg",
-    6: "abdefg",
-    7: "acf",
-    8: "abcdefg",
-    9: "abcdfg"
-}
-
 unique_segment_counts = {2: 1, 4: 4, 3: 7, 7: 8}   # {count: digit}
 
 def main():
@@ -83,11 +70,11 @@ def main():
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
     
-    input_signals = []      # list of lists of sorted input values
+    signals = []      # list of lists of sorted input values
     outputs = []            # list of lists of sorted output values
     for line in data:
-        four_digit_signals, four_digit_outputs = line.split("|")
-        input_signals.append(["".join(sorted(signal)) for signal in four_digit_signals.split()])
+        digit_signals, four_digit_outputs = line.split("|")
+        signals.append(["".join(sorted(signal)) for signal in digit_signals.split()])
         outputs.append(["".join(sorted(signal)) for signal in four_digit_outputs.split()])
     
     # Part 1
@@ -102,14 +89,14 @@ def main():
     
     # Part 2
     outs = []
-    for i, input_line in enumerate(input_signals):
-        digit_inputs = determine_inputs(input_line)       
+    for i, input_line in enumerate(signals):
+        signal_map = determine_signal_map(input_line)       
         
-        outs.append(int("".join([str(digit_inputs[output]) for output in outputs[i]])))
+        outs.append(int("".join([str(signal_map[output]) for output in outputs[i]])))
 
     logger.info("Sum of outputs: %d", sum(outs))
 
-def determine_inputs(input_line):
+def determine_signal_map(input_line):
     """ Returns: {str: digit} map """
     segments = {}        # {segment: set(inputs)}
     seg_candidates = {}  # {segment: set(inputs)}
