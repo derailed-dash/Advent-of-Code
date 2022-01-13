@@ -42,10 +42,10 @@ Part 2:
     We can propose candidates for c/f, since they're in 1.
     We can propose candidates for b/d, since they're in 4, but not 7.
     We can determine 3, since it's the only 5-segment digit that contains 1. (Leaving 2, 5.)
-    We can determine d, since it's the intersection of 3 and b/d.  Now we know c also.
-    5 is the intersection of 2,5 and d.  Now we know 2 also.
-    We can determine 9, since it's the only 6-segment digit that contains 4. (Leaving 0, 9.)
-    We can determine 0, since it's the only one of 0,9 that contains d.  Now we also know 9.
+    We can determine d, since it's the intersection of 3 and b+d.  Now we know b also.
+    5 is the intersection of digits 2,5 and segment b.  Now we know 2 also, since it's the only 5 segment left.
+    We can determine 9, since it's the only 6-segment digit that contains 4. (Leaving 0, 6.)
+    We can determine 0, since it's the only one of 0,9 that contains d.  Now we also know 6.
     
     Finally, return the map of str to digit values, and use to lookup, 
     for the outputs of each matching row.
@@ -70,8 +70,8 @@ def main():
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
     
-    signals = []      # list of lists of sorted input values
-    outputs = []            # list of lists of sorted output values
+    signals = []      # list of lists of sorted segment signals for all digits
+    outputs = []      # list of lists of sorted output values
     for line in data:
         digit_signals, four_digit_outputs = line.split("|")
         signals.append(["".join(sorted(signal)) for signal in digit_signals.split()])
@@ -97,14 +97,15 @@ def main():
     logger.info("Sum of outputs: %d", sum(outs))
 
 def determine_signal_map(input_line):
-    """ Returns: {str: digit} map """
+    """ Return a dict that maps the str representation of the segments to the digit they produce """
     segments = {}        # {segment: set(inputs)}
     seg_candidates = {}  # {segment: set(inputs)}
+    
+    # create a list, containing a set of signals for each (unknown) unique digit
+    digit_signals = [set(input) for input in input_line] 
         
-    all_inputs = [set(input) for input in input_line] # all unique inputs for 0-9
-        
-    # First let's map the easy digits to segments, in the form {digit: set(inputs)}
-    # We know 1, 4, 7, 8
+    # First let's map the easy digits to segment sets, in the form {digit: set(signals)}
+    # We know 1, 4, 7, 8.  E.g. {1: {'g', 'c'}, ...}
     known_digits = {unique_segment_counts[len(input)]: set(input) 
                   for input in input_line if len(input) in unique_segment_counts}
     
@@ -112,7 +113,7 @@ def determine_signal_map(input_line):
     seg_candidates["b"] = seg_candidates["d"] = known_digits[4] - known_digits[7] # b, d are in 4 but not in 7
     seg_candidates["c"] = seg_candidates["f"] = known_digits[1] # c, f are in 1        
         
-    unknown_digits_with_five_segments = [digit for digit in all_inputs if len(digit)==5] # 2, 3, 5
+    unknown_digits_with_five_segments = [digit for digit in digit_signals if len(digit)==5] # 2, 3, 5
     known_digits[3] = [digit for digit in unknown_digits_with_five_segments 
                            if digit > known_digits[1]][0]       # Only digit 3 contains digit 1
     unknown_digits_with_five_segments.remove(known_digits[3])   # Leaving 2, 5
@@ -125,9 +126,8 @@ def determine_signal_map(input_line):
                            if digit > segments["b"]][0]
     unknown_digits_with_five_segments.remove(known_digits[5])  # Leaving 2.
     known_digits[2] = unknown_digits_with_five_segments[0]
-        
 
-    unknown_digits_with_six_segments = [digit for digit in all_inputs if len(digit)==6] # 0, 6, 9
+    unknown_digits_with_six_segments = [digit for digit in digit_signals if len(digit)==6] # 0, 6, 9
     known_digits[9] = [digit for digit in unknown_digits_with_six_segments 
                            if digit > known_digits[4]][0]    # 9 is the only one that contains 4
     unknown_digits_with_six_segments.remove(known_digits[9]) # 0, 6 remaining

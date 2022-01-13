@@ -47,7 +47,6 @@ Part 2:
     There are 7! (5040) permutations of segments. 
     So we can map each permutation to the input strings, and see which produces valid output.
 """
-from __future__ import absolute_import
 from collections import defaultdict
 import logging
 import os
@@ -58,10 +57,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 SEGMENTS = "abcdefg"
 
@@ -84,14 +83,12 @@ def main():
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
     
-    signals = []      # list of lists of 10 * sorted input values
-    outputs = []            # list of lists of  4 * sorted output values
+    signals = []      # list of lists of sorted segment signals for all digits
+    outputs = []      # list of lists of 4 * sorted output values
     for line in data:
         digit_signals, four_digit_outputs = line.split("|")
         signals.append(["".join(sorted(signal)) for signal in digit_signals.split()])
         outputs.append(["".join(sorted(signal)) for signal in four_digit_outputs.split()])
-    
-    numeric_outputs = []
     
     # Count how many segments are used for each digit      
     simple_digits_counts = defaultdict(list)
@@ -102,6 +99,8 @@ def main():
     simple_digits = [v[0] for k, v in simple_digits_counts.items() if len(v) == 1]  
     
     count_simple_digits_in_output = 0
+
+    numeric_outputs = []
     
     # process each row of data; different rows require different perms
     for row_num, input_row in enumerate(signals): 
@@ -146,7 +145,7 @@ def main():
     
 def unscramble(word, unscramble_map: dict) -> str:
     """ Takes a scrambled input word, and converts to unscrambled.
-
+    
     Args:
         word (str): Scrambled input
         unscramble_map (dict): Map of scrambled char->unscrambled char """
