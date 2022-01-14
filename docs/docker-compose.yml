@@ -3,7 +3,7 @@ services:
   jekyll-aoc:
     environment:
       - JEKYLL_ENV=docker
-    command: jekyll serve --force-polling --watch --incremental --config  _config.yml,_config.docker.yml
+    command: jekyll serve --force-polling --watch --incremental --config _config.yml,_config.docker.yml
     image: jekyll/jekyll
     volumes:
       - .:/srv/jekyll
