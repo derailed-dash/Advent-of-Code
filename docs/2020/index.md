@@ -4,7 +4,7 @@ title: Advent of Code 2020
 ---
 # {{ page.topic}} {{ page.year }}
 
-Sorry, still working through 2021 documentation!  This might take a while!
+Sorry, still working through 2021 documentation!
 
 ## Day Index
 
