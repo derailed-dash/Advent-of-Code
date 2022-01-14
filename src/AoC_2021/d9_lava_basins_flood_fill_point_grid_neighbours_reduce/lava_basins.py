@@ -36,10 +36,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.DEBUG)
 
 @dataclass(frozen=True)
 class Point():
@@ -65,14 +65,6 @@ class Grid():
         self._width = len(self._array[0])
         self._height = len(self._array)
         
-    @property
-    def x_size(self):
-        return self._width
-    
-    @property
-    def y_size(self):
-        return self._height
-
     def height_at_point(self, point: Point) -> int:
         """ Height is given by the value at this point """
         return self._array[point.y][point.x]
@@ -85,8 +77,8 @@ class Grid():
         """ Returns all low points in the grid """
         low_points = set()
         
-        for y in range(self.y_size):
-            for x in range(self.x_size):
+        for y in range(self._height):
+            for x in range(self._width):
                 point = Point(x, y)
                 if self.is_low_point(point):
                     low_points.add(point)
@@ -106,7 +98,7 @@ class Grid():
                    
     def valid_location(self, point: Point) -> bool:
         """ Check if a location is within the grid """
-        if (0 <= point.x < self.x_size and  0 <= point.y < self.y_size):
+        if (0 <= point.x < self._width and  0 <= point.y < self._height):
             return True
         
         return False
