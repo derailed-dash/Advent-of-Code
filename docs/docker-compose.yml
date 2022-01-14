@@ -2,11 +2,11 @@ version: '3.9'
 services:
   jekyll-aoc:
     environment:
-      - JEKYLL_ENV=docker
-    command: jekyll serve --force-polling --watch --incremental --config _config.yml,_config.docker.yml
+      - JEKYLL_ENV=docker # to stop Jekyll from overriding site.url to http://0.0.0.0:4000
+    command: jekyll serve --watch --incremental --config _config.yml,_config.docker.yml
     image: jekyll/jekyll
     volumes:
       - .:/srv/jekyll
-      - ./vendor/bundle:/usr/local/bundle
+      - ./vendor/bundle:/usr/local/bundle  # to cache bundle configuration
     ports:
       - 127.0.0.1:4000:4000

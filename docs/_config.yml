@@ -23,7 +23,7 @@ description: Dazbo's Advent of Code solutions, written in Python
 
 # We need the URLs below otherwise overriding CSS wont work
 repository: derailed-dash/derailed-dash.github.io
-baseurl: /Advent-of-Code
+baseurl: /Advent-of-Code  # should not contain host!
 url: https://derailed-dash.github.io
 
 twitter_username: DerailedDash
@@ -46,6 +46,7 @@ plugins:
 # their entries' file path in the `include:` list.
 #
 exclude:
+  - docker-compose.yml
 #   - .sass-cache/
 #   - .jekyll-cache/
 #   - gemfiles/
@@ -56,7 +57,6 @@ exclude:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
-  - docker-compose.yml
 
 defaults:
   - scope:
