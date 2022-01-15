@@ -48,7 +48,6 @@ logger = logging.getLogger(__name__)
 OPENERS = ["(", "[", "{", "<"]
 CLOSERS = [")", "]", "}", ">"]
 OPEN_TO_CLOSE = dict(zip(OPENERS, CLOSERS))  # {'(': ')', ...}
-CLOSE_TO_OPEN = dict(zip(CLOSERS, OPENERS))  # {')': '(', ...}
 
 COMPLETION_CHAR_SCORES = dict(zip(CLOSERS, (1, 2, 3, 4)))
 INVALID_CHAR_SCORES = dict(zip(CLOSERS, (3, 57, 1197, 25137)))
@@ -83,9 +82,10 @@ def main():
     logger.info("Part 1: There are %d corrupted lines", len(invalid_chars))                
     score = sum([INVALID_CHAR_SCORES[char] for char in invalid_chars])
     logger.info("Syntax error score=%d\n", score)
-        
+    
+    # Part 2
     completion_scores.sort()
-    logger.info("Completion score=%d", completion_scores[len(completion_scores)//2])
+    logger.info("Part 2: Completion score=%d", completion_scores[len(completion_scores)//2])
 
 def parse(line: str):
     """ Parse the navigation instructions, line-by-line.

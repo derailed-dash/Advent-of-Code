@@ -50,16 +50,15 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 OPENERS = ["(", "[", "{", "<"]
 CLOSERS = [")", "]", "}", ">"]
 PAIRS = ["".join(item) for item in zip(OPENERS, CLOSERS)] # ['()', '[]', ...]
 OPEN_TO_CLOSE = dict(zip(OPENERS, CLOSERS))  # {'(': ')', ...}
-CLOSE_TO_OPEN = dict(zip(CLOSERS, OPENERS))  # {')': '(', ...}
 
 INVALID_CHAR_SCORES = dict(zip(CLOSERS, (3, 57, 1197, 25137)))
 COMPLETION_CHAR_SCORES = dict(zip(CLOSERS, (1, 2, 3, 4)))
@@ -99,8 +98,7 @@ def main():
     logger.info("Completion score=%d", completion_scores[len(completion_scores)//2])
 
 def get_completion_for_line(line: str) -> str:
-    """ Determine which closing brackets need to be added to complete this
-    incomplete line. """
+    """ Determine which closing brackets need to be added to complete this incomplete line. """
     
     to_complete = ""      
     close_counters = defaultdict(int)
