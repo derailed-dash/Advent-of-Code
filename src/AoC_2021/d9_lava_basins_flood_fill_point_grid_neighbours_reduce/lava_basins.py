@@ -135,7 +135,7 @@ class Grid():
         
         return basin_points
     
-    def render_image(self, target_width=600) -> Image.Image:
+    def render_image(self, target_width:int=600) -> Image.Image:
         """ Render grid as a heatmap image
 
         Args:
@@ -144,7 +144,8 @@ class Grid():
         scale = target_width // self._width  # our original image is only a few pixels across. We need to scale up.
         
         # Flatten our x,y array into a single list of height values
-        height_values = [self.height_at_point(Point(x,y)) for y in range(self._height) for x in range(self._width)]
+        height_values = [self.height_at_point(Point(x,y)) for y in range(self._height) 
+                                                          for x in range(self._width)]
         max_height = max(height_values)
 
         # create a new list of RGB values, where each is given by an (R,G,B) tuple.
@@ -181,7 +182,7 @@ def main():
         dir_path = os.path.dirname(OUTPUT_FILE)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        image = grid.render_image()
+        image = grid.render_image(400)
         image.save(OUTPUT_FILE)
 
 if __name__ == "__main__":
