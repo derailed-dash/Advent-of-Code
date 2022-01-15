@@ -149,7 +149,7 @@ class Grid():
 
         # create a new list of RGB values, where each is given by an (R,G,B) tuple.
         # To achieve a yellow->amber->red effect, we want R to always be 255, B to always be 0, and G to vary based on height
-        pixel_colour_map: list[tuple[int, int ,int]] = list(map(lambda x: (255, int(255*((max_height-x)/max_height)), 0), height_values)) 
+        pixel_colour_map = list(map(lambda x: (255, int(255*((max_height-x)/max_height)), 0), height_values)) 
 
         image = Image.new(mode='RGB', size=(self._width, self._height))
         image.putdata(pixel_colour_map)  # load our colour map into the image
