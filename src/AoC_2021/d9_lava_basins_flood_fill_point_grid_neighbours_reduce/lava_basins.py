@@ -31,10 +31,14 @@ from collections import deque
 from dataclasses import dataclass
 from functools import reduce
 from typing import Iterator
+from PIL import Image
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
+
+RENDER = True
+OUTPUT_FILE = os.path.join(SCRIPT_DIR, "output/heatmap.png")
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
@@ -115,7 +119,7 @@ class Grid():
         points_to_assess.append(low_point)  # where we start
         
         while points_to_assess:     # They should only ever be valid points
-            point_to_assess = points_to_assess.pop()
+            point_to_assess = points_to_assess.popleft()
             if point_to_assess in assessed:     
                 continue    # We've seen this before, so skip it
             
@@ -130,6 +134,28 @@ class Grid():
                             points_to_assess.append(neighbour)
         
         return basin_points
+    
+    def render_image(self, target_width=600) -> Image.Image:
+        """ Render grid as a heatmap image
+
+        Args:
+            width (int, optional): Target width, in pxiels. Defaults to 600.
+        """
+        scale = target_width // self._width  # our original image is only a few pixels across. We need to scale up.
+        
+        # Flatten our x,y array into a single list of height values
+        height_values = [self.height_at_point(Point(x,y)) for y in range(self._height) for x in range(self._width)]
+        max_height = max(height_values)
+
+        # create a new list of RGB values, where each is given by an (R,G,B) tuple.
+        # To achieve a yellow->amber->red effect, we want R to always be 255, B to always be 0, and G to vary based on height
+        pixel_colour_map: list[tuple[int, int ,int]] = list(map(lambda x: (255, int(255*((max_height-x)/max_height)), 0), height_values)) 
+
+        image = Image.new(mode='RGB', size=(self._width, self._height))
+        image.putdata(pixel_colour_map)  # load our colour map into the image
+
+        # scale the image and return it
+        return image.resize((self._width*scale, self._height*scale), Image.NEAREST)
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -149,7 +175,14 @@ def main():
     qty_required = 3
     basin_sizes.sort(reverse=True)  # descending size order
     biggest_basins = basin_sizes[0:qty_required]  # top n basins
-    logger.info("Part 2: product = %d", reduce((lambda x, y: x * y), biggest_basins))         
+    logger.info("Part 2: product = %d", reduce((lambda x, y: x * y), biggest_basins))
+    
+    if RENDER:
+        dir_path = os.path.dirname(OUTPUT_FILE)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        image = grid.render_image()
+        image.save(OUTPUT_FILE)
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
