@@ -3,7 +3,7 @@ services:
   jekyll-aoc:
     environment:
       - JEKYLL_ENV=docker # to stop Jekyll from overriding site.url to http://0.0.0.0:4000
-    command: jekyll serve --watch --incremental --config _config.yml,_config.docker.yml
+    command: jekyll serve --watch --config _config.yml,_config.docker.yml
     image: jekyll/jekyll
     volumes:
       - .:/srv/jekyll
