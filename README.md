@@ -1,8 +1,12 @@
-# Dazbo's Advent of Code: Python Solutions and Walkthroughs
+# Dazbo's Advent of Code
+
+### See my walkthroughs [here](https://derailed-dash.github.io/Advent-of-Code/).
+
+## Overview
 
 - All AoC problems (covering multiple years) solved in Python.
 - All solutions are thoroughly documented in the code.
-- In addition, I have code walkthroughs and solution explanations available [here](https://derailed-dash.github.io/Advent-of-Code/)
+- In addition, I have code walkthroughs and solution explanations available [here](https://derailed-dash.github.io/Advent-of-Code/).
 - Some days have multiple solutions, i.e. to test different approaches, try different frameworks, etc.
 - Each day gets its own folder. The name of the folder indicates some of the techniques and modules that were used.
 
