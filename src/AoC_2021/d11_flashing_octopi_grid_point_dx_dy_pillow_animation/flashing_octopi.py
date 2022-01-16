@@ -27,9 +27,9 @@ Part 2:
     Since we track the number of flashes with each cycle, 
     we can just check for when the number of flashes is equal to the total number of octopi.
 """
-from __future__ import absolute_import, annotations
-from collections import namedtuple
+from __future__ import annotations
 from copy import deepcopy
+from dataclasses import dataclass
 import logging
 import os
 import time
@@ -39,16 +39,28 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-RENDER_ANIMATION = True
+RENDER_ANIMATION = False
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output/")
 ANIM_FILE = os.path.join(OUTPUT_DIR, "octopi.gif")  # where we'll save the animation to
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.DEBUG)
 
-Point = namedtuple("Point", "x y")  # Make it easier to index point x and y
+@dataclass(frozen=True)
+class Point():
+    """ Our immutable point data class """
+    ADJACENT_DELTAS = [(dx,dy) for dx in range(-1, 2) 
+                               for dy in range(-1, 2) if (dx,dy) != (0,0)]
+    
+    x: int
+    y: int
+    
+    def yield_neighbours(self):
+        """ Yield adjacent (orthogonal) neighbour points """
+        for vector in Point.ADJACENT_DELTAS:
+            yield Point(self.x + vector[0], self.y + vector[1])
 
 class Grid():
     """ 2D grid of point values. Knows how to:
@@ -62,12 +74,6 @@ class Grid():
     def __init__(self, grid_array: list, render_animation=False) -> None:
         """ Generate Grid instance from 2D array. 
         This works on a deep copy of the input data, so as not to mutate the input. """
-        
-        # generate list of dx,dy to get to all adjacent points, including diags
-        delta = 1   # delta distance to use when finding neighbours
-        self._adjacent_deltas = [(dx,dy) for dx in range(-delta, delta+1)
-                                         for dy in range(-delta, delta+1)
-                                         if (dx,dy) != (0,0)]
         
         self._array = deepcopy(grid_array)  # Store a deep copy of input data
         self._x_size = len(self._array[0])
@@ -97,7 +103,7 @@ class Grid():
         try:
             self._frames[0].save(file, save_all=True, loop=True, blend=1, duration=duration, append_images=self._frames[1:])
             logger.info("Animation saved to %s", file)
-        except:
+        except (KeyError, IOError):
             logger.error("Unable to save to %s", file)
         
     @property
@@ -133,12 +139,6 @@ class Grid():
             return True
         
         return False
-    def yield_neighbours(self, point:Point):
-        """ Yield adjacent neighbour points """
-        for dx,dy in self._adjacent_deltas:
-            neighbour = Point(point.x+dx, point.y+dy)
-            if self._valid_location(neighbour):
-                yield neighbour
     
     def all_points(self) -> list[Point]:
         points = [Point(x, y) for x in range(self.x_size) for y in range(self.y_size)]
@@ -166,9 +166,10 @@ class Grid():
                 if point not in flashed_octopi and self.value_at_point(point) > Grid.FLASH_THRESHOLD:
                     flashed_octopi.add(point) # This octopus now flashes
                     still_flashing = True
-                    for neighbour in self.yield_neighbours(point):  # increment any unflashed neighbours
-                        if neighbour not in flashed_octopi:
-                            self.set_value_at_point(neighbour, self.value_at_point(neighbour)+1)
+                    for neighbour in point.yield_neighbours():  # increment any unflashed neighbours
+                        if self._valid_location(neighbour):
+                            if neighbour not in flashed_octopi:
+                                self.set_value_at_point(neighbour, self.value_at_point(neighbour)+1)
             
         # Step 3: reset all flashed octopi back to 0
         for point in flashed_octopi:
