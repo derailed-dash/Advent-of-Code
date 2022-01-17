@@ -6,9 +6,11 @@
 
 - All AoC problems (covering multiple years) solved in Python.
 - All solutions are thoroughly documented in the code.
-- In addition, I have code walkthroughs and solution explanations available [here](https://derailed-dash.github.io/Advent-of-Code/).
 - Some days have multiple solutions, i.e. to test different approaches, try different frameworks, etc.
 - Each day gets its own folder. The name of the folder indicates some of the techniques and modules that were used.
+- In addition, I have code walkthroughs and solution explanations available [here](https://derailed-dash.github.io/Advent-of-Code/).
+
+[![Dazbo's AoC Walkthroughs](/docs/assets/images/AoC_site_screenshot.jpg)](https://derailed-dash.github.io/Advent-of-Code/)
 
 ## Purpose of this Repo
 
