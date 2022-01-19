@@ -34,14 +34,9 @@ Part 2:
     We want the median score of the sorted scores.
     
     Strip out corrupted lines to leave only incomplete lines.
-    For each line...
-        - Count from right hand end
-        - Use DefaultDict to count each type of closing bracket as we go
-        - If we come across an opening bracket, we decrement the matching closer.
-        - If there's no matching closer, then the closer is missing, so append it.
-        - Finally, score up the appended chars (trivial).
+    Each incomplete line is now a set of opening brackets with no matching closer.
+    So simply go through the openers in reverse, adding the correspnding closer.
 """
-from collections import defaultdict
 import logging
 import os
 import time
@@ -100,17 +95,9 @@ def main():
 def get_completion_for_line(line: str) -> str:
     """ Determine which closing brackets need to be added to complete this incomplete line. """
     
-    to_complete = ""      
-    close_counters = defaultdict(int)
-    for char in line[::-1]:     # process chars from the end
-        if char in CLOSERS:
-            close_counters[char] += 1
-        else:  # opener
-            matching_closer = OPEN_TO_CLOSE[char]
-            if close_counters[matching_closer] > 0:    # opener for existing closer
-                close_counters[matching_closer] -= 1
-            else:    # opener, but missing closer
-                to_complete += matching_closer
+    to_complete = ""
+    for opener in line[::-1]:
+        to_complete += OPEN_TO_CLOSE[opener]
                 
     return to_complete
 
