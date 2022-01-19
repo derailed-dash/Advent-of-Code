@@ -27,7 +27,6 @@ Part 2:
     Since we track the number of flashes with each cycle, 
     we can just check for when the number of flashes is equal to the total number of octopi.
 """
-from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import logging
@@ -183,19 +182,6 @@ class Grid():
             
         return len(flashed_octopi)
     
-    def is_synchronised(self) -> bool:
-        """ Flashes are synchronised when all values are 0, i.e. they've just flashed
-        We don't actually need/use this method, since we can just check if the number of flashes
-        in the last cycle are equal to the number of octopi in the grid """
-        
-        # first check if all values in the first row are 0; faster than checking the whole array
-        if all((value == Grid.ENERGY_RESET) for value in self._array[0]):
-            # now check if all rows are the same
-            if all(row == self._array[0] for row in self._array):
-                return True
-            
-        return False
-    
     def generate_frame(self):
         """ Render an image frame showing the current cycle state.
         Saves the frame to the self._frames list.
@@ -253,14 +239,13 @@ def main():
         data = [[int(posn) for posn in row] for row in f.read().splitlines()]
         
     # Part 1 - How many flashes after 100 steps?
-    grid = Grid(data)
+    grid = Grid(data, render_animation=RENDER_ANIMATION)
     for _ in range(100):
         grid.cycle()
     
     logger.info("Part 1: total flashes=%d", grid.cumulative_flashes)
 
     # Part 2
-    grid = Grid(data, render_animation=RENDER_ANIMATION)
     while True:
         flash_count = grid.cycle()
         if flash_count == grid.x_size * grid.y_size:    # all octopi have flashed
