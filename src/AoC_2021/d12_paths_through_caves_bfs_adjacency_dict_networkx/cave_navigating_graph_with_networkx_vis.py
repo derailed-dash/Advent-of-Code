@@ -1,4 +1,4 @@
-"""
+r"""
 Author: Darren
 Date: 12/12/2021
 
@@ -54,7 +54,7 @@ Part 2:
 import logging
 from pathlib import Path
 import time
-from collections import defaultdict, deque
+from collections import deque
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -110,7 +110,7 @@ class CaveGraph():
                         self._large_caves.add(cave)
     
     def render(self, file):
-        subax1 = plt.subplot(121)
+        _ = plt.subplot(121)
         nx.draw_spring(self._graph, with_labels=True)
         
         dir_path = Path(file).parent

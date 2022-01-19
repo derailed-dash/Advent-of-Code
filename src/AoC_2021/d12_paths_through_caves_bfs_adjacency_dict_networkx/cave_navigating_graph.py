@@ -1,4 +1,4 @@
-"""
+r"""
 Author: Darren
 Date: 12/12/2021
 
@@ -99,7 +99,7 @@ class CaveGraph():
         """ All the edges.  An edge is one cave linked to another. """
         return self._edges
     
-    def get_adjacent_caves(self, node: str) -> list[str]:
+    def get_adjacent_caves(self, node: str) -> set[str]:
         """ Returns the adjacent caves, given a cave input. """
         return self._node_map[node]
 
