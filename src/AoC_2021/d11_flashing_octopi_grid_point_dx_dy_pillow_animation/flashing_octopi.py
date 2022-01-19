@@ -38,7 +38,7 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-RENDER_ANIMATION = False
+RENDER_ANIMATION = True
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output/")
 ANIM_FILE = os.path.join(OUTPUT_DIR, "octopi.gif")  # where we'll save the animation to
 
@@ -188,9 +188,10 @@ class Grid():
         Superimposes the cycle number text to the frame. """
         scale = 25
         all_values = [self.value_at_point(point) for point in self.all_points()] # flattened values
+        max_energy = Grid.FLASH_THRESHOLD
         
         # create a new list of pixels, where each is given by an (R,G,B) tuple.
-        pixel_colour_map: list[tuple[int, int ,int]] = list(map(lambda x: (x*255//10, 0, 0), all_values)) 
+        pixel_colour_map = list(map(lambda x: (x*255//max_energy, 0, 0), all_values)) 
         
         # Create an image from the flattened list of pixels, and scale up the size
         small_image = Image.new(mode='RGB', size=(self.x_size, self.y_size))
