@@ -87,7 +87,7 @@ class CaveGraph():
         
         # Create lookup (adjacency) dict to find all linked nodes for a node
         self._node_map: dict[str, set[str]] = defaultdict(set)
-        for x,y in edges:      # E.g. x, y
+        for x,y in edges:
             self._node_map[x].add(y)
             self._node_map[y].add(x)
             
@@ -99,10 +99,6 @@ class CaveGraph():
         """ All the edges.  An edge is one cave linked to another. """
         return self._edges
     
-    def get_adjacent_caves(self, node: str) -> set[str]:
-        """ Returns the adjacent caves, given a cave input. """
-        return self._node_map[node]
-
     @property
     def small_caves(self):
         """ Caves labelled lowercase. Subset of self.caves. """
@@ -112,7 +108,7 @@ class CaveGraph():
     def large_caves(self):
         """ Caves labelled uppercase. Subset of self.caves. """        
         return self._large_caves
-    
+
     def _determine_caves(self):
         """ Build a set of all caves from the edges.
         This will also initialise small_caves and large_caves """
@@ -124,7 +120,11 @@ class CaveGraph():
                         self._small_caves.add(cave)
                     else: 
                         self._large_caves.add(cave)
-                    
+
+    def _get_adjacent_caves(self, node: str) -> set[str]:
+        """ Returns the adjacent caves, given a cave input. """
+        return self._node_map[node]
+                        
     def get_paths_through(self, small_cave_twice=False) -> set[tuple]:
         """ Get all unique paths through from start to end, using a BFS
 
@@ -147,7 +147,7 @@ class CaveGraph():
                 unique_paths.add(tuple(path))
                 continue
             
-            for neighbour in self.get_adjacent_caves(cave):
+            for neighbour in self._get_adjacent_caves(cave):
                 new_path = path + [neighbour]   # Need a new path object
                 if neighbour in path:
                     # big caves fall through and can be re-added to the path
