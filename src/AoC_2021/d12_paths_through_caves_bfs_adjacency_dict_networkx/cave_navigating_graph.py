@@ -54,10 +54,10 @@ import os
 import time
 from collections import defaultdict, deque
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

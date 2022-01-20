@@ -58,18 +58,18 @@ from collections import deque
 import matplotlib.pyplot as plt
 import networkx as nx
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
 RENDER = True
-OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
-OUTPUT_FILE = Path(OUTPUT_DIR, "cave_graph.png")  # where we'll save the animation to
+OUTPUT_DIR = Path(SCRIPT_DIR / "output/")
+OUTPUT_FILE = Path(OUTPUT_DIR / "cave_graph.png")  # where we'll save the animation to
 
 class CaveGraph():
     """ Stores pairs of connected caves, i.e. edges. 
