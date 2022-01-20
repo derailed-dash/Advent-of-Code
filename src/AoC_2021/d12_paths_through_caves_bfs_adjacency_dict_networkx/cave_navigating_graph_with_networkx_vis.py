@@ -111,7 +111,19 @@ class CaveGraph():
     
     def render(self, file):
         _ = plt.subplot(121)
-        nx.draw_spring(self._graph, with_labels=True)
+        pos = nx.spring_layout(self._graph)
+        
+        # set colours for each node in the array, in the same order as the nodes
+        colours = []
+        for node in self.nodes:
+            if node in (CaveGraph.START, CaveGraph.END):
+                colours.append("green")
+            elif node in self.large_caves:
+                colours.append("blue")
+            else:
+                colours.append("red")
+        
+        nx.draw(self._graph, pos=pos, node_color=colours, with_labels=True)
         
         dir_path = Path(file).parent
         if not Path.exists(dir_path):
