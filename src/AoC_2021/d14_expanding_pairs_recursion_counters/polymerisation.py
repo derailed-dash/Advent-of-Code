@@ -41,10 +41,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
