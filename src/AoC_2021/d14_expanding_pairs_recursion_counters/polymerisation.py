@@ -44,7 +44,7 @@ INPUT_FILE = "input/input.txt"
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.INFO)
+logger.setLevel(level=logging.DEBUG)
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -55,7 +55,8 @@ def main():
 
     # Part 1
     steps = 10
-    res = recursive_replace(steps-1, template, rules)
+    res = recursive_replace(steps, template, rules)
+    logger.debug("Length of chain: %d", len(res))
     char_counts = Counter(res).most_common()    # [(char1, count1), (char2, count2)...]
     logger.info("Part 1 with recursive replace: Most common count - least common count = %d", 
                 char_counts[0][1] - char_counts[-1][1])
@@ -127,7 +128,7 @@ def recursive_replace(steps: int, to_expand: str, rules: dict) -> str:
         if pair in rules:   # if this pair has a valid replacement str
             replacement = pair[0] + rules[pair] + pair[1]   # E.g. CH -> CBH
             insertion_point = i + chars_inserted
-            if steps > 0:   # Deeper recursions to go
+            if steps > 1:   # Deeper recursions to go
                 # Now recurse into the pair we've just expanded
                 replacement = recursive_replace(steps-1, replacement, rules)  
             
