@@ -33,22 +33,23 @@ Part 2:
 """
 from __future__ import annotations
 from copy import deepcopy
+from dataclasses import dataclass
 import logging
 import os
 import time
 import heapq
-from typing import NamedTuple
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.DEBUG)
 
-class Point(NamedTuple):
+@dataclass(frozen=True, order=True)
+class Point():
     """ Point class, which knows how to return a list of all adjacent coordinates """
     
     # Return all adjacent orthogonal (not diagonal) coordinates
