@@ -20,6 +20,12 @@ I've been using [Advent of Code](https://adventofcode.com/) as a way to improve 
 - Solve AoC problems they might be stuck with.
 - Learn some new libraries and inventive ways of doing things.
 
+## Structure of this Repo
+
+- The solution source code for AoC problems can be found in the `src` folder. This is _probably_ what you're here looking for.
+- The source for the Walkthrough Website content is available in the `docs` folder. This is mostly markdown, rendered into an HTML static site using Jekyll.  You _probably_ wont be interested in this.
+- If you want to look at the walkthrough pages, visit the [site](https://derailed-dash.github.io/Advent-of-Code/).
+
 ## What is Advent of Code?
 
 An awesome [coding challenge](https://adventofcode.com/2021/about) created by Eric Wastl, released every December. A new problem is presented each day through the month. Typically the best way to solve any given problem is by writing a program. The program can be written in _any language and with any tools you like_. You don't need to be an expert coder to do AoC; in fact, AoC is a great way to learn a programming language.
