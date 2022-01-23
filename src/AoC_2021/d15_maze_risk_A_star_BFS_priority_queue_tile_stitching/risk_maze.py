@@ -181,7 +181,6 @@ def visualise_path(grid: Grid, path: list[tuple[Point, int]]):
         else:
             plt.text(point.x, point.y, s=str(label), color="b")
         
-    # axes.scatter(all_x, all_y)
     plt.show()
 
 def build_uber_grid(start_grid: Grid, rows: int, cols:int) -> Grid:

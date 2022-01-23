@@ -21,7 +21,7 @@ where v = 3 bit packet version
 If t=4, then packet type is l (literal); else packet type is o (operator).
 
 Part 1:
-    We want the su of version numbers of all packets.  
+    We want the sum of version numbers of all packets.  
     Subpackets have version numbers, so we need to sum them.
     Parse input and convert from hex to binary. Create outer Packet from this data.
     Process the input bits according to the rules, and track how many bits consumed.
@@ -42,10 +42,10 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
 
 class Packet():
     """ Processes a BITS packet, including recursive processing of any inner packets. """
@@ -198,28 +198,29 @@ class Packet():
         if len(hex_repr) > show_len:
             hex_repr = hex_repr[:show_len] + "..."
         
-        return (f"Packet:LVL={self._level},VSum={self.version_sum},Val={self.value}," + 
-                 f"V={self._version},T={self._type},hex={hex_repr}")
+        return (f"Packet:LVL={self._level},VerSum={self.version_sum},Ver={self._version}," + 
+                 f"T={self._type},Val={self.value},hex={hex_repr}")
     
     def __repr__(self) -> str:
         """ Show packet information, including recursive detail """
         if self._sub_packets:
-            val = "[" + ",".join(str(sub_packet) for sub_packet in self._sub_packets) + "]"
+            val = ",".join(repr(sub_packet) for sub_packet in self._sub_packets)
         else:
             val = self._literal_val
             
-        return f"[Packet:LVL={self._level},VSum={self.version_sum},V={self._version},T={self._type},data={val}"
+        return ("\n" + ("  " * self._level) 
+                + f"[Packet:LVL={self._level},VerSum={self.version_sum},Ver={self._version},T={self._type},value={val}]")
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
-        # Aach line has a single outer packet
-        # Actual input is only one line, but our test data has many lines
+        # Each line has a single outer packet. Actual input is only one line, but our test data has many lines.
         outer_packets_data = [hex_to_bin(line) for line in f.read().splitlines()]
     
     for outer_packet_data in outer_packets_data:
         packet = Packet(outer_packet_data)
-        logger.info(packet)
+        # logger.info(packet)
+        logger.info(repr(packet))
 
 def hex_to_bin(hex_value) -> str:
     """ Convert all hex digits to binary representation, with leading zeroes """
