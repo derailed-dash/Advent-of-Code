@@ -40,11 +40,11 @@ Part 2:
     Find every initial velocity that causes the probe to be within the target area
     at any time t.
 """
+from dataclasses import dataclass
 import logging
 from pathlib import Path
 import time
 import re
-from typing import NamedTuple
 from matplotlib import pyplot as plt
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
@@ -60,14 +60,16 @@ RENDER = True
 OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
 OUTPUT_FILE = Path(OUTPUT_DIR, "trajectory.png")
 
-class Point(NamedTuple):
+@dataclass(frozen=True)
+class Point():
     x: int
     y: int
-    
+
 class Velocity(Point):
     """ A vector represented as (x, y) values """
     
-class Rect(NamedTuple):
+@dataclass
+class Rect():
     """ Rectangle from four corner Points, and knows whether a point is enclosed """
     left_x: int
     right_x: int
@@ -139,12 +141,13 @@ def plot_trajectory(trajectory: list[Point], target: Rect, outputfile=None):
                  color="blue", weight='bold') 
     
     # Plot the trajectory points
-    all_x, all_y = zip(*trajectory)
+    all_x = [point.x for point in trajectory]
+    all_y = [point.y for point in trajectory]
     plt.plot(all_x, all_y, marker="o", markerfacecolor="red", markersize=4, color='black')
     
     x, y = trajectory[1].x, trajectory[1].y
     plt.annotate(f"Vel {x},{y}", (x,y), xytext=(x-3, y+2))  # label first point
-    x, y = [point for point in trajectory if point.y == max(point.y for point in trajectory)][0]
+    x, y = [(point.x, point.y) for point in trajectory if point.y == max(point.y for point in trajectory)][0]
     plt.annotate(f"({x},{y})", (x,y), xytext=(x+1, y-1))  # label highest point    
         
     if outputfile:
@@ -155,7 +158,6 @@ def plot_trajectory(trajectory: list[Point], target: Rect, outputfile=None):
         logger.info("Plot saved to %s", outputfile)        
     else:
         plt.show()
-
 
 def evaluate_trajectory(target: Rect, initial_v: Velocity) -> tuple[bool, list[Point]]:
     """ Given a target region to hit and an initial velocity, 
