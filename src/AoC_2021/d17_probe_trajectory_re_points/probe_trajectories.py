@@ -111,7 +111,6 @@ def main():
                     highest_trajectory = trajectory
                     max_y = this_max_y             
     
-    logger.debug("Testing debug")
     logger.info("Max peak=%d", max_y)
     logger.info("Count of valid shots=%d", sum(1 for peak in successful_peaks))
 
@@ -119,45 +118,6 @@ def main():
         plot_trajectory(highest_trajectory, target) # show the plot    
     else:
         plot_trajectory(highest_trajectory, target, OUTPUT_FILE) # save the plot
-
-def plot_trajectory(trajectory: list[Point], target: Rect, outputfile=None):
-    """ Render this trajectory as a plot, and optionally save it """
-    axes = plt.gca()
-    
-    # Add axis lines at x=0 and y=0
-    plt.axhline(0, color='green')
-    plt.axvline(0, color='green') 
-    axes.grid(True) # grid lines on
-    
-    # Set up titles
-    axes.set_title("Trajectory")
-    axes.set_xlabel("Horizontal")
-    axes.set_ylabel("Height")
-    
-    axes.fill(*target.as_polygon(), 'cyan')  # add the target area
-    plt.annotate("TARGET", (target.left_x, target.top_y), 
-                 xytext=(target.left_x + ((target.right_x - target.left_x)/2)-2, 
-                        (target.top_y - (target.top_y-target.bottom_y)/2)-1), 
-                 color="blue", weight='bold') 
-    
-    # Plot the trajectory points
-    all_x = [point.x for point in trajectory]
-    all_y = [point.y for point in trajectory]
-    plt.plot(all_x, all_y, marker="o", markerfacecolor="red", markersize=4, color='black')
-    
-    x, y = trajectory[1].x, trajectory[1].y
-    plt.annotate(f"Vel {x},{y}", (x,y), xytext=(x-3, y+2))  # label first point
-    x, y = [(point.x, point.y) for point in trajectory if point.y == max(point.y for point in trajectory)][0]
-    plt.annotate(f"({x},{y})", (x,y), xytext=(x+1, y-1))  # label highest point    
-        
-    if outputfile:
-        dir_path = Path(outputfile).parent
-        if not Path.exists(dir_path):
-            Path.mkdir(dir_path)
-        plt.savefig(outputfile)
-        logger.info("Plot saved to %s", outputfile)        
-    else:
-        plt.show()
 
 def evaluate_trajectory(target: Rect, initial_v: Velocity) -> tuple[bool, list[Point]]:
     """ Given a target region to hit and an initial velocity, 
@@ -203,6 +163,45 @@ def velocity_at_step(init: Velocity, t: int) -> Velocity:
     y = init.y - t
     
     return Velocity(x, y)
+
+def plot_trajectory(trajectory: list[Point], target: Rect, outputfile=None):
+    """ Render this trajectory as a plot, and optionally save it """
+    axes = plt.gca()
+    
+    # Add axis lines at x=0 and y=0
+    plt.axhline(0, color='green')
+    plt.axvline(0, color='green') 
+    axes.grid(True) # grid lines on
+    
+    # Set up titles
+    axes.set_title("Trajectory")
+    axes.set_xlabel("Horizontal")
+    axes.set_ylabel("Height")
+    
+    axes.fill(*target.as_polygon(), 'cyan')  # add the target area
+    plt.annotate("TARGET", (target.left_x, target.top_y), 
+                 xytext=(target.left_x + ((target.right_x - target.left_x)/2)-2, 
+                        (target.top_y - (target.top_y-target.bottom_y)/2)-1), 
+                 color="blue", weight='bold') 
+    
+    # Plot the trajectory points
+    all_x = [point.x for point in trajectory]
+    all_y = [point.y for point in trajectory]
+    plt.plot(all_x, all_y, marker="o", markerfacecolor="red", markersize=4, color='black')
+    
+    x, y = trajectory[1].x, trajectory[1].y
+    plt.annotate(f"Vel {x},{y}", (x,y), xytext=(x-3, y+2))  # label first point
+    x, y = [(point.x, point.y) for point in trajectory if point.y == max(point.y for point in trajectory)][0]
+    plt.annotate(f"({x},{y})", (x,y), xytext=(x+1, y-1))  # label highest point    
+        
+    if outputfile:
+        dir_path = Path(outputfile).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+        plt.savefig(outputfile)
+        logger.info("Plot saved to %s", outputfile)        
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
