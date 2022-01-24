@@ -13,7 +13,9 @@ body {
   font:15px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
   color:rgb(39, 42, 43);
   font-weight:300;
-  background:url('../images/checker.png') fixed;
+  background-image:url('../images/matrix_orange.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
   min-height: calc(100% - 100px);
 }
 
