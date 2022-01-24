@@ -53,10 +53,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = "input/input.txt"
-INPUT_FILE = "input/sample_input.txt"
+INPUT_FILE = "input/input.txt"
+# INPUT_FILE = "input/sample_input.txt"
 
-RENDER = True
+RENDER = False
 OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
 OUTPUT_FILE = Path(OUTPUT_DIR, "trajectory.png")
 
@@ -112,7 +112,7 @@ def main():
                     max_y = this_max_y             
     
     logger.info("Max peak=%d", max_y)
-    logger.info("Count of valid shots=%d", sum(1 for peak in successful_peaks))
+    logger.info("Count of valid shots=%d", len(successful_peaks))
 
     if RENDER:
         plot_trajectory(highest_trajectory, target) # show the plot    
@@ -133,14 +133,12 @@ def evaluate_trajectory(target: Rect, initial_v: Velocity) -> tuple[bool, list[P
     t = 0
     location = Point(0,0)  # Where we launch our probe from
     trajectory: list[Point] = [location]
-    max_y_so_far_this_trajectory = target.bottom_y
     hit_target = False
     
     while not hit_target:
         vel = velocity_at_step(initial_v, t)
         location = Point(location.x + vel.x, location.y + vel.y)
-        trajectory.append(location)            
-        max_y_so_far_this_trajectory = max(location.y, max_y_so_far_this_trajectory)
+        trajectory.append(location)
                 
         if (vel.x == 0 and location.x < target.left_x):
             break   # we're just going to fall downwards from here.
