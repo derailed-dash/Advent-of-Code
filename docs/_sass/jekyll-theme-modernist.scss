@@ -13,9 +13,8 @@ body {
   font:15px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
   color:rgb(39, 42, 43);
   font-weight:300;
-  background-image:url('../images/matrix_orange.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
+  background: url('../images/matrix_orange.jpg');
+  background-size: 100% auto;
   min-height: calc(100% - 100px);
 }
 
