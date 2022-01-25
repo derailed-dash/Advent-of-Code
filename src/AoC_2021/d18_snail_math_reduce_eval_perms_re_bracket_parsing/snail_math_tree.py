@@ -105,55 +105,45 @@ class FishNumber:
         - Split any numbers that are > 10.
           Repeat split until no more splits are possible. """
         
-        done = False
-        while not done:
-            done = True
+        still_reducing = True
+        while still_reducing:
+            still_reducing = False  # assume nothing more to do
             
-            # DFS through the tree, starting at the root
+            # DFS through the tree, starting at the root, to see if we have pairs to explode
             stack = deque()
             stack.append((self, 0))    # (tree, depth)
-
             while len(stack) > 0:
                 node, depth = stack.pop()
 
-                if node is None:
-                    continue
-
-                condition = ((node.left is None and node.right is None) or 
-                            (node.left.val is not None and node.right.val is not None))
-
-                if depth >= FishNumber.EXPLODE_BRACKETS and node.val is None and condition:
+                # If we're at sufficient depth and this we're dealing with a pair
+                if depth >= FishNumber.EXPLODE_BRACKETS and node.val is None:
                     self._explode(node)
-                    done = False
-                    break
+                    still_reducing = True
+                    break   # we've just exploded, so start loop again
 
-                # DFS through the children, ensuring left is always popped first
-                stack.append((node.right, depth + 1))
-                stack.append((node.left, depth + 1))
+                # otherwise, add children to the DFS frontier, ensuring left is always popped first
+                if node.right and node.left: 
+                    stack.append((node.right, depth + 1))
+                    stack.append((node.left, depth + 1))
 
-            if not done:   # We've just exploded
-                continue
+            if still_reducing:   # We've just exploded
+                continue  # So loop
             
             # No explosions, so now try splitting
-            assert done, "Done exploding"
-
-            # Append to stack, from the top
-            stack = deque()
-            stack.append(self)    # We don't care about depth now
+            assert not still_reducing, "Done exploding"
+            assert len(stack) == 0, "Stack should be empty"
+            stack.append(self)    # Add root node. We don't care about depth now.
             while len(stack) > 0:
                 node = stack.pop()
-                if node is None:
-                    continue
-
                 if node.val is not None:    # we've found our leaf
                     assert node.left is None and node.right is None
                     if node.val >= FishNumber.SPLIT_MIN:
                         self._split(node)
-                        done = False
-                        break
-
-                stack.append(node.right)
-                stack.append(node.left)
+                        still_reducing = True
+                        break   # back to the top
+                else:   # not a leaf node, so must have children
+                    stack.append(node.right)
+                    stack.append(node.left)
 
     def _split(self, node):
         """ Split a single value into a pair of two halves.
@@ -233,18 +223,18 @@ class FishNumber:
     def parse(parse_input: list|int) -> FishNumber:
         """ Parse a list and convert to a FishNumber. 
         Recurses any nested lists, including leaf values. """
-        root = FishNumber()
+        node = FishNumber()
         if isinstance(parse_input, int):   # If a leaf node with no children
-            root.val = parse_input
-            return root
+            node.val = parse_input
+            return node
 
         assert len(parse_input) == 2, "Must be a pair in a list"
-        root.left = FishNumber.parse(parse_input[0])
-        root.right = FishNumber.parse(parse_input[1])
-        root.left.parent = root
-        root.right.parent = root
+        node.left = FishNumber.parse(parse_input[0])
+        node.right = FishNumber.parse(parse_input[1])
+        node.left.parent = node
+        node.right.parent = node
 
-        return root
+        return node
 
 def add(left_tree: FishNumber, right_tree: FishNumber) -> FishNumber:
     """ Add two FishNumbers together.
