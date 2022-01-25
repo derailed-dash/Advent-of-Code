@@ -44,6 +44,8 @@ pages:
     link: /2021/16
   - name: 17
     link: /2021/17
+  - name: 18
+    link: /2021/18    
 - name: "2020"
   link: /2020/
   mainnav: True
