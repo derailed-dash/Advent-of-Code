@@ -158,17 +158,17 @@ class FishNumber:
         node.val = None  # current node value is cleared
 
     def _explode(self, node: FishNumber):
-        """ Left node value is added to first adjacent node on the left.
-        Right node value is added to first adjacent node on the right.
+        """ Split a pair. The node passed to this method itself contains a pair of leaf values.
+        Left node value is added to first value on the left, if there is one.
+        Right node value is added to first value on the right, if there is one.
         Current node value is then set to 0. 
 
-        Args:
-            node ([FishNumber]): The node pair we need to explode
+        Args: node ([FishNumber]): The node containing a pair we need to explode
         """
         
         # First explode the left side
         prev_node = node.left
-        current_node = node
+        current_node = node  # the parent of our pair of leaf values
         
         # traverse up the tree until we identify a node with a left (different) child
         # or until we can go no further
