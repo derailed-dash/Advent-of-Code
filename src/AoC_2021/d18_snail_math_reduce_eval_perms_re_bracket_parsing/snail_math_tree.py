@@ -170,21 +170,21 @@ class FishNumber:
         prev_node = node.left
         current_node = node  # the parent of our pair of leaf values
         
-        # traverse up the tree until we identify a node with a left (different) child
+        # Move UP the tree until we identify a node with a left (different) child
         # or until we can go no further
         while (current_node is not None and 
                (current_node.left == prev_node or current_node.left is None)):
             prev_node = current_node  # prev node moves up one
             current_node = current_node.parent  # current node now points to parent
 
-        # current node will be null if we previously reached the root (so no left value)
-        # otherwise, we must have identified a left node, so come back down the left
+        # Current node will be None if we previously reached the root from the left.
+        # Otherwise, we must have identified a left node, so come back DOWN the left
         if current_node is not None:
             assert current_node.left is not None, "There must be a left node"
             current_node = current_node.left
-            while current_node.val is None: # must have two children
+            while current_node.val is None: # must have two children; keep going down until we reach a leaf
                 if current_node.right is not None:
-                    current_node = current_node.right
+                    current_node = current_node.right   # if there's a number on the right of this node, it's nearest
                 else:
                     current_node = current_node.left
 
@@ -246,7 +246,7 @@ def add(left_tree: FishNumber, right_tree: FishNumber) -> FishNumber:
     new_root.left.parent = new_root
     new_root.right.parent = new_root
     
-    new_root.fish_reduce()  # Note that this modifies the roiginal supplied FishNumbers
+    new_root.fish_reduce()  # Note that this modifies the original supplied FishNumbers
     return new_root
 
 def main():
