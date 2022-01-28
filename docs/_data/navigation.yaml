@@ -12,40 +12,58 @@ pages:
   members:
   - name: 1
     link: /2021/1
+    problem: "Sonar Sweep"
   - name: 2
     link: /2021/2
+    problem: "Dive!"
   - name: 3
     link: /2021/3
+    problem: "Binary Diagnostic"
   - name: 4
     link: /2021/4
+    problem: "Giant Squid"
   - name: 5
     link: /2021/5
+    problem: "Hydrothermal Venture"
   - name: 6
     link: /2021/6
+    problem: "Lanternfish"
   - name: 7
     link: /2021/7
+    problem: "The Treachery of Whales"
   - name: 8
     link: /2021/8
+    problem: "Seven Segment Search"
   - name: 9
     link: /2021/9
+    problem: "Smoke Basin"
   - name: 10
     link: /2021/10
+    problem: "Syntax Scoring"
   - name: 11
     link: /2021/11
+    problem: "Dumbo Octopus"
   - name: 12
     link: /2021/12
+    problem: "Passage Pathing"
   - name: 13
     link: /2021/13
+    problem: "Transparent Origami"
   - name: 14
     link: /2021/14
+    problem: "Extended Polymerization"
   - name: 15
     link: /2021/15
+    problem: "Chiton"
   - name: 16
     link: /2021/16
+    problem: "Packet Decoder"
   - name: 17
     link: /2021/17
+    problem: "Trick Shot"
   - name: 18
-    link: /2021/18    
+    link: /2021/18
+    problem: "Snailfish"
 - name: "2020"
   link: /2020/
   mainnav: True
