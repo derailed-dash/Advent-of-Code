@@ -58,7 +58,7 @@ from itertools import combinations, permutations
 import matplotlib.pyplot as plt
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -66,7 +66,7 @@ SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
-RENDER = True
+RENDER = False
 OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
 OUTPUT_FILE = Path(OUTPUT_DIR, "trajectory.png")
 
@@ -156,11 +156,11 @@ def main():
     scanner_locations[0] = Vector(0, 0, 0)  # store our known scanner location
     scanners_not_located.remove(0)
 
-    # Prepopulate all orientations per vector, per scanner
+    # Prepopulate all orientations that can be applied to any vector.
     # First, get the 48 possible (x,y,z) orientations, in predictable order
     orientations = get_orientations()   # ( ((0,1,2), (inv,inv,inv)), ... )
     
-    # now apply the orientations to each set of beacons,
+    # Now apply all the orientations to each set of beacons,
     # to end up with dict of {scanner:{orientation_id:[vec1, vec2...]}}
     orientations_by_scanner = defaultdict(dict) # {scanner 0: {orientation 0: [vec1, vec2, ...]}}
     for scanner in range(total_scanners):
@@ -227,8 +227,7 @@ def get_orientations() -> tuple:
     """ Creates a set of 48 orientation parameters that can be applied to any vector
     to deliver a consistent list of re-oriented vectors.
     
-    There are six permutations of (x,y,z), and for each, 
-    there are 8 permutations of inversions of axes x,y,z.
+    There are six permutations of (x,y,z), and for each, there are 8 permutations of inversions of axes x,y,z.
 
     Returns:
         tuple[tuple]: ( ((x,y,z permutation), (x,y,z axis inversion)), ...)
@@ -249,8 +248,9 @@ def get_orientations() -> tuple:
     return tuple(orientations) # (((0, 1, 2), (0, 0, 0)), ...)
         
 def apply_orientation(orientation: tuple, vector: Vector) -> Vector:
-    """  Apply a reorientation of a vector, given a permutation.
-    Permutation looks like ((x,y,z)(a,b,c)), where x,y,z is orientation, and a,b,c is axis inversion
+    """  Apply a reorientation of a vector, given an orientation.
+    Orientation looks like ((x,y,z)(a,b,c)), where orientation[0] is x,y,z
+    and orientation[1] is a,b,c, i.e. the axis inversion.
     Returns: a new vector """
     coord_list = [vector.x, vector.y, vector.z]
     x = coord_list[orientation[0][0]]

@@ -67,6 +67,9 @@ pages:
   - name: 18
     link: /2021/18
     problem: "Snailfish"
+  - name: 19
+    link: /2021/19
+    problem: "Beacon Scanner"
 - name: "2020"
   link: /2020/
   mainnav: True
