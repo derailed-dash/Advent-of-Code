@@ -70,6 +70,9 @@ pages:
   - name: 19
     link: /2021/19
     problem: "Beacon Scanner"
+  - name: 20
+    link: /2021/20
+    problem: "Trench Map"
 - name: "2020"
   link: /2020/
   mainnav: True
