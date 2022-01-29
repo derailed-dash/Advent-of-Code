@@ -14,7 +14,7 @@ My hope is that this guide will help others to:
 - Solve AoC problems they might be stuck with.
 - Learn some new libraries and inventive ways of doing things.
 
-Use the navigation above to select an AoC year.
+Use the navigation above to jump straight into an AoC year. If you're completely new to Python, check out the [Getting Started with Python](python/) page first.
 
 ## What is Advent of Code?
 

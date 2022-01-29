@@ -6,6 +6,9 @@ pages:
 - name: Home
   link: /
   mainnav: True
+- name: Python
+  link: /python/
+  mainnav: True
 - name: "2021"
   link: /2021/
   mainnav: True
