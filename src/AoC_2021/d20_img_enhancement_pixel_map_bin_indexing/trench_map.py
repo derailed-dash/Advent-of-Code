@@ -28,7 +28,6 @@ Part 1:
     
     Store lit pixels in a set, usings coords from input str.
     Determine the bounds of the set.
-    ImageArray class creates a set of deltas in order to generate a 3x3 grid of any given point.
     The hard work is done in the enhance() method.
     For each cycle, we use the 3x3 grid about each px to generate a integer value lookup.
     This lookup is used agains the enhancement map, to determine the new value of the px in the new 
@@ -48,7 +47,7 @@ from typing import NamedTuple
 from PIL import Image, ImageDraw, ImageFont
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -58,8 +57,7 @@ INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 RENDER = True
 IMAGE_SIZE = 400
-OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
-OUTPUT_FILE = Path(OUTPUT_DIR, "trench_anim.gif")
+OUTPUT_FILE = Path(SCRIPT_DIR, "output/trench_anim.gif")
 
 class Point(NamedTuple):
     """ Point class, which knows how to return a 3x3 grid of all Points centred on itself. """    
@@ -73,6 +71,51 @@ class Point(NamedTuple):
         """ Return 3x3 grid of all points centered on itself """
         return [Point(self.x+dx, self.y+dy) for dx,dy in Point.DELTAS] 
 
+class Animator():
+    """ Creates an animation file of specified target size. """
+    
+    FONT = ImageFont.truetype('arial.ttf', 24)
+    TEXT_COLOUR = (128, 128, 220, 255) # light blue
+    
+    def __init__(self, file: Path, size: int, 
+                 duration: int, loop_animation=False, include_frame_count: bool=False) -> None:
+        """ Create an Animator. Suggest the file should be a .gif.
+        Target size is in pixels. Frame duration is in ms. Optionally superimpose frame count. """
+        self._outputfile = file
+        self._frames = []
+        self._target_size = size
+        self._frame_duration = duration
+        self._loop = loop_animation
+        self._add_frame_count = include_frame_count
+    
+    def add_frame(self, image: Image.Image):
+        """ Add a frame by passing in a PIL Image. The frame is resized to the target size. """
+        image = image.resize((self._target_size, self._target_size), Image.NEAREST)
+        if self._add_frame_count:
+            self._superimpose_frame_count(image)
+        self._frames.append(image)
+    
+    def _superimpose_frame_count(self, image: Image.Image):
+        """ Add our cycle count text to the bottom right of the image """
+        image_draw = ImageDraw.Draw(image)        
+        text = str(len(self._frames))
+        textwidth, textheight = image_draw.textsize(text, Animator.FONT)
+        im_width, im_height = image.size
+        margin = 10     # margin we want round the text to the edge
+        x_locn = im_width - textwidth - margin
+        y_locn = im_height - textheight - margin
+        image_draw.text((x_locn, y_locn), text, font=Animator.FONT, fill=Animator.TEXT_COLOUR)
+        
+    def save(self):
+        """ Save to the target file. Creates parent folder if it doesn't exist. """
+        dir_path = Path(self._outputfile).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+
+        logger.info("Animation saved to %s", self._outputfile)
+        self._frames[0].save(self._outputfile, save_all=True, loop=0,
+                             duration=self._frame_duration, append_images=self._frames[1:])
+        
 class ImageArray():
     """ Stores array of pixels (points) in a set. 
     Knows how many pixels are lit.  Is able to create a new ImageArray based on rules. """
@@ -80,7 +123,8 @@ class ImageArray():
     DARK = "."  # 0
     BIN_MAP = { DARK: '0', LIGHT: '1'}
     
-    def __init__(self, image_data: str|set, img_enhancement_map: str, canvas_char='.') -> None:
+    def __init__(self, image_data: str|set, img_enhancement_map: str, 
+                 canvas_char='.', animator: Animator=None) -> None:
         """ Create a new ImageArray, containing a set of lit pixels.
 
         Args:
@@ -104,10 +148,14 @@ class ImageArray():
         
         # The background canvas char can be changed, depending on first and last chars of the enhancement map
         self._canvas_char = canvas_char 
+
+        # Only render the image frame, if we have an Animator reference
+        self._animator = animator
+        if animator is not None:
+            animator.add_frame(self.render_image())
         
     def _process_img_str(self, image_data: str) -> set[Point]:
-        """ Take a str of image data and convert to a set.
-        Only stores points that are lit. """
+        """ Take a str of image data and convert to a set. Only stores points that are lit. """
         pixels = set()
         
         for y, line in enumerate(image_data.splitlines()):
@@ -171,8 +219,9 @@ class ImageArray():
                     new_pixels.add(pnt)
         
         # Update the char that should be used for the infinite canvas next time.          
-        next_canvas_char = self._img_enhancement_map[ImageArray._surrounded_by_index(self._canvas_char)]   
-        return ImageArray(new_pixels, self._img_enhancement_map, canvas_char=next_canvas_char)
+        next_canvas_char = self._img_enhancement_map[ImageArray._surrounded_by_index(self._canvas_char)]
+        return ImageArray(new_pixels, self._img_enhancement_map, 
+                          canvas_char=next_canvas_char, animator=self._animator)
     
     def _outside_bounds(self, point: Point) -> bool:
         """ Determine if the specified point is within the existing bounds of the image. """
@@ -206,7 +255,7 @@ class ImageArray():
             else:   # dark pixel, and within bounds
                 nine_box_bin += ImageArray.BIN_MAP[ImageArray.DARK]
         
-        return int(nine_box_bin, 2)
+        return ImageArray.convert_to_dec(nine_box_bin)
     
     @staticmethod
     def convert_to_dec(input_str: str) -> int:
@@ -222,20 +271,18 @@ def main():
         data = f.read().split("\n\n")
         
     image_enhance_map, input_img = data
-    trench_image = ImageArray(input_img, image_enhance_map)
     
-    frames = []
     if RENDER:
-        base_image = trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST)
+        animator = Animator(file=OUTPUT_FILE, size=IMAGE_SIZE, 
+                            duration=150, loop_animation=True, include_frame_count=True)
+        trench_image = ImageArray(input_img, image_enhance_map, animator=animator)
+    else:
+        trench_image = ImageArray(input_img, image_enhance_map)
 
     # Part 1 - Stop at 2 cycles
     for i in range(2):
         logger.debug("Image iteration %d", i)
         trench_image = trench_image.enhance()
-        if RENDER:
-            image = trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST)
-            add_cycle_count(image, i+1)
-            frames.append(image)
     
     logger.info("Part 1: Lit=%d", trench_image.lit_count)   
     
@@ -243,31 +290,11 @@ def main():
     for i in range(2, 50):
         logger.debug("Image iteration %d", i)
         trench_image = trench_image.enhance()
-        if RENDER:
-            image = trench_image.render_image().resize((IMAGE_SIZE, IMAGE_SIZE), Image.NEAREST)
-            add_cycle_count(image, i+1)
-            frames.append(image)
-    logger.info("Part 2: Lit=%d", trench_image.lit_count)   
-
-    if RENDER:
-        dir_path = Path(OUTPUT_FILE).parent
-        if not Path.exists(dir_path):
-            Path.mkdir(dir_path)
-        base_image.save(OUTPUT_FILE, save_all=True, duration=150, append_images=frames)
-        logger.info("Animation saved to %s", OUTPUT_FILE)
         
-def add_cycle_count(image: Image.Image, counter: int):
-    # Add our cycle count text to the bottom right of the image
-    image_draw = ImageDraw.Draw(image)        
-    font = ImageFont.truetype('arial.ttf', 24)
-    text = str(counter)
-    rgba = (255, 255, 255, 255) # light blue
-    textwidth, textheight = image_draw.textsize(text, font)
-    im_width, im_height = image.size
-    margin = 10     # margin we want round the text to the edge
-    x_locn = im_width - textwidth - margin
-    y_locn = im_height - textheight - margin
-    image_draw.text((x_locn, y_locn), text, font=font, fill=rgba)
+    logger.info("Part 2: Lit=%d", trench_image.lit_count)
+    
+    if animator:
+        animator.save()
         
 if __name__ == "__main__":
     t1 = time.perf_counter()
