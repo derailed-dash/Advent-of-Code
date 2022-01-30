@@ -73,6 +73,9 @@ pages:
   - name: 20
     link: /2021/20
     problem: "Trench Map"
+  - name: 21
+    link: /2021/21
+    problem: "Dirac Dice"
 - name: "2020"
   link: /2020/
   mainnav: True
