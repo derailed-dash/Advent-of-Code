@@ -33,7 +33,7 @@ Part 2:
     - Cache using lru_cache decorator, 
       which caches a function's return value with a key of the current function args.
 """
-from __future__ import annotations
+from abc import ABC, abstractmethod
 from functools import lru_cache
 import logging
 import os
@@ -47,7 +47,7 @@ INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -56,7 +56,7 @@ class Player(NamedTuple):
     posn: int
     score: int
 
-class AbstractDie():
+class AbstractDie(ABC):
     """ Abstract die """
     def __init__(self, faces: int) -> None:
         self._faces = faces
@@ -67,11 +67,11 @@ class AbstractDie():
     def total_rolls(self):
         return self._total_rolls
     
-    @property
     def roll(self):
         """ This is how we roll the die. Calls next() on the roll generator. """
         return next(self._roll_gen)
     
+    @abstractmethod
     def _roll(self) -> Iterator[int]:
         """ We need to override this method. """
         return NotImplemented
@@ -125,7 +125,7 @@ class Game():
 
         old_posn, old_total = self.players[player_num] # unpack the player
         
-        die_score = sum(self._die.roll for i in range(Game.ROLLS_PER_TURN)) # Roll n times
+        die_score = sum(self._die.roll() for i in range(Game.ROLLS_PER_TURN)) # Roll n times
         new_posn = (((old_posn + die_score)-1) % Game.SPACES) + 1 # Move forward n spaces
         new_total = old_total + new_posn  # Add new board position to existing player score
         self.players[player_num] = Player(new_posn, new_total)  # Update the player
@@ -141,7 +141,7 @@ def main():
     for line in data:
         tokens = line.split() # Into 5 tokens, e.g. "Player" "1" "starting" "position:" "4"
         init_players.append(Player(posn=int(tokens[-1]), score=0))
-
+    
     # Part 1
     players = deepcopy(init_players)
     die = DeterministicDie(faces=100)
