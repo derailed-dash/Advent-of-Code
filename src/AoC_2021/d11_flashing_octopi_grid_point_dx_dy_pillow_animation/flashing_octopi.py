@@ -186,7 +186,7 @@ class Grid():
         """ Render an image frame showing the current cycle state.
         Saves the frame to the self._frames list.
         Superimposes the cycle number text to the frame. """
-        scale = 25
+        scale = 50
         all_values = [self.value_at_point(point) for point in self.all_points()] # flattened values
         max_energy = Grid.FLASH_THRESHOLD
         
