@@ -46,6 +46,11 @@ SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
 # INPUT_FILE = "input/sample_input.txt"
 
+# Sums of possible die rolls, i.e. 3**3 = 27 different ways of performing three rolls with 3-sided die.
+# I.e. 1 way to score 3, 3 ways to score 4, 6 ways to score 5, etc.
+# I.e. there are always 27 possible next game states from any given state.
+TRIPLE_ROLL_SUMS = [sum(score) for score in product(range(1, 4), repeat=3)] 
+
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -165,7 +170,7 @@ def main():
     
 # Cache game states for our recursion
 # Consider that we only have 10 starting positions for each player, and 21 possible scores
-# Thus 10*10*21*20 = 42K game states. 
+# Thus 10*10*21*21 = 44K game states. 
 @lru_cache(maxsize=None)    
 def count_wins(posn_a: int, posn_b: int, score_a: int, score_b: int) -> tuple[int, int]:
     """ Return number of universes in which each player can win from this state.
@@ -181,24 +186,20 @@ def count_wins(posn_a: int, posn_b: int, score_a: int, score_b: int) -> tuple[in
     if score_b >= 21:
         return (0, 1)   # Player B has won; player A has lost. No other options are possible.
     
-    result = (0, 0)     # Initialise; no wins yet
-    
-    # Sums of possible die rolls, i.e. 3**3 = 27 different ways of performing three rolls with 3-sided die.
-    # I.e. 1 way to score 3, 3 ways to score 4, 6 ways to score 5, etc.
-    # I.e. there are always 27 possible next game states from any given state.
-    triple_roll_sums = [sum(prod) for prod in product(range(1, 4), repeat=3)] 
+    wins_a = wins_b = 0     # Initialise; no wins yet
     
     # For each triplet of die rolls Player A could perform on their turn,
-    # perform the triplet roll to get a new game state, and then handover to player B to take their turn
-    for score in triple_roll_sums:
+    # perform the triple roll to get a new game state, and then handover to player B to take their turn
+    for score in TRIPLE_ROLL_SUMS:
         new_posn_a = (posn_a + score - 1) % Game.SPACES + 1     # move player
         new_score_a = score_a + new_posn_a                      # update player score
         
         # Now recurse. Next move is from player b. So, next call will return (ways b, ways a).
-        ways_b, ways_a = count_wins(posn_b, new_posn_a, score_b, new_score_a)
-        result = (result[0]+ways_a, result[1]+ways_b)   # add to current
+        wins_b_from_here, wins_a_from_here = count_wins(posn_b, new_posn_a, score_b, new_score_a)
+        wins_a += wins_a_from_here
+        wins_b += wins_b_from_here
         
-    return result
+    return wins_a, wins_b
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
