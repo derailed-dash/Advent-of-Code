@@ -40,57 +40,31 @@ import re
 from typing import NamedTuple
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 SCRIPT_DIR = os.path.dirname(__file__) 
-# INPUT_FILE = "input/input.txt"
-INPUT_FILE = "input/sample_input.txt"
+INPUT_FILE = "input/input.txt"
+# INPUT_FILE = "input/sample_input.txt"
+
+class Instruction(NamedTuple):
+    """ An instruction to turn on/off all the cubes in the region described by the Cuboid """
+    on_or_off: str
+    cuboid: Cuboid
 
 class Cuboid(NamedTuple):
-    """ Stores the x, y and z coordinates that make up a cuboid.
-    Knows how to check if another cuboid overlaps with it.
-    Knows how to return a new cuboid which is the overlap with another cuboid. """
+    """ Stores the x, y and z coordinates that make up a cuboid. """
     x_range: tuple[int, int]
     y_range: tuple[int, int]
     z_range: tuple[int, int]
     
-    def vol(self) -> int:
-        """ Total volume of this cuboid, i.e. the product of x, y, z dimensions."""
-        return ((self.x_range[1] - (self.x_range[0]-1)) *
-                (self.y_range[1] - (self.y_range[0]-1)) *
-                (self.z_range[1] - (self.z_range[0]-1)))
-    
-    def overlaps_with(self, other: Cuboid) -> bool:
-        """ There must be overlap in all three dimensions for two cuboids to have any overlap.
-        Dimensions are INCLUSIVE of both ends of each edge. """
-        return ((other.x_range[0] <= self.x_range[1] or other.x_range[1] >= self.x_range[0])
-                and (other.y_range[0] <= self.y_range[1] or other.y_range[1] >= self.y_range[0])
-                and (other.z_range[0] <= self.z_range[1] or other.z_range[1] >= self.z_range[0]))
-            
-    def overlapping_cuboid(self, other: Cuboid) -> Cuboid:
-        """ Determine the dimensions of cuboid created by overlap with another cuboid. """
-        assert self.overlaps_with(other)
-        
-        x_min = max(self.x_range[0], other.x_range[0])
-        x_max = min(self.x_range[1], other.x_range[1])
-        
-        y_min = max(self.y_range[0], other.y_range[0])
-        y_max = min(self.y_range[1], other.y_range[1])
-        
-        z_min = max(self.z_range[0], other.z_range[0])
-        z_max = min(self.z_range[1], other.z_range[1])
-        
-        return Cuboid((x_min, x_max), (y_min, y_max), (z_min, z_max))        
-
-class CuboidSet():
-    """ 3D space that contains a number of points. Initially, all points are "turned off".
-    The contained points are built by supplying a set of cuboids that we need to add and subtract. """
+class Reactor():
+    """ 3D space that contains a number of unit cubes. Initially, all cubes are turned off.
+    We process a number of instructions, which toggles cuboid regions to be on or off. """
     
     def __init__(self, bound:int=0) -> None:
-        """ Initialise this cuboid set.  When adding / subtracting points (later),
-        ignore anything out of bounds. 
+        """ Initialise this cuboid set.  When adding / subtracting points (later), ignore anything out of bounds. 
         Bound is given by (0-bound, 0+bound) in any dimension. 0 means no bound. """
         self._bound = bound
         self._cuboid = set()
@@ -99,15 +73,14 @@ class CuboidSet():
     def cells_on(self):
         return len(self._cuboid)
     
-    def update(self, instr:str, cuboid: Cuboid):
-        """ Turn on / off points that are supplied in the form of a Cuboid.
-        instr = "on" or "off". """
-        temp_cuboid = self._cuboid_to_set(cuboid.x_range, cuboid.y_range, cuboid.z_range)
+    def update(self, instr:Instruction):
+        """ Turn on / off points that are supplied in the form of a Cuboid. """
+        cuboid = self._cuboid_to_set(instr.cuboid.x_range, instr.cuboid.y_range, instr.cuboid.z_range)
         
-        if instr == "on":
-            self._cuboid = self._cuboid | temp_cuboid   # union
+        if instr.on_or_off == "on":
+            self._cuboid = self._cuboid | cuboid   # union
         else:
-            self._cuboid = self._cuboid - temp_cuboid   # diff
+            self._cuboid = self._cuboid - cuboid   # diff
     
     def _cuboid_to_set(self, x_range: tuple, y_range: tuple, z_range: tuple) -> set:
         """ Creates a new set of 'on' points, given a set of 3 pairs of cuboid vertices. """
@@ -144,7 +117,7 @@ class CuboidDeterminator():
     Finally, intervals and their corresponding lengths can be used to determine 
     the size of 'on' cuboids. """
     
-    def __init__(self, instructions: list[tuple[str, Cuboid]], bound:int=0) -> None:
+    def __init__(self, instructions: list[Instruction], bound:int=0) -> None:
         self._instructions = instructions   # e.g. ("on", ((x1, x2), (y1, y2), (z1, z2)))
         self._bound = bound
         
@@ -181,7 +154,7 @@ class CuboidDeterminator():
         
         # Populate all the intervals, and the lengths between intervals
         for instruction in self._instructions:
-            cuboid = instruction[1]     # e.g. ((10, 12), (10, 12), (10, 12))
+            cuboid = instruction.cuboid     # e.g. ((10, 12), (10, 12), (10, 12))
             
             # Add the intervals (vertices) in this instruction
             x_intervals.add(cuboid.x_range[0])  # E.g. adding 10
@@ -201,9 +174,8 @@ class CuboidDeterminator():
         # Now apply on and off instructions
         # I.e. add or remove cuboids in the right order
         for i, instruction in enumerate(self._instructions):
-            instr = instruction[0]  # e.g. "on"
-            cuboid = instruction[1]
-            logger.debug("Instruction %d (of %d)=%s: %s", i+1, len(self._instructions), instr, cuboid)
+            cuboid = instruction.cuboid
+            logger.debug("Instruction %d (of %d)=%s: %s", i+1, len(self._instructions), instruction.on_or_off, cuboid)
             
             # unpack the vertices of this cuboid
             # E.g. (10, 12), (10, 12), (10, 12)
@@ -218,7 +190,7 @@ class CuboidDeterminator():
             for x_intv_index in range(x_intv_to_index[x1], x_intv_to_index[x2+1]):
                 for y_intv_index in range(y_intv_to_index[y1], y_intv_to_index[y2+1]):
                     for z_intv_index in range (z_intv_to_index[z1], z_intv_to_index[z2+1]):
-                        if instr == "on":
+                        if instruction.on_or_off == "on":
                             # add intervals corresponding to cuboids turned on
                             on_indexes.add((x_intv_index, y_intv_index, z_intv_index)) # E.g. (1, 1, 1)
                         else:
@@ -272,25 +244,25 @@ def main():
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
     
-    instructions: list[tuple[str, Cuboid]] = []
+    instructions: list[Instruction] = []
     pattern = re.compile(r"(on|off) x=(-?\d+)..(-?\d+),y=(-?\d+)..(-?\d+),z=(-?\d+)..(-?\d+)")
     for line in data:
         if (match := pattern.match(line)):
             instr, x_min, x_max, y_min, y_max, z_min, z_max = match.groups()
-            cuboid = Cuboid((int(x_min), int(x_max)), (int(y_min), int(y_max)), (int(z_min), int(z_max)))
-            instructions.append((instr, cuboid))
+            reactor = Cuboid((int(x_min), int(x_max)), (int(y_min), int(y_max)), (int(z_min), int(z_max)))
+            instructions.append(Instruction(instr, reactor))
     
     # Part 1 - Count how many cubes are on, with small bounds
-    cuboid = CuboidSet(bound=50)
+    reactor = Reactor(bound=50)
     for i, instr in enumerate(instructions):
         logger.debug("Processing instruction %d; there are %d left", i+1, len(instructions)-(i+1))
-        cuboid.update(instr[0], instr[1])
+        reactor.update(instr)
 
-    logger.info("Part 1 using CuboidSet - cubes on: %s\n", cuboid.cells_on)
+    logger.info("Part 1 using CuboidSet - cubes on: %s\n", reactor.cells_on)
 
     # Part 2 - Count how many cubes are on, with no bounds
-    cuboid = CuboidDeterminator(instructions)
-    logger.info("Part 2 cubes on: %d", cuboid.cells_on)
+    reactor = CuboidDeterminator(instructions)
+    logger.info("Part 2 cubes on: %d", reactor.cells_on)
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
