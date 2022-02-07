@@ -117,14 +117,8 @@ class CuboidDeterminator():
     Then we sort them in each dimension, and have a map of each to an interval length. 
     Finally, intervals and their corresponding lengths can be used to determine the size of 'on' cuboids. """
     
-    def __init__(self, instructions: list[Instruction], bound:int=0) -> None:
-        self._instructions = instructions   # e.g. ("on", ((x1, x2), (y1, y2), (z1, z2)))
-        self._bound = bound
-        
-        # Maintain current bounds
-        self._min_x = self._min_y = self._min_z = 0
-        self._max_x = self._max_y = self._max_z = 0
-               
+    def __init__(self, instructions: list[Instruction]) -> None:
+        self._instructions = instructions
         self._cells_on = self._process_instructions()
 
     @property
@@ -139,36 +133,31 @@ class CuboidDeterminator():
         Returns int: Total cubes turned on. """
         
         # Here we will store all cube positions where something interesting happens, i.e. a cuboid begins or ends
-        x_intervals = []
-        y_intervals = []
-        z_intervals = []
-        
-        # Sorted intervals, and their corresponding lengths
-        x_intv_to_index = {} # E.g. will become {9: 0, 10:1, 11:2, etc}
-        y_intv_to_index = {}
-        z_intv_to_index = {}
-        
-        
-        x_index_to_len = {} # E.g. will become {0: 1, 1: 1, 2: 1, etc}
-        y_index_to_len = {}
-        z_index_to_len = {}   
-        
+        x_vals = []
+        y_vals = []
+        z_vals = []
+                
         # Get all the intervals, i.e. where an instruction changes something
         for instruction in self._instructions:
-            cuboid = instruction.cuboid     # e.g. ((10, 12), (10, 12), (10, 12))
+            cuboid = instruction.cuboid
             
             # Add the intervals (vertices) in this instruction
-            x_intervals.append(cuboid.x_range[0])
-            x_intervals.append(cuboid.x_range[1]+1)
-            y_intervals.append(cuboid.y_range[0])
-            y_intervals.append(cuboid.y_range[1]+1)
-            z_intervals.append(cuboid.z_range[0])
-            z_intervals.append(cuboid.z_range[1]+1)      
-            self._update_bounds(cuboid)
+            x_vals.append(cuboid.x_range[0])
+            x_vals.append(cuboid.x_range[1]+1)
+            y_vals.append(cuboid.y_range[0])
+            y_vals.append(cuboid.y_range[1]+1)
+            z_vals.append(cuboid.z_range[0])
+            z_vals.append(cuboid.z_range[1]+1)
     
-        x_intv_to_index, x_index_to_len = self._create_intv_maps(x_intervals)
-        y_intv_to_index, y_index_to_len = self._create_intv_maps(y_intervals)
-        z_intv_to_index, z_index_to_len = self._create_intv_maps(z_intervals)                        
+        # All dimensions in numeric order
+        x_vals.sort()
+        y_vals.sort()
+        z_vals.sort()
+        
+        # Store the intervals between each successive value in a given dimension        
+        x_intervals = [x_vals[i+1]-x_vals[i] for i in range(len(x_vals)-1)]
+        y_intervals = [y_vals[i+1]-y_vals[i] for i in range(len(y_vals)-1)]
+        z_intervals = [z_vals[i+1]-z_vals[i] for i in range(len(z_vals)-1)]
         
         on_indexes = set()
         
@@ -179,7 +168,6 @@ class CuboidDeterminator():
             logger.debug("Instruction %d (of %d)=%s: %s", i+1, len(self._instructions), instruction.on_or_off, cuboid)
             
             # unpack the vertices of this cuboid
-            # E.g. (10, 12), (10, 12), (10, 12)
             x1, x2 = cuboid.x_range[0], cuboid.x_range[1]
             y1, y2 = cuboid.y_range[0], cuboid.y_range[1]
             z1, z2 = cuboid.z_range[0], cuboid.z_range[1]
@@ -187,9 +175,9 @@ class CuboidDeterminator():
             # Get the appropriate intervals given by these coordinates
             # E.g. for cuboid (10,12),(10,12),(10,12), we turn on a 3x3x3 cuboid of cells.
             # E.g. x_intv_index in range(1, 4) = 3 interval indexes
-            for x_intv_index in range(x_intv_to_index[x1], x_intv_to_index[x2+1]):
-                for y_intv_index in range(y_intv_to_index[y1], y_intv_to_index[y2+1]):
-                    for z_intv_index in range (z_intv_to_index[z1], z_intv_to_index[z2+1]):
+            for x_intv_index in range(x_vals.index(x1), x_vals.index(x2+1)):
+                for y_intv_index in range(y_vals.index(y1), y_vals.index(y2+1)):
+                    for z_intv_index in range (z_vals.index(z1), z_vals.index(z2+1)):
                         if instruction.on_or_off == "on":
                             # add intervals corresponding to cuboids turned on
                             on_indexes.add((x_intv_index, y_intv_index, z_intv_index)) # E.g. (1, 1, 1)
@@ -203,41 +191,12 @@ class CuboidDeterminator():
         # For each triplet of on intervals, get the corresponding lengths.
         # This gives us the size of the 'on cuboid', i.e. how many cells are on in the cuboid
         for x_intv_index, y_intv_index, z_intv_index in on_indexes:
-            len_x = x_index_to_len[x_intv_index]
-            len_y = y_index_to_len[y_intv_index]
-            len_z = z_index_to_len[z_intv_index]
+            len_x = x_intervals[x_intv_index]
+            len_y = y_intervals[y_intv_index]
+            len_z = z_intervals[z_intv_index]
             total_cells_on += len_x * len_y * len_z
             
         return total_cells_on
-                             
-    def _create_intv_maps(self, intvals: list[int]) -> tuple[dict, dict]:
-        """ For this dimension:
-            - Create a map of interval value to interval index 
-            - Create a map of interval lengths (i.e. from one interval to the next) by position
-        
-        E.g. passing in {9, 10, 11, 12, 13, 14}, we'll get {9: 1} and {0: 1} """
-        intvals_list = sorted(intvals)   # create ordered list from set, i.e. [9, 10, 11, 12, 13, 14]
-
-        intv_to_ind = {}    # map of intervals to their position
-        ind_to_len = {}     # map of position to interval length
-        
-        for i, intv in enumerate(intvals_list):
-            intv_to_ind[intv] = i   # {9: 0}, i.e. interval starting at 9 is index 0
-            
-            # Now work out the length of this interval, i.e. diff between this intv and the next
-            if i+1 < len(intvals_list): # when i+1 = len(intvals_list), there is no next interval
-                intv_length = intvals_list[i+1] - intvals_list[i]
-                ind_to_len[i] = intv_length
-            
-        return (intv_to_ind, ind_to_len)
-        
-    def _update_bounds(self, cuboid: Cuboid):
-        self._min_x = min(self._min_x, cuboid.x_range[0])   # E.g. 0
-        self._min_y = min(self._min_y, cuboid.y_range[0])
-        self._min_z = min(self._min_z, cuboid.z_range[0])
-        self._max_x = max(self._max_x, cuboid.x_range[1])   # E.g. 0 -> 12 -> 13
-        self._max_y = max(self._max_y, cuboid.y_range[1])
-        self._max_z = max(self._max_z, cuboid.z_range[1])
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
