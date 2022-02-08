@@ -22,15 +22,15 @@ Part 1:
     Only need to work within the bounds, which means a total solution space of 100x100x100, so only 1m cells.
     
 Part 2:
-    Okay, without bounds solution space is too large to repeat Part 1.
+    Okay, without bounds the solution space is too large to repeat Part 1.
     We don't need to keep track of every point.  We just need to track where intervals start and end.
-    We use "coordinate compression" to remove all cubes where nothing happens, 
+    We use "coordinate compression" to remove all 'regions' where nothing happens, 
     leaving only coordinates where something interesting happens, i.e. where an instruction turns cubes on or off.
     So
-      - Get all the intervals created by all the instructions.
-      - Order them, and then aggregate them into blocks based on the intervals lengths along each axis.
-      - Then run through instructions again, adding intervals in order.
-      - We end up with about 130m intervals, and we have to work out the products for these, and sum them.
+      - Get sorted lists for all x, y, and z values in all the instructions.  This is where changes happen.
+      - The values and their associated edges represent cuboid 'segments' which could be turned on or off.
+      - Process instructions in order, determining which segments ultimately need to be turned on.
+      - Work out the volume of all the on segments, and add them together.
     
     This is slow: 3 mins in CPython and 2 mins in PyPy.
 """
@@ -40,6 +40,8 @@ import os
 import time
 import re
 from typing import NamedTuple
+from bisect import bisect_left
+from tqdm import tqdm
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%H:%M:%S')
@@ -47,8 +49,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 SCRIPT_DIR = os.path.dirname(__file__) 
-# INPUT_FILE = "input/input.txt"
-INPUT_FILE = "input/sample_input.txt"
+INPUT_FILE = "input/input.txt"
+# INPUT_FILE = "input/sample_input.txt"
 
 class Instruction(NamedTuple):
     """ An instruction to turn on/off all the cubes in the region described by the Cuboid """
@@ -72,7 +74,7 @@ class Reactor():
         self._cuboid = set()
         
     @property
-    def cells_on(self):
+    def cubes_on(self):
         return len(self._cuboid)
     
     def update(self, instr:Instruction):
@@ -112,20 +114,16 @@ class Reactor():
         return f"CuboidGrid:size={len(self._cuboid)}"
 
 class CuboidDeterminator():
-    """ Represents number of points that are turned on in a 3D space. This class works by tracking intervals.
-    Instructions are pre-processed to determine all intervals, i.e. vertices and intersections. 
-    Then we sort them in each dimension, and have a map of each to an interval length. 
-    Finally, intervals and their corresponding lengths can be used to determine the size of 'on' cuboids. """
+    """ Represents number of points that are turned on in a 3D space. This class works using coordinate compression.
+    Instructions are pre-processed to collapse to coordinates where something changes, i.e. the beginning or end of a cuboid.
+    We obtain a sorted list of coordinates in each dimension, representing any interval boundaries in that dimension.
+    For each boundary, we have an associated length of the corresponding cuboid 'segment'.
+    Finally, we work out how many cubes there are in all the 'on' cuboid segments, and return the total. """
     
     def __init__(self, instructions: list[Instruction]) -> None:
         self._instructions = instructions
-        self._cells_on = self._process_instructions()
 
-    @property
-    def cells_on(self):
-        return self._cells_on
-    
-    def _process_instructions(self) -> int:
+    def perform_reset(self) -> int:
         """ Process all the instructions, e.g. 
         on x=10..12,y=10..12,z=10..12, on x=11..13,y=11..13,z=11..13.
         Instruction order is not important.  We'll convert to an ordered list.
@@ -154,49 +152,56 @@ class CuboidDeterminator():
         y_vals.sort()
         z_vals.sort()
         
-        # Store the intervals between each successive value in a given dimension        
+        # Store the intervals (ranges) between each successive value in a given dimension        
         x_intervals = [x_vals[i+1]-x_vals[i] for i in range(len(x_vals)-1)]
         y_intervals = [y_vals[i+1]-y_vals[i] for i in range(len(y_vals)-1)]
         z_intervals = [z_vals[i+1]-z_vals[i] for i in range(len(z_vals)-1)]
         
         on_indexes = set()
         
-        # Now apply on and off instructions
-        # I.e. add or remove cuboids in the right order
-        for i, instruction in enumerate(self._instructions):
-            cuboid = instruction.cuboid
-            logger.debug("Instruction %d (of %d)=%s: %s", i+1, len(self._instructions), instruction.on_or_off, cuboid)
-            
+        # Now apply on and off instructions, i.e. add or remove cuboids in the right order
+        for instruction in tqdm(self._instructions):
             # unpack the vertices of this cuboid
-            x1, x2 = cuboid.x_range[0], cuboid.x_range[1]
-            y1, y2 = cuboid.y_range[0], cuboid.y_range[1]
-            z1, z2 = cuboid.z_range[0], cuboid.z_range[1]
+            x1, x2 = instruction.cuboid.x_range[0], instruction.cuboid.x_range[1]
+            y1, y2 = instruction.cuboid.y_range[0], instruction.cuboid.y_range[1]
+            z1, z2 = instruction.cuboid.z_range[0], instruction.cuboid.z_range[1]
             
-            # Get the appropriate intervals given by these coordinates
-            # E.g. for cuboid (10,12),(10,12),(10,12), we turn on a 3x3x3 cuboid of cells.
-            # E.g. x_intv_index in range(1, 4) = 3 interval indexes
-            for x_intv_index in range(x_vals.index(x1), x_vals.index(x2+1)):
-                for y_intv_index in range(y_vals.index(y1), y_vals.index(y2+1)):
-                    for z_intv_index in range (z_vals.index(z1), z_vals.index(z2+1)):
+            # Determine all the cuboid 'segments' we need to turn on.
+            # A given cuboid in an instruction could contain many smaller cuboid 'segments'.
+            # Get the indexes for the values given by each instruction, in a given dimension.
+            # E.g. the first cuboid might give us x1 of 0 and x2 of 2. 
+            # (Because x=1 might be the start of a different cuboid.)
+            x1_index, x2_index = bisect_left(x_vals, x1), bisect_left(x_vals, (x2+1))
+            y1_index, y2_index = bisect_left(y_vals, y1), bisect_left(y_vals, (y2+1))
+            z1_index, z2_index = bisect_left(z_vals, z1), bisect_left(z_vals, (z2+1))
+            
+            for x_intv_index in range(x1_index, x2_index):
+                for y_intv_index in range(y1_index, y2_index):
+                    for z_intv_index in range(z1_index, z2_index):
+                        # add starting coords corresponding to cuboid segments to turn on / off
                         if instruction.on_or_off == "on":
-                            # add intervals corresponding to cuboids turned on
-                            on_indexes.add((x_intv_index, y_intv_index, z_intv_index)) # E.g. (1, 1, 1)
+                            on_indexes.add((x_intv_index, y_intv_index, z_intv_index))
                         else:
-                            # remove intervals corresponding to cuboids turned off
-                            on_indexes.discard((x_intv_index, y_intv_index, z_intv_index)) # E.g. (0, 0, 0)
-           
-        logger.debug("Computing interval volumes for %d on indexes. This might take a while...", len(on_indexes))
-        total_cells_on = 0
-        # on_indexes contains, e.g. 39 different non-overlapping 'on' intervals
-        # For each triplet of on intervals, get the corresponding lengths.
-        # This gives us the size of the 'on cuboid', i.e. how many cells are on in the cuboid
-        for x_intv_index, y_intv_index, z_intv_index in on_indexes:
+                            # use discard, to remove cuboid segments that we have previously 'turned on'
+                            # I.e. because an off instruction might overlap.  
+                            # If it doesn't overlap, there will be nothing to discard.
+                            on_indexes.discard((x_intv_index, y_intv_index, z_intv_index))
+        
+        logger.info("%d 'on' segments identified.", len(on_indexes))
+        logger.info("Computing interval volumes. This might take a while...")
+        
+        total_cubes_on:int = 0
+
+        # Each 'on' coord will align to a triplet of interval lengths, i.e. to give the volume of that cuboid 'segment'.
+        # This gives us the size of the 'on cuboid', i.e. how many cubes are 'on' in the cuboid
+        # Wrap our set with tqdm to provide a progress bar
+        for x_intv_index, y_intv_index, z_intv_index in tqdm(on_indexes):
             len_x = x_intervals[x_intv_index]
             len_y = y_intervals[y_intv_index]
             len_z = z_intervals[z_intv_index]
-            total_cells_on += len_x * len_y * len_z
-            
-        return total_cells_on
+            total_cubes_on += len_x * len_y * len_z
+        
+        return total_cubes_on
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -212,16 +217,17 @@ def main():
             instructions.append(Instruction(instr, reactor))
     
     # Part 1 - Count how many cubes are on, with small bounds
+    logger.info("Part 1:")
     reactor = Reactor(bound=50)
-    for i, instr in enumerate(instructions):
-        logger.debug("Processing instruction %d; there are %d left", i+1, len(instructions)-(i+1))
+    for instr in tqdm(instructions):
         reactor.update(instr)
 
-    logger.info("Part 1 using CuboidSet - cubes on: %s\n", reactor.cells_on)
+    logger.info("Using CuboidSet - cubes on: %d\n", reactor.cubes_on)
 
     # Part 2 - Count how many cubes are on, with no bounds
+    logger.info("Part 2:")
     reactor = CuboidDeterminator(instructions)
-    logger.info("Part 2 cubes on: %d", reactor.cells_on)
+    logger.info("Using CuboidDeterminator - cubes on: %d", reactor.perform_reset())
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

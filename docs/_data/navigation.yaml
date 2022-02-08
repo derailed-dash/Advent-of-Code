@@ -79,6 +79,9 @@ pages:
   - name: 22
     link: /2021/22
     problem: "Reactor Reboot"
+  - name: 23
+    link: /2021/23
+    problem: "Amphipod"    
 - name: "2020"
   link: /2020/
   mainnav: True
