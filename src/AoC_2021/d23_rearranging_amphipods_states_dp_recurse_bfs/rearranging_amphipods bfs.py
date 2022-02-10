@@ -35,6 +35,7 @@ import logging
 import os
 import time
 import heapq
+from typing import Iterable
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -177,7 +178,7 @@ class BurrowState():
         else:
             return NotImplemented
     
-    def next_state(self) -> BurrowState:
+    def next_state(self) -> Iterable[BurrowState]:
         """ Yields next possible states from here.
         If we can put a amphipod into its destination room, then only return that state. """  
         rooms, hall = self._state
@@ -292,7 +293,7 @@ def main():
 
 def solve_with_dijkstra(start: BurrowState) -> tuple[BurrowState, dict[BurrowState, BurrowState]]:
     current: BurrowState = start
-    frontier: list[BurrowState] = []
+    frontier: list = []
     heapq.heappush(frontier, (0, current))   # init state will have energy cost of 0
     
     came_from = {}  # so we can rebuild path from breadcrumbs
