@@ -23,7 +23,8 @@ description: Dazbo's Advent of Code solutions, written in Python
 
 # We need the URLs below otherwise overriding CSS wont work
 repository: derailed-dash/derailed-dash.github.io
-baseurl: /Advent-of-Code  # should not contain host!
+# baseurl: /Advent-of-Code  # should not contain host!
+baseurl: /
 # url: https://derailed-dash.github.io
 url: https://aoc.just2good.co.uk
 
