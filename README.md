@@ -1,6 +1,6 @@
 # Dazbo's Advent of Code
 
-### See my walkthroughs [here](https://derailed-dash.github.io/Advent-of-Code/).
+### See my walkthroughs [here](https://aoc.just2good.co.uk/).
 
 ## Overview
 
@@ -8,9 +8,9 @@
 - All solutions are thoroughly documented in the code.
 - Some days have multiple solutions, i.e. to test different approaches, try different frameworks, etc.
 - Each day gets its own folder. The name of the folder indicates some of the techniques and modules that were used.
-- In addition, I have code walkthroughs and solution explanations available [here](https://derailed-dash.github.io/Advent-of-Code/).
+- In addition, I have code walkthroughs and solution explanations available [here](https://aoc.just2good.co.uk/).
 
-[![Dazbo's AoC Walkthroughs](/docs/assets/images/AoC_site_screenshot.jpg)](https://derailed-dash.github.io/Advent-of-Code/)
+[![Dazbo's AoC Walkthroughs](/docs/assets/images/AoC_site_screenshot.jpg)](https://aoc.just2good.co.uk/)
 
 ## Purpose of this Repo
 
@@ -24,7 +24,7 @@ I've been using [Advent of Code](https://adventofcode.com/) as a way to improve 
 
 - The solution source code for AoC problems can be found in the `src` folder. This is _probably_ what you're here looking for.
 - The source for the Walkthrough Website content is available in the `docs` folder. This is mostly markdown, rendered into an HTML static site using Jekyll.  You _probably_ wont be interested in this.
-- If you want to look at the walkthrough pages, visit the [site](https://derailed-dash.github.io/Advent-of-Code/).
+- If you want to look at the walkthrough pages, visit the [site](https://aoc.just2good.co.uk/).
 
 ## What is Advent of Code?
 
