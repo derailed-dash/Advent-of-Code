@@ -54,7 +54,7 @@ class BurrowState():
     C = 'C'
     D = 'D'
     EMPTY = '.'
-    ROOM_KEYS = {A: 'A', B: 'B', C: 'C', D: 'D'}
+    ROOM_KEYS = [A, B, C, D]
     POD_COSTS = {A: 1, B: 10, C: 100, D: 1000}
     ROOM_IDX = {A: 2, B: 4, C: 6, D: 8}
 
@@ -98,10 +98,6 @@ class BurrowState():
                 return False
         return True
 
-    def _get_room_horiz_idx(self, room_key: str) -> int:
-        """ Get the horizontal index (relative to the hall) that matches this room """
-        return BurrowState.ROOM_IDX[room_key]
-
     def _get_top_item_idx(self, room_contents: list):
         """ Return the row index of the top pod (i.e. top occupied position) in a room """
         for i, item in enumerate(room_contents):
@@ -118,8 +114,8 @@ class BurrowState():
 
     def _is_between(self, posn: int, room_key: str, hall_idx: int) -> bool:
         """ If this posn is between the room and the hall index """
-        return ((self._get_room_horiz_idx(room_key) < posn < hall_idx)
-                or (hall_idx < posn < self._get_room_horiz_idx(room_key)))
+        return ((BurrowState.ROOM_IDX[room_key] < posn < hall_idx)
+                or (hall_idx < posn < BurrowState.ROOM_IDX[room_key]))
 
     def _is_clear_path(self, room_key: str, hall_idx: int) -> bool:
         """ Is it clear between the room and the hall position? 
@@ -139,7 +135,7 @@ class BurrowState():
     def __repr__(self) -> str:
         """ Generate a str representation of this state """
         rooms, hall = self._state
-        rooms_list = [room for room_type, room in rooms.items()]
+        rooms_list = [room_items for room_type, room_items in rooms.items()]
         render = []
         render.append('')  # Blank line
         render.append("#" + "#"*len(hall) + "#") # top row
@@ -191,7 +187,7 @@ class BurrowState():
                 if self._is_clear_path(pod, i):
                     dest_idx = self._get_room_dest_idx(rooms[pod])
                     assert isinstance(dest_idx, int), "We've determined we can move to this room"
-                    dist = dest_idx + 1 + abs(self._get_room_horiz_idx(pod)-i)
+                    dist = dest_idx + 1 + abs(BurrowState.ROOM_IDX[pod]-i)
                     cost = BurrowState.POD_COSTS[pod] * dist
                     
                     # remove pod from hall
@@ -227,7 +223,7 @@ class BurrowState():
                 
                 # determine if we have a path to this destination
                 if self._is_clear_path(room_key, hall_posn):
-                    dist = pod_idx + 1 + abs(hall_posn - self._get_room_horiz_idx(room_key))
+                    dist = pod_idx + 1 + abs(hall_posn - BurrowState.ROOM_IDX[room_key])
                     cost = BurrowState.POD_COSTS[pod] * dist  # cost of this move
                     
                     # make a copy of hall and rooms, and update them
