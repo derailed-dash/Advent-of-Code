@@ -81,7 +81,10 @@ pages:
     problem: "Reactor Reboot"
   - name: 23
     link: /2021/23
-    problem: "Amphipod"    
+    problem: "Amphipod"
+  - name: 24
+    link: /2021/24
+    problem: "Arithmetic Logic Unit"   
 - name: "2020"
   link: /2020/
   mainnav: True
