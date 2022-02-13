@@ -5,6 +5,7 @@ services:
       - JEKYLL_ENV=docker # to stop Jekyll from overriding site.url to http://0.0.0.0:4000
     command: jekyll serve --watch --config _config.yml,_config.docker.yml
     image: jekyll/jekyll
+    container_name: dazbo-jekyll-aoc
     volumes:
       - .:/srv/jekyll
       - ./vendor/bundle:/usr/local/bundle  # to cache bundle configuration
