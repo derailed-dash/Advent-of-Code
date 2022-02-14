@@ -56,10 +56,11 @@ INPUT_FILE = "input/input.txt"
 
 logging.basicConfig(level=logging.DEBUG, 
                     format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 
-class ALU():    
+class ALU():
+    """ Simulate processor with four registers and six instructions """
     def __init__(self) -> None:
         self._vars = {'w': 0, 'x': 0, 'y': 0, 'z': 0}
         
