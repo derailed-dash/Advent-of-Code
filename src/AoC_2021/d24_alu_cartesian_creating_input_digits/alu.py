@@ -50,6 +50,7 @@ import logging
 import os
 import time
 from itertools import product
+from tqdm import tqdm
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -65,7 +66,7 @@ class ALU():
         self._vars = {'w': 0, 'x': 0, 'y': 0, 'z': 0}
         
         self._input = None
-        self._input_posn = 0
+        self._input_posn = 0    # which digit of the input value we're currently on
         
         self._instructions: list[tuple[str, list[str]]] = []     # list of instructions in the format [instr, [parms]]
         self._ip = 0
@@ -111,7 +112,7 @@ class ALU():
             self._execute_instruction(instruction)
             self._ip += 1
 
-    def set_program(self, instructions_input):
+    def set_program(self, instructions_input: list[str]):
         """ Create a list of instructions, 
         where each instruction is of the format: (str, list[str]) """
         self._instructions = []
@@ -138,13 +139,12 @@ class ALU():
         
         # call the appropriate instruction method
         try:
-            self.__getattribute__(f"_op_{instr}")(instr_parms)
-            # logger.debug(self)            
+            self.__getattribute__(f"_op_{instr}")(instr_parms)         
         except AttributeError as err:
             raise AttributeError(f"Bad instruction {instr} at {self._ip}") from err
 
     def int_or_reg_val(self, x) -> int:
-        """ Determine if the variable is an int value, or the value in a register """
+        """ Determine if the variable is an int value, or the value is a register """
         if x in self._vars:
             return self._vars[x]
         else:
@@ -154,7 +154,6 @@ class ALU():
         var = parms[0]
         assert self._input, "Input value not set"
         assert self._input_posn < len(self._input), "Too many input digits!"
-        # logger.debug("Reading input: %s into %s", self._input[self._input_posn], var)
         input_digit = int(self._input[self._input_posn])
         self._vars[var] = input_digit
         self._input_posn += 1
@@ -205,15 +204,15 @@ def main():
     instruction_blocks = []
     for i in range(COUNT_INSTRUCTION_BLOCKS):
         instruction_blocks.append(data[i*instruction_block_size:(i+1)*instruction_block_size])
-        
+    
+    alu = ALU()
+    alu.set_program(data)
     valid_vals = compute_valid_inputs(instruction_blocks)
     if valid_vals:
         max_input_val = max(valid_vals)
         min_input_val = min(valid_vals)
         
         # check them by running them through the ALU
-        alu = ALU()
-        alu.set_program(data)
         for val in (min_input_val, max_input_val):
             alu.run_program(val)
             if alu.vars['z'] == 0:
@@ -267,7 +266,7 @@ def compute_valid_inputs(instruction_blocks: list[str]) -> list[str]:
     assert len(any_digits) == 9**shrink_count, "Cartesian product messed up"
         
     valid = []    # Store valid 14-digit input values
-    for digits_candidate in any_digits:
+    for digits_candidate in tqdm(any_digits):
         num_blocks = len(instruction_blocks)
         z = 0
         digit = [0] * num_blocks
