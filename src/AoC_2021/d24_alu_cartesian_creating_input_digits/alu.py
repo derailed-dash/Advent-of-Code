@@ -97,14 +97,8 @@ class ALU():
         self._input_posn = 0
         self._ip = 0
         
-    def run_program(self, input_str):
-        """ Process instructions in the program.
-            - Converts the program input to a list of instructions and stores them in the computer.
-            - Then executes the instructions one at a time.
-
-        Args:
-            instructions (list): Each instr is in the format ["instr params"], e.g. div z 1
-        """
+    def run_program(self, input_str: str):
+        """ Process instructions in the program. """
         self._reset()      
         self._set_input(input_str)
         
@@ -201,7 +195,7 @@ def main():
     assert instruction_block_size == EXPECTED_INSTRUCTIONS_PER_BLOCK
     
     # Split all instructions into repeating blocks of instructions
-    instruction_blocks = []
+    instruction_blocks: list[list[str]] = []
     for i in range(COUNT_INSTRUCTION_BLOCKS):
         instruction_blocks.append(data[i*instruction_block_size:(i+1)*instruction_block_size])
     
@@ -214,7 +208,7 @@ def main():
         
         # check them by running them through the ALU
         for val in (min_input_val, max_input_val):
-            alu.run_program(val)
+            alu.run_program(str(val))
             if alu.vars['z'] == 0:
                 logger.info("%s verified.", val) 
             else:
@@ -222,7 +216,7 @@ def main():
     else:
         logger.info("Fail bus, all aboard.")
 
-def compute_valid_inputs(instruction_blocks: list[str]) -> list[str]:
+def compute_valid_inputs(instruction_blocks: list[list[str]]) -> list[int]:
     """ Our goal is determine valid values of w, 
     where w is each successive digit of the 14-digit input value.
     The 14 input values are used in the 14 blocks of instructions.
@@ -253,19 +247,19 @@ def compute_valid_inputs(instruction_blocks: list[str]) -> list[str]:
     # y [7,   8,  2, 11,  6, 12, 14,  13, 15, 10,   6, 10,  8,   5]
     
     # E.g. [False, False, False, False, True...]
-    shrink_instruction = [z == SHRINKAGE for z in div_z_instructions]
-    shrink_count = sum(x for x in shrink_instruction)
+    shrink_instructions = [z == SHRINKAGE for z in div_z_instructions]
+    shrink_count = sum(x for x in shrink_instructions)
     assert shrink_count == 7, "We expect 7 shrink types for our input"
     
-    # list of tuples by index, e.g. [False, 12, 7]
-    instruction_vars = list(zip(shrink_instruction, add_x_instructions, add_y_instructions))
+    # list of tuples by index, e.g. (False, 12, 7)
+    instruction_vars = list(zip(shrink_instructions, add_x_instructions, add_y_instructions))
 
     # Get the cartesian product of all digits where any digit is possible
     # E.g. 9999999, 9999998, 9999997, etc
     any_digits = list(product(range(9, 0, -1), repeat=shrink_count))
     assert len(any_digits) == 9**shrink_count, "Cartesian product messed up"
         
-    valid = []    # Store valid 14-digit input values
+    valid: list[int] = []    # Store valid 14-digit input values
     for digits_candidate in tqdm(any_digits):
         num_blocks = len(instruction_blocks)
         z = 0
@@ -278,8 +272,8 @@ def compute_valid_inputs(instruction_blocks: list[str]) -> list[str]:
             is_shrink, add_x, add_y = instruction_vars[block_idx]
                   
             if is_shrink:
-                # We want input value w, where w = (z % 26) + a 
-                digit[block_idx] = ((z % 26) + add_x)   # res[i] = w
+                # We want to compute a value w, where w = (z % 26) + a 
+                digit[block_idx] = ((z % 26) + add_x)   # digit[block_idx] = w
                 z //= 26    # New z is given by z = z//26
                 if not (1 <= digit[block_idx] <= 9):
                     early_exit = True
@@ -291,7 +285,7 @@ def compute_valid_inputs(instruction_blocks: list[str]) -> list[str]:
                 digits_idx += 1
         
         if not early_exit:
-            valid.append("".join(str(i) for i in digit))
+            valid.append(int("".join(str(i) for i in digit)))
      
     return valid
 
