@@ -152,7 +152,7 @@ class ImageArray():
         # Only render the image frame, if we have an Animator reference
         self._animator = animator
         if animator is not None:
-            animator.add_frame(self.render_image())
+            animator.add_frame(self._render_image())
         
     def _process_img_str(self, image_data: str) -> set[Point]:
         """ Take a str of image data and convert to a set. Only stores points that are lit. """
@@ -178,7 +178,7 @@ class ImageArray():
             
         return "\n".join(lines)
     
-    def render_image(self) -> Image.Image:
+    def _render_image(self) -> Image.Image:
         """ Render as an image """
         width = (self._max_x+1) - self._min_x
         height = (self._max_y+1) - self._min_y
@@ -272,6 +272,7 @@ def main():
         
     image_enhance_map, input_img = data
     
+    animator = None
     if RENDER:
         animator = Animator(file=OUTPUT_FILE, size=IMAGE_SIZE, 
                             duration=150, loop_animation=True, include_frame_count=True)

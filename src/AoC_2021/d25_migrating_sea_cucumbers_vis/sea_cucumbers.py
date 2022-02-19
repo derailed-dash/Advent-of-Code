@@ -31,31 +31,67 @@ import imageio
 from matplotlib import pyplot as plt
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 RENDER = True
-OUTPUT_DIR = Path(SCRIPT_DIR, "output/")
-OUTPUT_FILE = Path(OUTPUT_DIR, "trench_anim.gif")
+OUTPUT_FILE = Path(SCRIPT_DIR, "output/migrating_cucumbers.gif")
+
+class Animator():
+    """ Creates an animation file of specified target size. """
+    
+    def __init__(self, file: Path, fps: int, loop=1) -> None:
+        """ Create an Animator. Suggest the file should be a .gif.
+        Target size is in pixels. Frame duration is in ms. Set loop to 0, to loop indefinitely. """
+        self._outputfile = file
+        self._frames = []
+        self._fps = fps
+        self._loop = loop
+        
+        dir_path = Path(self._outputfile).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+    
+    def save_anim(self):
+        """ Takes animation frames, and converts to a single animated file. """
+        with imageio.get_writer(self._outputfile, mode='I', fps=self._fps, loop=self._loop) as writer:
+            for filename in self._frames:
+                image = imageio.imread(filename)
+                writer.append_data(image)
+                
+        logger.info("Animation saved to %s", self._outputfile)
+
+        for filename in self._frames:
+            os.remove(filename)
+    
+    def add_frame(self, filename: Path):
+        self._frames.append(filename)
+    
+    @property
+    def outputfile(self) -> Path:
+        return self._outputfile
+    
+    @property
+    def frames(self) -> list:
+        return self._frames
 
 class Grid():
     """ Store locations of sea cucumbers. """
    
-    def __init__(self, data: list[str], render_animation: bool=False) -> None:
+    def __init__(self, data: list[str], animator: Animator=None) -> None:
         """ Take input data and convert from list-of-str to list-of-list for easier manipulation. """
         self._grid = [list(row) for row in data]    # Now a nested list of list.
         self._row_len = len(self._grid[0])
         self._grid_len = len(self._grid)
         self._changed_last_cycle = True
-        self._render_animation = render_animation
-        self._frames = [] # for animating
         
-        self._plot_info = self.setup_fig()        
+        self._plot_info = self.setup_fig()
+        self._animator = animator
         self._render_frame()
     
     @property
@@ -99,7 +135,8 @@ class Grid():
         return "\n".join("".join(char for char in row) for row in self._grid)
     
     def _render_frame(self):
-        if not RENDER:
+        """ Only renders an animation frame if we've attached an Animator """
+        if not self._animator:
             return
         
         east = set()
@@ -126,14 +163,11 @@ class Grid():
         axes.scatter(east_x, east_y, marker=">", s=mkr_size, color="black")
         axes.scatter(south_x, south_y, marker="v", s=mkr_size, color="white")
         
-        dir_path = Path(OUTPUT_FILE).parent
-        if not Path.exists(dir_path):
-            Path.mkdir(dir_path)
-            
         # save the plot as a frame
-        filename = Path(OUTPUT_DIR, "tiles_anim_" + str(len(self._frames)) + ".png")
+        dir_path = Path(self._animator.outputfile).parent  
+        filename = Path(dir_path, "tiles_anim_" + str(len(self._animator.frames)) + ".png")
         plt.savefig(filename)
-        self._frames.append(filename)
+        self._animator.add_frame(filename)
 
     def setup_fig(self):
         fig, axes = plt.subplots(dpi=110)
@@ -151,33 +185,26 @@ class Grid():
         fig.canvas.draw()
         mkr_size = ((axes.get_window_extent().width / (max_x-min_x) * (45/fig.dpi)) ** 2)
         return axes, mkr_size
-    
-    def build_anim(self):
-        if not RENDER:
-            return
-        
-        animation_file = Path(OUTPUT_DIR, "migration.gif")
-        with imageio.get_writer(animation_file, mode='I', fps=6, loop=1) as writer:
-            for filename in self._frames:
-                image = imageio.imread(filename)
-                writer.append_data(image)
-
-        for filename in self._frames:
-            os.remove(filename)
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
-    
-    grid = Grid(data)
+
+    animator = None
+    if RENDER:
+        animator = Animator(file=OUTPUT_FILE, fps=6)
+        grid = Grid(data, animator=animator)
+    else:
+        grid = Grid(data)
+
     i = 0
     while grid.changed_last_cycle:
         i += 1
         grid.cycle()
-        
-    grid.build_anim()
-            
+
     logger.info("We've stopped changing at iteration %d", i)
+    if animator:
+        animator.save_anim()
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

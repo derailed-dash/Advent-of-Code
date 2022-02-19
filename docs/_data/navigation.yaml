@@ -84,7 +84,10 @@ pages:
     problem: "Amphipod"
   - name: 24
     link: /2021/24
-    problem: "Arithmetic Logic Unit"   
+    problem: "Arithmetic Logic Unit"
+  - name: 25
+    link: /2021/25
+    problem: "Sea Cucumber"   
 - name: "2020"
   link: /2020/
   mainnav: True
