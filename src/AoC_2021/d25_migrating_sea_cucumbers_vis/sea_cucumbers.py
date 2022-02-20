@@ -19,6 +19,9 @@ Part 1:
     which can be interrogated to determine when to stop iterating.
     Because all cucumbers need to move simultaneously, 
     we'll make a copy of the grid before each migration. 
+    
+    Added an Animator class, which assembles frames into an animation.
+    The add_frame() method can work with files, or BytesIO objects (quicker).
 
 Part 2:
     No part 2 today! 
@@ -28,6 +31,7 @@ import time
 from io import BytesIO
 from pathlib import Path
 import imageio
+from tqdm import tqdm
 from matplotlib import pyplot as plt
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
@@ -39,7 +43,7 @@ SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
-RENDER = True
+CREATE_ANIMATION = True
 OUTPUT_FILE = Path(SCRIPT_DIR, "output/migrating_cucumbers.gif")
 
 class Animator():
@@ -50,7 +54,7 @@ class Animator():
         Set frames per second (fps). 
         Set loop to 0, to loop indefinitely. Default is 1. """
         self._outputfile = file
-        self._frames: list[BytesIO] = []  # in-memory store of frames
+        self._frames = []  # can be in-memory BytesIO objects, or files
         self._fps = fps
         self._loop = loop
         
@@ -60,30 +64,37 @@ class Animator():
     
     def save_anim(self):
         """ Takes animation frames, and converts to a single animated file. """
+        logger.debug("Saving animation...")
         with imageio.get_writer(self._outputfile, mode='I', fps=self._fps, loop=self._loop) as writer:
-            for buffer in self._frames:
-                buffer.seek(0)
-                image = imageio.imread(buffer)
+            for frame in tqdm(self._frames):
+                image = imageio.imread(frame)
                 writer.append_data(image)
                 
         logger.info("Animation saved to %s", self._outputfile)
     
-    def add_frame(self, buffer: BytesIO):
-        """ Add a frame, using in memory buffer """
-        self._frames.append(buffer)
+    def add_frame(self, frame):
+        """ Add a frame to the animation.
+        The frame can be in the form of a BytesIO object, or a file Path
+        """
+        self._frames.append(frame)
 
 class Grid():
     """ Store locations of sea cucumbers. """
    
     def __init__(self, data: list[str], animator: Animator=None) -> None:
         """ Take input data and convert from list-of-str to list-of-list for easier manipulation. """
+        init_str = "Created Grid"
+        if animator:
+            init_str += " with Animator"
+        logger.debug(init_str)
+        
         self._grid = [list(row) for row in data]    # Now a nested list of list.
         self._row_len = len(self._grid[0])
         self._grid_len = len(self._grid)
         self._changed_last_cycle = True
         
-        self._plot_info = self.setup_fig()
         self._animator = animator
+        self._plot_info = self.setup_fig()  # does no work if no Animator
         self._render_frame()
     
     @property
@@ -156,12 +167,16 @@ class Grid():
         axes.scatter(south_x, south_y, marker="v", s=mkr_size, color="white")
         
         # save the plot as a frame; store the frame in-memory, using a BytesIO buffer
-        buf = BytesIO()
-        plt.savefig(buf, format='png') # save to memory, rather than file
-        self._animator.add_frame(buf)
+        frame = BytesIO()
+        plt.savefig(frame, format='png') # save to memory, rather than file
+        self._animator.add_frame(frame)
 
     def setup_fig(self):
-        fig, axes = plt.subplots(dpi=110)
+        if not self._animator:
+            return
+        
+        my_dpi = 120
+        fig, axes = plt.subplots(figsize=(800/my_dpi, 600/my_dpi), dpi=my_dpi) # set size in pixels
         axes.get_xaxis().set_visible(False)
         axes.get_yaxis().set_visible(False)
         axes.set_aspect('equal') # set x and y to equal aspect
@@ -182,18 +197,17 @@ def main():
         data = f.read().splitlines()
 
     animator = None
-    if RENDER:
+    if CREATE_ANIMATION:
         animator = Animator(file=OUTPUT_FILE, fps=6)
-        grid = Grid(data, animator=animator)
-    else:
-        grid = Grid(data)
+
+    grid = Grid(data, animator=animator)
 
     i = 0
     while grid.changed_last_cycle:
         i += 1
         grid.cycle()
 
-    logger.info("We've stopped changing at iteration %d", i)
+    logger.info("We've stopped migrating at iteration %d", i)
     if animator:
         animator.save_anim()
 
