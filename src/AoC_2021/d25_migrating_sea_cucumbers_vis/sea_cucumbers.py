@@ -24,8 +24,8 @@ Part 2:
     No part 2 today! 
 """
 import logging
-import os
 import time
+from io import BytesIO
 from pathlib import Path
 import imageio
 from matplotlib import pyplot as plt
@@ -47,9 +47,10 @@ class Animator():
     
     def __init__(self, file: Path, fps: int, loop=1) -> None:
         """ Create an Animator. Suggest the file should be a .gif.
-        Target size is in pixels. Frame duration is in ms. Set loop to 0, to loop indefinitely. """
+        Set frames per second (fps). 
+        Set loop to 0, to loop indefinitely. Default is 1. """
         self._outputfile = file
-        self._frames = []
+        self._frames: list[BytesIO] = []  # in-memory store of frames
         self._fps = fps
         self._loop = loop
         
@@ -60,25 +61,16 @@ class Animator():
     def save_anim(self):
         """ Takes animation frames, and converts to a single animated file. """
         with imageio.get_writer(self._outputfile, mode='I', fps=self._fps, loop=self._loop) as writer:
-            for filename in self._frames:
-                image = imageio.imread(filename)
+            for buffer in self._frames:
+                buffer.seek(0)
+                image = imageio.imread(buffer)
                 writer.append_data(image)
                 
         logger.info("Animation saved to %s", self._outputfile)
-
-        for filename in self._frames:
-            os.remove(filename)
     
-    def add_frame(self, filename: Path):
-        self._frames.append(filename)
-    
-    @property
-    def outputfile(self) -> Path:
-        return self._outputfile
-    
-    @property
-    def frames(self) -> list:
-        return self._frames
+    def add_frame(self, buffer: BytesIO):
+        """ Add a frame, using in memory buffer """
+        self._frames.append(buffer)
 
 class Grid():
     """ Store locations of sea cucumbers. """
@@ -163,11 +155,10 @@ class Grid():
         axes.scatter(east_x, east_y, marker=">", s=mkr_size, color="black")
         axes.scatter(south_x, south_y, marker="v", s=mkr_size, color="white")
         
-        # save the plot as a frame
-        dir_path = Path(self._animator.outputfile).parent  
-        filename = Path(dir_path, "tiles_anim_" + str(len(self._animator.frames)) + ".png")
-        plt.savefig(filename)
-        self._animator.add_frame(filename)
+        # save the plot as a frame; store the frame in-memory, using a BytesIO buffer
+        buf = BytesIO()
+        plt.savefig(buf, format='png') # save to memory, rather than file
+        self._animator.add_frame(buf)
 
     def setup_fig(self):
         fig, axes = plt.subplots(dpi=110)
