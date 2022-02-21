@@ -40,8 +40,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 CREATE_ANIMATION = True
 OUTPUT_FILE = Path(SCRIPT_DIR, "output/migrating_cucumbers.gif")
@@ -176,7 +176,8 @@ class Grid():
             return
         
         my_dpi = 120
-        fig, axes = plt.subplots(figsize=(800/my_dpi, 600/my_dpi), dpi=my_dpi) # set size in pixels
+        fig, axes = plt.subplots(figsize=(1024/my_dpi, 768/my_dpi), dpi=my_dpi, facecolor="black") # set size in pixels
+
         axes.get_xaxis().set_visible(False)
         axes.get_yaxis().set_visible(False)
         axes.set_aspect('equal') # set x and y to equal aspect
