@@ -4,8 +4,6 @@ title: Timing
 ---
 # {{ page.title }}
 
-## Time
-
 The [time](https://docs.python.org/3/library/time.html){:target="_blank"} module is a convenient and easy way to measure how long something takes to run. 
 
 Simply call `time.perf_counter()` before and after executing something. The difference between the two responses is the number of seconds taken. E.g.

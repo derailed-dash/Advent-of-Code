@@ -14,6 +14,8 @@ pages:
     link: /python/logging
   - name: Timing
     link: /python/timing
+  - name: Reading Files
+    link: /python/reading_files
   - name: My AoC Template
     link: /python/my-aoc-template
 - name: "2015"
