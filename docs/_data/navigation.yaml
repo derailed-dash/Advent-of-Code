@@ -1,14 +1,22 @@
-# Tag any year as type "year"
-# Tag any day as type "day"
 # If a link should appear on the main nav, set mainnav: True
 docs_title: Navigation
 pages:
 - name: Home
   link: /
   mainnav: True
-- name: Python
+- name: Python Journey
   link: /python/
   mainnav: True
+  members:
+  - name: Getting Started with Python
+    link: /python/getting-started
+- name: "2015"
+  link: /2015/
+  mainnav: True
+  members:
+  - name: 1
+    link: /2015/1
+    problem: "Not Quite Lisp"
 - name: "2021"
   link: /2021/
   mainnav: True
@@ -87,7 +95,4 @@ pages:
     problem: "Arithmetic Logic Unit"
   - name: 25
     link: /2021/25
-    problem: "Sea Cucumber"   
-- name: "2020"
-  link: /2020/
-  mainnav: True
+    problem: "Sea Cucumber" 

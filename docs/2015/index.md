@@ -1,10 +1,8 @@
 ---
 layout: default
-title: Advent of Code 2020
+title: Advent of Code 2015
 ---
 # {{ page.topic}} {{ page.year }}
-
-Sorry, still working through 2021 documentation!
 
 ## Day Index
 

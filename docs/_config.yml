@@ -67,10 +67,14 @@ defaults:
       layout: "day-page"  # most of our pages will use this layout; use default for index
       topic: "Advent of Code"
   - scope:
+      path: "python"
+    values:
+      topic: "The Python Journey"
+  - scope:
+      path: "2015"  # only apply to files in this folder
+    values:
+      year: 2015
+  - scope:
       path: "2021"  # only apply to files in this folder
     values:
       year: 2021
-  - scope:
-      path: "2020"  # only apply to files in this folder
-    values:
-      year: 2020
