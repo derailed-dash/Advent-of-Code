@@ -10,6 +10,12 @@ pages:
   members:
   - name: Getting Started with Python
     link: /python/getting-started
+  - name: Logging
+    link: /python/logging
+  - name: Timing
+    link: /python/timing
+  - name: My AoC Template
+    link: /python/my-aoc-template
 - name: "2015"
   link: /2015/
   mainnav: True

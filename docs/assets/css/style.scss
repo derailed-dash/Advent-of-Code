@@ -32,9 +32,13 @@ header, section, footer {
 }
 
 a {
-  color:rgb(223, 112, 8);
-  text-decoration:none;
+  color:rgb(192, 93, 0);
+  text-decoration: none;
 }
+
+a:hover {
+  text-decoration: underline;
+}  
 
 .dazbo-link-button, .dazbo-nolink-button {
   font-size: 14px;
