@@ -66,12 +66,28 @@ logging.debug('This message should go to the log file')
 
 The logging configuration itself can also be placed externalised to a file, rather than coded into the program.
 
-It's worth noting how we can pass varaibles into a logging statement.  This is a typical example:
+It's worth noting how we can pass varaibles into a logging statement. This is a typical example:
 
 ```python
-my_key = foo
-my_val = bar
+import logging
+
+# setup
+logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                    datefmt='%H:%M:%S')
+logger = logging.getLogger("FooBar-App")
+logger.setLevel(logging.INFO)
+
+my_key = "foo"
+my_val = "bar"
 logger.info("My key is named %s, and it's value is %s", my_key, my_val)
+```
+
+Here, each `%s` within the string message itself is a placeholder for a variable.  The variables are passed after the string message, as a comma-separated list.
+
+The output looks like this:
+
+```text
+08:41:25.172:INFO:FooBar-App:   My key is named foo, and it's value is bar
 ```
 
 To wrap up: the Python **logging** module is pretty sophisticated.  I've only touched the surface here. Check the documentation for more details.

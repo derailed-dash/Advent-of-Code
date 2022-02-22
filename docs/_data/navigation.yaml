@@ -12,7 +12,7 @@ pages:
     link: /python/getting-started
   - name: Logging
     link: /python/logging
-  - name: Timing
+  - name: Timing and Progress
     link: /python/timing
   - name: Reading Files
     link: /python/reading_files
