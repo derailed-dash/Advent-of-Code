@@ -79,7 +79,7 @@ from tqdm import tqdm
 
 steps = 10
 
-for step in range(steps):
+for step in tqdm(range(steps)):
     sleep(0.5)
 ```
 
