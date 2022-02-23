@@ -14,7 +14,7 @@ pages:
     link: /python/logging
   - name: Timing and Progress
     link: /python/timing
-  - name: Reading Files
+  - name: Opening and Reading Files
     link: /python/reading_files
   - name: My AoC Template
     link: /python/my-aoc-template
