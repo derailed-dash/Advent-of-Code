@@ -64,7 +64,7 @@ f.close()
 
 ### Exception Handling
 
-At any point during opening the file or reading the file, something could go wrong. E.g. maybe you try to open a file that doesn't exist. Maybe you try to read data beyond the end of the file. So, your program should handle these exceptions. But the good news is... You don't have to do that yourself!
+At any point during opening the file or reading the file, something could go wrong. E.g. maybe you try to open a file that doesn't exist. Maybe you try to read data beyond the end of the file. Maybe you try to write to a read-only file. So, your program should handle these exceptions. But the good news is... You don't have to do that yourself!
 
 ## The Better Way
 

@@ -4,7 +4,7 @@ title: My AoC Template
 ---
 # {{ page.title }}
 
-I like to start with a template file that looks like this:
+I like to start each AoC challenge using this template file. It brings together everything we've covered in the [Python Journey]({{'/python' | relative_url }}) so far.
 
 ```python
 """
@@ -13,9 +13,7 @@ Date: 01/12/2021
 
 Solving https://adventofcode.com/2021/day/1
 
-Part 1:
-
-Part 2:
+Solution overview:
 
 """
 from pathlib import Path
@@ -43,3 +41,5 @@ if __name__ == "__main__":
     t2 = time.perf_counter()
     logger.info("Execution time: %0.4f seconds", t2 - t1)
 ```
+
+Note that I'm using a _docstring_ block at the top of each program, as a way to docuemnt the code. The module _docstring_ should go at the very top of the file, and should always be enclosed by triple-quotes.

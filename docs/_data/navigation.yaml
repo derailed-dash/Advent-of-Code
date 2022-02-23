@@ -18,6 +18,8 @@ pages:
     link: /python/reading_files
   - name: My AoC Template
     link: /python/my-aoc-template
+  - name: Packages and Environments
+    link: /python/packages
 - name: "2015"
   link: /2015/
   mainnav: True
