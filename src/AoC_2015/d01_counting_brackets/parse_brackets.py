@@ -13,13 +13,11 @@ import time
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
 
 UP = "("
 DOWN = ")"
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         data = f.read()
@@ -27,19 +25,18 @@ def main():
     up_count = data.count(UP)
     down_count = data.count(DOWN)
 
-    print(f"Target floor: {up_count-down_count}")
+    print(f"Final floor: {up_count-down_count}")
 
     floor = 0
-    for i, char in enumerate(data):
+    for i, char in enumerate(data, 1):
         if char == UP:
             floor += 1
         else:
             floor -= 1
 
         if floor == -1:
-            print(f"Basement reached at instruction {i+1}")
+            print(f"Basement reached at instruction {i}")
             break
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

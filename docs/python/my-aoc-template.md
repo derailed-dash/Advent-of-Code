@@ -42,4 +42,10 @@ if __name__ == "__main__":
     logger.info("Execution time: %0.4f seconds", t2 - t1)
 ```
 
-Note that I'm using a _docstring_ block at the top of each program, as a way to docuemnt the code. The module _docstring_ should go at the very top of the file, and should always be enclosed by triple-quotes.
+A couple of things I haven't discussed so far:
+
+- I'm using a _docstring_ block at the top of each program, as a way to docuemnt the code. The module _docstring_ should go at the very top of the file, and should always be enclosed by triple-quotes.
+- I put all the main code inside a function called `main()`. To define a function, we just use the `def` keyword.
+- When the program is launched, I test whether the file being executed (e.g. `my_prog.py`) is being executed as a standalone script, or whether it has been imported into another script.  Well, it is generally being executed as a standalone script, which causes the script's  `__name__` to evaluate to `__main__`.  As a result, we know that the following statement evaluates to True: \
+`if __name__ == "__main__"`  
+- This causes the program to run the `main()` function. We've wrapped the `main()` function with `time.perf_counter()` calls, so that we can finally print the overall time taken by the script to execute.
