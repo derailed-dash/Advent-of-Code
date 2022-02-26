@@ -1,9 +1,25 @@
-__pycache__
-.vscode
+# Build / distribution / packaging
 .*-env/
 .env
+build/
+__pycache__
+ 
+# Build docs
+docs/_build/
+docs/vendor/
+ 
+# Jupyter stuff
+.ipynb_checkpoints/
+.ipython/
+.cache/
+ 
+# secrets
+*.key
+ 
+# Random
+.vscode
+*.log
 desktop.ini
 message.txt
 snippets/
 output/
-docs/vendor/
