@@ -20,6 +20,8 @@ pages:
     link: /python/my-aoc-template
   - name: Packages and Environments
     link: /python/packages
+  - name: Classes and Objects
+    link: /python/classes
 - name: "2015"
   link: /2015/
   mainnav: True
