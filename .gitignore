@@ -1,12 +1,32 @@
-# Build / distribution / packaging
+# Env
 .*-env/
 .env
+ 
+# Build / distribution / packaging
+.Python
 build/
+dist/
+sdist/
+var/
+target/
+ 
+# Byte-compiled / optimized / DLL files
 __pycache__
+.mypy_cache/
  
 # Build docs
 docs/_build/
 docs/vendor/
+ 
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
  
 # Jupyter stuff
 .ipynb_checkpoints/
@@ -15,6 +35,7 @@ docs/vendor/
  
 # secrets
 *.key
+.gitsecret/keys/random_seed
  
 # Random
 .vscode
@@ -23,3 +44,5 @@ desktop.ini
 message.txt
 snippets/
 output/
+pip-log.txt
+pip-delete-this-directory.txt
