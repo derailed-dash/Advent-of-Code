@@ -1,271 +1,109 @@
 ---
 title: Regular Expressions
+tags: 
+  - name: Regular Expression HOWTO
+    link: https://docs.python.org/3/howto/regex.html
+  - name: Python RE module
+    link: https://docs.python.org/3/library/re.html#module-re
+  - name: Python Regex module
+    link: https://pypi.org/project/regex/
+  - name: Regexr
+    link: https://regexr.com/
 ---
-Here I'll go into the basics of working with classes and objects in Python. This is not an exhaustive treatment, but should be enough to give you the basics, and should be enough to make my AoC solutions easier to follow.
+**Regular expressions** (often shortened to **regex**) are a way to look for matching patterns in any text. We can use the pattern to determine where the pattern appears in the text, or to do more sophisticated things like replacing patterns in text.
 
 ## Page Contents
 
-- [What is a Class? What is an Object?](#what-is-a-class-what-is-an-object)
-- [Object-Oriented Programming (OOP)](#object-oriented-programming-oop)
-- [Defining a Class](#defining-a-class)
-- [Comparing Objects](#comparing-objects)
-- [Dataclass](#dataclass)
+- [Patterns?](#patterns)
+- [Matching Patterns in Python](#matching-patterns-in-python)
+- [Replacing](#replacing)
 
-## What is a Class? What is an Object?
+## Patterns
 
-Think of a _class_ as a blueprint.  It is the blueprint of a _thing_, where that thing has:
+A _pattern_ is something we want to match within a string. Patterns can be simple, or complex. Patterns include the text we want to look for, along with _metacharacters_ which have special meanings.
 
-- State - called _attributes_.
-- Behaviour - called _methods_.
+Check out this [tutorial](https://docs.python.org/3/howto/regex.html){:target="_blank"} for a guide on how to build patterns.
 
-So a class is kind of an abstract concept. But we can create an _instance_ of the class; think of it as building something according to the blueprint. The instance is called an _object_.
+Then, make a note of this [the awesome regexr.com](https://regexr.com/){:target="_blank"}, which is a great place to test and build your regular expressions.  It also includes some really useful cheat sheets and references.
 
-Time for an analogy:
+## Matching Patterns in Python
 
-- The _Ford Motor Company_ have a blueprint for creating a _Ford Mustang_. It is a design. A specification. This is analagous to a **class**.
-- I own a _Ford Mustang_.  It is a real, physical thing.  I can sit in it and drive it.  So, _my_ Mustang is an _instance_ of the Ford Mustang class.  My Ford Mustang is an **object**.
+Python provides a built-in library for working with regular expressions, called `re`. This will generally be good enough for most of our regular expression needs in Python.  However, there are some niche cases where you want to do stuff that `re` doesn't offer. In this case, try out the third party Python [regex module](https://pypi.org/project/regex/){:target="_blank"}, which is basically `re` on steroids. E.g. finding overlapping pattern matches.
 
-### Attributes
+In general, the approach to regex in Python is to compile the pattern, and then use one of handful of methods to apply the pattern to a string or strings.
 
-The Ford Mustang class has some **attributes**, e.g.
-
-- It has four wheels.
-- It has two doors.
-- It has a 5L V8 engine.
-- It is right-hand-drive.
-
-Attributes are just variables.  But they are variables that scoped to the class or object. The attributes above would typically be defined as _class attributes_, because any instance of this class will have these same attributes.
-
-_My_ Ford Mustang has some additional **attributes**, e.g.
-
-- It is three years old.
-- It has 10000 miles on the clock.
-- It has a service due in June.
-
-These are called _instance attributes_ or _object attributes_, because they are unique to _my Mustang_.
-
-### Methods
-
-A _Mustang_ can do some things...
-
-- It can accelerate.
-- It can break.
-- It can turn.
-
-All of these would be implemented as _methods_. Methods are just functions; but they are functions that are scoped to the object (or class).
-
-## Object-Oriented Programming (OOP)
-
-In simplistic terms, this is simply a way of programming where we primarily use classes and objects to represent _things_, and we interact with classes and objects using the methods they expose.
-
-In OOP, there are some standard concepts:
-
-- **Inheritance** - I.e. where an object can inherit - and override - the properties and methods from some sort of ancester, called a _base class_.  Using our simple analogy again:
-  - `Vehicle` is a very abstract thing. It can accelerate, decelerate, and turn.
-  - `Car` is a **subclass** (i.e. inherits from or **extends**) Vehicle.  A `Car` adds some additional attributes and methods.  E.g. a `Car` has four wheels.  Whereas a `Bike` has two.
-  - `Mustang` is a **subclass** (i.e. inherits from or **extends**) of `Car`.  It adds some additional attributes and methods.  For example, it has two doors.  It is made by _Ford_.
-  - `Mustang 5.0GT`  is a **subclass** (i.e. inherits from or **extends**) of `Mustang`.  It adds some additional attributes and methods.  For example, it has a 5L V8 engine.
-- **Polymorphism** - the idea that different objects can have the same _method signatures_, and exhibit different behavours at runtime, depending on the specific type of class that was instantiated.
-- **Encapsulation** - the idea that an object can hide its internal implementation, so that we only interact with the object using its publicly accessible interface.  In Python, _encapsulation_ is not enforced, but there are _conventions_ we should follow.  E.g. if an _attribute_ or _method_ should not be used by anything other than the object itself, then we prefix the _attribute_ or _method_ with an `_` (underscore) character.
-
-## Defining a Class
-
-Here we use the simple example of a `Dog` class:
+For example:
 
 ```python
-class Dog():
-    """ A Dog class """
-    
-    def __init__(self, name: str) -> None:
-        """ How we create an instance of Dog.
+import re
 
-        Args:
-            name (str): The name of the dog
-        """
-        
-        self._name = name   # note how this is intended to be a private instance attribute
-        
-    # Use the @property decorator to provide a public interface to a method, that resembles an attribute.
-    # E.g. we can just reference my_dog.name, rather than my_dog.name().
-    @property
-    def name(self):
-        """ The dog's name """
-        return self._name
-    
-    def bark(self):
-        return "Woof!"
-    
-    def __repr__(self) -> str:
-        """ Unambiguously identify an instance. """
-        return f"Dog(name={self._name})"
-    
-    def __str__(self) -> str:
-        """ Friendly humand-readable representation of the instance """
-        return f"Dog {self._name}"
+# Assume we've loaded in some multiline text data into the variable `data`
+
+# We want to match rows of data that looks like: 5-7 z: qhcgzzz
+# We want to obtain 5, 7, z, and qhcgzzz as four separate variables
+matcher = re.compile(r"(\d+)-(\d+) ([a-z]): ([a-z]+)")
+for row in data:
+    match = matcher.match(row)
+    min_val, max_val, policy_char, token_str = match.groups()
 ```
 
-Some notes:
+Here:
 
-- The class definition starts with \
-`class SomeClassName():`
-- Whilst Python typically uses _snake_case_ for all names (e.g. `my_variable_name`), _upper camel case_ is used for class names (e.g. `MyClassName`).
-- Note that **ALL** instance variables and instance methods must be prefixed with `self`, in the class.
-- Method definitions must always have `self` as the first argument. However, when we call these methods, the `self` is implicit.
-- We use the `__init__()` method to initialise any new instances of a class. I.e. whenever we create a new `Dog`, this is the method that gets called. We can define which attributes are required (or are optional) to the initialiser.
-- In our Dog's `__init__()`, we expect a single explicit parameter to be passed, which is the `name` of the `Dog`. We're using _type hinting_ to tell the Python compiler that the `name` argument should be a `str`.  If we try to run code that passes anything else, our _linter_ will warn us we've probably done something wrong.
-- The `__init__()` method initialises a single instance variable when an instance (object) is created. This is the `_name` instance variable.  Note that it is intended to be a private variable.
-- We provide a method called `name()` which returns the name of a Dog instance. However, to make it easier to get our Dog's name, we can use the `@property` decorator to expose the name as if it were a public attribute.
-- We define a `__repr__()` method that can be used to unambiguously identify a given instance.  This can be useful in debugging.
-- We define a `__str__()` method, which is used to generate a friendly, human-readable representation of our `Dog`.
+- We wrap the pattern with `r"regex"`, to avoid any need for convoluted escape characters.  The `r` prefix turns the `str` into Python's _raw_ string format.  In short, it's just a good idea to always pass patterns in this raw format.
+- The `match(row)` method looks for the pattern within the text called `row`. In particular, the `match()` method will look for the match from the _beginning_ of the line of data.
+- If we want to look for the pattern at any position in the data, we should use `find()` instead of `match()`.
+- If `match()` or `find()` are successful, they return a `match` object.
+- The regex pattern itself is split into several groups, by wrapping each group within parentheses, i.e. `(group)`. When we call the `groups()` method against any successful `match` object, this returns a tuple of the four groups in our regex pattern.
 
-To exercise our `Dog` class:
+It can be useful to perform assignment at the same time as checking if match object was returned.  For example, here we will only enter the `if` block if a match was found. If a match was found, then the match object will have been assigned to the variable called `match`:
 
 ```python
-dog_a = Dog("Fido") # Create a new dog
-dog_b = Dog("Henry") # Create another dog
-
-print(dog_a)    # Print using __str__
-print(repr(dog_a))  # Print using __repr__
-print(f"dog_a is named {dog_a.name}")  # Get the name using the property
-print(dog_a.bark())  # Test the bark() method. Note that we don't pass "self". It is implicit.
-
-print(f"dog_b is named {dog_b.name}")
-dog_a.bark()
-print(dog_a.bark())
+    if match := matcher.match(row):
+        # do stuff with match object
 ```
 
-The output looks like this:
-
-```text
-Dog Fido
-Dog(name=Fido)
-dog_a is named Fido
-Woof!
-dog_b is named Henry
-Woof!
-```
-
-## Comparing Objects
-
-- For objects to be comparable using `==`, we need to implement the `__eq__()` method.
-- For objects to be checked in a _Collection_, - e.g. using `if thing in things` - then we also need to implement the `__hash__()` method.  This should always return a different `int` value for any unequal instances of immutable objects. (Mutable objects are unhashable).  Common ways to achieve such as hash include:
-  - Returning a `hash` of a `tuple` (since tuples are immutable) of some instance attributes.
-  - Returning a `hash` of the `__repr__()`, assuming that `__repr__()` returns a unique value for different objects.
-
-E.g. here I'll create a `Point` class, which represents a point in two-dimensional space.  A `Point` is created from an `(x,y)` coordinate pair:
+We don't have to compile the pattern in advance.  For example, we can do this:
 
 ```python
-from __future__ import annotations
-
-class Point():
-    """ Point class, which stores x and y """
-        
-    def __init__(self, x:int, y:int) -> None:
-        self._x = x
-        self._y = y
-        
-    @property
-    def x(self):
-        return self._x
-    
-    @property
-    def y(self):
-        return self._y
-
-    def __hash__(self) -> int:
-        return hash((self.x, self.y))
-    
-    def __eq__(self, o: Point) -> bool:
-        return self.x == o.x and self.y == o.y
-        
-    def __repr__(self) -> str:
-        return self.__str__()
-    
-    def __str__(self) -> str:
-        return f"({self._x}, {self._y})"
-    
-# Now let's test our Point class...
-point_a = (5, 10)
-print(point_a)
-point_b = (6, 5)
-print(point_b)
-point_c = (5, 10)
-print(point_c)
-
-print(f"point_a == point_b? {point_a == point_b}")
-print(f"point_a == point_c? {point_a == point_c}")
-
-points = set()
-points.add(point_a)
-
-if point_b in points:
-    print("point_b already in points")
-    
-if point_c in points:
-    print("point_c already in points")
+# We're looking for data like... "25,50 -> 30,600"
+for line in data:
+    x1, y1, x2, y2 = map(int, re.match(r"(\d+),(\d+) -> (\d+),(\d+)", line).groups())
+    lines.append(Line(x1, y1, x2, y2))
 ```
 
-Output:
+Here, we're:
 
-```text
-point_a == point_b? False
-point_a == point_c? True
-point_c already in points
-```
+- Calling `match()` against `re`, rather than against a precompiled pattern.
+- We're returning the four groups in the pattern.
+- We're mapping all four groups from `str` type to `int` type, since we expect the data to always be numeric.
+- We use the four numbers - which are two pairs of x,y coordinates - to create a Line object. 
 
-Note the `import` of `annotations` from `__future__`. This allows us to reference a type that has not yet been defined. E.g. where we reference a `Point` argument in method definitions in the `Point` class.  Without this import, trying to run the code above results in this:
+## Replacing
 
-```text
-Traceback (most recent call last):
-  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 3, in <module>
-    class Point():
-  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 21, in Point
-    def __eq__(self, o: Point) -> bool:
-NameError: name 'Point' is not defined
-```
+Use the `sub()` method to replace occurrences of a match with a replacement string.
 
-## Dataclass
-
-This is a very cool _decorator_ which helps us save some time and effort, by circumventing the need to write lots of repetetive [boilerplate code](https://en.wikipedia.org/wiki/Boilerplate_code){:target="_blank"}, when we want to create a _class_ that mostly serves the purpose of storing and exposing some data.
-
-Cool things about a `dataclass`:
-
-- The `__init__()` method is created implicitly for us. All we need to do is define the variables that we want to be initialised when the object is created.
-- Defaults can be easily specified for our instance variables.
-- They can be _mutable_ or _immmutable_. We define a `dataclass` as _immutable_ by simply adding `frozen=True`. If we then try to change an instance variable, a `TypeError` will be thrown.
-- If we make `eq=True` (which is the _default_), then an implicit `__eq__()` method is created for us, which compares objects by generating a `tuple` from all its fields.  But we can even specify which fields to include in the comparison, and which to ignore!
-- If we make both `eq=True` and `frozen=True`, then an implicit `__hash__()` method is created for us.
-
-To make something a `dataclass`, simply add `@dataclass` before the class definition. You will also need to import `dataclass`.
-
-Now I'll recreate the above `Point` class, and call it in _exactly the same way_, but this time implement as a `dataclass`.  Look how much shorter it is!!
+For example:
 
 ```python
-from dataclasses import dataclass
+line = re.sub(r"(\d+)", r"RULE_\1", line)
+```
 
-@dataclass
-class Point():
-    """ Point class, which stores x and y """
-    x: int
-    y: int
+Here, any number that we find is replaced by "RULE_" + number. E.g.
+`15` becomes `RULE_15`.
 
-# Now let's test our Point class...
-point_a = (5, 10)
-print(point_a)
-point_b = (6, 5)
-print(point_b)
-point_c = (5, 10)
-print(point_c)
+The trick to this is to use `\n` to reference the `nth` group in the preceeding pattern.
 
-print(f"point_a == point_b? {point_a == point_b}")
-print(f"point_a == point_c? {point_a == point_c}")
+This example turns any number `n` into X(n). E.g. `456` becomes `X(456)`:
 
-points = set()
-points.add(point_a)
+```python
+re.sub(r"(\d+)", r"X(\1)", input)
+```
 
-if point_b in points:
-    print("point_b already in points")
-    
-if point_c in points:
-    print("point_c already in points")
+Here's a more sophisticated example. It takes a string like: \
+`= x yz | ab c` \
+and replaces it with: \
+`= ((x yz) / (ab c))`
+
+```python
+line = re.sub(r"= (.*) \| (.*)$", r"= ((\1) / (\2))", line)
 ```
