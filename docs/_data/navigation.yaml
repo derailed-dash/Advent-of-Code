@@ -35,7 +35,10 @@ pages:
     problem: "Not Quite Lisp"
   - name: 2
     link: /2015/2
-    problem: "I Was Told There Would Be No Math"    
+    problem: "I Was Told There Would Be No Math"
+  - name: 3
+    link: /2015/3
+    problem: "Perfectly Spherical Houses in a Vacuum" 
 - name: "2021"
   link: /2021/
   mainnav: True
