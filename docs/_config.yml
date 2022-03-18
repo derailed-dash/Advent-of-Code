@@ -69,6 +69,7 @@ defaults:
   - scope:
       path: "python"
     values:
+      layout: "journey-page" 
       topic: "The Python Journey"
   - scope:
       path: "2015"  # only apply to files in this folder

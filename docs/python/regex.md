@@ -1,5 +1,5 @@
 ---
-title: Classes and Objects
+title: Regular Expressions
 ---
 Here I'll go into the basics of working with classes and objects in Python. This is not an exhaustive treatment, but should be enough to give you the basics, and should be enough to make my AoC solutions easier to follow.
 

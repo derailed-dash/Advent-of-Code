@@ -1,9 +1,6 @@
 ---
-layout: default
 title: Packages and Environments
 ---
-# {{ page.title }}
-
 ## The Need for Packages
 
 Frequently we will need to import a package that is not part of the core Python installation. For example, my Advent of Code solutions often make use of installable packages like:

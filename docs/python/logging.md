@@ -1,9 +1,6 @@
 ---
-layout: default
 title: Logging
 ---
-# {{ page.title }}
-
 Rather than simply using `print()` statements, I tend to use the [logging](https://docs.python.org/3/library/logging.html){:target="_blank"} module for generating console output.
 
 It has a number of advantages over `print()` statements. The first is that we can specify a logging threshold `level`. 

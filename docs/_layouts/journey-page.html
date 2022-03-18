@@ -1,0 +1,31 @@
+---
+layout: default
+nav_name: 'Python Journey'
+---
+<h1>{{ page.topic }} - {{ page.title }}</h1>
+{% assign pages = site.data.navigation.pages | where: 'name', layout.nav_name %}
+{% assign members = pages[0].members %}
+{% for member in members %}
+  {% assign member_name = member.name %}
+  {% if member_name == page.title %}
+    {% unless forloop.first %}
+      {% assign prev_index = forloop.index0 | minus: 1 %}      
+      {% assign prev_member = members[prev_index] %}
+    {%- endunless -%}
+    {% unless forloop.last %}
+      {% assign next_index = forloop.index0 | plus: 1 %}
+      {% assign next_member = members[next_index] %}
+    {%- endunless -%}
+  {%- endif -%}
+{% endfor %}
+<p>
+  {% if prev_member %}<a class="dazbo-link-button nav-button" href="{{ prev_member.link | relative_url }}">&#8249;</a>{%- endif -%}
+  {%- if next_member -%}<a class="dazbo-link-button nav-button" href="{{ next_member.link | relative_url }}">&#8250;</a>{% endif %}
+</p>
+
+{{ content }}
+
+<p>
+  {% if prev_member %}<a class="dazbo-link-button nav-button" href="{{ prev_member.link | relative_url }}">&#8249;</a>{%- endif -%}
+  {%- if next_member -%}<a class="dazbo-link-button nav-button" href="{{ next_member.link | relative_url }}">&#8250;</a>{% endif %}
+</p>

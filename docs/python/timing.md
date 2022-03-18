@@ -1,8 +1,7 @@
 ---
-layout: default
 title: Timing and Progress
 ---
-# {{ page.title }}
+<img src="{{'/assets/images/progress.jpg' | relative_url }}" alt="Progress Bar" style="margin:15px 10px 10px 15px; float: right; width:300px" />
 
 ## Time Module
 

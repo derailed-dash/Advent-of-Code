@@ -22,6 +22,8 @@ pages:
     link: /python/packages
   - name: Classes and Objects
     link: /python/classes
+  - name: Regular Expressions
+    link: /python/regex
 - name: "2015"
   link: /2015/
   mainnav: True

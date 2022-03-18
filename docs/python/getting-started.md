@@ -1,10 +1,7 @@
 ---
-layout: default
 title: Getting Started with Python
 ---
 <img src="{{'/assets/images/python.png' | relative_url }}" alt="Advent of Code" style="margin:15px 10px 10px 15px; float: right; width:225px" />
-
-# {{ page.title }}
 
 If you're new to Python, then you'll want to start here.  If you're already comfortable using Python, then feel free to dive straight into the AoC walkthroughts, using the links above.
 

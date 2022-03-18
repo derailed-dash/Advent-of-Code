@@ -1,9 +1,6 @@
 ---
-layout: default
 title: My AoC Template
 ---
-# {{ page.title }}
-
 I like to start each AoC challenge using this template file. It brings together everything we've covered in the [Python Journey]({{'/python' | relative_url }}) so far.
 
 ```python
