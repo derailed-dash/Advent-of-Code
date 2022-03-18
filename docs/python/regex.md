@@ -14,7 +14,7 @@ tags:
 
 ## Page Contents
 
-- [Patterns?](#patterns)
+- [Patterns](#patterns)
 - [Matching Patterns in Python](#matching-patterns-in-python)
 - [Replacing](#replacing)
 
