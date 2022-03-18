@@ -1,5 +1,16 @@
 ---
 title: Getting Started with Python
+tags: 
+  - name: Python Beginner's Guide
+    link: https://wiki.python.org/moin/BeginnersGuide/Download
+  - name: The Python Handbook
+    link: https://www.freecodecamp.org/news/the-python-handbook
+  - name: The Official Python Tutorial
+    link: https://docs.python.org/3/tutorial/index.html
+  - name: Getting started with Python in VS Code Tutorial
+    link: https://code.visualstudio.com/docs/python/python-tutorial
+  - name: Git
+    link: https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control
 ---
 <img src="{{'/assets/images/python.png' | relative_url }}" alt="Advent of Code" style="margin:15px 10px 10px 15px; float: right; width:225px" />
 

@@ -1,5 +1,14 @@
 ---
 title: Packages and Environments
+tags: 
+  - name: Python Package Index
+    link: https://pypi.org/
+  - name: Python Packaging Authority
+    link: https://www.pypa.io/en/latest/
+  - name: Pip documentation
+    link: https://pip.pypa.io/en/stable/
+  - name: Python Environments in VS Code
+    link: https://code.visualstudio.com/docs/python/environments
 ---
 ## The Need for Packages
 

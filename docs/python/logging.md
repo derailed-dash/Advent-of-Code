@@ -1,5 +1,8 @@
 ---
 title: Logging
+tags: 
+  - name: Python Logging
+    link: https://docs.python.org/3/library/logging.html
 ---
 Rather than simply using `print()` statements, I tend to use the [logging](https://docs.python.org/3/library/logging.html){:target="_blank"} module for generating console output.
 

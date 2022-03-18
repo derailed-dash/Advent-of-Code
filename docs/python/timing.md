@@ -1,5 +1,14 @@
 ---
 title: Timing and Progress
+tags: 
+  - name: Time
+    link: https://docs.python.org/3/library/time.html
+  - name: String format()
+    link: https://www.w3schools.com/python/ref_string_format.asp
+  - name: f-strings
+    link: https://www.freecodecamp.org/news/python-f-strings-tutorial-how-to-use-f-strings-for-string-formatting
+  - name: tqdm (progress bar)
+    link: https://pypi.org/project/tqdm
 ---
 <img src="{{'/assets/images/progress.jpg' | relative_url }}" alt="Progress Bar" style="margin:15px 10px 10px 15px; float: right; width:300px" />
 

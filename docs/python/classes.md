@@ -1,5 +1,14 @@
 ---
 title: Classes and Objects
+tags: 
+  - name: Python Classes
+    link: https://docs.python.org/3/tutorial/classes.html
+  - name: Dataclasses Documentation
+    link: https://docs.python.org/3/library/dataclasses.html
+  - name: Understanding Dataclasses
+    link: https://www.geeksforgeeks.org/understanding-python-dataclasses/
+  - name: Decorator
+    link: https://pythonbasics.org/decorators/
 ---
 Here I'll go into the basics of working with classes and objects in Python. This is not an exhaustive treatment, but should be enough to give you the basics, and should be enough to make my AoC solutions easier to follow.
 

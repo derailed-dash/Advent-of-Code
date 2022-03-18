@@ -1,5 +1,8 @@
 ---
 title: Opening and Reading Files
+tags: 
+  - name: Context Manager
+    link: https://www.geeksforgeeks.org/context-manager-in-python/
 ---
 Almost every challenge in Advent of Code requires you to read some input data. Perhaps the easiest approach to get this data into your Python program is to simply save the suppied input data as a file. You can then read that file in your program.
 
