@@ -65,7 +65,6 @@ def main():
     visited_locations = santa_visited_locations.union(robosanta_visited_locations)
     print(f"Santa and Robosanta visited {len(visited_locations)} locations.")
 
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()

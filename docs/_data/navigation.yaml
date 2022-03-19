@@ -24,6 +24,8 @@ pages:
     link: /python/classes
   - name: Regular Expressions
     link: /python/regex
+  - name: Sets
+    link: /python/sets
   - name: Comprehensions
     link: /python/comprehensions
 - name: "2015"
