@@ -9,6 +9,8 @@ dist/
 sdist/
 var/
 target/
+pip-log.txt
+pip-delete-this-directory.txt
  
 # Byte-compiled / optimized / DLL files
 __pycache__
@@ -44,5 +46,3 @@ desktop.ini
 message.txt
 snippets/
 output/
-pip-log.txt
-pip-delete-this-directory.txt

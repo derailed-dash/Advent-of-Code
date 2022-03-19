@@ -4,8 +4,8 @@ Date: 13/01/2021
 
 Solving https://adventofcode.com/2015/day/3
 
-Solution 3 of 3:
-    Same as solution 1, but let's use complex numbers to store the x, y coordinates, rather than lists/tuples.
+Solution 2 of 3:
+    Same as solution 1, but let's use a Point class to store the x, y coordinates, rather than lists/tuples.
     That way, we only have to store one thing for each move.
     This removes a load of code duplicaton, and over half the time!
 
@@ -19,6 +19,7 @@ Part 2:
     Count how many locations were visited by either Santa or Robosanta.
     Here, we use %2 to send alternate directions to each of Santa and Robosanta.    
 """
+from dataclasses import dataclass
 from pathlib import Path
 import time
 
@@ -26,18 +27,30 @@ SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
-VECTORS = {         # Store vectors as complex numbers
-    '^': 0+1j,
-    '>': 1+0j,
-    'v': 0-1j,
-    '<': -1+0j
+@dataclass(frozen=True)
+class Point:
+    """ Class for storing a point x,y coordinate """
+    x: int
+    y: int
+    
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+class Vector(Point):
+    """ Same as a Point class. But more intuitive to treat deltas as vectors than points. """
+
+VECTORS = {
+    '^': Vector(0, 1),
+    '>': Vector(1, 0),
+    'v': Vector(0, -1),
+    '<': Vector(-1, 0)
 }
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read()
 
-    current_location = 0+0j
+    current_location = Point(0, 0)
     visited_locations = set()
     visited_locations.add(current_location)
 
@@ -47,7 +60,7 @@ def main():
 
     print(f"Santa visited {len(visited_locations)} locations.")
 
-    santa_location = robosanta_location = 0+0j
+    santa_location = robosanta_location = Point(0,0)
 
     santa_visited_locations = set()
     santa_visited_locations.add(santa_location)
