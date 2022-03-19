@@ -80,8 +80,8 @@ Mathematical _set algebra_ is easily achieved using Python sets. For example, we
       <th>Set Relationship</th>
       <th>Looks like</th>
     </tr>
-    <tr><td>Union (&)</td><td><img src="{{'/assets/images/set_union.png' | relative_url }}" alt="Set union" style="width:100px;"/></td></tr>
-    <tr><td>Intersection(&)</td><td><img src="{{'/assets/images/set_intersection.png' | relative_url }}" alt="Set intersection" style="width:100px;"/></td></tr>
+    <tr><td>Union (|)</td><td><img src="{{'/assets/images/set_union.png' | relative_url }}" alt="Set union" style="width:100px;"/></td></tr>
+    <tr><td>Intersection (&)</td><td><img src="{{'/assets/images/set_intersection.png' | relative_url }}" alt="Set intersection" style="width:100px;"/></td></tr>
     <tr><td>Difference (-)</td><td><img src="{{'/assets/images/set_difference.png' | relative_url }}" alt="Set difference" style="width:100px;"/></td></tr>
     <tr><td>Symmmetric Difference</td><td><img src="{{'/assets/images/symmetric_diff.png' | relative_url }}" alt="Set difference" style="width:100px;"/></td></tr>
     <tr><td>Superset/Contains (>)</td><td><img src="{{'/assets/images/set_superset.png' | relative_url }}" alt="Set difference" style="width:100px;"/></td></tr> 

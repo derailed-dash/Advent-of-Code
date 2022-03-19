@@ -75,7 +75,7 @@ def main():
             robosanta_location += VECTORS[vector]
             robosanta_visited_locations.add(robosanta_location)
 
-    visited_locations = santa_visited_locations.union(robosanta_visited_locations)
+    visited_locations = santa_visited_locations | robosanta_visited_locations
     print(f"Santa and Robosanta visited {len(visited_locations)} locations.")
 
 
