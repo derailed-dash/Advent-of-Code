@@ -28,6 +28,8 @@ pages:
     link: /python/sets
   - name: Comprehensions
     link: /python/comprehensions
+  - name: Complex Numbers
+    link: /python/complex
 - name: "2015"
   link: /2015/
   mainnav: True
