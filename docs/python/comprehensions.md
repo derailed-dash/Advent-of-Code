@@ -1,5 +1,8 @@
 ---
 title: Comprehensions
+main_img:
+  name: That's convenient
+  link: /assets/images/convenient.png
 tags: 
   - name: Collection Comprehensions
     link: https://www.geeksforgeeks.org/comprehensions-in-python/

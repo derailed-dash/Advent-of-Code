@@ -35,15 +35,15 @@ def main():
         # Create byte equivalent of input string, then generate md5 hexdigest.
         hash_hex = hashlib.md5(data.encode()).hexdigest()
         
-        # increment the nonce
-        counter += 1
-        if hash_hex.startswith("00000") and not part1_solved:
+        if hash_hex.startswith(5*"0") and not part1_solved:
             print(f"Part 1. With input {data}, hash = {hash_hex}")
             part1_solved = True
 
-        if hash_hex.startswith("000000") and not part2_solved:
+        if hash_hex.startswith(6*"0") and not part2_solved:
             print(f"Part 2. With input {data}, hash = {hash_hex}")
-            part2_solved = True         
+            part2_solved = True
+
+        counter += 1  # increment the nonce
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

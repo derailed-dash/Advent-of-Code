@@ -1,5 +1,8 @@
 ---
 title: Timing and Progress
+main_img:
+  name: Argand Plot
+  link: /assets/images/progress.jpg
 tags: 
   - name: Time
     link: https://docs.python.org/3/library/time.html
@@ -10,8 +13,6 @@ tags:
   - name: tqdm (progress bar)
     link: https://pypi.org/project/tqdm
 ---
-<img src="{{'/assets/images/progress.jpg' | relative_url }}" alt="Progress Bar" style="margin:15px 10px 10px 15px; float: right; width:300px" />
-
 ## Time Module
 
 The [time](https://docs.python.org/3/library/time.html){:target="_blank"} module is a convenient and easy way to measure how long something takes to run. 

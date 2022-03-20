@@ -73,7 +73,7 @@ Points_set: {(5, 10), (20, 30), (6, 5)}
 
 ## Set Algebra
 
-Mathematical _set algebra_ is easily achieved using Python sets. For example, we can use set algebra to determine when one `set` _contains_ another `set`, any _intersection_ of sets, any _difference_ between sets, and any _union_ that is created by combining sets.
+Mathematical _set algebra_ is easily achieved using Python sets. For example, we can use set algebra to determine when one `set` _contains_ another `set`, any _intersection_ of sets, any _difference_ between sets, and any _union_ that is created by combining sets. If you're unfamiliar with _set theory_, but you understand **Venn diagrams**, then guess what... You pretty much understand _set theory!_
 
 <table class="dazbo-table" style="background: white; width: 440px">
     <tr>

@@ -3,6 +3,9 @@ layout: default
 nav_name: 'Python Journey'
 ---
 <h1>{{ page.topic }} - {{ page.title }}</h1>
+{%- if page.main_img -%}
+<img src="{{ page.main_img.link | relative_url }}" alt="{{ page.main_img.name }}" style="margin:15px 10px 10px 10px; float: right; width:300px" />
+{%- endif -%}
 
 {% assign pages = site.data.navigation.pages | where: 'name', layout.nav_name %}
 {% assign members = pages[0].members %}

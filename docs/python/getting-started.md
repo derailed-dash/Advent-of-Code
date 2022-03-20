@@ -1,5 +1,8 @@
 ---
 title: Getting Started with Python
+main_img:
+  name: Argand Plot
+  link: /assets/images/python.png
 tags: 
   - name: Python Beginner's Guide
     link: https://wiki.python.org/moin/BeginnersGuide/Download
@@ -12,8 +15,6 @@ tags:
   - name: Git
     link: https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control
 ---
-<img src="{{'/assets/images/python.png' | relative_url }}" alt="Advent of Code" style="margin:15px 10px 10px 15px; float: right; width:225px" />
-
 If you're new to Python, then you'll want to start here.  If you're already comfortable using Python, then feel free to dive straight into the AoC walkthroughts, using the links above.
 
 ## Why Python?
