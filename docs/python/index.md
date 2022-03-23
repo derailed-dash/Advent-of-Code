@@ -14,6 +14,6 @@ Follow the pages here to get up and running with Python. Pages include:
 <ul>
   {% assign top_level = site.data.navigation.pages | where: 'name', page.title %}
   {% for member in top_level[0].members %}
-      <li><a href="{{ member.link | relative_url }}">{{ member.name }}</a></li>
+      <li><a href="{{ member.link | absolute_url }}">{{ member.name }}</a></li>
   {% endfor %}
 </ul>
