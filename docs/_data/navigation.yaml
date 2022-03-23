@@ -42,7 +42,10 @@ pages:
     problem: "I Was Told There Would Be No Math"
   - name: 3
     link: /2015/3
-    problem: "Perfectly Spherical Houses in a Vacuum" 
+    problem: "Perfectly Spherical Houses in a Vacuum"
+  - name: 4
+    link: /2015/4
+    problem: "The Ideal Stocking Stuffer"
 - name: "2021"
   link: /2021/
   mainnav: True

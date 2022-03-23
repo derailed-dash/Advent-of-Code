@@ -9,7 +9,7 @@ layout: default
 {% assign next_page = the_year[0].members | where: 'name', next %}
 <img src="{{ page.main_img.link | relative_url }}" alt="{{ page.main_img.name }}" style="margin:15px 10px 10px 10px; float: right; width:330px" />
 
-<h1>{{ page.topic}} {{ page.year }}</h1>
+<h1>{{ page.topic}} {{ page.year }} - {{ page.title }}</h1>
 <p>
   <a class="dazbo-link-button" href='https://adventofcode.com/{{ page.year }}/day/{{ page.day }}' target="_blank">{{ page.title }}: {{ current_page[0].problem }}</a>
 </p>

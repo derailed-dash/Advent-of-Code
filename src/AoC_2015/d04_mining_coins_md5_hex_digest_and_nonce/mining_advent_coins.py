@@ -13,18 +13,16 @@ I.e. the hex digest is equivalent to the block hash.
 The number of leading zeros is equivalent to the difficulty of the proof of work.
 The number n, is equivalent to the nonce.
 """
-import os
+from pathlib import Path
 import time
 import hashlib
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
-
+SCRIPT_DIR = Path(__file__).parent 
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 def main():
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         hash_seed = f.read()
     
     # counter is the nonce
