@@ -46,6 +46,9 @@ pages:
   - name: 4
     link: /2015/4
     problem: "The Ideal Stocking Stuffer"
+  - name: 5
+    link: /2015/5
+    problem: "Doesn't He Have Intern-Elves For This?"
 - name: "2021"
   link: /2021/
   mainnav: True
