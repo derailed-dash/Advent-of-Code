@@ -68,6 +68,10 @@ defaults:
     values:
       layout: "day-page"  # most of our pages will use this layout; use default for index
       topic: "Advent of Code"
+  - scope:  # exclude the domain ownership verification from sitemap
+      path: google*.html
+    values:
+      sitemap: false
   - scope:
       path: "python"
     values:
