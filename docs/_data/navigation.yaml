@@ -49,6 +49,9 @@ pages:
   - name: 5
     link: /2015/5
     problem: "Doesn't He Have Intern-Elves For This?"
+  - name: 6
+    link: /2015/6
+    problem: "Probably a Fire Hazard"
 - name: "2021"
   link: /2021/
   mainnav: True

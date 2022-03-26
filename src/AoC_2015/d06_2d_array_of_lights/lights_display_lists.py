@@ -25,85 +25,67 @@ Part 2:
     Calculate total brightness.
 
 """
-from __future__ import absolute_import
-import os
+from pathlib import Path
 import time
 import re
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+SCRIPT_DIR = Path(__file__).parent 
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
 
-    dim_length = 1000
+    width = height = 1000
 
     # Part 1
     # Create a list of lists
-    light_rows = []
-    for _ in range(dim_length):
-        light_row = []
-        for _ in range(dim_length):
-            light_row.append(False)
-        
-        light_rows.append(light_row)
-
+    light_rows = [[False for light in range(width)] for row in range(height)]
     process_instructions(data, light_rows)
-
-    count_lights_on = sum(1 if light_rows[i][j] else 0 for j in range(dim_length) for i in range(dim_length))
-    print(f"Part 1, lights on: {count_lights_on}")
+    lights = [light_rows[y][x] for x in range(width) for y in range(height)]
+    assert len(lights) == width*height
+    print(f"Part 1, lights on: {sum(lights)}")
 
     # Part 2
-    light_rows = []
-    for _ in range(dim_length):
-        light_row = []
-        for _ in range(dim_length):
-            light_row.append(0)
-        
-        light_rows.append(light_row)
-
+    # Re-initialise our grid
+    light_rows = [[0 for light in range(width)] for row in range(height)]
     process_variable_brightness_instructions(data, light_rows)
-    total_brightness = sum(light_rows[i][j] for j in range(dim_length) for i in range(dim_length))
-    print(f"Part 2, brightness: {total_brightness}")
+    lights = [light_rows[y][x] for x in range(width) for y in range(height)]
+    print(f"Part 2, brightness: {sum(lights)}")
 
 def process_variable_brightness_instructions(data, lights):
-    p = re.compile(r"(\D+) (\d+),(\d+) through (\d+),(\d+)")
+    p = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
 
     for line in data:
-        _, tl_x, tl_y, br_x, br_y = p.search(line).groups()
+        tl_x, tl_y, br_x, br_y = p.search(line).groups()
         tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
 
-        for i in range(tl_x, br_x + 1):
-            for j in range(tl_y, br_y + 1):
+        for y in range(tl_y, br_y + 1):
+            for x in range(tl_x, br_x + 1):
                 if "toggle" in line:
-                    lights[i][j] += 2
+                    lights[y][x] += 2
                 elif "on" in line:
-                    lights[i][j] += 1
+                    lights[y][x] += 1
                 elif "off" in line:
-                    if lights[i][j] > 0:
-                        lights[i][j] -= 1
-
+                    if lights[y][x] > 0:
+                        lights[y][x] -= 1
 
 def process_instructions(data, lights):
-    p = re.compile(r"(\D+) (\d+),(\d+) through (\d+),(\d+)")
+    p = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
 
     for line in data:
-        _, tl_x, tl_y, br_x, br_y = p.search(line).groups()
+        tl_x, tl_y, br_x, br_y = p.search(line).groups()
         tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
 
-        for i in range(tl_x, br_x + 1):
-            for j in range(tl_y, br_y + 1):
+        for y in range(tl_y, br_y + 1):
+            for x in range(tl_x, br_x + 1):
                 if "toggle" in line:
-                    lights[i][j] = not lights[i][j]
+                    lights[y][x] = not lights[y][x]
                 elif "on" in line:
-                    lights[i][j] = True
+                    lights[y][x] = True
                 elif "off" in line:
-                    lights[i][j] = False
-
+                    lights[y][x] = False
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

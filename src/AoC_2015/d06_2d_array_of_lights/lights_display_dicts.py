@@ -25,7 +25,6 @@ Part 2:
     Calculate total brightness.
 
 """
-import sys
 import os
 import time
 import re
