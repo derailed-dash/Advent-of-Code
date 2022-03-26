@@ -16,6 +16,7 @@ tags:
 
 - [Patterns](#patterns)
 - [Matching Patterns in Python](#matching-patterns-in-python)
+- [Naming Groups](#naming-groups)
 - [Replacing](#replacing)
 
 ## Patterns
@@ -51,9 +52,9 @@ Here:
 
 - We wrap the pattern with `r"regex"`, to avoid any need for convoluted escape characters.  The `r` prefix turns the `str` into Python's _raw_ string format.  In short, it's just a good idea to always pass patterns in this raw format.
 - The `match(row)` method looks for the pattern within the text called `row`. In particular, the `match()` method will look for the match from the _beginning_ of the line of data.
-- If we want to look for the pattern at any position in the data, we should use `find()` instead of `match()`.
-- If `match()` or `find()` are successful, they return a `match` object.
-- The regex pattern itself is split into several groups, by wrapping each group within parentheses, i.e. `(group)`. When we call the `groups()` method against any successful `match` object, this returns a tuple of the four groups in our regex pattern.
+- If we want to look for the pattern at any position in the data, we should use `search()` instead of `match()`.
+- If `match()` or `search()` are successful, they return a `match` object. If not, they return `None`.
+- The regex pattern itself is split into several groups, by wrapping each group within parentheses, i.e. `(group)`. When we call the `groups()` method against any successful `match` object, this returns a _tuple_ of the four groups in our regex pattern.
 
 It can be useful to perform assignment at the same time as checking if match object was returned.  For example, here we will only enter the `if` block if a match was found. If a match was found, then the match object will have been assigned to the variable called `match`:
 
@@ -77,6 +78,53 @@ Here, we're:
 - We're returning the four groups in the pattern.
 - We're mapping all four groups from `str` type to `int` type, since we expect the data to always be numeric.
 - We use the four numbers - which are two pairs of x,y coordinates - to create a Line object. 
+
+## Naming Groups
+
+We can actually name groups in the regex pattern itself. Then, instead of calling `groups()` on a match object, we can instead call `groupdict()`. This returns a dictionary, where the keys are the names of the groups, and the values are the string values from the match.
+
+Compare these two approaches:
+
+```python
+import re
+
+test = "John Smith"
+
+# First, just using groups() and then unpacking the tuple
+name_pattern = r"(\w+) (\w+)"
+if (match := re.match(name_pattern, test)):
+    first_name, last_name = match.groups()
+    print(f"Unpacking groups(): {first_name}, {last_name}")
+
+# Now, using named groups and returning a dict
+name_pattern = r"(?P<first>\w+) (?P<last>\w+)"
+if (match := re.match(name_pattern, test)):
+    name_dict = match.groupdict()
+    print(f"Using groupdict(): {name_dict['first']}, {name_dict['last']}")
+```
+
+Output:
+
+```text
+Unpacking groups(): John, Smith
+Using groupdict(): John, Smith
+```
+
+Even more usefully, we can actually embed Python variables within the pattern string.  You can see how this can be useful if using `groupdict()`:
+
+```python
+test = "John Smith"
+
+first_name_grp = "first"
+last_name_grp = "last"
+name_pattern = rf"(?P<{first_name_grp}>\w+) (?P<{last_name_grp}>\w+)"
+if (match := re.match(name_pattern, test)):
+    name_dict = match.groupdict()
+    print("Using groupdict() with variables in the pattern: "
+         f"{name_dict[first_name_grp]}, {name_dict[last_name_grp]}")
+```
+
+Note how we're prefixing the pattern string with both `r` to make it _raw_, and `f` in order to use f-string interpoloation, i.e. so that we can reference variables like `{first_name_grp}` within the string.
 
 ## Replacing
 
