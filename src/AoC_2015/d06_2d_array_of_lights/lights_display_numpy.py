@@ -12,7 +12,6 @@ Solution 3 of 3:
     Use numpy 2D array.  
     This is about 35x faster than using dicts!
 
-
 Part 1:
     Instructions require lights to be toggled, turned on, or off.
     Calculate total lights turned on.
@@ -34,6 +33,8 @@ SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
+INSTR_PATTERN = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
+
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
@@ -41,20 +42,34 @@ def main():
     width = height = 1000
 
     # Part 1
-    lights = np.zeros((width, height), dtype=np.int8)
+    lights = np.full((width, height), False, dtype=np.bool8) # fill with False
     process_instructions(data, lights)
     print(f"Part 1, lights on: {lights.sum()}")
 
     # Part 2
-    lights = np.zeros((width, height), dtype=np.int8)
+    lights = np.zeros((width, height), dtype=np.int8)   # Initialise with 0
     process_variable_brightness_instructions(data, lights)
     print(f"Part 2, brightness: {lights.sum()}")
 
-def process_variable_brightness_instructions(data, lights):
-    p = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
-
+def process_instructions(data, lights):
     for line in data:
-        tl_x, tl_y, br_x, br_y = p.search(line).groups()
+        match = INSTR_PATTERN.search(line)
+        assert match, "All instruction lines are expeted to match"
+        tl_x, tl_y, br_x, br_y = match.groups()
+        tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
+
+        if "toggle" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] ^= True
+        elif "on" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] = True
+        elif "off" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] = False
+            
+def process_variable_brightness_instructions(data, lights):
+    for line in data:
+        match = INSTR_PATTERN.search(line)
+        assert match, "All instruction lines are expeted to match"
+        tl_x, tl_y, br_x, br_y = match.groups()
         tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
 
         if "toggle" in line:
@@ -65,20 +80,6 @@ def process_variable_brightness_instructions(data, lights):
             lights[tl_x:br_x+1, tl_y:br_y+1] -= 1
 
         lights[lights < 0] = 0
-
-def process_instructions(data, lights):
-    p = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
-
-    for line in data:
-        tl_x, tl_y, br_x, br_y = p.search(line).groups()
-        tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
-
-        if "toggle" in line:
-            lights[tl_x:br_x+1, tl_y:br_y+1] ^= 1
-        elif "on" in line:
-            lights[tl_x:br_x+1, tl_y:br_y+1] = 1
-        elif "off" in line:
-            lights[tl_x:br_x+1, tl_y:br_y+1] = 0
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
