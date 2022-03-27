@@ -58,8 +58,7 @@ def process_variable_brightness_instructions(data, lights):
     p = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
 
     for line in data:
-        tl_x, tl_y, br_x, br_y = p.search(line).groups()
-        tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
+        tl_x, tl_y, br_x, br_y = map(int, p.search(line).groups())
 
         for y in range(tl_y, br_y + 1):
             for x in range(tl_x, br_x + 1):
@@ -75,8 +74,7 @@ def process_instructions(data, lights):
     p = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
 
     for line in data:
-        tl_x, tl_y, br_x, br_y = p.search(line).groups()
-        tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
+        tl_x, tl_y, br_x, br_y = map(int, p.search(line).groups())
 
         for y in range(tl_y, br_y + 1):
             for x in range(tl_x, br_x + 1):

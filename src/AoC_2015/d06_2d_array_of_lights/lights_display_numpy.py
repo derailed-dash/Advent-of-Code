@@ -55,8 +55,7 @@ def process_instructions(data, lights):
     for line in data:
         match = INSTR_PATTERN.search(line)
         assert match, "All instruction lines are expeted to match"
-        tl_x, tl_y, br_x, br_y = match.groups()
-        tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
+        tl_x, tl_y, br_x, br_y = map(int, match.groups())
 
         if "toggle" in line:
             lights[tl_x:br_x+1, tl_y:br_y+1] ^= True
@@ -69,8 +68,7 @@ def process_variable_brightness_instructions(data, lights):
     for line in data:
         match = INSTR_PATTERN.search(line)
         assert match, "All instruction lines are expeted to match"
-        tl_x, tl_y, br_x, br_y = match.groups()
-        tl_x, tl_y, br_x, br_y = map(int, (tl_x, tl_y, br_x, br_y))
+        tl_x, tl_y, br_x, br_y = map(int, match.groups())
 
         if "toggle" in line:
             lights[tl_x:br_x+1, tl_y:br_y+1] += 2

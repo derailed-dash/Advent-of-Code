@@ -18,6 +18,7 @@ tags:
 - [Matching Patterns in Python](#matching-patterns-in-python)
 - [Naming Groups](#naming-groups)
 - [Replacing](#replacing)
+- [More Examples](#more-examples)
 
 ## Patterns
 
@@ -155,3 +156,27 @@ and replaces it with: \
 ```python
 line = re.sub(r"= (.*) \| (.*)$", r"= ((\1) / (\2))", line)
 ```
+
+## More Examples
+
+### Asserting the Match, and Mapping
+
+```python
+INSTR_PATTERN = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
+
+for line in data:
+    match = INSTR_PATTERN.search(line)
+    assert match, "All instruction lines are expeted to match"
+    tl_x, tl_y, br_x, br_y = map(int, match.groups())
+```
+
+Here we're processing multiple lines of data. We're looking for lines that contain something like:
+
+```text
+4,14 through 6,16
+```
+
+- The four `(\d+)` groups are used to capture each of the four numbers in the line.
+- We're using an [assert](/python/assertion) to validate that we found a match to our pattern in the current line. By including this assertion, we're explicitly stating that we believe the input data is good. If any line fails to match the pattern, then the program will terminate with an `AssertionError`.
+- We're using the `groups()` method to return the four groups as a `tuple`. We're then using _tuple unpacking_ to unpack the tuple into four separate variables.
+- Finally, because we know the four variables are all numbers, we're using the `map()` function, to convert each variable from a `str` to an `int`.  Here, the `map()` function is applying the `int()` function each member of the tuple that was passed in.
