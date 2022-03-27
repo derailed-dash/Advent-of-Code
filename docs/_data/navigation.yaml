@@ -22,6 +22,8 @@ pages:
     link: /python/packages
   - name: Classes and Objects
     link: /python/classes
+  - name: Assertion
+    link: /python/assertion
   - name: Regular Expressions
     link: /python/regex
   - name: Sets
