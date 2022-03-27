@@ -32,6 +32,8 @@ pages:
     link: /python/comprehensions
   - name: Complex Numbers
     link: /python/complex
+  - name: NumPy
+    link: /python/numpy
 - name: "2015"
   link: /2015/
   mainnav: True
