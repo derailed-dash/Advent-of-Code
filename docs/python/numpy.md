@@ -60,56 +60,81 @@ Check out some of the links above to get familiar with NumPy.
 
 ### Creating Arrays
 
+#### From a list
+
 ```python
 import numpy as np
 
-print("A 1x3 1D array")
+# A 1x3 1D array
 my_array = np.array([1, 2, 3])
-print(my_array)
-
-print("A 2x3 2D array")
-my_array = np.array([[1, 2, 3], 
-                     [4, 5, 6]])
-print(my_array)
-
-print("Initialise 1x4 to 0 as floats")
-my_array = np.zeros(4)
-print(my_array)
-
-print("Initialise 2x3 to 0 as int")
-my_array = np.zeros((2,3), dtype=np.int32)
-print(my_array)
-
-print("Initialise 2x3 to 9")
-my_array = np.full((2,3), fill_value=9, dtype=np.int32)
-print(my_array)
-
-print("Initialise 2x3x4 to False")
-my_array = np.full((2,3,4), fill_value=False, dtype=np.bool8)
-print(my_array)
-
-print("Initialise with a range")
-my_array = np.arange(25, 50, 5)
 print(my_array)
 ```
 
-Output:
+```text
+[1 2 3]
+```
+
+#### A 2D Array from a list of lists
+
+```python
+# A 2x3 2D array
+my_array = np.array([[1, 2, 3], 
+                     [4, 5, 6]])
+print(my_array)
+```
 
 ```text
-A 1x3 1D array
-[1 2 3]
-A 2x3 2D array
 [[1 2 3]
  [4 5 6]]
-Initialise 1x4 to 0 as floats
+```
+
+#### Initilising with Zeroes
+
+```python
+# Initialise 1x4 to 0 as floats
+my_array = np.zeros(4)
+print(my_array)
+```
+
+```text
 [0. 0. 0. 0.]
-Initialise 2x3 to 0 as int
+```
+
+#### Explicitly Setting Type
+
+```python
+# Initialise 2x3 to 0 as int
+my_array = np.zeros((2,3), dtype=np.int32)
+print(my_array)
+```
+
+```text
 [[0 0 0]
  [0 0 0]]
-Initialise 2x3 to 9
+```
+
+#### Initialising with Specified Value
+
+```python
+# Initialise 2x3 to 9
+my_array = np.full((2,3), fill_value=9, dtype=np.int32)
+print(my_array)
+```
+
+```text
 [[9 9 9]
  [9 9 9]]
-Initialise 2x3x4 3D array to False
+```
+
+#### Initialising a 3D nparray with Boolean Type
+
+```python
+# Initialise 2x3x4 3D array to False
+my_array = np.full((2,3,4), fill_value=False, dtype=np.bool8)
+print(my_array)
+```
+
+```text
 [[[False False False False]
   [False False False False]
   [False False False False]]
@@ -117,7 +142,17 @@ Initialise 2x3x4 3D array to False
  [[False False False False]
   [False False False False]
   [False False False False]]]
-Initialise with a range
+```
+
+#### Initialising With a Range
+
+```python
+# Initialise with a range
+my_array = np.arange(25, 50, 5)
+print(my_array)
+```
+
+```text
 [25 30 35 40 45]
 ```
 
