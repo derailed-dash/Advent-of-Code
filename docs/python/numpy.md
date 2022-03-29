@@ -32,7 +32,9 @@ tags:
   - [Creating an Array Based on Another Array](#creating-an-array-based-on-another-array)
   - [By Reading a CSV](#by-reading-a-csv)
 - [Changing Shape](#changing-shape)
-- [Basic Array Arithmetic](#basic-array-arithmetic)
+- [Basic Mathematical Operations](#basic-mathematical-operations)
+  - [On One Array](#on-one-array)
+  - [Between Two Arrays](#between-two-arrays)
 - [Unary Operations (Including Statistical)](#unary-operations-including-statistical)
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
@@ -324,7 +326,37 @@ Data:
 [2 3 4 5 6 7]
 ```
 
-## Basic Array Arithmetic
+## Basic Mathematical Operations
+
+### On One Array
+
+You can perform basic mathematical operations on an array.  The operation applies to every element in the array, and returns a new array with the same shape.
+
+```python
+my_array = np.asarray(([5, 10, 15, 20, 5],
+                       [20, 25, 30, 30, 30]))
+
+plus_one = my_array + 1
+times_two = my_array * 2
+
+print(f"my_array:\n{my_array}")
+print(f"plus_one:\n{plus_one}")
+print(f"times_two:\n{times_two}")
+```
+
+```text
+my_array:
+[[ 5 10 15 20  5]
+ [20 25 30 30 30]]
+plus_one:
+[[ 6 11 16 21  6]
+ [21 26 31 31 31]]
+times_two:
+[[10 20 30 40 10]
+ [40 50 60 60 60]]
+```
+
+### Between Two Arrays
 
 We can perform basic arithmetic between two arrays of the same shape. The mathematical operations are performed between elements in the identical positions of the two arrays.
 
@@ -364,32 +396,49 @@ two/one:
 ## Unary Operations (Including Statistical)
 
 ```python
-my_array = np.asarray(([5, 10, 15],
-                       [20, 25, 30]))
+my_array = np.asarray(([5, 10, 15, 20, 5],
+                       [20, 25, 30, 30, 30]))
 
 print(f"my_array:\n{my_array}")
+
+print("\nWorking with sums...")
 print(f"sum: {my_array.sum()}")
 print(f"sum axis 0 (cols): {my_array.sum(axis=0)}")
 print(f"sum axis 1 (rows): {my_array.sum(axis=1)}")
 print(f"Cumulative sum: {my_array.cumsum()}")
+
+print("\nBasic numerical analysis...")
 print(f"max: {my_array.max()}")
 print(f"min axis 0 (cols): {my_array.min(axis=0)}")
 print(f"mean axis 0 (cols): {my_array.mean(axis=0)}")
 print(f"median axis 1 (rows): {np.median(my_array, axis=1)}")
+
+print("\nGet sorted unique items, and their counts...")
+uniques, counts = np.unique(my_array, return_counts=True)
+print(f"Uniques: {uniques}")
+print(f"Counts: {counts}")
 ```
 
 ```text
 my_array:
-[[ 5 10 15]
- [20 25 30]]
-sum: 105
-sum axis 0 (cols): [25 35 45]
-sum axis 1 (rows): [30 75]
-Cumulative sum: [  5  15  30  50  75 105]
+[[ 5 10 15 20  5]
+ [20 25 30 30 30]]
+
+Working with sums...
+sum: 190
+sum axis 0 (cols): [25 35 45 50 35]
+sum axis 1 (rows): [ 55 135]
+Cumulative sum: [  5  15  30  50  55  75 100 130 160 190]
+
+Basic numerical analysis...
 max: 30
-min axis 0 (cols): [ 5 10 15]
-mean axis 0 (cols): [12.5 17.5 22.5]
-median axis 1 (rows): [10. 25.]
+min axis 0 (cols): [ 5 10 15 20  5]
+mean axis 0 (cols): [12.5 17.5 22.5 25.  17.5]
+median axis 1 (rows): [10. 30.]
+
+Get sorted unique items, and their counts...
+Uniques: [ 5 10 15 20 25 30]
+Counts: [2 1 1 2 1 3]
 ```
 
 ## Examples
