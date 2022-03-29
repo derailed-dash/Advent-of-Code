@@ -19,6 +19,23 @@ tags:
 - [When Should You Use Numpy?](#when-should-you-use-numpy)
 - [Installing and Importing](#installing-and-importing)
 - [Getting Started](#getting-started)
+- [Creating Arrays](#creating-arrays)
+  - [From a List](#from-a-list)
+  - [A 2D Array from a list of lists](#a-2d-array-from-a-list-of-lists)
+  - [Initilising with Zeroes](#initilising-with-zeroes)
+  - [Explicitly Setting Type](#explicitly-setting-type)
+  - [Initialising with Specified Value](#initialising-with-specified-value)
+  - [Initialising a 3D Array with Boolean Type](#initialising-a-3d-array-with-boolean-type)
+  - [Initialising With a Range](#initialising-with-a-range)
+  - [Creating Linearly Spaced Values](#creating-linearly-spaced-values)
+  - [With Random Numbers](#with-random-numbers)
+  - [Creating an Array Based on Another Array](#creating-an-array-based-on-another-array)
+  - [By Reading a CSV](#by-reading-a-csv)
+- [Changing Shape](#changing-shape)
+- [Basic Array Arithmetic](#basic-array-arithmetic)
+- [Unary Operations (Including Statistical)](#unary-operations-including-statistical)
+- [Examples](#examples)
+  - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
 
 ## NumPy is Awesome
 
@@ -58,7 +75,7 @@ import numpy as np
 
 Check out some of the links above to get familiar with NumPy.
 
-### Creating Arrays
+## Creating Arrays
 
 We can create arrays by providing sequences or nested sequences.  
 
@@ -75,7 +92,7 @@ print(f"Type: {my_array.dtype}")
 print(f"Data:\n{my_array}")
 ```
 
-#### From a list
+### From a list
 
 ```python
 # A 1x3 1D array
@@ -90,7 +107,7 @@ Data:
 [1 2 3]
 ```
 
-#### A 2D Array from a list of lists
+### A 2D Array from a list of lists
 
 ```python
 # A 2x3 2D array
@@ -107,7 +124,7 @@ Data:
  [4 5 6]]
 ```
 
-#### Initilising with Zeroes
+### Initilising with Zeroes
 
 ```python
 # Initialise 1x4 to 0 as floats
@@ -122,7 +139,7 @@ Data:
 [0. 0. 0. 0.]
 ```
 
-#### Explicitly Setting Type
+### Explicitly Setting Type
 
 ```python
 # Initialise 2x3 to 0 as int
@@ -138,7 +155,7 @@ Data:
  [0 0 0]]
 ```
 
-#### Initialising with Specified Value
+### Initialising with Specified Value
 
 ```python
 # Initialise 2x3 to 9
@@ -154,7 +171,7 @@ Data:
  [9 9 9]]
 ```
 
-#### Initialising a 3D nparray with Boolean Type
+### Initialising a 3D Array with Boolean Type
 
 ```python
 # Initialise 2x3x4 3D array to False
@@ -175,7 +192,7 @@ Data:
   [False False False False]]]
 ```
 
-#### Initialising With a Range
+### Initialising With a Range
 
 ```python
 # Initialise with a range
@@ -190,7 +207,7 @@ Data:
 [25 30 35 40 45]
 ```
 
-#### Creating Linearly Spaced Values
+### Creating Linearly Spaced Values
 
 What if we know the min and max, and we know how many elements we want?
 
@@ -208,7 +225,7 @@ Data:
 
 It's important to note that when using `linspace()`, the second parameter is _inclusive_.  This contrasts to typical Python slicing, where the second number is excluded.
 
-#### With Random Numbers
+### With Random Numbers
 
 ```python
 my_array = np.random.rand(2,4)
@@ -223,7 +240,30 @@ Data:
  [0.27561621 0.46655983 0.93122415 0.82242813]]
 ```
 
-### Changing Shape
+### Creating an Array Based on Another Array
+
+```python
+my_array = np.asarray([[2,3,4],
+                      [5,6,7]])
+print(my_array)
+new_array = np.zeros_like(my_array)
+print(new_array)
+```
+
+```text
+[[2 3 4]
+ [5 6 7]]
+[[0 0 0]
+ [0 0 0]]
+```
+
+### By Reading a CSV
+
+```python
+data = np.loadtxt(input_file, delimiter=",", dtype=np.int16)
+```
+
+## Changing Shape
 
 We can change the dimensions of an array.
 
@@ -282,4 +322,92 @@ After flattening...
 Shape: (6,)
 Data:
 [2 3 4 5 6 7]
+```
+
+## Basic Array Arithmetic
+
+We can perform basic arithmetic between two arrays of the same shape. The mathematical operations are performed between elements in the identical positions of the two arrays.
+
+```python
+one = np.asarray([[1, 2],
+                  [3, 4]])
+
+two = np.asarray(([5, 10],
+                  [15, 20]))
+
+print(f"one:\n{one}")
+print(f"two:\n{two}")
+
+print(f"one+two:\n{one+two}")
+print(f"one*two:\n{one*two}")
+print(f"two/one:\n{two/one}")
+```
+
+```text
+one:
+[[1 2]
+ [3 4]]
+two:
+[[ 5 10]
+ [15 20]]
+one+two:
+[[ 6 12]
+ [18 24]]
+one*two:
+[[ 5 20]
+ [45 80]]
+two/one:
+[[5. 5.]
+ [5. 5.]]
+```
+
+## Unary Operations (Including Statistical)
+
+```python
+my_array = np.asarray(([5, 10, 15],
+                       [20, 25, 30]))
+
+print(f"my_array:\n{my_array}")
+print(f"sum: {my_array.sum()}")
+print(f"sum axis 0 (cols): {my_array.sum(axis=0)}")
+print(f"sum axis 1 (rows): {my_array.sum(axis=1)}")
+print(f"Cumulative sum: {my_array.cumsum()}")
+print(f"max: {my_array.max()}")
+print(f"min axis 0 (cols): {my_array.min(axis=0)}")
+print(f"mean axis 0 (cols): {my_array.mean(axis=0)}")
+print(f"median axis 1 (rows): {np.median(my_array, axis=1)}")
+```
+
+```text
+my_array:
+[[ 5 10 15]
+ [20 25 30]]
+sum: 105
+sum axis 0 (cols): [25 35 45]
+sum axis 1 (rows): [30 75]
+Cumulative sum: [  5  15  30  50  75 105]
+max: 30
+min axis 0 (cols): [ 5 10 15]
+mean axis 0 (cols): [12.5 17.5 22.5]
+median axis 1 (rows): [10. 25.]
+```
+
+## Examples
+
+### Finding the Difference Between Elements
+
+```python
+my_array = np.asarray([1,2,4,7,11,16])
+print(my_array)
+
+print(f"From 2nd to the end: {my_array[1:]}")
+print(f"From 1st to penultimate: {my_array[:-1]}")
+print(f"Diffs: {my_array[1:]-my_array[:-1]}")
+```
+
+```text
+[ 1  2  4  7 11 16]
+From 2nd to the end: [ 2  4  7 11 16]
+From 1st to penultimate: [ 1  2  4  7 11]
+Diffs: [1 2 3 4 5]
 ```
