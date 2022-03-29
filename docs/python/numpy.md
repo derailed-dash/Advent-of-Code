@@ -60,17 +60,33 @@ Check out some of the links above to get familiar with NumPy.
 
 ### Creating Arrays
 
-#### From a list
+We can create arrays by providing sequences or nested sequences.  
+
+I'll use this block of code to demonstrate various ways of constructing an ndarray, swapping out the input data each time.
 
 ```python
 import numpy as np
 
 # A 1x3 1D array
 my_array = np.array([1, 2, 3])
-print(my_array)
+print(f"Shape: {my_array.shape}")
+print(f"Size: {my_array.size}")
+print(f"Type: {my_array.dtype}")
+print(f"Data:\n{my_array}")
+```
+
+#### From a list
+
+```python
+# A 1x3 1D array
+my_array = np.array([1, 2, 3])
 ```
 
 ```text
+Shape: (3,)
+Size: 3
+Type: int32
+Data:
 [1 2 3]
 ```
 
@@ -80,10 +96,13 @@ print(my_array)
 # A 2x3 2D array
 my_array = np.array([[1, 2, 3], 
                      [4, 5, 6]])
-print(my_array)
 ```
 
 ```text
+Shape: (2, 3)
+Size: 6
+Type: int32
+Data:
 [[1 2 3]
  [4 5 6]]
 ```
@@ -93,10 +112,13 @@ print(my_array)
 ```python
 # Initialise 1x4 to 0 as floats
 my_array = np.zeros(4)
-print(my_array)
 ```
 
 ```text
+Shape: (4,)
+Size: 4
+Type: float64
+Data:
 [0. 0. 0. 0.]
 ```
 
@@ -105,10 +127,13 @@ print(my_array)
 ```python
 # Initialise 2x3 to 0 as int
 my_array = np.zeros((2,3), dtype=np.int32)
-print(my_array)
 ```
 
 ```text
+Shape: (2, 3)
+Size: 6
+Type: int32
+Data:
 [[0 0 0]
  [0 0 0]]
 ```
@@ -117,11 +142,14 @@ print(my_array)
 
 ```python
 # Initialise 2x3 to 9
-my_array = np.full((2,3), fill_value=9, dtype=np.int32)
-print(my_array)
+my_array = np.full((2,3), fill_value=9, dtype=np.int16)
 ```
 
 ```text
+Shape: (2, 3)
+Size: 6
+Type: int16
+Data:
 [[9 9 9]
  [9 9 9]]
 ```
@@ -131,10 +159,13 @@ print(my_array)
 ```python
 # Initialise 2x3x4 3D array to False
 my_array = np.full((2,3,4), fill_value=False, dtype=np.bool8)
-print(my_array)
 ```
 
 ```text
+Shape: (2, 3, 4)
+Size: 24
+Type: bool
+Data:
 [[[False False False False]
   [False False False False]
   [False False False False]]
@@ -149,10 +180,106 @@ print(my_array)
 ```python
 # Initialise with a range
 my_array = np.arange(25, 50, 5)
-print(my_array)
 ```
 
 ```text
+Shape: (5,)
+Size: 5
+Type: int32
+Data:
 [25 30 35 40 45]
 ```
 
+#### Creating Linearly Spaced Values
+
+What if we know the min and max, and we know how many elements we want?
+
+```python
+my_array = np.linspace(50, 100, 5)
+```
+
+```text
+Shape: (5,)
+Size: 5
+Type: float64
+Data:
+[ 50.   62.5  75.   87.5 100. ]
+```
+
+It's important to note that when using `linspace()`, the second parameter is _inclusive_.  This contrasts to typical Python slicing, where the second number is excluded.
+
+#### With Random Numbers
+
+```python
+my_array = np.random.rand(2,4)
+```
+
+```text
+Shape: (2, 4)
+Size: 8
+Type: float64
+Data:
+[[0.86117672 0.30350405 0.94164174 0.73389799]
+ [0.27561621 0.46655983 0.93122415 0.82242813]]
+```
+
+### Changing Shape
+
+We can change the dimensions of an array.
+
+```python
+my_array = np.arange(start=10, stop=20, dtype=np.int16)
+print(f"Shape: {my_array.shape}")
+print(f"Size: {my_array.size}")
+print(f"Type: {my_array.dtype}")
+print(f"Data:\n{my_array}")
+
+print("\nAfter reshaping...")
+reshaped = my_array.reshape(2,5)
+print(f"Shape: {reshaped.shape}")
+print(f"Size: {reshaped.size}")
+print(f"Type: {reshaped.dtype}")
+print(f"Data:\n{reshaped}")
+```
+
+```text
+Shape: (10,)
+Size: 10
+Type: int16
+Data:
+[10 11 12 13 14 15 16 17 18 19]
+
+After reshaping...
+Shape: (2, 5)
+Size: 10
+Type: int16
+Data:
+[[10 11 12 13 14]
+ [15 16 17 18 19]]
+ ```
+
+ We can also flatten an existing array:
+
+```python
+ my_array = np.asarray([[2,3,4],
+                      [5,6,7]])
+print(f"Shape: {my_array.shape}")
+print(f"Data:\n{my_array}")
+
+print("\nAfter flattening...")
+flattened = my_array.flatten()
+print(f"Shape: {flattened.shape}")
+print(f"Data:\n{flattened}") 
+```
+
+```text
+Shape: (2, 3)
+Data:
+[[2 3 4]
+ [5 6 7]]
+
+After flattening...
+Shape: (6,)
+Data:
+[2 3 4 5 6 7]
+```
