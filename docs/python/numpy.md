@@ -32,6 +32,9 @@ tags:
   - [Creating an Array Based on Another Array](#creating-an-array-based-on-another-array)
   - [By Reading a CSV](#by-reading-a-csv)
 - [Changing Shape](#changing-shape)
+  - [Changing Dimensions](#changing-dimensions)
+  - [Flattening](#flattening)
+  - [Transposing](#transposing)
 - [Basic Mathematical Operations](#basic-mathematical-operations)
   - [On One Array](#on-one-array)
   - [Between Two Arrays](#between-two-arrays)
@@ -267,6 +270,8 @@ data = np.loadtxt(input_file, delimiter=",", dtype=np.int16)
 
 ## Changing Shape
 
+### Changing Dimensions
+
 We can change the dimensions of an array.
 
 ```python
@@ -300,10 +305,12 @@ Data:
  [15 16 17 18 19]]
  ```
 
+### Flattening
+
  We can also flatten an existing array:
 
 ```python
- my_array = np.asarray([[2,3,4],
+my_array = np.asarray([[2,3,4],
                       [5,6,7]])
 print(f"Shape: {my_array.shape}")
 print(f"Data:\n{my_array}")
@@ -325,6 +332,24 @@ Shape: (6,)
 Data:
 [2 3 4 5 6 7]
 ```
+
+### Transposing
+
+```python
+my_array = np.asarray([[2,3,4],
+                      [5,6,7]])
+print(my_array)
+print(f"Transposed:\n{my_array.T}")
+```
+
+```text
+[[2 3 4]
+ [5 6 7]]
+Transposed:
+[[2 5]
+ [3 6]
+ [4 7]]
+ ```
 
 ## Basic Mathematical Operations
 
