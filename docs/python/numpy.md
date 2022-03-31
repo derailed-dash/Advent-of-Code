@@ -41,6 +41,7 @@ tags:
 - [Unary Operations (Including Statistical)](#unary-operations-including-statistical)
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
+- [Indexing and Slicing](#indexing-and-slicing)
 
 ## NumPy is Awesome
 
@@ -358,8 +359,8 @@ Transposed:
 You can perform basic mathematical operations on an array.  The operation applies to every element in the array, and returns a new array with the same shape.
 
 ```python
-my_array = np.asarray(([5, 10, 15, 20, 5],
-                       [20, 25, 30, 30, 30]))
+my_array = np.asarray([[5, 10, 15, 20, 5],
+                       [20, 25, 30, 30, 30]])
 
 plus_one = my_array + 1
 times_two = my_array * 2
@@ -421,9 +422,8 @@ two/one:
 ## Unary Operations (Including Statistical)
 
 ```python
-my_array = np.asarray(([5, 10, 15, 20, 5],
-                       [20, 25, 30, 30, 30]))
-
+my_array = np.asarray([[5, 10, 15, 20, 5],
+                       [20, 25, 30, 30, 30]])
 print(f"my_array:\n{my_array}")
 
 print("\nWorking with sums...")
@@ -484,4 +484,49 @@ print(f"Diffs: {my_array[1:]-my_array[:-1]}")
 From 2nd to the end: [ 2  4  7 11 16]
 From 1st to penultimate: [ 1  2  4  7 11]
 Diffs: [1 2 3 4 5]
+```
+
+## Indexing and Slicing
+
+```python
+one = np.arange(10)
+print(one)
+print(f"slice [2:4]: {one[2:4]}")
+print(f"slice [-2:]: {one[-2:]}")
+print(f"reversing with [::-1]: {one[::-1]}")
+
+print()
+two = np.asarray([[5, 10, 15, 20, 5],
+                  [20, 25, 30, 30, 30],
+                  [15, 12, 9, 6, 3]])
+print(two)
+print(f"two.shape: {two.shape}")
+print(f"Accessing the first row with [0]: {two[0]}")
+print(f"The same result with [0,:]:  {two[0,:]}")
+print(f"The same result with [0,...]:  {two[0,...]}")
+print(f"Accessing first row, 3rd element with [0,2]: {two[0,2]}")
+print(f"Accessing all rows, third column with [:,2]: {two[:,2]}")
+print(f"The same result with [...,2]: {two[...,2]}")
+print(f"Accessing a 2D grid with [1:, 2:4]:\n{two[1:, 2:4]}")
+```
+
+```text
+[0 1 2 3 4 5 6 7 8 9]
+slice [2:4]: [2 3]
+slice [-2:]: [8 9]
+reversing with [::-1]: [9 8 7 6 5 4 3 2 1 0]
+
+[[ 5 10 15 20  5]
+ [20 25 30 30 30]
+ [15 12  9  6  3]]
+two.shape: (3, 5)
+Accessing the first row with [0]: [ 5 10 15 20  5]
+The same result with [0,:]:  [ 5 10 15 20  5]
+The same result with [0,...]:  [ 5 10 15 20  5]
+Accessing first row, 3rd element with [0,2]: 15
+Accessing all rows, third column with [:,2]: [15 30  9]
+The same result with [...,2]: [15 30  9]
+Accessing a 2D grid with [1:, 2:4]:
+[[30 30]
+ [ 9  6]]
 ```
