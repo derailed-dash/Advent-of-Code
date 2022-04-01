@@ -124,7 +124,7 @@ class ImageArray():
     BIN_MAP = { DARK: '0', LIGHT: '1'}
     
     def __init__(self, image_data: str|set, img_enhancement_map: str, 
-                 canvas_char='.', animator: Animator=None) -> None:
+                 canvas_char='.', animator: Animator|None=None) -> None:
         """ Create a new ImageArray, containing a set of lit pixels.
 
         Args:
