@@ -264,6 +264,41 @@ print(new_array)
  [0 0 0]]
 ```
 
+Note that `np.array()` makes a copy of the original data when creating the `ndarray`.  Changes to the `ndarray` will not be reflected in the original array. Whereas `np.asarray()` does not create a copy. So changes to the array are reflected in the original array.
+
+```python
+import numpy as np
+
+original_array = np.array(list(range(5)))
+
+print("Creating with np.array()...")
+with_array = np.array(original_array)
+print(with_array)
+
+print("Creating with np.asarray()...")
+with_as_array = np.asarray(original_array)
+print(with_as_array)
+
+print("Updating the original array...")
+original_array[2] = 0
+print(f"my_list: {original_array}")
+print(f"with_array: {with_array}")
+print(f"with_as_array: {with_as_array}")
+```
+
+Output:
+
+```text
+Creating with np.array()...
+[0 1 2 3 4]
+Creating with np.asarray()...
+[0 1 2 3 4]
+Updating the original array...
+my_list: [0 1 0 3 4]
+with_array: [0 1 2 3 4]
+with_as_array: [0 1 0 3 4]
+```
+
 ### By Reading a CSV
 
 ```python
