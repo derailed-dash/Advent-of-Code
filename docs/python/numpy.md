@@ -42,6 +42,7 @@ tags:
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
 - [Indexing and Slicing](#indexing-and-slicing)
+- [Iterating](#iterating)
 
 ## NumPy is Awesome
 
@@ -308,7 +309,7 @@ Data:
 
 ### Flattening
 
- We can also flatten an existing array:
+We can also flatten an existing array.  The `flatten()` method takes an existing array, and returns a new, flattened array.
 
 ```python
 my_array = np.asarray([[2,3,4],
@@ -529,4 +530,218 @@ The same result with [...,2]: [15 30  9]
 Accessing a 2D grid with [1:, 2:4]:
 [[30 30]
  [ 9  6]]
+```
+
+## Iterating
+
+Iterating follows the same rules as indexing and slicing.
+
+Note the use of `np.nditer()` to return an iterator that allows the original array to be updated in place.
+
+```python
+one = np.arange(10)  # create 1D array
+print(one)
+
+print("\nIterating over items...")
+for item in one:
+    print(item)
+    item *= 2   # This will achieve nothing in the original array!
+
+print("Did the array update? No...")
+for item in one:
+    print(item)
+
+# But we can create a read/write iterator:
+print("\nUpdate using nditer...:")
+for item in np.nditer(one, op_flags=['readwrite']):
+    item *= 2
+
+print("Did the array update? Yes...")   
+for item in one:
+    print(item)
+```
+
+```text
+[0 1 2 3 4 5 6 7 8 9]
+
+Iterating over items...
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+Did the array update? No...
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+Update using nditer...:
+Did the array update? Yes...
+0
+2
+4
+6
+8
+10
+12
+14
+16
+18
+```
+
+Iterating with more than one dimension:
+
+```python
+print(two)
+print(f"two.shape: {two.shape}")
+print("\nIterating over rows")
+for row in two:
+    print(row)
+
+print("\nIterating over a row with [0]")
+for item in two[0]:
+    print(item)
+
+print("The same result with [0, ...]")
+for item in two[0, ...]:
+    print(item)
+    
+# Array index shorthand
+print("The same result with [0, ...]")
+for item in two[0, ...]:
+    print(item[...])
+
+print("\nIterating over all rows, third column with [: ,2]:")
+for item in two[: ,2]:
+    print(item)
+    
+print("\nFlattening row-wise and iterating over all:")
+for item in two.flatten():
+    print(item)
+    
+print("Or iterating over all, without creating a flatted array first:")
+for item in np.nditer(two):
+    print(item)
+
+print("\nFlattening column-wise and iterating over all:")
+for item in two.flatten(order="F"):
+    print(item)
+    
+print("Or iterating over all, without creating a flatted array first:")
+for item in np.nditer(two, order="F"):
+    print(item)
+```
+
+```text
+[[ 5 10 15 20  5]
+ [20 25 30 30 30]
+ [15 12  9  6  3]]
+two.shape: (3, 5)
+
+Iterating over rows
+[ 5 10 15 20  5]
+[20 25 30 30 30]
+[15 12  9  6  3]
+
+Iterating over a row with [0]
+5
+10
+15
+20
+5
+The same result with [0, ...]
+5
+10
+15
+20
+5
+The same result with [0, ...]
+5
+10
+15
+20
+5
+
+Iterating over all rows, third column with [: ,2]:
+15
+30
+9
+
+Flattening row-wise and iterating over all:
+5
+10
+15
+20
+5
+20
+25
+30
+30
+30
+15
+12
+9
+6
+3
+Or iterating over all, without creating a flatted array first:
+5
+10
+15
+20
+5
+20
+25
+30
+30
+30
+15
+12
+9
+6
+3
+
+Flattening column-wise and iterating over all:
+5
+20
+15
+10
+25
+12
+15
+30
+9
+20
+30
+6
+5
+30
+3
+Or iterating over all, without creating a flatted array first:
+5
+20
+15
+10
+25
+12
+15
+30
+9
+20
+30
+6
+5
+30
+3
 ```
