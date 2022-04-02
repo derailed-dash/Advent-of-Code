@@ -19,6 +19,8 @@ tags:
 - [Naming Groups](#naming-groups)
 - [Replacing](#replacing)
 - [More Examples](#more-examples)
+  - [Asserting the Match, and Mapping](#asserting-the-match-and-mapping)
+  - [Using findall()](#using-findall)
 
 ## Patterns
 

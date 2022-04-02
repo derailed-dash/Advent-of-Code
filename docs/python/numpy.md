@@ -43,6 +43,7 @@ tags:
 - [Iterating](#iterating)
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
+  - [How Many Times is Value n Greater than Value n-1?](#how-many-times-is-value-n-greater-than-value-n-1)
 
 ## NumPy is Awesome
 
