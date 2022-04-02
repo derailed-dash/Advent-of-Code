@@ -39,10 +39,10 @@ tags:
   - [On One Array](#on-one-array)
   - [Between Two Arrays](#between-two-arrays)
 - [Unary Operations (Including Statistical)](#unary-operations-including-statistical)
-- [Examples](#examples)
-  - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
 - [Indexing and Slicing](#indexing-and-slicing)
 - [Iterating](#iterating)
+- [Examples](#examples)
+  - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
 
 ## NumPy is Awesome
 
@@ -502,26 +502,6 @@ Uniques: [ 5 10 15 20 25 30]
 Counts: [2 1 1 2 1 3]
 ```
 
-## Examples
-
-### Finding the Difference Between Elements
-
-```python
-my_array = np.asarray([1,2,4,7,11,16])
-print(my_array)
-
-print(f"From 2nd to the end: {my_array[1:]}")
-print(f"From 1st to penultimate: {my_array[:-1]}")
-print(f"Diffs: {my_array[1:]-my_array[:-1]}")
-```
-
-```text
-[ 1  2  4  7 11 16]
-From 2nd to the end: [ 2  4  7 11 16]
-From 1st to penultimate: [ 1  2  4  7 11]
-Diffs: [1 2 3 4 5]
-```
-
 ## Indexing and Slicing
 
 ```python
@@ -779,4 +759,55 @@ Or iterating over all, without creating a flatted array first:
 5
 30
 3
+```
+
+## Examples
+
+### Finding the Difference Between Elements
+
+This example creates a one dimensional array of integers. We then use slicing to create show two new arrays:
+
+1. An array starting from the second item, to the end.
+1. An array starting from the first item, to the penultimate.
+
+Thus, each item in the first array is n+1, relative to n in the second array.
+
+We can thus determine the differences between each n and n+1, by subtracing the second array from the first.
+
+```python
+my_array = np.asarray([1,2,4,7,11,16])
+print(my_array)
+
+print(f"From 2nd to the end: {my_array[1:]}")
+print(f"From 1st to penultimate: {my_array[:-1]}")
+print(f"Diffs: {my_array[1:]-my_array[:-1]}")
+```
+
+```text
+[ 1  2  4  7 11 16]
+From 2nd to the end: [ 2  4  7 11 16]
+From 1st to penultimate: [ 1  2  4  7 11]
+Diffs: [1 2 3 4 5]
+```
+
+### How Many Times is Value n Greater than Value n-1?
+
+This builds on the previous example.  This time, our elements don't always increase in value.
+
+Again, we create two new views on this array, with the n items and the n-1 items, respectively. But this time, we use the `>` operator to compare the elements in their matching positions. The result is a new array of booleans.
+
+We can count the booleans, to determine how many times the value n was greater than the value n-1.
+
+```python
+my_array = np.asarray([1,5,20,15,11,16])
+print(my_array)
+increases = my_array[1:] > my_array[:-1]
+print(f"n > n-1? {increases}")
+print(f"Count of (n > n-1): {increases.sum()}")
+```
+
+```text
+[ 1  5 20 15 11 16]
+n > n-1? [ True  True False False  True]
+Count of (n > n-1): 3
 ```

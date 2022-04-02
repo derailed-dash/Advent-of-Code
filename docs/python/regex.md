@@ -180,3 +180,20 @@ Here we're processing multiple lines of data. We're looking for lines that conta
 - We're using an [assert](/python/assertion) to validate that we found a match to our pattern in the current line. By including this assertion, we're explicitly stating that we believe the input data is good. If any line fails to match the pattern, then the program will terminate with an `AssertionError`.
 - We're using the `groups()` method to return the four groups as a `tuple`. We're then using _tuple unpacking_ to unpack the tuple into four separate variables.
 - Finally, because we know the four variables are all numbers, we're using the `map()` function, to convert each variable from a `str` to an `int`.  Here, the `map()` function is applying the `int()` function each member of the tuple that was passed in.
+
+### Using findall()
+
+Here is another way to retrieve matches and their groups.  Note how each line expects to return a single match, which is we always index the return value of `findall()` with `[0]`.  This match contains our four groups, as a tuple.
+
+```python
+pattern = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
+print("\nUsing findall with existing pattern:")
+for line in data:
+    tl_x, tl_y, br_x, br_y = map(int, pattern.findall(line)[0])
+    print(f"tl_x: {tl_x}, tl_y: {tl_y}, br_x: {br_x}, br_y: {br_y}")
+    
+print("\nUsing findall, pattern on the fly:")
+for line in data:
+    tl_x, tl_y, br_x, br_y = map(int, re.findall(r"(\d+),(\d+) through (\d+),(\d+)", line)[0])
+    print(f"tl_x: {tl_x}, tl_y: {tl_y}, br_x: {br_x}, br_y: {br_y}")
+```
