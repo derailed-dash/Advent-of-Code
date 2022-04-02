@@ -41,6 +41,7 @@ tags:
 - [Unary Operations (Including Statistical)](#unary-operations-including-statistical)
 - [Indexing and Slicing](#indexing-and-slicing)
 - [Iterating](#iterating)
+- [Rolling](#rolling)
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
   - [How Many Times is Value n Greater than Value n-1?](#how-many-times-is-value-n-greater-than-value-n-1)
@@ -760,6 +761,60 @@ Or iterating over all, without creating a flatted array first:
 5
 30
 3
+```
+
+## Rolling
+
+The `roll()` method allows us to move elements off the end of the array, and insert them at the beginning.  We can roll an arbitrary number of items. 
+
+```python
+import numpy as np
+
+my_array = np.asarray(([5, 10, 15, 20, 5],
+                       [20, 25, 30, 30, 30]))
+
+print(f"Starting array:\n{my_array}")
+
+# If we roll without specifying an axis, then the array is flattened before shifting.
+# The resulting array has the same shape as the original
+print("\nRolling the whole array...")
+rolled = np.roll(my_array, 1)
+print(f"Rolled:\n{rolled}")
+
+print("\nRolling by row...")
+for row in my_array:
+    print(f"Rolled row: {np.roll(row, 1)}")
+    
+# More efficient to roll by axis
+rolled = np.roll(my_array, 1, axis=1)
+print(f"\nRolling the whole array by row axis:\n{rolled}")
+
+# Obviously, we can do it by column too
+rolled = np.roll(my_array, 1, axis=0)
+print(f"\nRolling the whole array by col axis:\n{rolled}")
+```
+
+```text
+Starting array:
+[[ 5 10 15 20  5]
+ [20 25 30 30 30]]
+
+Rolling the whole array...
+Rolled:
+[[30  5 10 15 20]
+ [ 5 20 25 30 30]]
+
+Rolling by row...
+Rolled row: [ 5  5 10 15 20]
+Rolled row: [30 20 25 30 30]
+
+Rolling the whole array by row axis:
+[[ 5  5 10 15 20]
+ [30 20 25 30 30]]
+
+Rolling the whole array by col axis:
+[[20 25 30 30 30]
+ [ 5 10 15 20  5]]
 ```
 
 ## Examples
