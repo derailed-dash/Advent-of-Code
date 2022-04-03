@@ -58,6 +58,9 @@ pages:
   - name: 6
     link: /2015/6
     problem: "Probably a Fire Hazard"
+  - name: 7
+    link: /2015/7
+    problem: "Some Assembly Required"
 - name: "2021"
   link: /2021/
   mainnav: True
