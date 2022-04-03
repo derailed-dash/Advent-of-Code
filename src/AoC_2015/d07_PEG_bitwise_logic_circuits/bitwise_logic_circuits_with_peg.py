@@ -58,7 +58,7 @@ grammar = Grammar(r"""
 """)
 
 class BitwiseLogicVisitor(NodeVisitor):
-
+    """ PEG Parser for processing the Bitwise instructions """
     # override the parse method, to initialise instance variables and perform the bitwise logic
     def parse(self, *args, **kwargs):
         ''' First arg is the string to be parsed
@@ -159,7 +159,6 @@ def main():
     results = process_instructions(data.copy(), blc_visitor)
     print(f"Part 2: Value of input a is {results['a']}")
 
-
 def process_instructions(data, blc_visitor):
     results = {}
 
@@ -186,7 +185,6 @@ def process_instructions(data, blc_visitor):
         data.extend(not_ready_to_parse)
     
     return results
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

@@ -74,8 +74,8 @@ def main():
     for line in data:
         try:
             parse(line)
-        except ParseException as pe:
-            invalid_chars.append(pe.actual)
+        except ParseException as p_e:
+            invalid_chars.append(p_e.actual)
         except ParseIncompleteException as pie:
             completion_scores.append(score_for_completion(pie.remaining))
 
