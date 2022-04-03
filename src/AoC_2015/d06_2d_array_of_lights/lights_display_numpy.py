@@ -58,7 +58,8 @@ def process_instructions(data, lights):
         tl_x, tl_y, br_x, br_y = map(int, match.groups())
 
         if "toggle" in line:
-            lights[tl_x:br_x+1, tl_y:br_y+1] ^= True
+            # lights[tl_x:br_x+1, tl_y:br_y+1] ^= True
+            lights[tl_x:br_x+1, tl_y:br_y+1] = np.logical_not(lights[tl_x:br_x+1, tl_y:br_y+1])
         elif "on" in line:
             lights[tl_x:br_x+1, tl_y:br_y+1] = True
         elif "off" in line:
