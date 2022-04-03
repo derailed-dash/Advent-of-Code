@@ -40,6 +40,8 @@ tags:
   - [Between Two Arrays](#between-two-arrays)
 - [Unary Operations (Including Statistical)](#unary-operations-including-statistical)
 - [Indexing and Slicing](#indexing-and-slicing)
+  - [Indexing and Slicing with One Dimension](#indexing-and-slicing-with-one-dimension)
+  - [Indexing and Slicing with Multiple Dimensions](#indexing-and-slicing-with-multiple-dimensions)
 - [Iterating](#iterating)
 - [Rolling](#rolling)
 - [Views and Copies](#views-and-copies)
@@ -507,14 +509,29 @@ Counts: [2 1 1 2 1 3]
 
 ## Indexing and Slicing
 
+### Indexing and Slicing with One Dimension
+
+Slicing retuns a new array.
+
 ```python
 one = np.arange(10)
 print(one)
-print(f"slice [2:4]: {one[2:4]}")
+a_slice = one[2:4]
+print(f"slice [2:4]: {a_slice}, and its type is: {type(a_slice)}")
 print(f"slice [-2:]: {one[-2:]}")
 print(f"reversing with [::-1]: {one[::-1]}")
+```
 
-print()
+```text
+[0 1 2 3 4 5 6 7 8 9]
+slice [2:4]: [2 3], and its type is: <class 'numpy.ndarray'>
+slice [-2:]: [8 9]
+reversing with [::-1]: [9 8 7 6 5 4 3 2 1 0]
+```
+
+### Indexing and Slicing with Multiple Dimensions
+
+```python
 two = np.asarray([[5, 10, 15, 20, 5],
                   [20, 25, 30, 30, 30],
                   [15, 12, 9, 6, 3]])
@@ -530,11 +547,6 @@ print(f"Accessing a 2D grid with [1:, 2:4]:\n{two[1:, 2:4]}")
 ```
 
 ```text
-[0 1 2 3 4 5 6 7 8 9]
-slice [2:4]: [2 3]
-slice [-2:]: [8 9]
-reversing with [::-1]: [9 8 7 6 5 4 3 2 1 0]
-
 [[ 5 10 15 20  5]
  [20 25 30 30 30]
  [15 12  9  6  3]]
@@ -548,6 +560,24 @@ The same result with [...,2]: [15 30  9]
 Accessing a 2D grid with [1:, 2:4]:
 [[30 30]
  [ 9  6]]
+```
+
+### Slicing With Multiple Indexes
+
+As we've seen, we can index an n-dimensional array like this: `my_array[x, y, z]`.
+
+However, if we pass in an array of indeces we can retrieve arbitrary elements from each dimension.  For example, with a one dimensional array, we can do this: `my_array[[x, y, z]]`:
+
+```python
+three = (np.arange(10)**2)+1  # square numbers plus 1
+print(three)
+arbitrary_index = [1, 3, 5]  # a list of indexes
+print(f"three[{arbitrary_index}]: {three[arbitrary_index]}")
+```
+
+```text
+[ 1  2  5 10 17 26 37 50 65 82]
+three[[2, 4, 6]]: [ 5 17 37]
 ```
 
 ## Iterating
