@@ -27,9 +27,10 @@ import time
 import math
 from parsimonious import Grammar, NodeVisitor
 
-
 class WeirdMathVisitor(NodeVisitor):
-    def visit_EXPR(self, node, visited_children):
+    """ PEG Parser for handling mathematical operators left to right """
+    
+    def visit_expr(self, node, visited_children):
         # NUMBER_OR_BRACKETS (OP NUMBER_OR_BRACKETS)+
         # print(f"EXPR: {node.text} => {visited_children}")
         
@@ -44,31 +45,32 @@ class WeirdMathVisitor(NodeVisitor):
 
         return left
 
-    def visit_NUMBER_OR_BRACKET(self, node, visited_children):
+    def visit_number_or_bracket(self, node, visited_children):
         # (NUMBER / BRACKETS)
         # print(f"NUMBER_OR_BRACKET: {node.text} => {visited_children[0]}")
         return visited_children[0]
 
-    def visit_OP(self, node, visited_children):
+    def visit_op(self, node, visited_children):
         # r"\s*([+-/*])\s*"
         # print(f"OP: {node.text.strip()}")
         return node.text.strip()
 
-    def visit_BRACKETS(self, node, visited_children):
+    def visit_brackets(self, node, visited_children):
         # "(" EXPR ")"
         # print(f"BRACKET: {node.text} => {visited_children[1]}")
         return visited_children[1]
 
-    def visit_NUMBER(self, node, visited_children):
+    def visit_number(self, node, visited_children):
         # print(f"NUMBER: {node.text}")
         return int(node.text)
 
     def generic_visit(self, node, visited_children):
         return visited_children or node
 
-
 class WeirdMathAdditionOverMultiplicationVisitor(WeirdMathVisitor):
-    def visit_EXPR(self, node, visited_children):
+    """ PEG Parser. Addition over multiplication """
+    
+    def visit_expr(self, node, visited_children):
         # NUMBER_OR_BRACKETS (OP NUMBER_OR_BRACKETS)+
         # print(f"EXPR: {node.text} => {visited_children}")
         
@@ -90,17 +92,16 @@ class WeirdMathAdditionOverMultiplicationVisitor(WeirdMathVisitor):
         # At this point, all a+b terms have been evaluated, leaving only terms to be multiplied.
         return math.prod(prod_terms)    
 
-
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/math_puzzle.txt"
 SAMPLE_INPUT_FILE = "input/test_math_puzzle.txt"
 
 grammar = Grammar(r"""
-    EXPR = NUMBER_OR_BRACKETS (OP NUMBER_OR_BRACKETS)+ "\n"?
-    NUMBER_OR_BRACKETS = (NUMBER / BRACKETS)
-    BRACKETS = "(" EXPR ")"
-    OP = ~r"\s*([+*])\s*"
-    NUMBER = ~r"\d+"
+    expr = number_or_brackets (op number_or_brackets)+ "\n"?
+    number_or_brackets = (number / brackets)
+    brackets = "(" expr ")"
+    op = ~r"\s*([+*])\s*"
+    number = ~r"\d+"
 """)
 
 def main():
@@ -118,13 +119,11 @@ def main():
     sum_results = sum(wmv.visit(grammar.parse(line)) for line in input)
     print(f"Result for addition-over-multiplication: {sum_results}")
 
-
 def read_input(a_file):
     with open(a_file, mode="rt") as f:
         lines = f.read().splitlines()
         
     return lines   
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

@@ -33,7 +33,6 @@ import time
 import re
 from parsimonious.grammar import Grammar
 from parsimonious import ParseError
-from pprint import pprint as pp
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/data.txt"
@@ -59,7 +58,6 @@ def create_grammar_rule(rule_line: str):
     line = re.sub(r"= (.*) \| (.*)$", r"= ((\1) / (\2))", line)
 
     return line
-
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -101,7 +99,6 @@ def main():
 
     print(f"Count of messages that match RULE0: {valid_messages}")
 
-
 def is_valid_message(grammar, message, valid_messages):
     try:
         grammar.parse(message)
@@ -115,7 +112,6 @@ def is_valid_message(grammar, message, valid_messages):
         return False
     
     return True
-
 
 def process_input(input):
     """ Returns rules and messages, as lists
@@ -133,11 +129,6 @@ def process_input(input):
     rules.sort(key = lambda x: int(x.split(":")[0]))
     messages = messages_line.splitlines()
     return rules, messages
-
-
-def validate(msg, rule_stack, rules):
-    return False
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
