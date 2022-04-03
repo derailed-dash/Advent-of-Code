@@ -81,6 +81,14 @@ print(f"Mode: {pil_image.mode}")
 pil_image.show("Pillow Image")  # show the image
 ```
 
+```
+Loading image with PIL...
+Type: <class 'PIL.JpegImagePlugin.JpegImageFile'>
+Size: (400, 225)
+Format: JPEG
+Mode: RGB
+```
+
 ### Loading and Showing Image File with Matplotlib (NumPy)
 
 ```python
@@ -92,6 +100,13 @@ print(f"Shape: {py_img.shape}")
 plt.axis("off")
 plt.imshow(py_img)  # attach the image to the plot
 plt.show()  # show the image
+```
+
+```text
+Loading image with matplotlib...
+Type: <class 'numpy.ndarray'>
+Dtype: uint8
+Shape: (225, 400, 3)
 ```
 
 ### Converting from Pillow to NumPy
@@ -107,6 +122,13 @@ plt.imshow(from_pillow_to_numpy)
 plt.show()
 ```
 
+```text
+Converting from Pillow to NumPy ndarray...
+Type: <class 'numpy.ndarray'>
+Dtype: uint8
+Shape: (225, 400, 3)
+```
+
 ### Converting from NumPy to Pillow
 
 ```python
@@ -117,6 +139,14 @@ print(f"Size: {from_numpy_to_pillow.size}")
 print(f"Format: {from_numpy_to_pillow.format}")
 print(f"Mode: {from_numpy_to_pillow.mode}")
 from_numpy_to_pillow.show("From NumPy to Pillow")
+```
+
+```text
+Converting from NumPy ndarray to Pillow...
+Type: <class 'PIL.Image.Image'>
+Size: (400, 225)
+Format: None
+Mode: RGB
 ```
 
 ### Converting from Matplotlib to BytesIO
