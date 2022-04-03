@@ -42,6 +42,7 @@ tags:
 - [Indexing and Slicing](#indexing-and-slicing)
   - [Indexing and Slicing with One Dimension](#indexing-and-slicing-with-one-dimension)
   - [Indexing and Slicing with Multiple Dimensions](#indexing-and-slicing-with-multiple-dimensions)
+  - [Using Index Arrays](#using-index-arrays)
 - [Iterating](#iterating)
 - [Rolling](#rolling)
 - [Views and Copies](#views-and-copies)
@@ -562,23 +563,91 @@ Accessing a 2D grid with [1:, 2:4]:
  [ 9  6]]
 ```
 
-### Slicing With Multiple Indexes
+### Using Index Arrays
 
 As we've seen, we can index an n-dimensional array like this: `my_array[x, y, z]`.
 
-However, if we pass in an array of indeces we can retrieve arbitrary elements from each dimension.  For example, with a one dimensional array, we can do this: `my_array[[x, y, z]]`:
+However, if we pass in an array of indeces we can retrieve arbitrary elements from each dimension.  For example, with a one dimensional array, we can pass in an index array [x, y, z], like this: `my_array[[x, y, z]]`:
 
 ```python
 three = (np.arange(10)**2)+1  # square numbers plus 1
 print(three)
-arbitrary_index = [1, 3, 5]  # a list of indexes
-print(f"three[{arbitrary_index}]: {three[arbitrary_index]}")
+index_array = [1, 3, 5]  # a list of indexes
+print(f"three[{index_array}]: {three[index_array]}")
 ```
 
 ```text
 [ 1  2  5 10 17 26 37 50 65 82]
 three[[2, 4, 6]]: [ 5 17 37]
 ```
+
+We can actually use an index array with a different shape to the array we're indexing. The resulting array will have the same shape as the index array. For example, here we use an index array to retrieve the first, last, second, and penultimate elements from an array, and return them in a 2x2 grid:
+
+```python
+index_array = np.array([[0, -1],
+                        [1, -2]])
+print(f"With 2D index array\n{index_array}:\n{three[index_array]}")
+```
+
+```text
+With 2D index array
+[[ 0 -1]
+ [ 1 -2]]:
+[[ 1 82]
+ [ 2 65]]
+```
+
+Here we see how we can pass separate row and column indexes to an array. In this example, we're using this combination of index arrays to retrieve the four corners of a 2D array.
+
+```python
+# Obtaining the corners
+my_array = np.asarray([['tl', 'tm', 'tr'],
+                       ['ml', 'mm', 'mr'],
+                       ['bl', 'bm', 'br']])
+print(my_array)
+row_index = np.array([[0,  0], [-1, -1]]) # top,  top,   bottom, bottom
+col_index = np.array([[0, -1], [ 0, -1]]) # left, right, left,   right
+print(f"Obtaining the corners with:\n{np.array([row_index, col_index])}...\n" +
+      f"{my_array[row_index, col_index]}")
+```
+
+```text
+[['tl' 'tm' 'tr']
+ ['ml' 'mm' 'mr']
+ ['bl' 'bm' 'br']]
+Obtaining the corners with:
+[[[ 0  0]
+  [-1 -1]]
+
+ [[ 0 -1]
+  [ 0 -1]]]...
+[['tl' 'tr']
+ ['bl' 'br']]
+```
+
+We can even update the corners!!  Note that in this example, I've set the `dtype` to `object`. This allows us store variable length strings. If we don't do this, the strings all get truncated. Doing this does negate many of the performance benefits of using fixed-length contiguous data. But for small arrays, it's fine.
+
+```python
+my_array = np.asarray([['tl', 'tm', 'tr'],
+                       ['ml', 'mm', 'mr'],
+                       ['bl', 'bm', 'br']], dtype=object)
+print(my_array)
+print("Updating corner elements...")
+my_array[row_index, col_index] = "corner"
+print(my_array)
+```
+
+Output:
+
+```text
+[['tl' 'tm' 'tr']
+ ['ml' 'mm' 'mr']
+ ['bl' 'bm' 'br']]
+Updating corner elements...
+[['corner' 'tm' 'corner']
+ ['ml' 'mm' 'mr']
+ ['corner' 'bm' 'corner']]
+ ```
 
 ## Iterating
 
