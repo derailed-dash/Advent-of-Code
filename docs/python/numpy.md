@@ -42,6 +42,7 @@ tags:
 - [Indexing and Slicing](#indexing-and-slicing)
 - [Iterating](#iterating)
 - [Rolling](#rolling)
+- [Views and Copies](#views-and-copies)
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
   - [How Many Times is Value n Greater than Value n-1?](#how-many-times-is-value-n-greater-than-value-n-1)
@@ -816,6 +817,12 @@ Rolling the whole array by col axis:
 [[20 25 30 30 30]
  [ 5 10 15 20  5]]
 ```
+
+## Views and Copies
+
+We create a view using the `view()` method.  Views provide a view on the underlying data.  A view is useful if we want to maninpulate metadata of the array, such as the shape.  For example, imagine we want to transpose the array for some analysis, but we don't want to actually modify the data.  Views are a great way to do this efficiently.  In fact, reshaping will typically return a view, not a copy.
+
+Conversely, the `copy()` method creates a shallow copy of the original data.  If you want a deep copy, use `deepcopy.copy(array)`.
 
 ## Examples
 
