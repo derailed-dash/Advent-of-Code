@@ -34,6 +34,8 @@ pages:
     link: /python/complex
   - name: NumPy
     link: /python/numpy
+  - name: Working with Images
+    link: /python/images
 - name: "2015"
   link: /2015/
   mainnav: True
