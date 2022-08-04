@@ -167,7 +167,7 @@ pil_img = Image.open(frame) # Pillow open seeks for us
 pil_img.show()
 ```
 
-### From Pillow to various formats, including BytesIO
+### From Pillow to Various Formats, Including BytesIO
 
 ```python
 print("\nOpening image in Pillow and then saving in various formats to")
@@ -208,7 +208,7 @@ frame.seek(0)   # We need to seek back to 0
 iio_img = iio.imread(frame)
 ```
 
-### From ImageIO to File, and file to Pillow
+### From ImageIO to File, and File to Pillow
 
 ```python
 # And saving ImageIO to file
