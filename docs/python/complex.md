@@ -90,7 +90,7 @@ As a result, complex numbers can make it really convenient to do things like:
 - Adding and subtracting vectors.
 - Calculating the magnitude of the vector (i.e. the hypotenuse)
 - Calculating the angle of a vector.
-- Flipping, scalling and rotating vectors.
+- Flipping, scaling and rotating vectors.
 
 Just as a quick demo, here's a visualisation using complex numbers and Matplotlib:
 
