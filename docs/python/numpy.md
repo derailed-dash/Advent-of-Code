@@ -64,11 +64,11 @@ Unlike a Python `list` where elements can be of different types, every element i
 
 NumPy might save you a lot of coding, and be faster, for the following scenarios: 
 
-- When you need to work with multi-dimensional numeric data. Particularly large arrays of data.
-- When you need to be able to slice data in more than one dimension. E.g. where you need to be able to work with 'rectangular' regions of 2D data.
-- When you want to perform mathematical or statistical operations against rows or columns of data.
-- When you want to use one array to do something to another array. A trivial example might be having an array of boolean values, that we use a mask for deciding which values we reveal in another array.
-- When we want to flatten or transpose data.
+- When you need to work with multi-dimensional numeric data. Particularly **large arrays of data**.
+- When you need to be able to **slice data in more than one dimension**. E.g. where you need to be able to work with 'rectangular' regions of 2D data.
+- When you want to perform **mathematical or statistical operations against rows or columns** of data.
+- When you want to **use one array to do something to another array**. A trivial example might be having an array of boolean values that we use as a mask for deciding which values we reveal in another array.
+- When we want to **flatten or transpose** data.
 
 ## Installing and Importing
 
@@ -83,10 +83,6 @@ When importing, it's standard convention to import as `np`:
 ```python
 import numpy as np
 ```
-
-## Getting Started
-
-Check out some of the links above to get familiar with NumPy.
 
 ## Creating Arrays
 
@@ -287,7 +283,7 @@ print(with_as_array)
 
 print("Updating the original array...")
 original_array[2] = 0
-print(f"my_list: {original_array}")
+print(f"original_array: {original_array}")
 print(f"with_array: {with_array}")
 print(f"with_as_array: {with_as_array}")
 ```
@@ -300,7 +296,7 @@ Creating with np.array()...
 Creating with np.asarray()...
 [0 1 2 3 4]
 Updating the original array...
-my_list: [0 1 0 3 4]
+original_array: [0 1 0 3 4]
 with_array: [0 1 2 3 4]
 with_as_array: [0 1 0 3 4]
 ```
