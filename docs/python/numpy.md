@@ -1,5 +1,5 @@
 ---
-title: Numpy
+title: NumPy
 main_img:
   name: NumPy
   link: /assets/images/numpy_logo.png

@@ -278,3 +278,5 @@ if point_b in points:
 if point_c in points:
     print("point_c already in points")
 ```
+
+Similar to using `dataclass`, Python also has something called a `NamedTuple`.  This allows us to define a an immutable class with only attributes.  Thus, a `NamedTuple` is very similar to a frozen (immutable) `dataclass`.  The `dataclass` is a lot more powerful and flexible than `NamedTuple`, so I'd generally always recommend using `dataclass` over `NamedTuple`.

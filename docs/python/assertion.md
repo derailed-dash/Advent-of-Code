@@ -10,9 +10,9 @@ tags:
 
 Assertions are a great way to check that your code is doing what you _think_ it should be doing. We use assertions to **test for invariants**.  This means checking a condition that we always believe should be true. Or to put it another way:
 
-Use assertions to **test for something that you believe should *never* happen**.
+Use assertions to **test for something that you believe should *always* be true**. Or, to put it another way: to generate a runtime error whenever we hit a condition that we believe should never happen.
 
-(Contrast _exceptions_, which should be used for conditions that might happen.)
+(Contrast _exceptions_, which should be used for conditions that might happen, and which generally need to be handled.)
 
 In plain English, an assertion might go something like this:
 
@@ -63,7 +63,7 @@ AssertionError: We're not okay!
 
 ### Handing AssertionError
 
-Like any exception in Python, we can handle it programmatically:
+Like any exception in Python, we _can_ handle it programmatically:
 
 ```python
 okay = False

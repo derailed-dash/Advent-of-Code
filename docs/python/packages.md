@@ -76,7 +76,60 @@ Here are some reasons why virtual environments are a good thing:
 1. Create your project folder, as usual.
 1. Within your project folder, create a virtual enviroment. You do this using the `venv` command.  For example, to create a virtual environment called `.my-proj-venv`: \
 `py -m venv .my-proj-venv`
-1. Add `.my-proj-venv` to your project's `.gitignore`, since we don't want it included in version control.
+1. Add `.my-proj-env` to your project's `.gitignore`, since we don't want it included in version control.
+
+In case it's useful, here's the `.gitignore` file I tend to use on Python projects:
+
+```
+# Env
+.*-env/
+.env
+ 
+# Build / distribution / packaging
+.Python
+build/
+dist/
+sdist/
+var/
+target/
+pip-log.txt
+pip-delete-this-directory.txt
+ 
+# Byte-compiled / optimized / DLL files
+__pycache__
+.mypy_cache/
+ 
+# Build docs
+docs/_build/
+docs/vendor/
+ 
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+ 
+# Jupyter stuff
+.ipynb_checkpoints/
+.ipython/
+.cache/
+ 
+# secrets
+*.key
+.gitsecret/keys/random_seed
+ 
+# Random
+.vscode
+*.log
+desktop.ini
+message.txt
+snippets/
+output/
+```
 
 ### Using Your Virtual Environment
 

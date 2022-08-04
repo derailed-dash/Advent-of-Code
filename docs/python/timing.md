@@ -44,7 +44,7 @@ Here I'll change the program to simulate waiting for 10 milliseconds:
 import time
 
 t1 = time.perf_counter()
-time.sleep(0.01) # sleep for 0.1s (i.e. 10ms)
+time.sleep(0.01) # sleep for 0.01s (i.e. 10ms)
 t2 = time.perf_counter()
 print(f"Execution time: {t2 - t1:0.4f} seconds")
 ```
@@ -61,7 +61,7 @@ The [tqdm](https://pypi.org/project/tqdm/){:target="_blank"} class is an awesome
 
 It's incredibly easy to use.  In its simplest form, you simply wrap tqdm around any _iterable_ in a loop.
 
-First, if you haven't yet installed tqdm into your environment, you'll need to install it with **pip**.
+First, if you haven't yet installed `tqdm` into your environment, you'll need to install it with **pip**.
 
 ```text
 py -m pip install tqdm

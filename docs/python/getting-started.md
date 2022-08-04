@@ -110,6 +110,7 @@ Now you'll want to install some extensions that will make your Python - and gene
 - **Git Graph** - for visualing your Git repos.
 - **Python Docstring Generator** - a cool plugin that helps with the creation of _docstrings_.  If you don't know what these are, then don't worry about this just yet!
 - **Rainbow CSV** - Colourises any CSV files you open in VS Code.
+- **Python Indent** - auto-identation for Python.
 
 Note: if you've followed the [Getting started with Python in VS Code Tutorial](https://code.visualstudio.com/docs/python/python-tutorial){:target="_blank"}, this will have guided you through installing some of these extensions.
 

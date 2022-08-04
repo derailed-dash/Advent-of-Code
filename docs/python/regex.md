@@ -28,7 +28,7 @@ A _pattern_ is something we want to match within a string. Patterns can be simpl
 
 Check out this [tutorial](https://docs.python.org/3/howto/regex.html){:target="_blank"} for a guide on how to build patterns.
 
-Then, make a note of this [the awesome regexr.com](https://regexr.com/){:target="_blank"}, which is a great place to test and build your regular expressions.  It also includes some really useful cheat sheets and references.
+Then, make a note of the awesome [regexr.com](https://regexr.com/){:target="_blank"}, which is a great place to test and build your regular expressions.  It also includes some really useful cheat sheets and references.
 
 ## Matching Patterns in Python
 
@@ -185,7 +185,7 @@ Here we're processing multiple lines of data. We're looking for lines that conta
 
 ### Using findall()
 
-Here is another way to retrieve matches and their groups.  Note how each line expects to return a single match, which is we always index the return value of `findall()` with `[0]`.  This match contains our four groups, as a tuple.
+Here is another way to retrieve matches and their groups.  Note how each line expects to return a single match, which is why we always index the return value of `findall()` with `[0]`.  This match contains our four groups, as a tuple.
 
 ```python
 pattern = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
