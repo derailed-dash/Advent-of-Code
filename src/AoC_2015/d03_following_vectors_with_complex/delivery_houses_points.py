@@ -54,7 +54,7 @@ def main():
     visited_locations = set()
     visited_locations.add(current_location)
 
-    for vector in data:
+    for vector in data: # read char by char
         current_location += VECTORS[vector]
         visited_locations.add(current_location)
 

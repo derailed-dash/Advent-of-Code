@@ -4,7 +4,7 @@ Date: 13/01/2021
 
 Solving https://adventofcode.com/2015/day/3
 
-Solution 1 of 2:
+Solution 1 of 3:
     Create VECTORS dict, where each of >^<v maps to a [x, y] list.
     For each move, store the current x and y as a tuple.
     Use a set to store only unique locations.    
