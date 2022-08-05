@@ -38,6 +38,8 @@ pages:
     link: /python/images
   - name: Enumerate
     link: /python/enumerate
+  - name: Map-Filter-Reduce
+    link: /python/map-filter-reduce
 - name: "2015"
   link: /2015/
   mainnav: True

@@ -135,7 +135,6 @@ class BitwiseLogicVisitor(NodeVisitor):
     def generic_visit(self, node, visited_children):
         return visited_children or node
 
-
 def main():
     # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
