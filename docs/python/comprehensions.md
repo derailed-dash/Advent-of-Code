@@ -13,6 +13,8 @@ tags:
 - [List Comprehension Example](#list-comprehension-example)
 - [Aggregate Functions](#aggregate-functions)
 - [Finding Adjacent Points Example](#finding-adjacent-points-example)
+- [Nested Comprehension](#nested-comprehension)
+- [Multi-Sequence Comprehension](#multi-sequence-comprehension)
 
 ## Overview
 In Python, a **comprehension** is a convenient shorthand for creating a collection, by iterating through an existing iterable.
@@ -107,4 +109,86 @@ The output:
 ```text
 Starting point: Point(x=3, y=2)
 Neighbours: [Point(x=3, y=3), Point(x=4, y=2), Point(x=3, y=1), Point(x=2, y=2)]
+```
+
+## Nested Comprehension
+
+This is a comprehension nested in another comprehension. It **creates a list with more than one dimension**.
+
+For example, this code creates a list of five items, with each item itself a list of three items.
+
+```python
+vals = [[x*y for y in range(3)] for x in range(5)]
+print(vals)
+```
+
+The above is equivalent to this nested loop:
+
+```python
+vals = []
+for x in range(5):
+    inner = []
+    for y in range(3):
+        inner.append(x*y)
+    
+    vals.append(inner)
+```
+
+Output:
+
+```text
+[[0, 0, 0], [0, 1, 2], [0, 2, 4], [0, 3, 6], [0, 4, 8]]
+```
+
+## Multi-Sequence Comprehension
+
+This is a way to **create a single list from nested loops**.
+
+A couple of examples...
+
+### Creating Cartesian Coordinates
+
+Here we create a list of `(x,y)` tuples, with x from 0-4 (inclusive) and y from 0-2 (inclusive).
+
+```python
+# Create a list of point tuples
+points = [(x, y) 
+           for x in range(5) 
+           for y in range(3)]
+
+# the above is equivalent to
+points = []
+for x in range(5):
+    for y in range(3):
+        points.append((x, y))
+```
+
+Output:
+
+```text
+[(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2), (3, 0), 
+(3, 1), (3, 2), (4, 0), (4, 1), (4, 2)]
+```
+
+### Creating a Set of Deltas to Adjacent Points
+
+Here we create a list of (dx,dy) values, in order to represent the delta to get from a coordinate to all 8 adjacent coordinates.  I.e. 
+
+```text
+-1, 1  0, 1  1, 1
+-1, 0  0, 0  1, 0
+-1,-1  0,-1  1,-1
+```
+
+```python
+delta = 1
+adjacent_deltas = [(dx,dy) for dx in range(-delta, delta+1)
+                           for dy in range(-delta, delta+1) 
+                           if (dx,dy) != (0,0)]
+```
+
+Output:
+
+```text
+[(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 ```

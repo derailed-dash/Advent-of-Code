@@ -43,9 +43,11 @@ def main():
     # Create a list of lists
     light_rows = [[False for light in range(width)] for row in range(height)]
     process_instructions(data, light_rows)
+    
+    # Use multi-sequence comprehension to create a single list from a list of lists 
     lights = [light_rows[y][x] for x in range(width) for y in range(height)]
     assert len(lights) == width*height
-    print(f"Part 1, lights on: {sum(lights)}")
+    print(f"Part 1, lights on: {sum(lights)}") # sum up all the True values
 
     # Part 2
     # Re-initialise our grid
