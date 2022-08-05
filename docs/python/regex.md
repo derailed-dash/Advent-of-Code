@@ -199,3 +199,26 @@ for line in data:
     tl_x, tl_y, br_x, br_y = map(int, re.findall(r"(\d+),(\d+) through (\d+),(\d+)", line)[0])
     print(f"tl_x: {tl_x}, tl_y: {tl_y}, br_x: {br_x}, br_y: {br_y}")
 ```
+
+The next two two blocks of code achieve the same outcome.  The first obtains a `match` and then the `groups`:
+
+```python
+    boxes = []
+
+    p = re.compile(r"(\d+)x(\d+)x(\d+)")  # our regex returns a match containing three groups
+    for line in data:
+        if match := p.match(line):
+            dims = list(map(int, match.groups())) # turn tuple of str into ints
+            boxes.append(Box(dims))
+```
+
+And here we use `findall()`, which circumvents the need to first get the `match`.
+
+```python
+    boxes = []
+
+    p = re.compile(r"(\d+)x(\d+)x(\d+)")  # our regex returns a match containing three groups
+    for line in data:
+        dims = list(map(int, p.findall(line)[0]))
+        boxes.append(Box(dims))
+```

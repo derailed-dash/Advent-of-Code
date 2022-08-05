@@ -25,9 +25,9 @@ SAMPLE_INPUT_FILE = "input/sample_input.txt"
 @dataclass
 class Box():
     """ Cuboid """
-    width: int
+    width: int      # shortest side
     height: int
-    length: int
+    length: int     # longest side
     
     def __init__(self, dims: list) -> None:
         sorted_dims = sorted(dims)
@@ -40,10 +40,13 @@ class Box():
         return 2*(self.width*self.height + self.width*self.length + self.height*self.length)
     
     @property
+    def volume(self):
+        return self.width*self.height*self.length
+    
+    @property
     def contingency(self):
         """ Contigency is the same as the area of the smallest face """
         return self.width * self.height
-    
 
 def main():
     # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
@@ -64,7 +67,7 @@ def paper_required(box: Box):
 
 def ribbon_required(box: Box):
     ribbon_length = 2*box.width + 2*box.height
-    bow_length = box.width*box.height*box.length
+    bow_length = box.volume # we're told box length will be the same as the volume
 
     return ribbon_length + bow_length
 
@@ -73,9 +76,8 @@ def get_boxes(data) -> list[Box]:
 
     p = re.compile(r"(\d+)x(\d+)x(\d+)")
     for line in data:
-        if match := p.match(line):
-            dims = list(map(int, match.groups())) # dims as list of int
-            boxes.append(Box(dims))
+        dims = list(map(int, p.findall(line)[0]))
+        boxes.append(Box(dims))
 
     return boxes
 
