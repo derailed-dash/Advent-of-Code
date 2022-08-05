@@ -4,8 +4,12 @@ title: Map-Filter-Reduce
 The `map()`, `filter()` and `reduce()` functions are convenient shorthands for applying functions to every member of an iterable. They circumvent the need to write a loop to process the iterable.
 
 - [map](#map)
+  - [Example: Converting from Str to Int](#example-converting-from-str-to-int)
+  - [Example: Getting Word Lengths](#example-getting-word-lengths)
 - [filter](#filter)
+  - [Example: Filtering Based on Word Length](#example-filtering-based-on-word-length)
 - [reduce](#reduce)
+  - [Example: Using Reduce() to Implement a Factorial Function](#example-using-reduce-to-implement-a-factorial-function)
 
 ## map
 
@@ -14,7 +18,7 @@ The `map()` function **applies a function against every member in a sequence**. 
 1. The function we need to apply to each member of the iterable, _without_ the parentheses.
 1. The iterable itself.
 
-### Converting from Str to Int
+### Example: Converting from Str to Int
 
 Here we apply the `int()` function to each member of a list.  The original list contains str values.
 
@@ -49,7 +53,7 @@ Items in new_seq...
 5, type: <class 'int'>
 ```
 
-### Getting Word Lengths
+### Example: Getting Word Lengths
 
 Here we split a phrase into its constituent words.  Then we apply the `len()` function to each word, to determine the length of each word.
 
@@ -87,7 +91,7 @@ As with `map()`, the `filter()` function takes two parameters:
 1. The function that is used to filter our collection, _without_ the parentheses.  It must return a boolean.
 1. The iterable itself.
 
-### Filtering Based on Word Length
+### Example: Filtering Based on Word Length
 
 If we continue our example from above, we could write a filter to only return words that have 5 characters or more:
 
@@ -103,4 +107,46 @@ Output:
 ```
 
 ## reduce
+
+The `reduce()` function applies a function successively to each element in an iterable.  It starts by applying the function to elements 1 and 2, resulting in a so-called _aggregator value_.  It then applies the function to the _aggregator value_ and element 3, resulting in a new _aggregator value_.  Then it applies the function to the new _aggregator value_ and element 4, and so on.
+
+Ultimately, the `reduce()` function reduces the iterable down to one final value.
+
+The `reduce()` function is often called `fold` in other languages.
+
+As with the `map()` and `filter()` functions, `reduce()` takes two parameters:
+
+1. The function that is applied sequentially, _without_ the parentheses. This function must itself accept two parameters.
+1. The iterable itself.
+
+### Example: Using Reduce() to Implement a Factorial Function
+
+```python
+from functools import reduce
+
+def mul(a, b):
+    prod = a * b
+    print(f"{a} * {b} = {prod}") # so we can see the interim values
+    return prod
+    
+fac = reduce(mul, range(1, 11))
+print(f"Result = {fac}")
+```
+
+Output:
+
+```text
+1 * 2 = 2
+2 * 3 = 6
+6 * 4 = 24
+24 * 5 = 120
+120 * 6 = 720
+720 * 7 = 5040
+5040 * 8 = 40320
+40320 * 9 = 362880
+362880 * 10 = 3628800
+Result = 3628800
+```
+
+Note that to use `reduce()`, it has to be imported from `functools`.
 
