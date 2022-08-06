@@ -60,7 +60,7 @@ grammar = Grammar(r"""
     number = ~r"\d+"
     feeds = "-> "
     wire = ~r"[a-z]{1,2}"
-    ws = ~"\s"
+    ws = ~r"\s"
 """)
 
 class BitwiseLogicVisitor(NodeVisitor):
