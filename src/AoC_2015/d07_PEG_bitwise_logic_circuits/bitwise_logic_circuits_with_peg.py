@@ -38,7 +38,6 @@ import logging
 import os
 import time
 import re
-from functools import reduce
 from parsimonious import Grammar, NodeVisitor, ParseError, VisitationError
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 

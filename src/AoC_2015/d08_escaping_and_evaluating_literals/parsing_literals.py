@@ -1,4 +1,4 @@
-""" 
+"""
 Author: Darren
 Date: 28/01/2021
 
@@ -7,19 +7,18 @@ Solving https://adventofcode.com/2015/day/8
 Part 1:
     Parse lengths of strings, with and without quotes+escapes.
     Solution is the sum of lengths of raw strings - sum of lengths of evaluated strings
-    Use eval() to convert raw to evaluated strings.
+    Use literal_eval() to convert raw to evaluated strings.
     E.g. "aaa\"aaa" becomes aaa"aaa
 
 Part 2:
     Convert raw strings into the escaped format that would be required to express them in Python. 
-    I.e. excape all chars that need escaping, and wrap in additional quotes.
+    I.e. escape all chars that need escaping, and wrap in additional quotes.
     E.g. "aaa\"aaa" becomes \"aaa\\\"aaa\", all wrapped in another pair of quotes
 """
-import sys
 import os
 import time
 import re
-from functools import reduce
+from ast import literal_eval
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -41,7 +40,7 @@ def main():
 
         # Part 1
         # Use eval to take the raw string, and evaluate it as a Python expression
-        evaluated_lengths.append(len(eval(line)))
+        evaluated_lengths.append(len(literal_eval(line)))
 
         # Part 2
         # replace any " with \" and any \ with \\
