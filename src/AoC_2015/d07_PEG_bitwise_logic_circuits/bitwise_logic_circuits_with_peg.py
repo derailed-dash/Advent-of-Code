@@ -94,19 +94,19 @@ class BitwiseLogicVisitor(NodeVisitor):
 
         # perform bitwise operation on the values in the _inputs list
         if "AND" in self._op:
-            res = reduce(lambda a,b :a & b, self._inputs)
+            res = self._inputs[0] & self._inputs[1]
         elif "OR" in self._op:
-            res = reduce(lambda a,b :a | b, self._inputs)
+            res = self._inputs[0] | self._inputs[1]
         elif "LSHIFT" in self._op:
-            res = reduce(lambda a,b :a << b, self._inputs)
+            res = self._inputs[0] << self._inputs[1]
         elif "RSHIFT" in self._op:
-            res = reduce(lambda a,b :a >> b, self._inputs)
+            res = self._inputs[0] >> self._inputs[1]
         elif "NOT" in self._op:
             # The ~ operator in Python may return a signed -ve value.
             # We don't want this, so we & with 16 bit of 1s to convert to +ve representation
             res = ~self._inputs[0] & 0xFFFF
         else:
-            # In reality, this is likely just passing through a list with only one value
+            # Where there is no op. E.g. '19138 -> b'
             res = sum(self._inputs)
 
         self._output[self._target_wire] = res
