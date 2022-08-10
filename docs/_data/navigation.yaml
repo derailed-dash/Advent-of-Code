@@ -40,6 +40,8 @@ pages:
     link: /python/enumerate
   - name: Lambda, Map, Filter, and Reduce
     link: /python/lambda-map-filter-reduce
+  - name: Working with Binary and Other Bases
+    link: /python/binary
 - name: "2015"
   link: /2015/
   mainnav: True
