@@ -108,7 +108,7 @@ Output:
 |---------|--------|-------|
 |Bit shift left y places|x << y|Each shift left results in a doubling of the value. E.g. 0b110 < 2 = 0b11000|
 |Bit shift right y places|x >> y|E.g. shift right results in an integer division by 2. E.g. 0b11000 >> 3 = 0b11|
-|Bitwise AND|x & y|1 only if both are 1. E.g. |
+|Bitwise AND|x & y|1 only if both are 1.|
 |Bitwise OR|x \| y|1 if either is 1|
 |Complement / NOT|~x|
 |Exclusive OR (XOR)|x ^ y|1 where one or other, but not both
