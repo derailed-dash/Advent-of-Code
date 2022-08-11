@@ -106,9 +106,70 @@ Output:
 
 |Operation|Operator|Example|
 |---------|--------|-------|
-|Bit shift left y places|x << y|E.g. 0b110 < 2 = 0b11000|
-|Bit shift right y places|x >> y|E.g. 0b11000 >> 3 = 0b11|
-|Bitwise AND|x & y|1 only if both are 1|
+|Bit shift left y places|x << y|Each shift left results in a doubling of the value. E.g. 0b110 < 2 = 0b11000|
+|Bit shift right y places|x >> y|E.g. shift right results in an integer division by 2. E.g. 0b11000 >> 3 = 0b11|
+|Bitwise AND|x & y|1 only if both are 1. E.g. |
 |Bitwise OR|x \| y|1 if either is 1|
 |Complement / NOT|~x|
 |Exclusive OR (XOR)|x ^ y|1 where one or other, but not both
+
+### Demo
+
+```python
+BIN_VAL_AS_STR = "0b0110"
+bin_val_as_dec = int(BIN_VAL_AS_STR, 2)
+print(f"bin_val as str: {BIN_VAL_AS_STR}'; as decimal: {bin_val_as_dec}")
+
+bin_digit_len = len(str(BIN_VAL_AS_STR)[2:])
+print(f"\nbin digits length: {bin_digit_len}")
+
+# This is useful for getting a binary number with leading zeros.
+# Results in "#06b"
+# The "#" means "include 0b prefix"
+# The 0 means include leading zeros
+# The 6 means total length of digits (including the 0b)
+format_specifier = "#0"+str(int(bin_digit_len)+2)+"b"
+print(f"Format specifier: {format_specifier}")
+
+bin_val_as_bin_str = bin(int(BIN_VAL_AS_STR, 2))
+print(f"bin_val no leading zeroes: {bin_val_as_bin_str}")
+
+BIN_VAL_AS_STR_with_leading_zeros = format(bin_val_as_dec, format_specifier)
+print(f"bin_val as bin with leading zeroes: {BIN_VAL_AS_STR_with_leading_zeros}")
+
+print("\nOperations...")
+shift_left = bin_val_as_dec << 2
+print(f"shift {bin(bin_val_as_dec)} left by 2 as bin: {bin(shift_left)}; as dec: {shift_left}")
+
+shift_right = shift_left >> 3
+print(f"shift {bin(shift_left)} right by 3 as bin: {bin(shift_right)}; as dec: {shift_right}")
+
+complement = ~bin_val_as_dec
+print(f"complement of {BIN_VAL_AS_STR} as bin: {bin(complement)}; as dec: {complement}")
+
+ones_mask = "0b"+"1"*bin_digit_len
+print(f"Ones mask using bin length: {ones_mask}")
+
+complement_positive = ~bin_val_as_dec & int(ones_mask, 2)
+print(f"Positive complement of {BIN_VAL_AS_STR} as bin: {bin(complement_positive)}")
+print(f"Positive complement of {BIN_VAL_AS_STR} as dec: {complement_positive}")
+```
+
+Output:
+
+```text
+bin_val as str: 0b0110'; as decimal: 6
+
+bin digits length: 4
+Format specifier: #06b
+bin_val no leading zeroes: 0b110
+bin_val as bin with leading zeroes: 0b0110
+
+Operations...
+shift 0b110 left by 2 as bin: 0b11000; as dec: 24
+shift 0b11000 right by 3 as bin: 0b11; as dec: 3
+complement of 0b0110 as bin: -0b111; as dec: -7
+Ones mask using bin length: 0b1111
+Positive complement of 0b0110 as bin: 0b1001
+Positive complement of 0b0110 as dec: 9
+```
