@@ -110,7 +110,7 @@ Output:
 |Bit shift right y places|x >> y|E.g. shift right results in an integer division by 2. E.g. 0b11000 >> 3 = 0b11|
 |Bitwise AND|x & y|1 only if both are 1.|
 |Bitwise OR|x \| y|1 if either is 1|
-|Complement / NOT|~x|
+|Complement / NOT|~x|Switch each 0 for 1, and each 1 for 0.
 |Exclusive OR (XOR)|x ^ y|1 where one or other, but not both
 
 ### Demo
@@ -145,7 +145,7 @@ shift_right = shift_left >> 3
 print(f"shift {bin(shift_left)} right by 3 as bin: {bin(shift_right)}; as dec: {shift_right}")
 
 complement = ~bin_val_as_dec
-print(f"complement of {BIN_VAL_AS_STR} as bin: {bin(complement)}; as dec: {complement}")
+print(f"complement of {BIN_VAL_AS_STR} as dec: {complement}")
 
 ones_mask = "0b"+"1"*bin_digit_len
 print(f"Ones mask using bin length: {ones_mask}")
@@ -168,8 +168,10 @@ bin_val as bin with leading zeroes: 0b0110
 Operations...
 shift 0b110 left by 2 as bin: 0b11000; as dec: 24
 shift 0b11000 right by 3 as bin: 0b11; as dec: 3
-complement of 0b0110 as bin: -0b111; as dec: -7
+complement of 0b0110 as dec: -7
 Ones mask using bin length: 0b1111
 Positive complement of 0b0110 as bin: 0b1001
 Positive complement of 0b0110 as dec: 9
 ```
+
+The complement operation is worth noting.  When we take the complement of 6, we end up with -7.  This is because negative numbers - in Python - are represented by setting the most significant (leftmost) bit to 1. Thus, if we have a binary number that has a leading 0 and complement it, we will always end up with a negative number.  But often that's not what we want. A neat trick is to perform a bitwise `&` with the complement of a binary number, using a mask that is set to all 1s. If we do this, then we will successfully invert all the bits, but in the form of a positive number.
