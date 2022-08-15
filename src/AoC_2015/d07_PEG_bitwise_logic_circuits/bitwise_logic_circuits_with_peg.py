@@ -171,9 +171,10 @@ def main():
     logger.info("Part 1: Value of input a is %s", a_val)
 
     # Part 2
-    wire_b_instr = list(filter(re.compile(r"-> b$").search, data))
-    wire_b_instr_index = data.index(*wire_b_instr)
-    data[wire_b_instr_index] = f"{a_val} -> b"
+    wire_b_instr = list(filter(re.compile(r"-> b$").search, data)) # return only rows that match
+    assert len(wire_b_instr) == 1, "There should only be one matching instruction"
+    wire_b_instr_index = data.index(wire_b_instr[0])  # the position of this instruction in the list
+    data[wire_b_instr_index] = f"{a_val} -> b"  # replace the instruction with this new one
 
     results = process_instructions(data.copy(), blc_visitor)
     logger.info("Part 2: Value of input a is %s", results['a'])
