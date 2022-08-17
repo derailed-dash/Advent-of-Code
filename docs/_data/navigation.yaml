@@ -67,6 +67,9 @@ pages:
   - name: 7
     link: /2015/7
     problem: "Some Assembly Required"
+  - name: 8
+    link: /2015/8
+    problem: "Matchsticks"    
 - name: "2021"
   link: /2021/
   mainnav: True

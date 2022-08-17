@@ -48,7 +48,6 @@ def main():
         encoded_str = r'"' + re.sub(r'(["\\])', r'\\\1', line) + r'"'
         encoded_lengths.append(len(encoded_str))
 
-
     sum_raw_lengths = sum(raw_lengths)
     sum_eval_lengths = sum(evaluated_lengths)
     sum_encoded_lengths = sum(encoded_lengths)
