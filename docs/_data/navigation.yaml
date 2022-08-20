@@ -69,7 +69,10 @@ pages:
     problem: "Some Assembly Required"
   - name: 8
     link: /2015/8
-    problem: "Matchsticks"    
+    problem: "Matchsticks"
+  - name: 9
+    link: /2015/9
+    problem: "All in a Single Night"    
 - name: "2021"
   link: /2021/
   mainnav: True

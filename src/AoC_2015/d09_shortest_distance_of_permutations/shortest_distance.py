@@ -61,7 +61,6 @@ def main():
     print(f"Shortest journey: {min(journey_distances)}")
     print(f"Longest journey: {max(journey_distances)}")
 
-
 def get_distances(data):
     distances = []
     distance_match = re.compile(r"^(\w+) to (\w+) = (\d+)")
@@ -77,7 +76,6 @@ def get_distances(data):
         distances.append([tuple([end, start]), dist])
 
     return distances
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
