@@ -10,11 +10,16 @@ London to Dublin = 464
 We must visit all the locations once and only once.
 
 Solution:
-    Use regex to create a [(location_1, location_2), distance] list for each distance.
+    Use regex to create a (location_1, location_2):distance dict for each distance.
+    Also store the locations in reverse, so we can lookup either way.
     Use a set to store unique locations.
-    Use itertools.permutations to obtain all possible location permutations.
-    Iterate through each permutation, and determine distances between each location pair in that perm.
-    Thus, we create a total distance for each perm.
+    Use itertools.permutations to obtain all possible location permutations (order of) cities.
+    For each permutation:
+        Check if perm[0] < perm[-1], since this allows us to ignore reverse journeys. If so...
+            Iterate through each pair of locations in the permutation.
+            Lookup the distance for that pair.
+            Add that distance to the overall journey.
+    Thus, we end up with total distance for each permutation.
 
 Part 1:
     Minimum distance to visit all locations. I.e. min of all the total distances.
@@ -22,58 +27,74 @@ Part 1:
 Part 2:
     Maximum distance to visit all locations. I.e. max of all the total distances.
 """
-import os
+from pathlib import Path
 import time
 import re
 from itertools import permutations
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+SCRIPT_DIR = Path(__file__).parent 
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
 
+    locs_to_distances = get_distances(data) # E.g. (A, B) = n
+    
+    # build our set of unique locations
     locations = set()
-    distances = get_distances(data)
-    for distance in distances:
-        # update our set of unique locations
-        locations.add(distance[0][0])
-        locations.add(distance[0][1])
+    for loc_pair in locs_to_distances:
+        locations.add(loc_pair[0]) # place_a
+        locations.add(loc_pair[1]) # place_b
 
     journey_distances = []
 
-    # create permutations of all possible combinations of locations
-    for perm in permutations(locations):
-        journey_dist = 0
-        for i in range(len(perm)-1):
-            # iterate through location pairs i, i+1, for all locations in this permutation
-            start = perm[i]
-            end = perm [i+1]
-            dist_index = next(index for index, distance in enumerate(distances) if distance[0] == tuple([start, end]))
-            journey_dist += distances[dist_index][1]
-        
-        journey_distances.append(journey_dist)
+    # Create permutations of all possible combinations of locations
+    # I.e. all possible ways of ordering the locations we must visit.
+    # E.g. if we have to visit places A, B and C, there would be 3! perms:
+    # ABC, ACB, BAC, BCA, CAB, CBA
+    for loc_perm in permutations(locations):
+        # For efficiency: filter out inverse routes. E.g. we want ABC, but not CBA; they are the same
+        if loc_perm[0] < loc_perm[-1]: 
+            journey_dist = 0
+            for i in range(len(loc_perm)-1):
+                # iterate through location pairs i, i+1, for all locations in this permutation
+                # E.g. for A, B, C, we would have pairs: A-B, and B-C.
+                pair_a = loc_perm[i]
+                pair_b = loc_perm[i+1]
+                dist = locs_to_distances[(pair_a, pair_b)]
+                journey_dist += dist
+            
+            # Just store the total distance for this journey.
+            # If we cared about the order of places, we could use a dict and store those too
+            journey_distances.append(journey_dist)
 
     print(f"Shortest journey: {min(journey_distances)}")
     print(f"Longest journey: {max(journey_distances)}")
 
-def get_distances(data):
-    distances = []
+def get_distances(data) -> dict:
+    """ Read list of distances between place_a and place_b.
+    Return each as a list, with each element a unique two-place tuple, and a distance.
+
+    Args:
+        data (list[str]): distances, in the form "London to Dublin = 464"
+
+    Returns:
+        dict: (start, end) = distance
+    """
+    distances = {}
     distance_match = re.compile(r"^(\w+) to (\w+) = (\d+)")
     
     for line in data:
-        start, end, dist = distance_match.match(line).groups()
+        start, end, dist = distance_match.findall(line)[0]
         dist = int(dist)
 
         # create a distance record in the form: [(loc_1, loc_2), dist]
         # And also store it in reverse, so that when we look it up, 
         # it doesn't matter which order the locations come in the journey.
-        distances.append([tuple([start, end]), dist])
-        distances.append([tuple([end, start]), dist])
+        distances[(start, end)] = dist
+        distances[(end, start)] = dist
 
     return distances
 
