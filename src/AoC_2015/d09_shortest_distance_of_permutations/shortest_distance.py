@@ -75,7 +75,7 @@ def main():
 
 def get_distances(data) -> dict:
     """ Read list of distances between place_a and place_b.
-    Return each as a list, with each element a unique two-place tuple, and a distance.
+    Return dict that maps (A,B)->dist x, and (B,A)->dist x.
 
     Args:
         data (list[str]): distances, in the form "London to Dublin = 464"
