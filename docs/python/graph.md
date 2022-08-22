@@ -8,12 +8,15 @@ tags:
     link: https://en.wikipedia.org/wiki/Graph_(abstract_data_type)
   - name: Graph Theory 101 (Harvard Uni)
     link: https://sitn.hms.harvard.edu/flash/2021/graph-theory-101/
+  - name: networkx
+    link: https://networkx.org/documentation/stable/index.html
 ---
 
 ## Page Contents
 
 - [Graph Theory Overview](#graph-theory-overview)
 - [Adjacency Lists](#adjacency-lists)
+- [NetworkX](#networkx)
 
 ## Graph Theory Overview
 
@@ -100,3 +103,25 @@ Output:
 5: {1, 2, 4}
 6: {4}
 ```
+
+## NetworkX
+
+[NetworkX](https://networkx.org/documentation/stable/index.html){:target="_blank"} is a cool library that allows us to create, manipulate, interrogate and render graphs. It can take a lot of the pain out of building graphs.  It also has cool methods that allow us to do things like: _find the shortest path from a to b_. And it can also render the graph as an image for us.
+
+### Installing NetworkX
+
+```
+py -m pip install networks
+```
+
+### Using NetworkX
+
+Here are a few useful links:
+
+- [NetworkX.org](https://networkx.org/){:target="_blank"}
+- [NetworkX Tutorial](https://networkx.org/documentation/stable/tutorial.html){:target="_blank"}
+- [NetworkX Reference](https://networkx.org/documentation/stable/reference/index.html){:target="_blank"}
+- [Examples gallery](https://networkx.org/documentation/stable/auto_examples/index.html){:target="_blank"}
+- [Layouts](https://networkx.org/documentation/stable/reference/drawing.html#module-networkx.drawing.layout){:target="_blank"}
+- [Algorithms](https://networkx.org/documentation/stable/reference/algorithms/index.html){:target="_blank"}
+
