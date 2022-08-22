@@ -54,12 +54,12 @@ Consider the undirected graph above, where:
 - 5 is connected to 1, 2, and 4. (3 edges.)
 - 6 is connected to 4. (1 edge.)
 
-Imagine that we're not given the overall graph, but we're instead only provided with individual edges. In this case, we can build this graph using an adjacency list as follows:
+Imagine that we're not given the overall graph, but we're instead only provided with individual edges. In this case, we can build the graph using an adjacency list as follows:
 
 ```python
 from collections import defaultdict
 
-edges = set()
+edges = set() # store edge edge as a tuple of (node_a, node_b)
 
 # Imagine we're only provided with the edges.
 edges.add((1, 2))
@@ -77,7 +77,7 @@ edges.add((5, 4))
 edges.add((6, 4))
 
 # Now we build the adjacency map
-node_map = defaultdict(set) # Use a set so we filter out duplicate connections
+node_map = defaultdict(set) # Use a set in order to filter out duplicate connections
 for x, y in edges:
     node_map[x].add(y)  # a list of vertices that link to x
     node_map[y].add(x)  # a list of vertices that link to y
