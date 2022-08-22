@@ -19,6 +19,8 @@ tags:
 
 Here we're talking about very specific definitions of a _graph_.  Not the kind of graph where you plot points on x and y axes, but rather: **an abstract model that represents a set of _vertices_ (also called _nodes_ or _points_), linked together by _edges_ (also called links or lines).**
 
+### Graph Types
+
 Graphs can be categorised as:
 
 - **Undirected**: edges have no direction; or **directed**: edges have direction.
@@ -34,6 +36,8 @@ We can summarise like this:
 |_Weighted_|The edges have magnitude, and this magnitude is important.  E.g. the weight could represent distance, or cost.|![Undirected weighted](/assets/images/undirected_weighted.png)|
 
 It's worth noting that undirected graphs can be either unweighted and weighted; and directed graphs can be either unweighted or weightd.
+
+### Tree
 
 A **tree** is an **_acyclic graph_ - i.e. one in which no loops are created - where vertices are connected by exactly one path.**
 
