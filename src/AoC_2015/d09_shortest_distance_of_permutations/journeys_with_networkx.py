@@ -16,6 +16,7 @@ Solution:
     Use NetworkX to build an undirected weighted graph.
     Use NetworkX built-in algorithms to approximate shortest distance... Does not provide a good result!!
 """
+from itertools import permutations
 from pathlib import Path
 import time
 import re
@@ -32,9 +33,34 @@ def main():
         data = f.read().splitlines()
 
     graph = build_graph(data)
+
+    locations = graph.nodes
+    print(locations)
+    
+    journey_distances = []
+    
+    for journey_perm in permutations(locations):
+        # For efficiency: filter out inverse routes. E.g. we want ABC, but not CBA; they are the same
+        if journey_perm[0] < journey_perm[-1]: 
+            journey_dist = 0
+            for i in range(len(journey_perm)-1):
+                # iterate through location pairs i, i+1, for all locations in this permutation
+                # E.g. for A, B, C, we would have pairs: A-B, and B-C.
+                node_a = journey_perm[i]
+                node_b = journey_perm[i+1]
+                dist = graph[node_a][node_b]["weight"]
+                journey_dist += dist
+            
+            # Just store the total distance for this journey.
+            # If we cared about the order of places, we could use a dict and store those too
+            journey_distances.append(journey_dist)
+
+    print(f"Shortest journey: {min(journey_distances)}")
+    print(f"Longest journey: {max(journey_distances)}")    
+
     print(graph)
     draw_graph(graph)
-
+    
 def draw_graph(graph):
     pos = nx.spring_layout(graph)
     
