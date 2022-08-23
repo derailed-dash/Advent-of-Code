@@ -14,11 +14,13 @@ Solution 2 of 2.
 Solution:
     Use regex to create a (location_1, location_2):distance dict for each distance.
     Use NetworkX to build an undirected weighted graph.
+    Use NetworkX built-in algorithms to approximate shortest distance... Does not provide a good result!!
 """
 from pathlib import Path
 import time
 import re
 import networkx as nx
+import networkx.algorithms.approximation as nx_app
 import matplotlib.pyplot as plt
 
 SCRIPT_DIR = Path(__file__).parent 
@@ -29,12 +31,50 @@ def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
 
-    graph = build_graph(data) 
+    graph = build_graph(data)
     print(graph)
+    draw_graph(graph)
 
 def draw_graph(graph):
-    subax1 = plt.subplot(121)
-    nx.draw_spring(graph, with_labels=True)
+    pos = nx.spring_layout(graph)
+    
+    # Draw nodes
+    nx.draw_networkx_nodes(graph, pos, node_size=300)
+    
+    # Draw labels
+    # nx.draw_networkx_labels(graph, pos, font_size=10, font_family="sans-serif")
+    
+    # Draw closest edges on each node only
+    closest_edges = nx.draw_networkx_edges(graph, 
+                           pos, 
+                           edge_color="blue", 
+                           width=0.5)
+    
+    # Draw the labels
+    edge_labels = nx.get_edge_attributes(graph, "weight")
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels)
+
+    route = nx_app.christofides(graph, weight="weight")[:-1]
+    route_edges = list(nx.utils.pairwise(route))
+    
+    route_distance = nx.path_weight(graph, route, weight="weight")
+    print(f"Distance: {route_distance}")
+    
+    # Draw the route
+    nx.draw_networkx(
+        graph,
+        pos,
+        with_labels=True,
+        arrows=True,
+        edgelist=route_edges,
+        edge_color="red",
+        node_size=200,
+        width=3,
+    )
+    
+    ax = plt.gca()
+    plt.axis("off")
+    plt.tight_layout()
     plt.show()    
     
 def build_graph(data) -> nx.Graph:
@@ -51,10 +91,9 @@ def build_graph(data) -> nx.Graph:
     distance_match = re.compile(r"^(\w+) to (\w+) = (\d+)")
     
     for line in data:
-        start, end, dist = distance_match.findall(line)[0]
-        dist = int(dist)
-
-        graph.add_edge(start, end, weight=dist)
+        start, end, distance = distance_match.findall(line)[0]
+        distance = int(distance)
+        graph.add_edge(start, end, weight=distance)
 
     return graph
 
