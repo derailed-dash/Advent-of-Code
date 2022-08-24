@@ -9,24 +9,44 @@ London to Dublin = 464
 
 We must visit all the locations once and only once.
 
-Solution 2 of 2.
+Solution 2 of 2: Using NetworkX.
 
 Solution:
-    Use regex to create a (location_1, location_2):distance dict for each distance.
-    Use NetworkX to build an undirected weighted graph.
-    Use NetworkX built-in algorithms to approximate shortest distance... Does not provide a good result!!
+    Use regex to get all the edges, i.e. location_a, location_b, and the distance between them.
+    Use NetworkX to build an undirected weighted graph from the edges.
+    As with Solution 1, we need to try all permutations of the locations.
+    So, each permutation is a possible route.
+    For each route:
+      Use nx.path_weight() to determine the overall distance.
+      This saves us having to manually obtain all the edge pairs, and adding their distances.
+      Store the resulting route distance against the route itself.
+    
+    Part 1:
+      Use min() to get the shortest distance distance, keyed on the value of the route:distance dict.
+    
+    Part 2:
+      Use max() instead.
+      
+    Optional: render the graph visually.
+      Draw all the nodes, except start and end.
+      Draw the start and end nodes, in a different colour.
+      Draw all the edges between pairs and label them.
+      Now draw all the edges that make up the specified route, with arrows and different colour.
 """
 from itertools import permutations
 from pathlib import Path
 import time
 import re
 import networkx as nx
-import networkx.algorithms.approximation as nx_app
 import matplotlib.pyplot as plt
 
 SCRIPT_DIR = Path(__file__).parent 
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+
+DISTANCE = "distance"
+
+SHOW_GRAPH = True
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -35,68 +55,55 @@ def main():
     graph = build_graph(data)
 
     locations = graph.nodes
-    print(locations)
-    
-    journey_distances = []
-    
-    for journey_perm in permutations(locations):
-        # For efficiency: filter out inverse routes. E.g. we want ABC, but not CBA; they are the same
-        if journey_perm[0] < journey_perm[-1]: 
-            journey_dist = 0
-            for i in range(len(journey_perm)-1):
-                # iterate through location pairs i, i+1, for all locations in this permutation
-                # E.g. for A, B, C, we would have pairs: A-B, and B-C.
-                node_a = journey_perm[i]
-                node_b = journey_perm[i+1]
-                dist = graph[node_a][node_b]["weight"]
-                journey_dist += dist
-            
-            # Just store the total distance for this journey.
-            # If we cared about the order of places, we could use a dict and store those too
-            journey_distances.append(journey_dist)
+    journey_distances = {}
 
-    print(f"Shortest journey: {min(journey_distances)}")
-    print(f"Longest journey: {max(journey_distances)}")    
+    for route in permutations(locations): # E.g. for route ABC     
+        # Use path_weight to get the total of all the edges that make up the route
+        route_distance = nx.path_weight(graph, route, weight=DISTANCE)
+        journey_distances[route] = route_distance
 
-    print(graph)
-    draw_graph(graph)
+    # Get (journey, distance) tuples
+    min_journey = min(journey_distances.items(), key=lambda x: x[1])
+    max_journey = max(journey_distances.items(), key=lambda x: x[1])
     
-def draw_graph(graph):
-    pos = nx.spring_layout(graph)
+    print(f"Shortest journey: {min_journey}")
+    print(f"Longest journey: {max_journey}")
     
-    # Draw nodes
-    nx.draw_networkx_nodes(graph, pos, node_size=300)
+    if SHOW_GRAPH:
+        draw_graph(graph, min_journey[0])  
+        draw_graph(graph, max_journey[0])
     
-    # Draw labels
-    # nx.draw_networkx_labels(graph, pos, font_size=10, font_family="sans-serif")
+def draw_graph(graph, route):
+    start_node = route[0]
+    end_node = route[-1]
     
-    # Draw closest edges on each node only
-    closest_edges = nx.draw_networkx_edges(graph, 
-                           pos, 
-                           edge_color="blue", 
-                           width=0.5)
-    
-    # Draw the labels
-    edge_labels = nx.get_edge_attributes(graph, "weight")
-    nx.draw_networkx_edge_labels(graph, pos, edge_labels)
+    pos = nx.spring_layout(graph) # create a layout for our graph
 
-    route = nx_app.christofides(graph, weight="weight")[:-1]
+    # Draw all nodes in the graph
+    nx.draw_networkx_nodes(graph, pos, 
+                           nodelist=route[1:-1], # exclude start and end
+                           node_color="green")
+    
+    # Draw all the node labels
+    nx.draw_networkx_labels(graph, pos, font_size=11)
+    
+    # Draw start and end nodes
+    nx.draw_networkx_nodes(graph, pos, nodelist=[start_node], 
+                           node_color="white", edgecolors="green")
+    nx.draw_networkx_nodes(graph, pos, nodelist=[end_node], 
+                           node_color="orange", edgecolors="green")
+
+    # Draw closest edges for each node only - with thin lines
+    nx.draw_networkx_edges(graph, pos, 
+                           edge_color="green", width=0.5)
+    
+    # Draw all the edge labels - i.e. the distances
+    nx.draw_networkx_edge_labels(graph, pos, nx.get_edge_attributes(graph, DISTANCE))
+    
+    # Draw the edges that make up this particular route
     route_edges = list(nx.utils.pairwise(route))
-    
-    route_distance = nx.path_weight(graph, route, weight="weight")
-    print(f"Distance: {route_distance}")
-    
-    # Draw the route
-    nx.draw_networkx(
-        graph,
-        pos,
-        with_labels=True,
-        arrows=True,
-        edgelist=route_edges,
-        edge_color="red",
-        node_size=200,
-        width=3,
-    )
+    nx.draw_networkx_edges(graph, pos, edgelist=route_edges,
+                           edge_color="red", width=3, arrows=True)
     
     ax = plt.gca()
     plt.axis("off")
@@ -116,10 +123,11 @@ def build_graph(data) -> nx.Graph:
     graph = nx.Graph()
     distance_match = re.compile(r"^(\w+) to (\w+) = (\d+)")
     
+    # Add each edge, in the form of a location pair
     for line in data:
         start, end, distance = distance_match.findall(line)[0]
         distance = int(distance)
-        graph.add_edge(start, end, weight=distance)
+        graph.add_edge(start, end, distance=distance)
 
     return graph
 
