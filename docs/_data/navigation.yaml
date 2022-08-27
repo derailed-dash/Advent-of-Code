@@ -42,6 +42,8 @@ pages:
     link: /python/lambda-map-filter-reduce
   - name: Working with Binary and Other Bases
     link: /python/binary
+  - name: Visualisations and Plots with Matplotlib
+    link: /python/matplotlib 
   - name: Graphs and Graph Theory
     link: /python/graph
 - name: "2015"

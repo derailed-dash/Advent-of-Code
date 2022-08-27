@@ -8,8 +8,10 @@ tags:
     link: https://en.wikipedia.org/wiki/Graph_(abstract_data_type)
   - name: Graph Theory 101 (Harvard Uni)
     link: https://sitn.hms.harvard.edu/flash/2021/graph-theory-101/
-  - name: networkx
+  - name: NetworkX
     link: https://networkx.org/documentation/stable/index.html
+  - name: Customising NetworkX Graphs
+    link: https://towardsdatascience.com/customizing-networkx-graphs-f80b4e69bedf
 ---
 
 ## Page Contents
@@ -114,14 +116,22 @@ Output:
 py -m pip install networks
 ```
 
-### Using NetworkX
+### NetworkX Guides and Tutorials
 
 Here are a few useful links:
 
-- [NetworkX.org](https://networkx.org/){:target="_blank"}
 - [NetworkX Tutorial](https://networkx.org/documentation/stable/tutorial.html){:target="_blank"}
 - [NetworkX Reference](https://networkx.org/documentation/stable/reference/index.html){:target="_blank"}
-- [Examples gallery](https://networkx.org/documentation/stable/auto_examples/index.html){:target="_blank"}
+- [Examples Gallery](https://networkx.org/documentation/stable/auto_examples/index.html){:target="_blank"}
 - [Layouts](https://networkx.org/documentation/stable/reference/drawing.html#module-networkx.drawing.layout){:target="_blank"}
 - [Algorithms](https://networkx.org/documentation/stable/reference/algorithms/index.html){:target="_blank"}
+- [Customizing NetworkX Graphs](https://towardsdatascience.com/customizing-networkx-graphs-f80b4e69bedf){:target="_blank"}
 
+### Overview With NetworkX
+
+We need to import the relevant packages.  You'll probably want to import `matplotlib.pyplot` if you want to render any [graph visualisations](/python/matplotlib){:target="_blank"}.
+
+```python
+import networkx as nx
+import matplotlib.pyplot as plt
+```
