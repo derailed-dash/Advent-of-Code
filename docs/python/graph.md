@@ -12,6 +12,8 @@ tags:
     link: https://networkx.org/documentation/stable/index.html
   - name: Customising NetworkX Graphs
     link: https://towardsdatascience.com/customizing-networkx-graphs-f80b4e69bedf
+  - name: Matplotlib
+    link: /python/matplotlib
 ---
 
 ## Page Contents

@@ -21,6 +21,16 @@ tags:
 
 - [Overview](#overview)
 - [Installing](#installing)
+- [Basic Usage](#basic-usage)
+  - [Getting Axes](#getting-axes)
+  - [Showing the Visualisation](#showing-the-visualisation)
+  - [Grid Lines and Axis Limits](#grid-lines-and-axis-limits)
+- [Examples](#examples)
+  - [Basic Line Plot](#basic-line-plot)
+  - [Line Plots with Equations](#line-plots-with-equations)
+  - [Argand Diagram](#argand-diagram)
+  - [Scatter Plot: No Lines](#scatter-plot-no-lines)
+  - [Inverted and With Hidden Axes: Rendering Characters!](#inverted-and-with-hidden-axes-rendering-characters)
 - [Seaborn](#seaborn)
 
 ## Overview
@@ -82,7 +92,7 @@ The output looks like this:
 
 Of course, there's no data yet.
 
-### Plotting Simple Graphs
+## Examples
 
 The next few examples will start with this:
 
@@ -97,7 +107,153 @@ axes.set_xlabel("x")
 axes.set_ylabel("y")
 ```
 
+### Basic Line Plot 
 
+```python
+# create list of points
+points = [ (1, 4), (2, 3), (4, 4), (0, 5) ]
+
+# Unpack our x, y vals
+all_x, all_y = zip(*points)
+
+# Create out axes
+fig, axes = plt.subplots()
+
+# add lines at x=0, y=0 and labels
+plt.axhline(0, color='black')
+plt.axvline(0, color='black')
+axes.set_xlim(0, max(all_x)+1)
+axes.set_ylim(0, max(all_y)+1)
+axes.set_xlabel("x")
+axes.set_ylabel("y")
+
+# add grid lines
+axes.grid(True)
+
+plt.plot(all_x, all_y)
+plt.show()
+```
+
+Output:
+
+<img src="{{'/assets/images/matplotlib_basic_line.png' | relative_url }}" alt="Line Plot" style="width:480px;" />
+
+### Line Plots with Equations
+
+```python
+x = np.linspace(0, 2, 100) # Generate a numpy array of data to plot
+
+fig, ax = plt.subplots()  # Create a figure and an axes
+ax.plot(x, x, label='linear')  # Plot some data on the axes
+ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
+ax.plot(x, x**3, label='cubic')  # ... and some more.
+ax.set_xlabel('x label')  # Add an x-label to the axes.
+ax.set_ylabel('y label')  # Add a y-label to the axes.
+ax.set_title("Simple Plot")  # Add a title to the axes.
+ax.legend()  # Add a legend.
+
+plt.show()
+```
+
+Output:
+
+<img src="{{'/assets/images/matplotlib_line.png' | relative_url }}" alt="Line Plot from Equations" style="width:480px;" />
+
+### Argand Diagram
+
+```python
+def cw_rotate(z: complex, degrees: float) -> complex:
+    """ Returns a new point, after rotating the supplied point about the origin, clockwise.
+
+    Args:
+        z (complex): Point to rotate
+        degrees (float): Degrees to rotate, CW
+
+    Returns:
+        complex: A new points
+    """
+    # Note that complex number phase is expressed as a CCW angle to the real axis.
+    # Thus, to rotate CW, we have to always take the supplied angle from 360.
+    return z * 1j**((360-degrees)/90)
+
+points: list[complex] = [] # store our points
+
+POINT = 3+2j # starting point
+print(POINT)
+points.append(POINT)
+
+for cw_angle in (90, 180, 270):
+    rotated_point = cw_rotate(POINT, cw_angle)
+    points.append(rotated_point)
+
+fig, axes = plt.subplots()  # Create out axes
+axes.set_aspect('equal') # set x and y to equal aspect
+axes.grid(True) # add grid lines
+
+# add lines at x=0, y=0
+plt.axhline(0, color='black')
+plt.axvline(0, color='black')
+
+# set the limits and labels for each axis
+all_x = [num.real for num in points]
+all_y = [num.imag for num in points]
+axes.set_xlim(min(all_x), max(all_x))
+axes.set_ylim(min(all_y), max(all_y))
+axes.set_xlabel("real")
+axes.set_ylabel("imag")
+
+colours = ['blue', 'orange', 'green', 'red']
+
+# Iterate over each point and plot
+for i, point in enumerate(points):
+    # For this point, plot from origin to the point
+    plt.plot([0, point.real], [0, point.imag], '-', marker='o', color=colours[i])
+    
+    # Add an annotation to the point.  We can do this one of two ways...
+    # plt.text(point.real, point.imag, str(point))
+    plt.annotate(str(point), (point.real, point.imag), color=colours[i])
+    
+plt.show()
+```
+
+Output:
+
+<img src="{{'/assets/images/matplotlib_argand.png' | relative_url }}" alt="Argand Plot" style="width:480px;" />
+
+### Scatter Plot: No Lines
+
+We can amend one line above and use the format string parameter to remove the lines, as follows:
+
+```python
+plt.plot([0, point.real], [0, point.imag], 'o', color=colours[i])
+```
+
+<img src="{{'/assets/images/matplotlib_argand_scatter.png' | relative_url }}" alt="Argand Plot" style="width:480px;" />
+
+### Inverted and With Hidden Axes: Rendering Characters!
+
+Imagine we have a number of (x,y) coordinates defined in a set of `point` objects called `dots`.  We can render them in a cool way, like this:
+
+```python
+""" Render these coordinates as a scatter plot """
+all_x = [point.x for point in dots]
+all_y = [point.y for point in dots]
+
+axes = plt.gca()
+axes.set_aspect('equal')
+plt.axis("off") # hide the border around the plot axes
+axes.set_xlim(min(all_x)-1, max(all_x)+1)
+axes.set_ylim(min(all_y)-1, max(all_y)+1)
+axes.invert_yaxis()
+
+axes.scatter(all_x, all_y, marker="o", s=50)
+plt.show()
+```
+
+Output:
+
+<img src="{{'/assets/images/matplotlib_render_dots.png' | relative_url }}" alt="Render Dots" style="width:480px;" />
 
 ## Seaborn
 
+// Coming Soon
