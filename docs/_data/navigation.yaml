@@ -78,7 +78,10 @@ pages:
     problem: "Matchsticks"
   - name: 9
     link: /2015/9
-    problem: "All in a Single Night"    
+    problem: "All in a Single Night"
+  - name: 10
+    link: /2015/10
+    problem: "Elves Look, Elves Say"        
 - name: "2021"
   link: /2021/
   mainnav: True
