@@ -25,6 +25,7 @@ tags:
   - [Getting Axes](#getting-axes)
   - [Showing the Visualisation](#showing-the-visualisation)
   - [Grid Lines and Axis Limits](#grid-lines-and-axis-limits)
+  - [Saving the Visualisation to a File](#saving-the-visualisation-to-a-file)
 - [Examples](#examples)
   - [Basic Line Plot](#basic-line-plot)
   - [Line Plots with Equations](#line-plots-with-equations)
@@ -91,6 +92,32 @@ The output looks like this:
 <img src="{{'/assets/images/matplotlib_axes.png' | relative_url }}" alt="Axes" style="width:480px;" />
 
 Of course, there's no data yet.
+
+### Saving the Visualisation to a File
+
+Instead of rendering the visualisation interactively, we can instead save it. This is easy to do.  Instead of using `plt.show()`, we use `plt.savefig()` and pass in the file we want to save to.
+
+```python
+# Save visualisation to a file
+plt.savefig("myfile.jpg")
+
+# With a transparent background
+plt.savefig("myfile.jpg", transparent=True)
+```
+
+Maybe we want to save to a particular folder, and create that folder if it doesn't already exit:
+
+```python
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).parent            # working directory
+OUTPUT_DIR = Path(SCRIPT_DIR, "output/")      # where we want to put our new file
+OUTPUT_FILE = Path(OUTPUT_DIR, "my_vis.png")  # the name of our new file
+
+if not Path.exists(OUTPUT_DIR):               # Create folder if it doesn't exist
+    Path.mkdir(OUTPUT_DIR)
+plt.savefig(OUTPUT_FILE)
+```
 
 ## Examples
 
