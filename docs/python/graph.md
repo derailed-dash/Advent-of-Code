@@ -9,18 +9,13 @@ tags:
   - name: Graph Theory 101 (Harvard Uni)
     link: https://sitn.hms.harvard.edu/flash/2021/graph-theory-101/
   - name: NetworkX
-    link: https://networkx.org/documentation/stable/index.html
-  - name: Customising NetworkX Graphs
-    link: https://towardsdatascience.com/customizing-networkx-graphs-f80b4e69bedf
-  - name: Matplotlib
-    link: /python/matplotlib
+    link: /python/networkx
 ---
 
 ## Page Contents
 
 - [Graph Theory Overview](#graph-theory-overview)
 - [Adjacency Lists](#adjacency-lists)
-- [NetworkX](#networkx)
 
 ## Graph Theory Overview
 
@@ -106,34 +101,4 @@ Output:
 4: {3, 5, 6}
 5: {1, 2, 4}
 6: {4}
-```
-
-## NetworkX
-
-[NetworkX](https://networkx.org/documentation/stable/index.html){:target="_blank"} is a cool library that allows us to create, manipulate, interrogate and render graphs. It can take a lot of the pain out of building graphs.  It also has cool methods that allow us to do things like: _find the shortest path from a to b_. And it can also render the graph as an image for us.
-
-### Installing NetworkX
-
-```
-py -m pip install networks
-```
-
-### NetworkX Guides and Tutorials
-
-Here are a few useful links:
-
-- [NetworkX Tutorial](https://networkx.org/documentation/stable/tutorial.html){:target="_blank"}
-- [NetworkX Reference](https://networkx.org/documentation/stable/reference/index.html){:target="_blank"}
-- [Examples Gallery](https://networkx.org/documentation/stable/auto_examples/index.html){:target="_blank"}
-- [Layouts](https://networkx.org/documentation/stable/reference/drawing.html#module-networkx.drawing.layout){:target="_blank"}
-- [Algorithms](https://networkx.org/documentation/stable/reference/algorithms/index.html){:target="_blank"}
-- [Customizing NetworkX Graphs](https://towardsdatascience.com/customizing-networkx-graphs-f80b4e69bedf){:target="_blank"}
-
-### Overview With NetworkX
-
-We need to import the relevant packages.  You'll probably want to import `matplotlib.pyplot` if you want to render any [graph visualisations](/python/matplotlib){:target="_blank"}.
-
-```python
-import networkx as nx
-import matplotlib.pyplot as plt
 ```

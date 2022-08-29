@@ -46,6 +46,8 @@ pages:
     link: /python/matplotlib 
   - name: Graphs and Graph Theory
     link: /python/graph
+  - name: NetworkX
+    link: /python/networkx
 - name: "2015"
   link: /2015/
   mainnav: True

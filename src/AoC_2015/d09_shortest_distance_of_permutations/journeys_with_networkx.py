@@ -111,8 +111,7 @@ def draw_graph(graph, route):
     plt.show()    
     
 def build_graph(data) -> nx.Graph:
-    """ Read list of distances between place_a and place_b.
-    Return dict that maps (A,B)->dist x, and (B,A)->dist x.
+    """ Build graph of distances between place_a and place_b.
 
     Args:
         data (list[str]): distances, in the form "London to Dublin = 464"
@@ -124,8 +123,8 @@ def build_graph(data) -> nx.Graph:
     distance_match = re.compile(r"^(\w+) to (\w+) = (\d+)")
     
     # Add each edge, in the form of a location pair
-    for line in data:
-        start, end, distance = distance_match.findall(line)[0]
+    for edge in data:
+        start, end, distance = distance_match.findall(edge)[0]
         distance = int(distance)
         graph.add_edge(start, end, distance=distance)
 
