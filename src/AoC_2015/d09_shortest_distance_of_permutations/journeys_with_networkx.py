@@ -108,7 +108,7 @@ def draw_graph(graph, route):
     ax = plt.gca()
     plt.axis("off")
     plt.tight_layout()
-    plt.show()    
+    plt.show()
     
 def build_graph(data) -> nx.Graph:
     """ Build graph of distances between place_a and place_b.

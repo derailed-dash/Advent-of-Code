@@ -29,14 +29,13 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 SCRIPT_DIR = os.path.dirname(__file__) 
-BAG_RULES_INPUT_FILE = "input/bag_rules.txt"
-SAMPLE_RULES_INPUT_FILE = "input/sample_bag_rules.txt"
+# BAG_RULES_INPUT_FILE = "input/bag_rules.txt"
+BAG_RULES_INPUT_FILE = "input/sample_bag_rules.txt"
 SHINY_GOLD = "shiny gold"
-DRAW_GRAPH = False
+DRAW_GRAPH = True
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, BAG_RULES_INPUT_FILE)
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_RULES_INPUT_FILE)
     print("Input file is: " + input_file)
 
     rules = process_rules(read_input(input_file))
@@ -76,6 +75,14 @@ def draw_graph(graph, searching_for, ancestors):
 
 
 def build_graph(rules):
+    """ Builds a graph from a dict of rules
+
+    Args:
+        rules (dict): Look like... 'shiny plum': {'dotted beige': 5, 'faded orange': 1}
+
+    Returns:
+        nx.DiGraph: Directed graph
+    """
     graph = nx.DiGraph()
     for parent, children in rules.items():
         graph.add_node(parent)

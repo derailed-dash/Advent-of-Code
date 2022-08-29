@@ -46,7 +46,7 @@ pages:
     link: /python/matplotlib 
   - name: Graphs and Graph Theory
     link: /python/graph
-  - name: NetworkX
+  - name: Creating and Visualising Graphs with NetworkX
     link: /python/networkx
 - name: "2015"
   link: /2015/
