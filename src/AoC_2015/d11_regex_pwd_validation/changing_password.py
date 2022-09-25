@@ -30,9 +30,11 @@ def main():
     old_pwd = 'cqjxjnds'
     # old_pwd = 'zzzzzzxx'
 
+    # Part 1
     new_pwd = find_next_password(old_pwd)
     print(new_pwd)
 
+    # Part 2 - just do it again!!
     new_pwd = find_next_password(new_pwd)
     print(new_pwd)
 
