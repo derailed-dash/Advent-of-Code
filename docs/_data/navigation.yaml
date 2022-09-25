@@ -50,6 +50,8 @@ pages:
     link: /python/networkx
   - name: Recursion
     link: /python/recursion
+  - name: Exceptions
+    link: /python/exceptions
 - name: "2015"
   link: /2015/
   mainnav: True

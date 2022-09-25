@@ -28,13 +28,13 @@ BAD_CHARS_MATCH = re.compile(r"[iol]")
 
 def main():
     old_pwd = 'cqjxjnds'
+    # old_pwd = 'zzzzzzxx'
 
     new_pwd = find_next_password(old_pwd)
     print(new_pwd)
 
     new_pwd = find_next_password(new_pwd)
     print(new_pwd)
-
 
 def find_next_password(new_pwd: str):
     new_pwd_valid = False
@@ -48,22 +48,25 @@ def find_next_password(new_pwd: str):
             break
     return new_pwd
 
-
 def increment_pwd(pwd):
-    # increment password char from the rightmost column
+    """ Recursive function that increments password supplied pwd by 1. 
+    E.g. aaa -> aab; aay -> aaz; aaz -> aba
+    
+    Throws an IndexError if we try to increment a zero-length password
+    """
+
     last_col = len(pwd) - 1
     char = pwd[last_col]
-    left_pwd = pwd[:last_col]
+    left_chars = pwd[:last_col]
     new_char = next_char(char)
 
     if (new_char) == 'a':
         # We've rolled over from z to a, so we need to increment one column left
-        # So pass in all left pwd chars, exluding rightmost column, and call this method recursively
-        left_pwd = increment_pwd(left_pwd)
+        # So pass in all pwd chars on the left, exluding rightmost column, and call this method recursively
+        left_chars = increment_pwd(left_chars)
     
-    new_pwd = left_pwd + new_char
+    new_pwd = left_chars + new_char
     return new_pwd
-
 
 def next_char(a_char: str):
     if (a_char != 'z'):
@@ -73,15 +76,15 @@ def next_char(a_char: str):
         # if we're incrementing 'z', then we need to wrap around to 'a'
         return 'a'
 
-
-def check_rules(input):
-    if not STRAIGHT_MATCH.search(input):
+def check_rules(a_password):
+    """ Match the supplied password against our set of validation rules """
+    if not STRAIGHT_MATCH.search(a_password):
         return False
 
-    if BAD_CHARS_MATCH.search(input):
+    if BAD_CHARS_MATCH.search(a_password):
         return False
         
-    two_pairs_match = PAIRS_CHARS_MATCH.search(input)
+    two_pairs_match = PAIRS_CHARS_MATCH.search(a_password)
     if not two_pairs_match:
         return False
     else:
@@ -91,7 +94,6 @@ def check_rules(input):
             return False
 
     return True
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
