@@ -47,25 +47,23 @@ def main():
     result = process_json(j, "red")
     print(f"Total of all numbers: {result}")
 
-
-def process_json(input, ignore=None):
+def process_json(json_input, ignore=None):
     num_total = 0
 
-    if type(input) is dict:
+    if isinstance(json_input, dict):
         if ignore is not None:
-            if ignore in input.values():
+            if ignore in json_input.values():
                 return 0
 
-        for key in input:
-            num_total += process_json(input[key], ignore)
-    elif type(input) is list:
-        for element in input:
+        for key in json_input:
+            num_total += process_json(json_input[key], ignore)
+    elif isinstance(json_input, list):
+        for element in json_input:
             num_total += process_json(element, ignore) 
-    elif type(input) is int:
-        num_total += input
+    elif isinstance(json_input, int):
+        num_total += json_input
 
     return num_total
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
