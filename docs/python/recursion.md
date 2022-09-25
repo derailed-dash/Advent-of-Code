@@ -26,7 +26,15 @@ tags:
 
 I have to admit, I used to struggle with recursion.  A lot of people do.  It can be a bit mind-bending. But it's a pretty simple concept and can be very useful.
 
-**Recursion is simply when a function calls itself.  A function that is able to call itself is called _recursive_.**
+In short: **a recursive function is a function that calls itself.**  Thus, the code that defines the function will include a call to the same function.
+
+As an anology, take a look at examples of recursive acronyms.  See how the acronym definition includes the acronym itself!
+
+|Acronym|Definition|
+|-------|----------|
+|GNU| = GNU's not Linux|
+|LAME| = LAME Ain't an MP3 Encoder|
+|YAML|  YAML Ain't Markup Lanugage|
 
 ## When Do You Use It? 
 
@@ -136,16 +144,36 @@ Note how each `return` is the product of `n` and the previous return value.
 
 ### Counting Leaf Items in a Nested List
 
+Here we create a recursive function that counts all the individual elements in a list.  If the list is nested, the function recurses into each _sub_ list, adding the elements of that list to the overall count.
+
 ```python
 def count_leaf_items(item_list):
     """Recursively counts and returns the number of leaf items
        in a (potentially nested) list. """
     count = 0
     for item in item_list:
-        if isinstance(item, list):
+        if isinstance(item, list): # if the element is itself a list, recurse...
             count += count_leaf_items(item)
-        else:
-            count += 1
+        else: # count the item
+            # this is the exit condition, i.e. when we've reached a leaf (element) rather than a nested list
+            count += 1  
 
     return count
+```
+
+Let's try this...
+
+```python
+nested_list = [2, [3,5], [[10,20],30]]
+print(nested_list)
+
+res = count_leaf_items(nested_list)
+print(res)
+```
+
+Output:
+
+```text
+[2, [3, 5], [[10, 20], 30]]
+6
 ```
