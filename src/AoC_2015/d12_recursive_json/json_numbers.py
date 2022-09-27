@@ -48,12 +48,22 @@ def main():
     print(f"Total of all numbers: {result}")
 
 def process_json(json_input, ignore=None):
+    """ Recursively processes json input. 
+    Identifies all int values stored in a json object, and adds them up.
+
+    Args:
+        json_input (str): any valid json input
+        ignore (str, optional): Ignore any collection or value that has an element with this value.
+                                Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     num_total = 0
 
     if isinstance(json_input, dict):
-        if ignore is not None:
-            if ignore in json_input.values():
-                return 0
+        if ignore and ignore in json_input.values():
+            return 0
 
         for key in json_input:
             num_total += process_json(json_input[key], ignore)
@@ -61,7 +71,9 @@ def process_json(json_input, ignore=None):
         for element in json_input:
             num_total += process_json(element, ignore) 
     elif isinstance(json_input, int):
-        num_total += json_input
+        num_total += json_input     # base case that doesn't recurse
+    
+    # Might also be str type, but we don't care about those, so we can ignore this case.
 
     return num_total
 
