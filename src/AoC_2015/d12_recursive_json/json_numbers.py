@@ -33,17 +33,17 @@ import json
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.json"
-SAMPLE_INPUT_FILE = "input/sample_input.json"
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         j = json.load(f)
 
+    # Part 1
     result = process_json(j)
     print(f"Total of all numbers: {result}")
     
+    # Part 2
     result = process_json(j, "red")
     print(f"Total of all numbers: {result}")
 
@@ -57,7 +57,7 @@ def process_json(json_input, ignore=None):
                                 Defaults to None.
 
     Returns:
-        _type_: _description_
+        int: Sum of all ints in this object
     """
     num_total = 0
 
