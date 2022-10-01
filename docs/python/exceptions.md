@@ -1,11 +1,13 @@
 ---
 title: Exceptions
 tags: 
-  - name: Assertions in Python
-    link: https://www.tutorialspoint.com/python/assertions_in_python.htm
+  - name: Exceptions - Python Docs
+    link: https://docs.python.org/3/tutorial/errors.html
+  - name: Python Exceptions @RealPython
+    link: https://realpython.com/python-exceptions/
 ---
 ## Exceptions
 
 ### Overview
 
-TBD
+Exceptions are used to handle situations that are not the _normal_ flow of our code. 

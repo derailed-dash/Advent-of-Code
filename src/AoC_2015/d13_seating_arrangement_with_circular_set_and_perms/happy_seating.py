@@ -4,7 +4,7 @@ Date: 12/02/2021
 
 Solving https://adventofcode.com/2015/day/13
 
-A lsit of people sat around the table.
+A list of people sat around the table.
 Happiness scores depend on who sets next to whom. E.g.
     Alice would gain 54 happiness units by sitting next to Bob.
 
@@ -76,7 +76,6 @@ def main():
     print(f"Optimum happiness = {happiness_for_seating[optimum_happiness_seating]} with seating: {optimum_happiness_seating}")
 
     # Part 2
-
     # Need to add person_1 back in, so that we can add values for Me sitting next to Person_1
     people.add(person_1)
     add_me_to_happiness_by_person(happiness_by_person, people)
@@ -96,12 +95,10 @@ def main():
     print("\nPart 1")
     print(f"Optimum happiness = {happiness_for_seating[optimum_happiness_seating]} with seating: {optimum_happiness_seating}")
 
-
 def add_me_to_happiness_by_person(happiness_by_person: dict, people):
     for person in people:
         happiness_by_person[person]['Me'] = 0
         happiness_by_person['Me'][person] = 0
-
 
 def compute_happiness_for_seating(seating_arrangement, happiness_by_person):
     happiness = 0
@@ -116,7 +113,6 @@ def compute_happiness_for_seating(seating_arrangement, happiness_by_person):
         happiness += happiness_by_person[current_next_person][current_person]
 
     return happiness
-
 
 def get_happiness_by_person(data) -> dict:
     # Alice would gain 54 happiness units by sitting next to Bob.
