@@ -10,6 +10,21 @@ tags:
 ---
 ## Exceptions
 
+### Page Contents
+
+- [Overview](#overview)
+- [The Exception Handling Process](#the-exception-handling-process)
+- [How to Handle](#how-to-handle)
+- [Example: Input Validation](#example-input-validation)
+- [What Exceptions to Catch?](#what-exceptions-to-catch)
+- [Raising Exceptions Programmatically](#raising-exceptions-programmatically)
+- [The Exception Hierarchy](#the-exception-hierarchy)
+- [Exception Payloads](#exception-payloads)
+- [Defining Your Own Exceptions](#defining-your-own-exceptions)
+- [Exception Chaining](#exception-chaining)
+- [Tracebacks](#tracebacks)
+- [Pattern: Exception to Break or Continue an Outer Loop](#pattern-exception-to-break-or-continue-an-outer-loop)
+
 ### Overview
 
 Exceptions are used to handle situations that are not the _normal_ flow of our code. Exceptions are errors which are detected and  _thrown_ at runtime.  This is different to syntactic errors; i.e. where the code itself is structurally or syntactically not valid.
@@ -55,7 +70,7 @@ So, we:
 - Create an `except` block for each exception type that we may want to explicitly handle
 - An optional `finally` block is for any code that we may want to exception after any exception handling has taken place, or even if there was no exception.
 
-### Example: Input Validation for Bad Input
+### Example: Input Validation
 
 ```python
 print("Welcome to the number sorter!")
