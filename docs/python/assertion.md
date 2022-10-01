@@ -3,6 +3,8 @@ title: Assertion
 tags: 
   - name: Assertions in Python
     link: https://www.tutorialspoint.com/python/assertions_in_python.htm
+  - name: Exceptions
+    link: /python/exceptions
 ---
 ## Assertions and Invariants
 
@@ -12,7 +14,7 @@ Assertions are a great way to check that your code is doing what you _think_ it 
 
 Use assertions to **test for something that you believe should *always* be true**. Or, to put it another way: to generate a runtime error whenever we hit a condition that we believe should never happen.
 
-(Contrast _exceptions_, which should be used for conditions that might happen, and which generally need to be handled.)
+(Contrast [exceptions](/python/exceptions), which should be used for conditions that might happen, and which generally need to be handled.)
 
 In plain English, an assertion might go something like this:
 
