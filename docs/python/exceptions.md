@@ -5,6 +5,8 @@ tags:
     link: https://docs.python.org/3/tutorial/errors.html
   - name: Python Exceptions @RealPython
     link: https://realpython.com/python-exceptions/
+  - name: Exception hierarchy
+    link: https://docs.python.org/3/library/exceptions.html#exception-hierarchy
   - name: Assertions
     link: /python/assertion
 ---
@@ -16,14 +18,17 @@ tags:
 - [The Exception Handling Process](#the-exception-handling-process)
 - [How to Handle](#how-to-handle)
 - [Example: Input Validation](#example-input-validation)
-- [What Exceptions to Catch?](#what-exceptions-to-catch)
-- [Raising Exceptions Programmatically](#raising-exceptions-programmatically)
 - [The Exception Hierarchy](#the-exception-hierarchy)
+- [What Exceptions to Catch?](#what-exceptions-to-catch)
+- [Example: Catching Different Exception Types](#example-catching-different-exception-types)
+- [Raising Exceptions Programmatically](#raising-exceptions-programmatically)
 - [Exception Payloads](#exception-payloads)
 - [Defining Your Own Exceptions](#defining-your-own-exceptions)
 - [Exception Chaining](#exception-chaining)
 - [Tracebacks](#tracebacks)
 - [Pattern: Exception to Break or Continue an Outer Loop](#pattern-exception-to-break-or-continue-an-outer-loop)
+- [Write Exceptions as JSON](#write-exceptions-as-json)
+- [EAFP](#eafp)
 
 ### Overview
 
@@ -57,9 +62,9 @@ The general structure is:
 ```python
 try:
   # normal execution flow
-except some_exception:
-  # code to execute only if "some_exception" is caught
-except some_other_exception:
+except some_exception as some_err:
+  # code to execute only if "some_exception" is caught.
+except some_other_exception as some_err:
   # code to execute only if "some_other_exception" is caught
 finally:
   # an optional block that we execute whether an exception is caught or not
@@ -67,7 +72,8 @@ finally:
 
 So, we:
 - Wrap the code that _could_ throw an exception in the `try:` block.
-- Create an `except` block for each exception type that we may want to explicitly handle
+- Create an `except` block for each exception type that we may want to explicitly handle. The code will fall through to each successive `except` clause, until a matching exception is found.  
+- We can optionally name our caught exception with the `as some_name` construct.  This allows us to interrogate the exception in more detail, within the `except` block.
 - An optional `finally` block is for any code that we may want to exception after any exception handling has taken place, or even if there was no exception.
 
 ### Example: Input Validation
@@ -160,11 +166,201 @@ Size of list: 4
 4,5,10,15
 ```
 
+### The Exception Hierarchy
+
+Before we describe which exception types you should be handling in your code, let's first look at the [exception hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy){:target="_blank"}. I.e. the class hierarchy for all built-in exception types defined in the standard Python library:
+
+```text
+BaseException
+ +-- SystemExit
+ +-- KeyboardInterrupt
+ +-- GeneratorExit
+ +-- Exception
+      +-- StopIteration
+      +-- StopAsyncIteration
+      +-- ArithmeticError
+      |    +-- FloatingPointError
+      |    +-- OverflowError
+      |    +-- ZeroDivisionError
+      +-- AssertionError
+      +-- AttributeError
+      +-- BufferError
+      +-- EOFError
+      +-- ImportError
+      |    +-- ModuleNotFoundError
+      +-- LookupError
+      |    +-- IndexError
+      |    +-- KeyError
+      +-- MemoryError
+      +-- NameError
+      |    +-- UnboundLocalError
+      +-- OSError
+      |    +-- BlockingIOError
+      |    +-- ChildProcessError
+      |    +-- ConnectionError
+      |    |    +-- BrokenPipeError
+      |    |    +-- ConnectionAbortedError
+      |    |    +-- ConnectionRefusedError
+      |    |    +-- ConnectionResetError
+      |    +-- FileExistsError
+      |    +-- FileNotFoundError
+      |    +-- InterruptedError
+      |    +-- IsADirectoryError
+      |    +-- NotADirectoryError
+      |    +-- PermissionError
+      |    +-- ProcessLookupError
+      |    +-- TimeoutError
+      +-- ReferenceError
+      +-- RuntimeError
+      |    +-- NotImplementedError
+      |    +-- RecursionError
+      +-- SyntaxError
+      |    +-- IndentationError
+      |         +-- TabError
+      +-- SystemError
+      +-- TypeError
+      +-- ValueError
+      |    +-- UnicodeError
+      |         +-- UnicodeDecodeError
+      |         +-- UnicodeEncodeError
+      |         +-- UnicodeTranslateError
+      +-- Warning
+           +-- DeprecationWarning
+           +-- PendingDeprecationWarning
+           +-- RuntimeWarning
+           +-- SyntaxWarning
+           +-- UserWarning
+           +-- FutureWarning
+           +-- ImportWarning
+           +-- UnicodeWarning
+           +-- BytesWarning
+           +-- EncodingWarning
+           +-- ResourceWarning
+```
+
+What does this mean?  Well, it means that exceptions are hierarchical, and that all these built-in exception types are ultimately descendents of the parent class, `BaseException`.  
+
+For example:
+- `ZeroDivisionError` inherits from `ArithmeticError`, which inherits from `Exception`, which inherits from `BaseException`.
+- `KeyError` inherits from `LookupError`, which inherits from `Exception`, which inherits from `BaseException`.
+
+In fact, you can take any class in Python, and view it's inheritance hierarchy with the `mro()` method.  For example:
+
+```text
+>>> KeyError.mro()
+[<class 'KeyError'>, <class 'LookupError'>, <class 'Exception'>, <class 'BaseException'>, <class 'object'>]
+>>> ValueError.mro()
+[<class 'ValueError'>, <class 'Exception'>, <class 'BaseException'>, <class 'object'>]
+```
+
 ### What Exceptions to Catch?
 
-### Raising Exceptions Programmatically
+Here's the most important rule: **always specify an exception type!**  Never have an empty `except`. Why?  Because then your `except` block will catch **all** types of exceptions that can be thrown.  And you'll see from the hierarchy above that this includes the likes of `KeyboardInterrupt`, which are inherited from `BaseException`.
 
-### The Exception Hierarchy
+Take a look at this example:
+
+```python
+from random import randrange
+
+def main():
+    number = randrange(100)
+    while True:     # loop until user guesses
+        try:
+            guess = int(input("Guess the number? Quit with Ctrl-C if you get bored: "))
+        except Exception:     # Better than catching empty, since this would even catch KeyboardInterrupt!
+            continue
+        
+        if guess == number:
+            print("You win!")
+            break   # exit the loop
+
+if __name__ == "__main__":
+    main()
+```
+
+This program picks a random number between 0 and 99, prompts the user for input, and only exits if the user guesses correctly.
+
+But what if the user gets bored and wants to quit?  Here I aborted after four attempts:
+
+```text
+Guess the number? Quit with Ctrl-C if you get bored: 50
+Guess the number? Quit with Ctrl-C if you get bored: 30
+Guess the number? Quit with Ctrl-C if you get bored: 25
+Guess the number? Quit with Ctrl-C if you get bored: 10
+Guess the number? Quit with Ctrl-C if you get bored: Traceback (most recent call last):
+  File "f:\Users\Darren\localdev\Python\Basic-Scripts\src\Exceptions\empty_except.py", line 16, in <module>
+    main()
+  File "f:\Users\Darren\localdev\Python\Basic-Scripts\src\Exceptions\empty_except.py", line 7, in main
+    guess = int(input("Guess the number? Quit with Ctrl-C if you get bored: "))
+KeyboardInterrupt
+```
+
+If we press Ctrl-C, this causes a `KeyboardInterrupt` to be raised.  Our code catches `Exception`, but **does not catch** `KeybaordInterrupt`.  Note from the exception hierarchy that `KeyboardInterrupt` does not descend from `Exception`. Instead, `KeyboardException` inherits directly from `BaseException`. And we're not catching `BaseException`.
+
+But what happens if we just catch **everything**?  We can do this by having an _empty_ `except` block, like this:
+
+```python
+from random import randrange
+
+def main():
+    number = randrange(100)
+    while True:     # loop until user guesses
+        try:
+            guess = int(input("Guess the number? Quit with Ctrl-C if you get bored: "))
+        except:     # THIS IS BAD!!  It even catches KeyboardInterrupt
+            continue
+        
+        if guess == number:
+            print("You win!")
+            break   # exit the loop
+
+if __name__ == "__main__":
+    main()
+```
+
+The above program cannot be terminated.  Pressing Ctrl-C does nothing, because the resulting `KeyboardException` is caught by our empty `except` block, and then the code simply continues with the infinite `while` loop.
+
+My advice:
+
+- Always catch _something_.  Don't leave the `except` empty.
+- Catching `Exception` is better than nothing.  It doesn't catch `SystemExit`, `KeyboardInterrupt` or `GeneratorExit`.  It will catch all other built-in Python exceptions.
+- Ideally, be a bit more specific. If you know what exceptions are likely, then try to handle them with a bit more specificity.  Some of the most common exception types you'll want to explicitly handle are:
+  - `ValueError` - for handling inappropriate input
+  - `IndexError` - for when the code attempts to reference an object using an index that is out of range
+  - `KeyError` - when we try to reference a key that doesn't exist (e.g. in a dict lookup)
+  - `StopIteration` - for when there are no more values to iterate over
+- You can always follow your _specific_ exceptions with a more generic `catch Exception`.
+
+### Example: Catching Different Exception Types
+
+```python
+from sys import stderr
+
+person = {
+    "Firstname": "Bob",
+    "Role": "Trader",
+    "ID": 123
+}
+try:
+    last_name = person["Lastname"]  # lookup a key that doesn't exist
+    print("Lastname: ", last_name)
+except KeyError as error:
+    print("No last name!")
+    print(f"Error of type: {type(error).__name__} with message: {error}")
+except Exception as error:
+    print("Unknown error!")
+    print(f"{error!r}", file=stderr)
+
+```
+
+And when we run it:
+
+```text
+No last name!
+Error of type: KeyError with message: 'Lastname'
+```
+
+### Raising Exceptions Programmatically
 
 ### Exception Payloads
 
@@ -176,4 +372,6 @@ Size of list: 4
 
 ### Pattern: Exception to Break or Continue an Outer Loop
 
+### Write Exceptions as JSON
 
+### EAFP
