@@ -20,6 +20,7 @@ tags:
 - [Example: Input Validation](#example-input-validation)
 - [The Exception Hierarchy](#the-exception-hierarchy)
 - [What Exceptions to Catch?](#what-exceptions-to-catch)
+- [Some Common Exception Types](#some-common-exception-types)
 - [Example: Catching Different Exception Types](#example-catching-different-exception-types)
 - [Raising Exceptions Programmatically](#raising-exceptions-programmatically)
 - [Exception Payloads](#exception-payloads)
@@ -331,6 +332,17 @@ My advice:
   - `StopIteration` - for when there are no more values to iterate over
 - You can always follow your _specific_ exceptions with a more generic `catch Exception`.
 
+### Some Common Exception Types
+
+Here are some of the more common exception types, and what they mean:
+
+|Exception|Description|
+|---------|-----------|
+|ValueError|Often thrown when the input value is of the wrong type or bad|
+|IndexError|When we attempt an out-of-range lookup; e.g. using at index beyond the end of a list|
+|KeyError|When a key lookup fails; e.g. attempting to retrieve a value from a dict using a key that doesn't exist|
+|StopIteration|When we have no more values to iterate over|
+
 ### Example: Catching Different Exception Types
 
 ```python
@@ -361,6 +373,159 @@ Error of type: KeyError with message: 'Lastname'
 ```
 
 ### Raising Exceptions Programmatically
+
+It is possible to raise an exception ourselves, programmatically. Here's an example of when we might want to do this:
+
+```python
+""" Find the median of any iterable.
+Explicitly handle empty iterable use case by raising a ValueError,
+otherwise we'll see an IndexError raised by the implementation. """
+def median(iterable):
+    items = sorted(iterable)
+    
+    # Odd e.g. 1, 4, 5, 6, 9: median index = 4 // 2 = 2
+    # Even e.g. 1, 4, 5, 6, 9, 10: median index = 5 // 2 = 2
+    median_index = (len(items) - 1) // 2    # integer division
+    if len(items) % 2 != 0:
+        return items[median_index]
+    
+    return (items[median_index] + items[median_index+1]) / 2.0
+ 
+def test(iterable):
+    print(f"Using {iterable}...")
+    print(median(iterable))
+
+numbers = [1, 4, 5, 6, 9]
+test(numbers)
+
+numbers = []
+test(numbers)
+```
+
+Here we've created a function that determines the median from any supplied iterable (e.g. list) of numbers. It calculates the median as follows:
+
+- Sort the supplied values in numerical order.
+- Determines the number of values in the list. Subtract one from this number, and then divide by 2, ignoring any remainder. Store this as our index.
+  - E.g. if we have 6 numbers, then we divide 5 by 2, to get 2.
+  - E.g. if we have 5 numbers, then we divide 4 by 2, to get 2.
+- If the total number of values was odd, then we return the value at the index calculated. This is the median.
+- If the total number of values was even, then we need to return the value in between the value at our index, and the subsequent value.
+
+We test the function using two lists: the first has some numbers, but the second list is empty.  This is the result:
+
+```text
+Using [1, 4, 5, 6, 9]...
+5
+Using []...
+Traceback (most recent call last):
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 23, in <module>   
+    test(numbers)
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 17, in test       
+    print(median(iterable))
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 13, in median     
+    return (items[median_index] + items[median_index+1]) / 2.0
+IndexError: list index out of range
+```
+
+We can see that when we supply the first list, our code has no trouble calculating the median.  But when we supply an empty list, an uncaught `IndexError` is thrown. This happens because when we try to reference `items[median_index]` in our `median()` function, the `items` list is empty, so the index tries to reference a value that doesn't exist.  Doh!  Furthermore, this error isn't very useful to anyone else running our code. It would be much more helpful if our code through a more useful exception in this scenario.
+
+As an improvement, we can choose to throw an exception, if our function is given an empty list:
+
+```python
+""" Find the median of any iterable.
+Explicitly handle empty iterable use case by raising a ValueError,
+otherwise we'll see an IndexError raised by the implementation. """
+def median(iterable):
+    items = sorted(iterable)
+    if len(items) == 0:
+        raise ValueError("median() arg was empty sequence")
+    
+    # Odd e.g. 1, 4, 5, 6, 9: median index = 4 // 2 = 2
+    # Even e.g. 1, 4, 5, 6, 9, 10: median index = 5 // 2 = 2
+    median_index = (len(items) - 1) // 2    # integer division
+    if len(items) % 2 != 0:
+        return items[median_index]
+    
+    return (items[median_index] + items[median_index+1]) / 2.0
+ 
+def test(iterable):
+    print(f"Using {iterable}...")
+    print(median(iterable))
+
+numbers = [1, 4, 5, 6, 9]
+test(numbers)
+
+numbers = []
+test(numbers)
+```
+
+The only difference was the addition of a test to see if the list was empty, and the explicit code to throw a more appropriate `ValueError`, if the list is indeed empty.
+
+Now when we run it:
+
+```text
+Using [1, 4, 5, 6, 9]...
+5
+Using []...
+Traceback (most recent call last):
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 25, in <module>   
+    test(numbers)
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 19, in test       
+    print(median(iterable))
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 7, in median      
+    raise ValueError("median() arg was empty sequence")
+ValueError: median() arg was empty sequence
+```
+
+This is a bit better. When we pass an empty list, the code now shows a more appropriate `ValueError`, and also has a message payload in the `Exception`, which is printed when the exception is thrown.
+
+Unfortunately, we still get a messy stack trace.  So one more improvement we can make it is to actually handle the `ValueError`, when it is thrown. I.e.
+
+```python
+""" Find the median of any iterable.
+Explicitly handle empty iterable use case by raising a ValueError,
+otherwise we'll see an IndexError raised by the implementation. """
+def median(iterable):
+    items = sorted(iterable)
+    if len(items) == 0:
+        raise ValueError("median() arg was empty sequence")
+    
+    # Odd e.g. 1, 4, 5, 6, 9: median index = 4 // 2 = 2
+    # Even e.g. 1, 4, 5, 6, 9, 10: median index = 5 // 2 = 2
+    median_index = (len(items) - 1) // 2    # integer division
+    if len(items) % 2 != 0:
+        return items[median_index]
+    
+    return (items[median_index] + items[median_index+1]) / 2.0
+ 
+def test(iterable):
+    try:
+        print(f"Using {iterable}...")
+        print(median(iterable))
+    except ValueError as err:
+        print(f"Error of type: {type(err).__name__} with message: {err}")
+
+numbers = [1, 4, 5, 6, 9]
+test(numbers)
+
+numbers = []
+test(numbers)
+```
+
+The only change here was that the lines in our `test()` function have now been wrapped with a `try-except` block.
+
+When we run our code:
+
+```text
+Using [1, 4, 5, 6, 9]...
+5
+Using []...
+Error of type: ValueError with message: median() arg was empty sequence
+```
+
+You can see that the output is much less messy.  
+- The first list works fine, as expected.
+- The second list results in a `ValueError`, which is caught.  The code then prints the error message in a friendly way.
 
 ### Exception Payloads
 
