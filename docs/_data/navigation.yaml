@@ -91,7 +91,10 @@ pages:
     problem: "Corporate Policy"
   - name: 12
     link: /2015/12
-    problem: JSAbacusFramework.io       
+    problem: JSAbacusFramework.io
+  - name: 13
+    link: /2015/13
+    problem: "Knights of the Dinner Table"            
 - name: "2021"
   link: /2021/
   mainnav: True
