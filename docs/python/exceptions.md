@@ -16,6 +16,7 @@ tags:
 
 - [Overview](#overview)
 - [The Exception Handling Process](#the-exception-handling-process)
+- [An Unhandled Exception](#an-unhandled-exception)
 - [How to Handle](#how-to-handle)
 - [Example: Input Validation](#example-input-validation)
 - [The Exception Hierarchy](#the-exception-hierarchy)
@@ -54,9 +55,47 @@ When an exception is _thrown_, there are basically two things we can do.
   - I.e. do something to gracefully deal with the exception, allowing the program to continue.
   - Or, leave the exception unhandled, resulting in the program terminating.
 
+### An Unhandled Exception
+
+What happens if an exception is thrown and you don't handle it?
+
+```python
+numerator = 10
+denominator = 0
+
+print(numerator / denominator)
+```
+
+Here's the output of trying to divide by 0:
+
+```text
+Traceback (most recent call last):
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 4, in <module>
+    print(numerator / denominator)
+ZeroDivisionError: division by zero
+```
+
+Here's another example:
+
+```python
+bad_number = "Darren"
+good_number = 10
+
+print(bad_number + good_number)
+```
+
+And here's the output of trying to handle a string as if it were a number:
+
+```text
+Traceback (most recent call last):
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 4, in <module>     
+    print(bad_number + good_number)
+TypeError: can only concatenate str (not "int") to str
+```
+
 ### How to Handle
 
-We use the **try-except block**, which is a construct that appears in many programming languages. (E.g. in Java, it's called _try-catch_).
+To explicitly handle exceptions, We use the **try-except block**, which is a construct that appears in many programming languages. (E.g. in Java, it's called _try-catch_).
 
 The general structure is:
 
@@ -528,6 +567,8 @@ You can see that the output is much less messy.
 - The second list results in a `ValueError`, which is caught.  The code then prints the error message in a friendly way.
 
 ### Exception Payloads
+
+The exception object contains information that describes the exception.  This is called the exception payload.  
 
 ### Defining Your Own Exceptions
 
