@@ -7,6 +7,8 @@ tags:
     link: https://realpython.com/python-exceptions/
   - name: Exception hierarchy
     link: https://docs.python.org/3/library/exceptions.html#exception-hierarchy
+  - name: Classes
+    link: /python/exceptions
   - name: Assertions
     link: /python/assertion
 ---
@@ -587,6 +589,88 @@ You can see that the output is much less messy.
 - The second list results in a `ValueError`, which is caught.  The code then prints the error message in a friendly way.
 
 ### Defining Your Own Exceptions
+
+In most cases, it is not necessary to implement your own exception types.  But there are times when it can be useful to create user-defined exceptions.  For example, when we want our own exception to hide obscure implementation details.
+
+To make your own exception type, simply `extend Exception`.
+
+Time for an example. Let's create a function that determines inclination based on two values: horizontal distance, and vertical distance.  I.e. the angle relative to the horizontal.
+
+Remember _SOH CAH TOA_ from school?  Here, we're getting the angle using the tangent of opposite over adjacent.
+
+<img src="{{'/assets/images/sohcahtoa.png' | relative_url }}" alt="SOHCAHTOA" width="740" />
+
+```python
+import math
+
+def inclination(dx, dy):
+    """ Get the angle of an incline, given horizontal distance dx 
+    and vertical distance, dy. """
+    
+    return round(math.degrees(math.atan(dy/dx)), 1)
+
+def test():
+    print("Inclination:", inclination(3, 5))
+    print("Inclination: ", inclination(0, 5))
+ 
+if __name__ == "__main__":
+    test()
+```
+
+This is what happens when we run it:
+
+```text
+Inclination: 59.0
+Traceback (most recent call last):
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 14, in <module>    
+    test()
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 11, in test        
+    print("Inclination: ", inclination(0, 5))
+  File "c:\Users\djl\localdev\Python\Advent-of-Code\src\snippets\snippet.py", line 7, in inclination  
+    return round(math.degrees(math.atan(dy/dx)), 1)
+ZeroDivisionError: division by zero
+```
+
+It's pretty obvious to us what has gone wrong here.  But it won't be obvious to someone using our function. We've got a messy stacktrace, and an zero division error.
+
+The first improvement we can make is to create a user-defined exception:
+
+```python
+import math
+
+class InclinationError(Exception):
+    """ User-defined exception with no implementation """
+    pass
+
+def inclination(dx, dy):
+    """ Get the angle of an incline, given horizontal distance dx 
+    and vertical distance, dy. """
+
+    try:
+        return round(math.degrees(math.atan(dy/dx)), 1)
+    except ZeroDivisionError as e:
+        # if dx is 0, let's convert to our custom InclinationError
+        raise InclinationError(f"Slope cannot be vertical") from e
+
+def test():
+    try:
+        print("Inclination:", inclination(3, 5))
+        print("Inclination: ", inclination(0, 5))
+    except InclinationError as err:
+        print(f"Error of type: {type(err).__name__} with message: {err}")
+ 
+if __name__ == "__main__":
+    test()
+```
+
+Let's run it again...
+
+```text
+Inclination: 59.0
+Error of type: InclinationError with message: Slope cannot be vertical
+```
+
+So much nicer!  And we didn't even have to write any exception code!  All we had to do was `extend` the `Exception` base class!  This is a simple and easy way to provide more meaningful errors in your code.
 
 ### Tracebacks
 
