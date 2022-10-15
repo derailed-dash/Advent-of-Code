@@ -17,15 +17,15 @@ tags:
 - [Overview](#overview)
 - [The Exception Handling Process](#the-exception-handling-process)
 - [An Unhandled Exception](#an-unhandled-exception)
-- [How to Handle](#how-to-handle)
+- [Why and How to Handle](#why-and-how-to-handle)
 - [Example: Input Validation](#example-input-validation)
 - [The Exception Hierarchy](#the-exception-hierarchy)
 - [What Exceptions to Catch?](#what-exceptions-to-catch)
 - [Some Common Exception Types](#some-common-exception-types)
 - [Example: Catching Different Exception Types](#example-catching-different-exception-types)
 - [Raising Exceptions Programmatically](#raising-exceptions-programmatically)
-- [Exception Payloads](#exception-payloads)
 - [Defining Your Own Exceptions](#defining-your-own-exceptions)
+- [Exception Payloads](#exception-payloads)
 - [Exception Chaining](#exception-chaining)
 - [Tracebacks](#tracebacks)
 - [Pattern: Exception to Break or Continue an Outer Loop](#pattern-exception-to-break-or-continue-an-outer-loop)
@@ -57,13 +57,14 @@ When an exception is _thrown_, there are basically two things we can do.
 
 ### An Unhandled Exception
 
-What happens if an exception is thrown and you don't handle it?
+What happens if an exception is thrown and you don't handle it?  Here's an example...
 
 ```python
 numerator = 10
 denominator = 0
 
 print(numerator / denominator)
+print("You won't see this.")
 ```
 
 Here's the output of trying to divide by 0:
@@ -75,6 +76,10 @@ Traceback (most recent call last):
 ZeroDivisionError: division by zero
 ```
 
+We can see that the program has terminated prematurely on the line where we try to divide a number by 0. The program never executes the last line. 
+
+A `ZeroDivisionError` was thrown.  And we see the `Traceback` - the context in which in the exception was generated.
+
 Here's another example:
 
 ```python
@@ -82,6 +87,7 @@ bad_number = "Darren"
 good_number = 10
 
 print(bad_number + good_number)
+print("You won't see this.")
 ```
 
 And here's the output of trying to handle a string as if it were a number:
@@ -93,7 +99,16 @@ Traceback (most recent call last):
 TypeError: can only concatenate str (not "int") to str
 ```
 
-### How to Handle
+Again, we can see that the program has terminated due to this exception being thrown.  This time we get an exception of type `TypeError`.  And once again, we see the `Traceback`.
+
+### Why and How to Handle
+
+There's a few reasons why we might want to _handle_ an exception:
+
+1. To prevent the program terminating with nothing more than a `stacktrace`.
+1. To handle a situation, but then allow the program to continue.
+1. To provide the user with information that is useful and appropriate.
+1. To hide stacktrace information that may be unhelpful, confusing, or reveal implementation details that may pose a security concern.
 
 To explicitly handle exceptions, We use the **try-except block**, which is a construct that appears in many programming languages. (E.g. in Java, it's called _try-catch_).
 
@@ -104,8 +119,10 @@ try:
   # normal execution flow
 except some_exception as some_err:
   # code to execute only if "some_exception" is caught.
+  # this might include some helpful messaging to the user
 except some_other_exception as some_err:
   # code to execute only if "some_other_exception" is caught
+  # this might include some helpful messaging to the user
 finally:
   # an optional block that we execute whether an exception is caught or not
 ```
@@ -132,6 +149,8 @@ while not ready_to_quit:
         try:
             num_entered = int(userEntered)
         except ValueError:
+            # Instead of the program terminating with a ValueError,
+            # we allow the program to continue looping and provide the user with a helpful message
             print("Not a number! Try again.")
         else:
             print("You entered", userEntered)
@@ -417,8 +436,7 @@ It is possible to raise an exception ourselves, programmatically. Here's an exam
 
 ```python
 """ Find the median of any iterable.
-Explicitly handle empty iterable use case by raising a ValueError,
-otherwise we'll see an IndexError raised by the implementation. """
+Program aborts with an IndexError if the supplied iterable is empty. """
 def median(iterable):
     items = sorted(iterable)
     
@@ -466,9 +484,11 @@ Traceback (most recent call last):
 IndexError: list index out of range
 ```
 
-We can see that when we supply the first list, our code has no trouble calculating the median.  But when we supply an empty list, an uncaught `IndexError` is thrown. This happens because when we try to reference `items[median_index]` in our `median()` function, the `items` list is empty, so the index tries to reference a value that doesn't exist.  Doh!  Furthermore, this error isn't very useful to anyone else running our code. It would be much more helpful if our code through a more useful exception in this scenario.
+We can see that when we supply the first list, our code has no trouble calculating the median.  But when we supply an empty list, an uncaught `IndexError` is thrown. This happens because when we try to reference `items[median_index]` in our `median()` function, the `items` list is empty, so the index tries to reference a value that doesn't exist.  Doh!  
 
-As an improvement, we can choose to throw an exception, if our function is given an empty list:
+Furthermore, this error isn't very useful to anyone else running our code. **It would be much more helpful if our code generated a more useful exception in this scenario.**
+
+As an improvement, we can choose to **throw an exception programmatically**, if our function is given an empty list:
 
 ```python
 """ Find the median of any iterable.
@@ -498,7 +518,7 @@ numbers = []
 test(numbers)
 ```
 
-The only difference was the addition of a test to see if the list was empty, and the explicit code to throw a more appropriate `ValueError`, if the list is indeed empty.
+The only difference was the addition of a test to see `if` the list was empty, and the explicit code to throw a more appropriate `ValueError`, if the list is indeed empty. A `ValueError` is a good choice for an exception we should throw, if the value received by a function is not appropriate.
 
 Now when we run it:
 
@@ -518,7 +538,7 @@ ValueError: median() arg was empty sequence
 
 This is a bit better. When we pass an empty list, the code now shows a more appropriate `ValueError`, and also has a message payload in the `Exception`, which is printed when the exception is thrown.
 
-Unfortunately, we still get a messy stack trace.  So one more improvement we can make it is to actually handle the `ValueError`, when it is thrown. I.e.
+Unfortunately, we still get a messy stacktrace.  So one more improvement we can make it is to actually _handle_ the `ValueError`, when it is thrown. I.e.
 
 ```python
 """ Find the median of any iterable.
@@ -566,11 +586,11 @@ You can see that the output is much less messy.
 - The first list works fine, as expected.
 - The second list results in a `ValueError`, which is caught.  The code then prints the error message in a friendly way.
 
+### Defining Your Own Exceptions
+
 ### Exception Payloads
 
-The exception object contains information that describes the exception.  This is called the exception payload.  
-
-### Defining Your Own Exceptions
+The exception object contains information that describes the exception. We can add useful data to the exception, e.g. to help us handle the exception, or to provide more useful context to the user.
 
 ### Exception Chaining
 
