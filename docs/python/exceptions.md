@@ -28,8 +28,6 @@ tags:
 - [Raising Exceptions Programmatically](#raising-exceptions-programmatically)
 - [Defining Your Own Exceptions](#defining-your-own-exceptions)
 - [Tracebacks](#tracebacks)
-- [Exception Payloads](#exception-payloads)
-- [Exception Chaining](#exception-chaining)
 - [Pattern: Exception to Break or Continue an Outer Loop](#pattern-exception-to-break-or-continue-an-outer-loop)
 - [Write Exceptions as JSON](#write-exceptions-as-json)
 - [EAFP](#eafp)
@@ -650,7 +648,7 @@ def inclination(dx, dy):
         return round(math.degrees(math.atan(dy/dx)), 1)
     except ZeroDivisionError as e:
         # if dx is 0, let's convert to our custom InclinationError
-        raise InclinationError(f"Slope cannot be vertical") from e
+        raise InclinationError("Slope cannot be vertical") from e
 
 def test():
     try:
@@ -672,9 +670,66 @@ Error of type: InclinationError with message: Slope cannot be vertical
 
 So much nicer!  And we didn't even have to write any exception code!  All we had to do was `extend` the `Exception` base class!  This is a simple and easy way to provide more meaningful errors in your code.
 
+But we can improve this a lot!  Firstly, it would be nice if our `InclinationError` knew about the parameters that had been used, so that we can report them in the error.  Secondly, it would be nice if the `InclinationError` formatted its own output, rather than having to use:
+
+```python
+    print(f"Error of type: {type(err).__name__} with message: {err}")
+```
+
+Well, this is all easy to do.  First:
+
+- We'll include the parameters to the `inclination()` method in our `InclinationError` constructor. Note that the first argument supplied to the constructor should always be a descriptive message for the error, as described in [PEP352](https://peps.python.org/pep-0352/){:target="_blank"}.
+- Secondly, we'll add a `__str__()` method to our `InclinationError`, in order to format the error message in a friendly way.
+
+Here's the updated code:
+
+```python
+import math
+ 
+class InclinationError(Exception):
+    """ User-defined exception that is raised when we can't determine the inclination.
+
+    Args:
+        msg - the error message to be included
+        other_args - any other args we want to pass to the exception
+    """
+       
+    def __str__(self) -> str:
+        """ A friendly error message that contains the message passed when this Exception was created
+        as well as any additional arguments """        
+        return f"InclinationError: {self.args[0]}. Args were: {self.args[1:]}"
+ 
+def inclination(dx, dy):
+    """ Get the angle of an incline, given horizontal distance dx 
+    and vertical distance, dy. """
+
+    try:
+        return round(math.degrees(math.atan(dy/dx)), 1)
+    except ZeroDivisionError as e:
+        # if dx is 0, let's convert to our custom InclinationError
+        raise InclinationError("Slope cannot be vertical", dx, dy) from e
+
+def test():
+    try:
+        print("Inclination:", inclination(3, 5))
+        print("Inclination: ", inclination(0, 5))
+    except InclinationError as err:
+        print(err)
+ 
+if __name__ == "__main__":
+    test()
+```
+
+Now when we run the code, the output looks like this:
+
+```text
+Inclination: 59.0
+InclinationError: Slope cannot be vertical. Args were: (0, 5)
+```
+
 ### Tracebacks
 
-Tracebacks are always printed when an unhandled exception is thrown, causing a program to terminate.
+Tracebacks are always printed when an _unhandled exception_ is thrown, causing a program to terminate.
 
 But we can also interrogate a traceback programmatically, i.e. when handling an exception.  This can be useful for diagnostics.  Since Python3, all exceptions include a `__traceback__` attribute, which includes a reference to the traceback object associated with that exception.  To interrogate the traceback object, we need to have imported the traceback module.
 Useful functions from the traceback module include:
@@ -682,102 +737,100 @@ Useful functions from the traceback module include:
 - `print_exc()` - prints the exception and stack trace
 - `format_exc()` - returns the exception and stack trace as a str
 
-Let's do an example.  First of all, some code that handles an exception, but does **not** show a stacktrace:
-
-```python
-import math
- 
-class InclinationError(Exception):
-    """ User-defined exception with no implementation """
-    pass
- 
-def inclination(dx, dy):
-    """ Get the angle of an incline, given dx and dy """
-    
-    try:
-        return round(math.degrees(math.atan(dy/dx)), 1)
-    except ZeroDivisionError as e:
-        # if dx is 0, let's convert to our custom InclinationError
-        raise InclinationError(f"Slope cannot be vertical; params {dx}, {dy}") from e
- 
-def test():
-    try:
-        print("Inclination:", inclination(3, 5))
-        print("Inclination: ", inclination(0, 5))
-    except InclinationError as err:
-        print(f"Error of type: {type(err).__name__} with message: {err}")
- 
-if __name__ == "__main__":
-    test()
-```
-
-The output:
+As an example, let's use the `InclinationError` from the previous example.  Recall that when we ran this code, the output was:
 
 ```text
 Inclination: 59.0
-Error of type: InclinationError with message: Slope cannot be vertical; params 0, 5
+InclinationError: Slope cannot be vertical. Args were: (0, 5)
 ```
 
-As expected, the second call to our function fails, since we've dividing by a horizontal distance of 0.
+But what if want the full stacktrace of our handled exception?  Easy... We can just add two lines:
 
-But if we want the full stacktrace to be included, we can do this:
+- The `import` statement
+- The `traceback.format_exc()` call.
+
+Here's the updated code:
 
 ```python
 import math
 import traceback
  
 class InclinationError(Exception):
-    """ User-defined exception with no implementation """
-    pass
+    """ User-defined exception that is raised when we can't determine the inclination.
+
+    Args:
+        msg - the error message to be included
+        other_args - any other args we want to pass to the exception
+    """
+       
+    def __str__(self) -> str:
+        """ A friendly error message that contains the message passed when this Exception was created
+        as well as any additional arguments """        
+        return f"InclinationError: {self.args[0]}. Args were: {self.args[1:]}"
  
 def inclination(dx, dy):
-    """ Get the angle of an incline, given dx and dy """
-    
+    """ Get the angle of an incline, given horizontal distance dx 
+    and vertical distance, dy. """
+
     try:
         return round(math.degrees(math.atan(dy/dx)), 1)
     except ZeroDivisionError as e:
         # if dx is 0, let's convert to our custom InclinationError
-        raise InclinationError(f"Slope cannot be vertical; params {dx}, {dy}") from e
- 
+        raise InclinationError("Slope cannot be vertical", dx, dy) from e
+
 def test():
     try:
         print("Inclination:", inclination(3, 5))
         print("Inclination: ", inclination(0, 5))
     except InclinationError as err:
-        print(f"Error of type: {type(err).__name__} with message: {err}")
-        print("Error details:", traceback.format_exc())
- 
+        print(err)
+        print("Error details:", traceback.format_exc())  # Show the full stacktrace
+
 if __name__ == "__main__":
     test()
 ```
 
-We've added a line to print the `traceback`. Now we get this output:
+And now the output looks like this:
 
 ```text
 Inclination: 59.0
-Error of type: InclinationError with message: Slope cannot be vertical; params 0, 5
+InclinationError: Slope cannot be vertical. Args were: (0, 5)
 Error details: Traceback (most recent call last):
-  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 12, in inclination
+  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 22, in inclination
     return round(math.degrees(math.atan(dy/dx)), 1)
 ZeroDivisionError: division by zero
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 20, in test
+  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 30, in test
     print("Inclination: ", inclination(0, 5))
-  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 15, in inclination
-    raise InclinationError(f"Slope cannot be vertical; params {dx}, {dy}") from e
-InclinationError: Slope cannot be vertical; params 0, 5
+  File "f:\Users\Darren\localdev\Python\Advent-of-Code\src\snippets\scratch.py", line 25, in inclination
+    raise InclinationError("Slope cannot be vertical", dx, dy) from e
+InclinationError: InclinationError: Slope cannot be vertical. Args were: (0, 5)
 ```
 
-The `traceback` shows us that the original exception was a `ZeroDivisionError`, which was caught and then resulted in an `InclinationError`.
+The `traceback` shows us that the original exception was a `ZeroDivisionError`, which was caught and then resulted in an `InclinationError`. 
 
-### Exception Payloads
+An interesting point to note is that the original exception was available as the _cause_ of the handled exception. This is possible because Python automatically links the _causing_ exception to the _caused_ exception, through a procss called _implicit chaining_.  You can always refer to the _cause_ Exception explicitly, by using the `__context__` attribute of the handled exception. So, for example, if we wanted to know the original exception, but we didn't want to print the full stack trace, we could change our final `try-except` block to look like this:
 
-The exception object contains information that describes the exception. We can add useful data to the exception, e.g. to help us handle the exception, or to provide more useful context to the user.
+```python
+def test():
+    try:
+        print("Inclination:", inclination(3, 5))
+        print("Inclination: ", inclination(0, 5))
+    except InclinationError as err:
+        print(err)
+        print("The cause was:", err.__context__) 
+```
 
-### Exception Chaining
+And now the output of running our program looks like this:
+
+```text
+Inclination: 59.0
+InclinationError: Slope cannot be vertical. Args were: (0, 5)
+The cause was: division by zero
+```
 
 ### Pattern: Exception to Break or Continue an Outer Loop
 
