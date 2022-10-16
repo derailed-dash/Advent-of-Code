@@ -688,15 +688,13 @@ import math
  
 class InclinationError(Exception):
     """ User-defined exception that is raised when we can't determine the inclination.
-
     Args:
         msg - the error message to be included
         other_args - any other args we want to pass to the exception
     """
        
     def __str__(self) -> str:
-        """ A friendly error message that contains the message passed when this Exception was created
-        as well as any additional arguments """        
+        """ A friendly error message that includes any args """   
         return f"InclinationError: {self.args[0]}. Args were: {self.args[1:]}"
  
 def inclination(dx, dy):
@@ -757,15 +755,13 @@ import traceback
  
 class InclinationError(Exception):
     """ User-defined exception that is raised when we can't determine the inclination.
-
     Args:
         msg - the error message to be included
         other_args - any other args we want to pass to the exception
     """
        
     def __str__(self) -> str:
-        """ A friendly error message that contains the message passed when this Exception was created
-        as well as any additional arguments """        
+        """ A friendly error message that includes any args """        
         return f"InclinationError: {self.args[0]}. Args were: {self.args[1:]}"
  
 def inclination(dx, dy):
