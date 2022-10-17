@@ -9,6 +9,8 @@ tags:
     link: https://docs.python.org/3/library/exceptions.html#exception-hierarchy
   - name: Classes
     link: /python/exceptions
+  - name: EAFP
+    link: https://realpython.com/python-lbyl-vs-eafp
   - name: Assertions
     link: /python/assertion
 ---
@@ -830,6 +832,129 @@ The cause was: division by zero
 
 ### Pattern: Exception to Break or Continue an Outer Loop
 
+Sometimes we want to exit an outer loop based on something happening in an inner loop. Many languages provide a syntax for doing this, but Python does not.
+
+Fear not, for here I describe a way to break out of an outer loop using exceptions!
+
+```python
+good_things = []
+
+for thing in things:
+    try:
+        for subthing in thing:
+            if is_good(subthing):
+                good_things.append(thing)
+                raise StopIteration()
+    except StopIteration:
+        # Continue the outer loop
+        continue
+```
+
+In our snippet, when a particular condition is met, we raise a `StopIteration()` exception to cause the outer loop to continue to `continue`. Alternatively, we could use this approach to `break` the outer loop.
+
 ### Write Exceptions as JSON
 
+Here's some code that can be used to write an exception as JSON.
+
+```python
+import traceback
+import json
+import os
+ 
+SCRIPT_DIR = os.path.dirname(__file__)  # path where this file lives
+MY_APP = "dump_errs"
+
+def report(ex):
+    """ Convert the exception to a dict """
+    data = {}
+    data['message'] = f"{ex}"
+    data['serviceContext'] = {'service': MY_APP}
+    
+    return data
+
+def dump_report(errors_report):
+    """ Export this dict as a json file """
+    file_name = os.path.join(SCRIPT_DIR, "exceptionsTest.json")
+    with open(file_name, "a") as f:
+        json.dump(errors_report, f)
+             
+def simulate_error():
+    errors_report = {}  # store all errors in a dict
+    error_counter = 0   # increment each time we catch an exception
+   
+    try:
+        undefined_method()
+    except Exception as e:
+        error_counter += 1
+        print("Exception was: ", e)    # just get the exception heading
+        print(traceback.format_exc())   # print traceback from here
+        errors_report[error_counter] = report(traceback.format_exc())
+ 
+    try:
+        x = a/2
+    except Exception as e:
+        error_counter += 1
+        print("Exception was: ", e)    # just get the exception heading
+        print(traceback.format_exc())   # print traceback from here
+        errors_report[error_counter] = report(traceback.format_exc())
+ 
+    try:
+        x = 2/0
+    except Exception as e:
+        error_counter += 1
+        print("Exception was: ", e)    # just get the exception heading
+        print(traceback.format_exc())   # print traceback from here
+        errors_report[error_counter] = report(traceback.format_exc())
+ 
+    try:
+        import non_existent_library
+    except Exception as e:
+        error_counter += 1
+        print("Exception was: ", e)    # just get the exception heading
+        print(traceback.format_exc())   # print traceback from here
+        errors_report[error_counter] = report(traceback.format_exc())
+    
+    dump_report(errors_report)
+ 
+if __name__ == '__main__':
+    simulate_error()
+```
+
+The code generates a bunch of exceptions, and catches them all. For each exception caught, we call the `report()` function against the exception's stacktrace, to store the error and its stacktrace as a dictionary.  Finally, we call `dump_report()` to dump our dictionary of dictionaries as a JSON file.
+
+The output file looks like this:
+
+```json
+{
+    "1": {
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\djl\\localdev\\Python\\Advent-of-Code\\src\\snippets\\snippet.py\", line 27, in simulate_error\n    undefined_method()\nNameError: name 'undefined_method' is not defined\n",
+        "serviceContext": {
+            "service": "dump_errs"
+        }
+    },
+    "2": {
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\djl\\localdev\\Python\\Advent-of-Code\\src\\snippets\\snippet.py\", line 35, in simulate_error\n    x = a/2\nNameError: name 'a' is not defined\n",
+        "serviceContext": {
+            "service": "dump_errs"
+        }
+    },
+    "3": {
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\djl\\localdev\\Python\\Advent-of-Code\\src\\snippets\\snippet.py\", line 43, in simulate_error\n    x = 2/0\nZeroDivisionError: division by zero\n",
+        "serviceContext": {
+            "service": "dump_errs"
+        }
+    },
+    "4": {
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\djl\\localdev\\Python\\Advent-of-Code\\src\\snippets\\snippet.py\", line 51, in simulate_error\n    import non_existent_library\nModuleNotFoundError: No module named 'non_existent_library'\n",
+        "serviceContext": {
+            "service": "dump_errs"
+        }
+    }
+}
+```
+
 ### EAFP
+
+**Easier to Ask Forgiveness Than Permission** is a Python philosophy. (It contrasts from the _Look Before You Leap_ strategy.) EAFP advocates not validating all possible conditions before executing code, but rather: catching exceptions when they occur. The rationale is that the developer does not expend significant effort in trying to prevent every error condition that may occur. But instead, simply handle errors when they do. Thus, this strategy favours happy path coding, but explicitly handles errors.
+
+For example, when opening a file: rather than checking if the file exists and is of the right type, instead, simply catch an OSError if it occurs.
