@@ -13,6 +13,7 @@ tags:
 ### Page Contents
 
 - [Overview](#overview)
+- [Fibonacci Example](#fibonacci-example)
 
 ### Overview
 
@@ -54,6 +55,14 @@ Note how the output is actually just a single tuple, containing our two values.
 
 ### Fibonacci Example
 
+The Fibonacci sequence is an infinite sequence where each value is the sum of the previous two values.
+
+```
+1, 1, 2, 3, 5, 8, 13, 21, etc
+```
+
+Here I implement a function that generates the sequence with n iterations.
+
 ```python
 def fib(n):
     """ Generate the Fibonacci Sequence for n iterations """
@@ -61,15 +70,12 @@ def fib(n):
     if (n==0):
         return ret_val
 
-    current_loop = 0
-
     a = 0
     b = 1
 
-    while (current_loop <= n):
-        ret_val.append(f"Iteration {current_loop}: value={str(b)}")
+    for iteration in range(n):
+        ret_val.append(f"Iteration {iteration}: value={str(b)}")
         a, b = b, a+b
-        current_loop += 1
 
     return ret_val
 
@@ -82,3 +88,25 @@ try:
 except ValueError:
     print("You didn't enter a number, you muppet.")
 ```
+
+Some points to note:
+
+- _In place swapping is cool!_
+
+Instead of this:
+
+```python
+temp = a
+a = b
+b = a + temp
+```
+
+We can write this:
+
+```python
+a, b = b, a+b
+```
+
+- To handle bad input, I'm using exceptions.  Check out my page on this, [here](/python/exceptions).
+- I'm using `range(n)` in combination with a `for` loop so that we can iterate over the loop `n` times.
+
