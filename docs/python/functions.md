@@ -91,7 +91,7 @@ except ValueError:
 
 Some points to note:
 
-- _In place swapping is cool!_
+_In place swapping is cool!_
 
 Instead of this:
 

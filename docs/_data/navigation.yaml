@@ -16,6 +16,8 @@ pages:
     link: /python/timing
   - name: Opening and Reading Files
     link: /python/reading_files
+  - name: Functions
+    link: /python/functions
   - name: My AoC Template
     link: /python/my-aoc-template
   - name: Packages and Environments
