@@ -1,5 +1,9 @@
 ---
 title: Lambda, Map, Filter, and Reduce
+
+main_img:
+  name: perms-and-combos
+  link: /assets/images/map_filter_reduce.jpg
 ---
 
 - [lambda](#lambda)

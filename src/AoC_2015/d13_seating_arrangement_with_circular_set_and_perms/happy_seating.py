@@ -31,7 +31,6 @@ Part 2:
     Add me to the set.
     Repeat Part 1.
 """
-from __future__ import absolute_import
 import os
 import time
 import re
@@ -41,10 +40,9 @@ from operator import itemgetter
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+# INPUT_FILE = "input/sample_input.txt"
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
@@ -92,7 +90,7 @@ def main():
             happiness_for_seating[tuple(perm)] = compute_happiness_for_seating(perm, happiness_by_person)
     
     optimum_happiness_seating = max(happiness_for_seating.items(), key=itemgetter(1))[0]
-    print("\nPart 1")
+    print("\nPart 2")
     print(f"Optimum happiness = {happiness_for_seating[optimum_happiness_seating]} with seating: {optimum_happiness_seating}")
 
 def add_me_to_happiness_by_person(happiness_by_person: dict, people):
