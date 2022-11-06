@@ -112,7 +112,17 @@ def compute_happiness_for_seating(seating_arrangement, happiness_by_person):
 
     return happiness
 
-def get_happiness_by_person(data) -> dict:
+def get_happiness_by_person(data) -> dict[str, dict[str, int]]:
+    """ Here we build an adjacency list.
+    We will map each person to every other person.
+    Since this is a directed graph, we'll use a defaultdict(dict).
+
+    Args:
+        data (list): A list of happiness statements
+
+    Returns:
+        dict: dict[person_x][person_y: happiness]
+    """
     # Alice would gain 54 happiness units by sitting next to Bob.
     happiness = defaultdict(dict)
     happiness_pattern = re.compile(r"^(\w+) would (\w+) (\d+) happiness units by sitting next to (\w+)")
@@ -127,7 +137,6 @@ def get_happiness_by_person(data) -> dict:
         happiness[person_1][person_2] = value
 
     return happiness
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
