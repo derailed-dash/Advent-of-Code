@@ -7,10 +7,14 @@ main_img:
 tags: 
   - name: Itertools
     link: https://docs.python.org/3/library/itertools.html
+  - name: Itertools (GeeksForGeeks)
+    link: https://www.geeksforgeeks.org/python-itertools/
   - name: Permutations and Combinations
     link: https://www.geeksforgeeks.org/permutation-and-combination-in-python/
   - name: Permutations with Examples
     link: https://www.pythonpool.com/python-permutations/
+  - name: Permutations in Python
+    link: https://medium.com/geekculture/permutations-in-python-431cd0c75253
 ---
 <script id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
@@ -24,19 +28,32 @@ tags:
 
 ## Overview of Permutations and Combinations
 
-||Permutations|Combinations|
-|-|------------|------------|
-|What is it?|The number of ways to arrange items|The number of ways to choose items|
-|Ordering   |Important|Irrelevant|
-|Number of sequences of length r from data of length n|\\(^nP_r = \frac{n!}{(n-r)!}\\)|\\(^nC_r = \frac{n!}{r!(n-r)!}\\)|
-|Number of sequences of length 4 from digits 1,2,3,4|\\(^nP_r = \frac{4!}{(4-4)!} = 24\\)|\\(^nC_r = \frac{4!}{4!.(4-4)!} = 1\\)|
-|Number of sequences of length 3 from digits 1,2,3,4|\\(^nP_r = \frac{4!}{(4-3)!} = 24\\)|\\(^nC_r = \frac{4!}{3!.(4-3)!} = 4\\)|
-|Sequences of length 3 from digits 1,2,3,4|123, 124, 132, 134, 142, 143, 213, 214, 231, 234, 241, 243, 312, 314, 321, 324, 341, 342, 412, 413, 421, 423, 431, 432|123, 124, 134, 234|
+<table class="dazbo-table" style="width: 800px">
+    <tr>
+      <th style="width:200px"></th>
+      <th style="width:320px">Permutations</th>
+      <th style="width:280px">Combinations</th>
+    </tr>
+    <tr><td style="font-style: italic">What is it?</td><td>The number of ways to arrange items</td><td>The number of ways to choose items</td></tr>
+    <tr><td style="font-style: italic">Ordering</td><td>Important</td><td>Irrelevant</td></tr>
+    <tr><td style="font-style: italic">r items from n items</td><td>\(^nP_r = \frac{n!}{(n-r)!}\)</td><td>\(^nC_r = \frac{n!}{r!(n-r)!}\)</td></tr>
+    <tr style="background: #ddffdd;"><td style="font-style: italic">All 4 items from digits 1,2,3,4</td><td>\(^{4}P_4 = \frac{4!}{(4-4)!} = 4! = 24\)</td><td>\(^{4}C_4 = \frac{4!}{4!.(4-4)!} = 1\)</td></tr>
+    <tr style="background: #ddffdd;"><td style="font-style: italic">All 4 items from digits 1,2,3,4</td><td>1234, 1243, 1324, 1342, 1423, 1432, 2134, 2143, 2314, 2341, 2413, 2431, 3124, 3142, 3214, 3241, 3412, 3421, 4123, 4132, 4213, 4231, 4312, 4321</td><td>1234</td></tr>
+    <tr style="background: #dddddd;"><td style="font-style: italic">3 items from digits 1,2,3,4</td><td>\(^{4}P_3 = \frac{4!}{(4-3)!} = 24\)</td><td>\(^{4}C_3 = \frac{4!}{3!.(4-3)!} = 4\)</td></tr>
+    <tr style="background: #dddddd;"><td style="font-style: italic">3 items from digits 1,2,3,4</td><td>123, 124, 132, 134, 142, 143, 213, 214, 231, 234, 241, 243, 312, 314, 321, 324, 341, 342, 412, 413, 421, 423, 431, 432</td><td>123, 124, 134, 234</td></tr>
+    <tr style="background: #fff2e6"><td style="font-style: italic">4 items from digits 0-9</td><td>\(^{10}P_4 = \frac{10!}{(10-4)!} = 5040\)</td><td>\(^{10}C_4 = \frac{10!}{4!.(10-4)!} = 210\)</td></tr>
+</table>
 
-- **Permutations** return unique permutations of items, including their sequence. `123` is different to `321`.
+- **Permutations** 
+  - A unique arrangement of a group of things.
+  - Returns unique permutations of items, including their sequence. So, given teh numbers `123`, `123` is a different permutation to `321`.
 - **Combinations** return unique combinations of items, ignoring sequence. It is about _members_, not _order_. `123` and `321` are _the same_.
 
+The number of permutations will be greater than the number of combinations.
+
 ## Demonstrating With Code
+
+The `itertools` package provides both the `permutations()` and `combinations()` functions.
 
 ```python
 from itertools import permutations, combinations
@@ -152,5 +169,11 @@ All unique combinations from two dice, including throwing same on both dice:
 Count of combos=21
 ```
 
+- There are 36 different outcomes from rolling two dice.  These outcomes can be determined using `itertools.product(die, repeat=n)` where `n` is the number of dice. This retuns the _cartesian product_ of our two dice.
+- We can use `itertools.permutations(die, n)` to get all unique permutations of the two die rolls.
   - The results `(1,6)` and `(6,1)` are considered two different permutations.
-  - With two dice, there are 30 unique permutations. I.e. every unique (ordered) pair, except (1,1), (2,2), (3,3), etc.
+  - Note that we only get 30 permutations.  This is because _permutations_ do not allow repeating numbers. E.g. it disallows `(1,1)`, `(2,2)`, etc. 
+  - It is possible to determine _permutations with repeats_.  This is in fact equivalent to the _cartesian product_.
+- If we ignore order, then `(1,2)` and `(2,1)` are the same. We use `itertools.combinations(die, n)` to determine all these combinations.
+  - By default, repeating numbers are excluded. E.g. `(1,1)`, `(2,2)`, etc.
+  - We can allow repeated numbers by using the method `combinations_with_replacement(die, 2)`. This this method gives more combinations.
