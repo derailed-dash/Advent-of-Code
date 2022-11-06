@@ -1,5 +1,9 @@
 ---
 title: Working with Binary and Other Bases
+
+main_img:
+  name: binary
+  link: /assets/images/binary.jpg
 tags: 
   - name: binary and hexadecimal
     link: https://www.mathsisfun.com/binary-decimal-hexadecimal.html

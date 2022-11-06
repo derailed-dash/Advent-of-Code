@@ -1,5 +1,8 @@
 ---
 title: Functions
+main_img:
+  name: regex
+  link: /assets/images/functions.png
 tags: 
   - name: Functions
     link: https://www.programiz.com/python-programming/function

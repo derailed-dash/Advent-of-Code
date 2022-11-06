@@ -1,5 +1,8 @@
 ---
 title: Regular Expressions
+main_img:
+  name: regex
+  link: /assets/images/regex.jpg
 tags: 
   - name: Regular Expression HOWTO
     link: https://docs.python.org/3/howto/regex.html

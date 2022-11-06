@@ -1,5 +1,9 @@
 ---
 title: Sets
+
+main_img:
+  name: binary
+  link: /assets/images/sets.png
 tags: 
   - name: Python Sets
     link: https://www.tutorialspoint.com/python_data_structure/python_sets.htm
