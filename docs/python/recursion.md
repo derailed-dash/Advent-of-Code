@@ -21,6 +21,7 @@ tags:
   - [Countdown](#countdown)
   - [Factorial](#factorial)
   - [Counting Leaf Items in a Nested List](#counting-leaf-items-in-a-nested-list)
+  - [Fibonacci](#fibonacci)
 
 ## Introduction
 
@@ -177,3 +178,45 @@ Output:
 [2, [3, 5], [[10, 20], 30]]
 6
 ```
+
+### Fibonacci
+
+The Fibonacci sequence is an infinite sequence that generates the next number by adding the two preceding numbers.
+
+`1, 1, 2, 3, 5, 8, 13, 21...`
+
+I.e. to determine the `nth` value in the sequence:
+
+\\(f(n) = f(n-2) + f(n-1)\\)
+
+The base case is where `n` is `1`, which returns a value of `1`.
+
+```python
+def fib(num: int) -> int:
+    """ Recursive function to determine nth value of Fibonacci sequence.
+    I.e. 1, 1, 2, 3, 5, 8, 13, 21...
+    fib(n) = fib(n-2) + fib(n-1)
+
+    Args:
+        num (int): value of n, i.e. to determine nth value
+
+    Returns:
+        int: The nth value of the Fibonacci sequence
+    """
+    if num > 2:
+        return fib(num-2) + fib(num-1)
+    else:
+        return 1
+
+while True:
+    try:
+        input_val = input("Enter the value of n, or q to quit: ")
+        if input_val.upper() == "Q":
+            break
+        
+        print(fib(int(input_val)))
+    except ValueError as err:
+        print("Invalid input")
+```
+
+Note: this isn't a particularly efficient function. It doesn't scale well!
