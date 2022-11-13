@@ -128,7 +128,7 @@ def get_happiness_by_person(data) -> dict[str, dict[str, int]]:
     happiness_pattern = re.compile(r"^(\w+) would (\w+) (\d+) happiness units by sitting next to (\w+)")
     
     for line in data:
-        person_1, gain_or_lose, value, person_2 = happiness_pattern.match(line).groups()
+        person_1, gain_or_lose, value, person_2 = happiness_pattern.findall(line)[0]
         if gain_or_lose == "gain":
             value = int(value)
         else:

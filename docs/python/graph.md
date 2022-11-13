@@ -32,10 +32,10 @@ We can summarise like this:
 
 |Graph Type|Description|E.g.|
 |----------|-----------|----|
-|_Undirected_|An associated set of unordered nodes.|![Undirected unweighted](/assets/images/undirected_unweighted.png)|
-|_Directed_|An associated set of ordered nodes. It is the direction of the edges (arrows) that dictates order.|![Directed unweighted](/assets/images/directed_unweighted.png)|
-|_Unweighted_|The edges have no magnitude. I.e. edges simply join nodes, but edge weight is unimportant.|(Both of the above.)
-|_Weighted_|The edges have magnitude, and this magnitude is important.  E.g. the weight could represent distance, or cost.|![Undirected weighted](/assets/images/undirected_weighted.png)|
+|_Unweighted Undirected ("graph")_|An associated set of unordered nodes.|![Undirected unweighted](/assets/images/undirected_unweighted.png)|
+|_Unweighted Directed ("digraph")_|An associated set of ordered nodes. It is the direction of the edges (arrows) that dictates order.|![Directed unweighted](/assets/images/directed_unweighted.png)|
+|_Weighted Undirected ("weighted graph")_|The edges have magnitude, and this magnitude is important.  E.g. the weight could represent distance, or cost.|![Undirected weighted](/assets/images/undirected_weighted.png)|
+|_Weighted Directed ("weighted digraph")_|The edges have both magnitude and direction.  It is possible for A -> B to have a different magnitude from B -> A.|![Directed weighted](/assets/images/directed_weighted.png){:width="300"}|
 
 It's worth noting that undirected graphs can be either unweighted and weighted; and directed graphs can be either unweighted or weightd.
 
@@ -102,3 +102,8 @@ Output:
 5: {1, 2, 4}
 6: {4}
 ```
+
+Note:
+
+- When we have an unweighted graph and we only one to store which nodes are adjacent to another node, we can use a dict where the key is the node, and the values are the set of adjacent nodes.
+- Where we have a weighted graph and we're also interested in the magnitude of the edges, we can use a nested dictionary, where the outer key is the node, and the outer value is the inner dictionary.  The inner dict uses adjacent nodes for keys, and edge manitudes for values. 
