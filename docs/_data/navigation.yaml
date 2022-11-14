@@ -50,6 +50,8 @@ pages:
     link: /python/graph
   - name: Creating and Visualising Graphs with NetworkX
     link: /python/networkx
+  - name: Defaultdict
+    link: /python/defaultdict
   - name: Recursion
     link: /python/recursion
   - name: Exceptions
