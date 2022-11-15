@@ -40,8 +40,8 @@ pages:
     link: /python/images
   - name: Enumerate
     link: /python/enumerate
-  - name: Lambda, Map, Filter, and Reduce
-    link: /python/lambda-map-filter-reduce
+  - name: ambda, Map, Filter, and Reduce
+    link: /python/map-filter-reduce
   - name: Working with Binary and Other Bases
     link: /python/binary
   - name: Visualisations and Plots with Matplotlib

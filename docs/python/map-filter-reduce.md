@@ -1,12 +1,14 @@
 ---
-title: Lambda, Map, Filter, and Reduce
+title: Map, Filter, and Reduce
 
 main_img:
   name: perms-and-combos
   link: /assets/images/map_filter_reduce.jpg
+tags: 
+  - name: Lambda Functions
+    link: /python/functions#lambda-functions  
 ---
 
-- [lambda](#lambda)
 - [map](#map)
   - [Example: Converting from Str to Int](#example-converting-from-str-to-int)
   - [Example: Getting Word Lengths](#example-getting-word-lengths)
@@ -14,23 +16,6 @@ main_img:
   - [Example: Filtering Based on Word Length](#example-filtering-based-on-word-length)
 - [reduce](#reduce)
   - [Example: Using Reduce() to Implement a Factorial Function](#example-using-reduce-to-implement-a-factorial-function)
-
-## lambda
-
-A lambda function is a small _anonymous_ function that can only contain a single statement, and which can be used in place of a named function.
-
-Whereas a _named_ function is defined using the `def` keyword, a lambda function is an expression that evaluates to a function object.
-
-A quick example:
-
-```python
-# A named function
-def add(x,y):
-	return x + y
-
-# A lambda function that achieves the same thing
-lambda x, y: x + y
-```
 
 ## map
 

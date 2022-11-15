@@ -10,6 +10,10 @@ tags:
     link: https://www.geeksforgeeks.org/python-docstrings/
   - name: Exceptions
     link: /python/exceptions
+  - name: Lambda Functions
+    link: https://realpython.com/python-lambda/
+  - name: Map, Filter, Reduce
+    link: /python/map-filter-reduce
 ---
 ## Functions
 
@@ -17,6 +21,7 @@ tags:
 
 - [Overview](#overview)
 - [Fibonacci Example](#fibonacci-example)
+- [Lambda Functions](#lambda-functions)
 
 ### Overview
 
@@ -113,3 +118,66 @@ a, b = b, a+b
 - To handle bad input, I'm using exceptions.  Check out my page on this, [here](/python/exceptions).
 - I'm using `range(n)` in combination with a `for` loop so that we can iterate over the loop `n` times.
 
+### Lambda Functions
+
+A lambda function is a small _anonymous_ function that contains only a single expression. When we say _"anonymous"_, we mean that the function is not explicitly defined using `def`.  Instead, it is simply defined as an expression, at the point it is required.
+
+A lambda function can have zero, one or many arguments.  But it can only perform a single statement, and this statement must be an expression that evaluates to a result.
+
+Clear as mud?
+
+This will help:
+
+```python
+# Here we define a function explicitly, using the def keyword
+def add(x,y):
+	return x + y
+
+# But this lambda function is equivalent.
+# The accepted arguments are always placed before the colon.
+# The expression that returns is written after the colon.
+lambda x, y: x + y
+```
+
+Let's try using a lambda function to do something useful.
+
+Imagine we have a list of names, where each name is given in the format "firstname lastname". We want to sort the list based on the _lastname_.
+
+We can do this with a lambda:
+
+```python
+people = [
+    "Bob Pleb",
+    "Duncan Idaho",
+    "Fred Planck",
+    "Oliver Smith",
+    "Russ Martin",
+    "Zoltan Adler"]
+
+# sort using lambda that splits each name and returns the last name
+sorted_people = sorted(people, key=lambda name: name.split()[-1])
+print("\n".join(sorted_people))
+```
+
+Our lambda function is simply this:
+
+```python
+lambda name: name.split()[-1]
+```
+
+It expects a single parameter, called name. It splits this name, and then returns the last word from the split.  Hence, if `name` is `"firstname lastname"`, then the result of `name.split()[-1]` will be `"lastname"`.
+
+We pass this lambda function into our `sorted()` function, which then applies the lambda function to every member of this list.
+
+Thus, the output is sorted in alphabetically last name order, as required:
+
+```text
+Zoltan Adler
+Duncan Idaho
+Russ Martin
+Fred Planck
+Bob Pleb
+Oliver Smith
+```
+
+Consequently, lambda functions are extremely useful as parameters to any functions that work on collections, such as `min`, `max`, `sorted`, `map`, `filter`, and `reduce`.

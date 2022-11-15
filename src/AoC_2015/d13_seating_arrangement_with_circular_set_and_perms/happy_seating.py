@@ -47,6 +47,7 @@ def main():
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
 
+    print("Part 1")
     # build up a dict of hapiness scores for each person
     happiness_by_person = get_happiness_by_person(data)
 
@@ -59,46 +60,51 @@ def main():
 
     # get all permutations for remaining people around the table, as list of tuples
     # We expect n! perms
-    perms = list(permutations(people))
+    happiness_for_perm, optimum_happiness_perm = find_optimum_happiness(happiness_by_person, person_1, people)
+    print(f"Optimum happiness = {happiness_for_perm[optimum_happiness_perm]} with seating: {optimum_happiness_perm}")
 
-    happiness_for_seating = {}
-    for perm in perms:
-        # this allows us to remove reverse permutations
-        if perm <= perm[::-1]:
-            perm = list(perm)
-            perm.insert(0, person_1)
-            happiness_for_seating[tuple(perm)] = compute_happiness_for_seating(perm, happiness_by_person)
-    
-    optimum_happiness_seating = max(happiness_for_seating.items(), key=itemgetter(1))[0]
-    print("Part 1")
-    print(f"Optimum happiness = {happiness_for_seating[optimum_happiness_seating]} with seating: {optimum_happiness_seating}")
-
-    # Part 2
+    print("\nPart 2")
     # Need to add person_1 back in, so that we can add values for Me sitting next to Person_1
     people.add(person_1)
     add_me_to_happiness_by_person(happiness_by_person, people)
     people.remove(person_1)
     people.add('Me')
 
+    happiness_for_perm, optimum_happiness_perm = find_optimum_happiness(happiness_by_person, person_1, people)
+    print(f"Optimum happiness = {happiness_for_perm[optimum_happiness_perm]} with seating: {optimum_happiness_perm}")
+
+def find_optimum_happiness(happiness_by_person, person_1, people):
+    """ Determine all permutations of seating.
+    Reduce number of perms by removing person_1.
+    Compute happiness score for each permutation.
+    Determine the permutation with the greatest happiness score.
+
+    Args:
+        happiness_by_person (dict): Happiness adjacency map
+        person_1 (str): Arbitrary head of the table
+        people (set): The people to seat around the table
+
+    Returns:
+        tuple: (score, optimum_seating_permutation)
+    """
     perms = list(permutations(people))
-    happiness_for_seating = {}
+    happiness_for_perm = {}
     for perm in perms:
         # this allows us to remove reverse permutations
         if perm <= perm[::-1]:
             perm = list(perm)
             perm.insert(0, person_1)
-            happiness_for_seating[tuple(perm)] = compute_happiness_for_seating(perm, happiness_by_person)
+            happiness_for_perm[tuple(perm)] = compute_happiness_for_perm(perm, happiness_by_person)
     
-    optimum_happiness_seating = max(happiness_for_seating.items(), key=itemgetter(1))[0]
-    print("\nPart 2")
-    print(f"Optimum happiness = {happiness_for_seating[optimum_happiness_seating]} with seating: {optimum_happiness_seating}")
+    optimum_happiness_perm = max(happiness_for_perm.items(), key=lambda x: x[1])[0]
+    return happiness_for_perm, optimum_happiness_perm
 
 def add_me_to_happiness_by_person(happiness_by_person: dict, people):
     for person in people:
         happiness_by_person[person]['Me'] = 0
         happiness_by_person['Me'][person] = 0
 
-def compute_happiness_for_seating(seating_arrangement, happiness_by_person):
+def compute_happiness_for_perm(seating_arrangement, happiness_by_person):
     happiness = 0
 
     for i, current_person in enumerate(seating_arrangement):
