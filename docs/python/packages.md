@@ -137,18 +137,21 @@ You need to **activate** the virtual environment, every time you want to use it.
 
 Once activated, any `pip` installs you perform will be done _within_ the virtual environment.
 
+E.g.
+
+`pip install numpy`
+
 Fortunately, if you're using VS Code, then VS Code will automatically detect your virtual environment the next time you open your project folder. From then onwards, it will automatically activate the virtual environment for you.
 
 ### Tips for Working with Virtual Environments
 
 Here are my general thoughts on how to work with virtual environments:
 
-- They are not portable. They are machine specific. They should be recreated on any given machine.
-- Don't put them under version control. Thus, exclude your virtual environment folder in your `.gitignore` file.
+- They are **not portable**. They are **machine specific**. They should be recreated on any given machine.
+- So don't put them under version control. Thus, exclude your virtual environment folder in your `.gitignore` file.
 - Don't keep your virtual environment folder in a synchronised folder.  E.g. don't put them in Google Drive!
-- Create a `requirements.txt` file that captures all your installed packages for a given project. Whenever you install / update / remove any packages from your virtual environment, refresh this file. To create / refresh your `requirements.txt`, just run this: \
+- Create a `requirements.txt` file that captures all your currently installed packages for a given project. And whenever you install / update / remove any packages from your virtual environment, refresh this file. To create / refresh your `requirements.txt`, just run this: \
 `py -m pip freeze > path/to/your/requirements.txt`
 - Your `requirements.txt` _should_ be under version control.
-- To install the same packages on a different machine, set up a virtual environment on the other machine, and then replicate the package configuration on that machine, as follows: \
+- To **install the same packages on a different machine** (i.e. to replicate your virtual environment on another machine), set up a virtual environment on the other machine, and then import the package configuration on that machine, as follows: \
 `py -m pip install -r path/to/your/requirements.txt`
-

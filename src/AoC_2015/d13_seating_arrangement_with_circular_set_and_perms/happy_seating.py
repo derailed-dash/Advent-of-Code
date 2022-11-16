@@ -36,7 +36,6 @@ import time
 import re
 from itertools import permutations
 from collections import defaultdict
-from operator import itemgetter
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -92,8 +91,8 @@ def find_optimum_happiness(happiness_by_person, person_1, people):
     for perm in perms:
         # this allows us to remove reverse permutations
         if perm <= perm[::-1]:
-            perm = list(perm)
-            perm.insert(0, person_1)
+            perm = list(perm)  # convert perm from tuple to list, to make it mutable
+            perm.insert(0, person_1) # such that we can insert the head of the table
             happiness_for_perm[tuple(perm)] = compute_happiness_for_perm(perm, happiness_by_person)
     
     optimum_happiness_perm = max(happiness_for_perm.items(), key=lambda x: x[1])[0]
