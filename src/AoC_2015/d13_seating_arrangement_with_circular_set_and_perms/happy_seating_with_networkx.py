@@ -101,11 +101,13 @@ def draw_graph(graph, arrangement):
     
     # Now we just want a graph made up of these edges
     edge_subgraph = nx.edge_subgraph(graph, edges=edges)
+    # TODO: Arrange the nodes in the seating order
     pos = nx.circular_layout(edge_subgraph)
     nx.draw_networkx(edge_subgraph, pos=pos, 
                      with_labels=True, 
                      node_color='blue')
     
+    # TODO: Get edge weights in both direction
     nx.draw_networkx_edge_labels(edge_subgraph, pos=pos, 
                                  edge_labels=nx.get_edge_attributes(edge_subgraph, HAPPINESS))
     
