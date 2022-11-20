@@ -33,6 +33,7 @@ Part 2:
 
     Repeat Part 1 with the new graph.
 """
+from collections.abc import Iterable
 from itertools import permutations
 from pathlib import Path
 import time
@@ -73,7 +74,7 @@ def main():
     if SHOW_GRAPH:
         draw_graph(graph, max_happiness[0])
 
-def get_seating_with_max_happiness(graph, people, person_a):
+def get_seating_with_max_happiness(graph, people, person_a) -> dict:
     happiness_for_perm = {}
     for perm in permutations(people): # E.g. for route ABC     
         # Use path_weight to get the total of all the edges that make up the route
@@ -93,7 +94,41 @@ def get_seating_with_max_happiness(graph, people, person_a):
     max_journey = max(happiness_for_perm.items(), key=lambda x: x[1])
     return max_journey
     
-def draw_graph(graph: nx.DiGraph, arrangement):
+def build_graph(data: list) -> nx.DiGraph:
+    """ 
+    Build graph of of all people, including happiness scores between each person.
+    """
+    graph = nx.DiGraph()
+    happiness_pattern = re.compile(r"^(\w+) would (\w+) (\d+) happiness units by sitting next to (\w+)")
+    
+    # Add each edge, in the form of a location pair
+    for line in data:
+        person_1, gain_or_lose, value, person_2 = happiness_pattern.findall(line)[0]
+        if gain_or_lose == "gain":
+            value = int(value)
+        else:
+            value = -(int(value))
+            
+        graph.add_edge(person_1, person_2, happiness=value)
+
+    return graph
+
+def add_me_to_happiness_by_person(graph: nx.DiGraph) -> nx.DiGraph:
+    """ Extend the graph by adding "Me", 
+    with happiness weight of 0 for all pairings that include Me.
+    """
+    people = list(graph.nodes()) # make a copy of the names
+    
+    for person in people:
+        graph.add_edge(person, "Me", happiness=0)
+        graph.add_edge("Me", person, happiness=0)
+        
+    return graph
+
+def draw_graph(graph: nx.DiGraph, arrangement: Iterable):
+    """ Takes the original graph and a seating arrangement, 
+    builds a new graph with the nodes in the correct arrangement order, and draws it.
+    """
     # Get the edges from only the adjacent people in our seating arrangement
     edges = list(nx.utils.pairwise(arrangement))
     
@@ -115,10 +150,11 @@ def draw_graph(graph: nx.DiGraph, arrangement):
 
     pos = nx.circular_layout(seating_graph) # arrange our nodes - in the right order - in a circle
    
-    nx.draw_networkx_nodes(seating_graph, pos, node_color="y") # nodes
-    nx.draw_networkx_labels(seating_graph, pos, font_family="sans-serif")  # node labels
+    # Nodes and node labels
+    nx.draw_networkx_nodes(seating_graph, pos, node_color="y")
+    nx.draw_networkx_labels(seating_graph, pos, font_family="sans-serif")
     
-    # edges - use arc3 to curve them, otherwise we end up with a double-arrowed line
+    # Edges - use arc3 to curve them, otherwise we end up with a double-arrowed line
     nx.draw_networkx_edges(seating_graph, pos, edgelist=edges, # forward edges
                            width=1, edge_color="r", connectionstyle='arc3, rad = 0.3', 
                            min_source_margin=15, min_target_margin=15)
@@ -126,8 +162,7 @@ def draw_graph(graph: nx.DiGraph, arrangement):
                            width=1, edge_color="b", connectionstyle='arc3, rad = 0.3', 
                            min_source_margin=15, min_target_margin=15)
     
-    # edge weight labels
-    # edge_labels = nx.get_edge_attributes(new_graph, HAPPINESS)
+    # Edge weight labels
     nx.draw_networkx_edge_labels(seating_graph, pos, edge_labels, 
                                  font_color="r", verticalalignment="top", horizontalalignment="left")
     nx.draw_networkx_edge_labels(seating_graph, pos, reverse_edge_labels, 
@@ -138,37 +173,6 @@ def draw_graph(graph: nx.DiGraph, arrangement):
     plt.tight_layout()
     plt.show()
     
-def build_graph(data: list) -> nx.Graph:
-    """ 
-    Build graph of of all people, including happiness scores between each person.
-    """
-    graph = nx.DiGraph()
-    happiness_pattern = re.compile(r"^(\w+) would (\w+) (\d+) happiness units by sitting next to (\w+)")
-    
-    # Add each edge, in the form of a location pair
-    for line in data:
-        person_1, gain_or_lose, value, person_2 = happiness_pattern.findall(line)[0]
-        if gain_or_lose == "gain":
-            value = int(value)
-        else:
-            value = -(int(value))
-            
-        graph.add_edge(person_1, person_2, happiness=value)
-
-    return graph
-
-def add_me_to_happiness_by_person(graph: nx.Graph) -> nx.Graph:
-    """ Extend the graph by adding "Me", 
-    with happiness weight of 0 for all pairings that include Me.
-    """
-    people = list(graph.nodes()) # make a copy of the names
-    
-    for person in people:
-        graph.add_edge(person, "Me", happiness=0)
-        graph.add_edge("Me", person, happiness=0)
-        
-    return graph
-        
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
