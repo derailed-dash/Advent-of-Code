@@ -93,23 +93,43 @@ def get_seating_with_max_happiness(graph, people, person_a):
     max_journey = max(happiness_for_perm.items(), key=lambda x: x[1])
     return max_journey
     
-def draw_graph(graph, arrangement):
+def draw_graph(graph: nx.DiGraph, arrangement):
     # Get the edges from only the adjacent people in our seating arrangement
     edges = list(nx.utils.pairwise(arrangement))
-    reverse_edges = [(b, a) for a, b in edges]
-    edges += reverse_edges
     
-    # Now we just want a graph made up of these edges
-    edge_subgraph = nx.edge_subgraph(graph, edges=edges)
-    # TODO: Arrange the nodes in the seating order
-    pos = nx.circular_layout(edge_subgraph)
-    nx.draw_networkx(edge_subgraph, pos=pos, 
-                     with_labels=True, 
-                     node_color='blue')
+    # Get dict of {(A, B): happiness} to use as edge labels
+    edge_labels = {(person_1, person_2): graph[person_1][person_2][HAPPINESS] 
+                        for (person_1, person_2) in edges}
     
-    # TODO: Get edge weights in both direction
-    nx.draw_networkx_edge_labels(edge_subgraph, pos=pos, 
-                                 edge_labels=nx.get_edge_attributes(edge_subgraph, HAPPINESS))
+    # Get dict of {(B, A): happiness}
+    reverse_edges = [(b, a) for a, b in edges] # to use edge labels
+    reverse_edge_labels = {(person_2, person_1): graph[person_2][person_1][HAPPINESS] 
+                        for (person_1, person_2) in edges}
+    
+    all_edges = edges + reverse_edges # a single list of all pairs, in both directions
+    
+    seating_graph = nx.DiGraph() # Create a new graph, to which we will add only relevant edges
+    for (person_1, person_2) in all_edges:
+        happiness_score = graph[person_1][person_2][HAPPINESS]
+        seating_graph.add_edge(person_1, person_2, happiness=happiness_score)
+
+    pos = nx.circular_layout(seating_graph) # arrange our nodes - in the right order - in a circle
+   
+    nx.draw_networkx_nodes(seating_graph, pos, node_color="y") # nodes
+    nx.draw_networkx_labels(seating_graph, pos, font_family="sans-serif")  # node labels
+    
+    # edges
+    nx.draw_networkx_edges(seating_graph, pos, edgelist=edges, 
+                           width=1, edge_color="r", connectionstyle='arc3, rad = 0.3', min_source_margin=15, min_target_margin=15)
+    nx.draw_networkx_edges(seating_graph, pos, edgelist=reverse_edges, 
+                           width=1, edge_color="b", connectionstyle='arc3, rad = 0.3', min_source_margin=15, min_target_margin=15)
+    
+    # edge weight labels
+    # edge_labels = nx.get_edge_attributes(new_graph, HAPPINESS)
+    nx.draw_networkx_edge_labels(seating_graph, pos, edge_labels, 
+                                 font_color="r", verticalalignment="top", horizontalalignment="left")
+    nx.draw_networkx_edge_labels(seating_graph, pos, reverse_edge_labels, 
+                                 font_color="b", verticalalignment="bottom", horizontalalignment="right")
     
     ax = plt.gca()
     plt.axis("off")
@@ -152,4 +172,3 @@ if __name__ == "__main__":
     main()
     t2 = time.perf_counter()
     print(f"Execution time: {t2 - t1:0.4f} seconds")
-
