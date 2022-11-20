@@ -118,11 +118,13 @@ def draw_graph(graph: nx.DiGraph, arrangement):
     nx.draw_networkx_nodes(seating_graph, pos, node_color="y") # nodes
     nx.draw_networkx_labels(seating_graph, pos, font_family="sans-serif")  # node labels
     
-    # edges
-    nx.draw_networkx_edges(seating_graph, pos, edgelist=edges, 
-                           width=1, edge_color="r", connectionstyle='arc3, rad = 0.3', min_source_margin=15, min_target_margin=15)
-    nx.draw_networkx_edges(seating_graph, pos, edgelist=reverse_edges, 
-                           width=1, edge_color="b", connectionstyle='arc3, rad = 0.3', min_source_margin=15, min_target_margin=15)
+    # edges - use arc3 to curve them, otherwise we end up with a double-arrowed line
+    nx.draw_networkx_edges(seating_graph, pos, edgelist=edges, # forward edges
+                           width=1, edge_color="r", connectionstyle='arc3, rad = 0.3', 
+                           min_source_margin=15, min_target_margin=15)
+    nx.draw_networkx_edges(seating_graph, pos, edgelist=reverse_edges, # reverse edges
+                           width=1, edge_color="b", connectionstyle='arc3, rad = 0.3', 
+                           min_source_margin=15, min_target_margin=15)
     
     # edge weight labels
     # edge_labels = nx.get_edge_attributes(new_graph, HAPPINESS)
