@@ -15,6 +15,11 @@ tags:
 - [Finding Adjacent Points Example](#finding-adjacent-points-example)
 - [Nested Comprehension](#nested-comprehension)
 - [Multi-Sequence Comprehension](#multi-sequence-comprehension)
+- [Dictionary Comprehension](#dictionary-comprehension)
+  - [Example: Square Numbers](#example-square-numbers)
+  - [Inverted Key:Value Pairs](#inverted-keyvalue-pairs)
+- [Filtering Comprehensions](#filtering-comprehensions)
+- [Aggregating Comprehensions](#aggregating-comprehensions)
 
 ## Overview
 In Python, a **comprehension** is a convenient shorthand for creating a collection, by iterating through an existing iterable.
@@ -191,4 +196,74 @@ Output:
 
 ```text
 [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+```
+
+## Dictionary Comprehension
+
+Just as we can use a _comprehension_ to generate a list, we can also use a _comprehension_ to generate a dictionary.
+
+The general syntax is: 
+
+```python
+some_dict = {key_expr(item): value_expr(item) for item in iterable}
+```
+
+For example, if we had a function called `func()` that we can use to generate a value for any given key, we could create a dictionary like this:
+
+```python
+my_dict = {key:func(key) for key in some_range}
+```
+
+### Example: Square Numbers
+
+```python
+my_dict = {i: i**2 for i in range(10)}
+```
+
+If we print the value of `my_dict`, it looks like this:
+
+```text
+{0: 0, 1: 1, 2: 4, 3: 9, 4: 16, 5: 25, 6: 36, 7: 49, 8: 64, 9: 81}
+```
+
+### Inverted Key:Value Pairs
+
+Imagine we have a dictionary where all the values are unique, and we would like the values to become the keys, and _vice versa_.  We can do it like this:
+
+```python
+inverted_dict = {value: item for item, value in my_dict.items()}
+```
+
+## Filtering Comprehensions
+
+In order to return only the values that match a filter condition, the general construct is:
+
+```python
+vals = [expression for value in iterable
+		if condition]
+```
+
+What if we wanted to return a value when the condition doesn't match?  We can do this:
+
+```python
+vals = [expression if condition
+		else value for value in iterable]
+```
+
+## Aggregating Comprehensions
+
+Here we want to add up the values, but only for keys that match a condition:
+
+```python
+sum_of_values = sum([fields[x] for x in fields.keys() if x.startswith("departure")])
+```
+
+And here are two equivalent ways to count values that match a boolean condition:
+
+```python
+valid_for_posn = sum(1 for word in words if word.is_valid_for_posn())
+```
+
+```python
+valid_for_posn = sum(word.is_valid_for_posn() for word in words)
 ```
