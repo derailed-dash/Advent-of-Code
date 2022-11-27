@@ -100,7 +100,10 @@ pages:
     problem: JSAbacusFramework.io
   - name: 13
     link: /2015/13
-    problem: "Knights of the Dinner Table"            
+    problem: "Knights of the Dinner Table"
+  - name: 14
+    link: /2015/14
+    problem: "Reindeer Olympics"                   
 - name: "2021"
   link: /2021/
   mainnav: True
