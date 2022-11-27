@@ -183,3 +183,10 @@ pages:
   - name: 25
     link: /2021/25
     problem: "Sea Cucumber" 
+- name: "2022"
+  link: /2022/
+  mainnav: True
+  members:
+  - name: 1
+    link: /2022/1
+    problem: "Coming Soon"
