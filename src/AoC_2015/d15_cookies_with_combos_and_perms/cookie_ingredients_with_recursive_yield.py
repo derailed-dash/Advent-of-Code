@@ -11,7 +11,7 @@ Score of each property = qty1 * ingr1 + qt2 * ingr2... (or 0 if score is -ve)
 
 Overall cookie score = product of all properties
 
-Solution 2 of 2:
+Solution 2 of 3:
     Uses the "subset with sum" pattern, expanded to find all permutations of a given number of terms.
     Values are returned as a generator.
     E.g. using this base pattern: https://www.geeksforgeeks.org/count-of-subsets-with-sum-equal-to-x-using-recursion/

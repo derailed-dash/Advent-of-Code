@@ -11,13 +11,13 @@ Score of each property = qty1 * ingr1 + qt2 * ingr2... (or 0 if score is -ve)
 
 Overall cookie score = product of all properties
 
-Solution 2 of 2:
+Solution 3 of 3:
     Uses the "subset with sum" pattern, expanded to find all permutations of a given number of terms.
     E.g. using this base pattern: https://www.geeksforgeeks.org/count-of-subsets-with-sum-equal-to-x-using-recursion/
     Here, the number of terms is given by the length of the ingredients list.
 
     This approach is much faster (but more complicated) than using itertools product / combinations / permutations.
-    Overall solution time is ~0.2s.
+    Overall solution time is ~0.1s.
 """
 import re
 import os

@@ -11,7 +11,7 @@ Score of each property = qty1 * ingr1 + qt2 * ingr2... (or 0 if score is -ve)
 
 Overall cookie score = product of all properties
 
-Solution 1 of 2:
+Solution 1 of 3:
     Determine possible permutations by finding all combinations first (with replacement),
     and then expanding to permutations of those combinations.
 
