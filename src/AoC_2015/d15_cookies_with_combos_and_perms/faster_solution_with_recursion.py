@@ -20,29 +20,36 @@ Solution 3 of 3:
     Overall solution time is ~0.1s.
 """
 import re
-import os
 import time
+from pathlib import Path
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+SCRIPT_DIR = Path(__file__).parent
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 CAL_TARGET = 500
 INGREDIENT_QTY = 100
 
+NAME = "Name"
+CAPACITY = "capacity"
+DURABILITY = "durability"
+FLAVOR = "flavor"
+TEXTURE = "texture"
+CALORIES = "calories"
+
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    
     ingredients = []
-    with open(input_file, 'r') as f:
+    with open(INPUT_FILE, mode="rt") as f:
         p = re.compile(r'^([A-Za-z]+): capacity (-?[0-9]+), durability (-?[0-9]+), flavor (-?[0-9]+), texture (-?[0-9]+), calories (-?[0-9]+)$')
         for line in f:
             name, cap, dur, flav, text, cal = p.findall(line.strip())[0]
-            ingredients.append({"name": name, "cap": int(cap), "dur": int(dur), "fla": int(flav), "tex": int(text), "cal": int(cal)})
+            cap, dur, flav, text, cal = map(int, [cap, dur, flav, text, cal])
+            ingredients.append({NAME: name, CAPACITY: cap, DURABILITY: dur, FLAVOR: flav, TEXTURE: text, CALORIES: cal})
 
+    for ingredient in ingredients:
+        print(ingredient)
+        
     print(find_max_score(ingredients, 0, [0]*len(ingredients), INGREDIENT_QTY))
-
 
 def ingredient_prop_score(ingredients: list, masses: list, prop) -> int: 
     """Get score for this property, by calculating the sum of the prop*mass for each ingredient used
@@ -57,13 +64,11 @@ def ingredient_prop_score(ingredients: list, masses: list, prop) -> int:
     """
     return max(sum([ingredient[prop] * mass for ingredient, mass in zip(ingredients, masses)]), 0)
 
-
 def score(ingredients, masses): 
-    return (ingredient_prop_score(ingredients, masses, "cap") 
-            * ingredient_prop_score(ingredients, masses, "dur") 
-            * ingredient_prop_score(ingredients, masses, "fla") 
-            * ingredient_prop_score(ingredients, masses, "tex"))
-
+    return (ingredient_prop_score(ingredients, masses, CAPACITY)
+            * ingredient_prop_score(ingredients, masses, DURABILITY) 
+            * ingredient_prop_score(ingredients, masses, FLAVOR) 
+            * ingredient_prop_score(ingredients, masses, TEXTURE))
 
 def find_max_score(ingredients: list, current_ingr: int, ingr_masses: list, remaining_weight: int) -> int:
     """Determine max score for these ingredients
@@ -80,7 +85,7 @@ def find_max_score(ingredients: list, current_ingr: int, ingr_masses: list, rema
     # we're on the last ingredient
     if current_ingr == len(ingredients)-1:
         ingr_masses[current_ingr] = remaining_weight
-        if ingredient_prop_score(ingredients, ingr_masses, "cal") != CAL_TARGET: return 0
+        if ingredient_prop_score(ingredients, ingr_masses, CALORIES) != CAL_TARGET: return 0
         return score(ingredients, ingr_masses)
 
     best_score = 0
@@ -92,7 +97,6 @@ def find_max_score(ingredients: list, current_ingr: int, ingr_masses: list, rema
         best_score = max(best_score, find_max_score(ingredients, current_ingr+1, ingr_masses, remaining_weight-m))
 
     return best_score
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

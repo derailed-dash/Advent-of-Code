@@ -43,7 +43,6 @@ SAMPLE_INPUT_FILE = "input/sample_input.txt"
 CAL_TARGET = 500
 INGREDIENT_QTY = 100
 
-
 class Cookie:
     def __init__(self, combo: tuple, score: int, calories:int) -> None:
         self._combo = combo
@@ -64,7 +63,6 @@ class Cookie:
 
     def __repr__(self):
         return (f"{self.__class__.__name__}: {self.__str__()}")
-
 
 class Ingredient:
     CALORIES = "calories"
@@ -138,10 +136,8 @@ def main():
     best_fixed_cal_cookie = max(fixed_cal_cookies, key=get_cookie_score)
     print(f"Best {CAL_TARGET} calorie cookie: {best_fixed_cal_cookie}")
 
-
 def get_cookie_score(cookie: Cookie) -> int:
     return cookie.get_score()
-
 
 def find_permutations(target: int, terms: int) -> set: 
     """Return all permutations of terms that sum to the target numberself.
@@ -168,7 +164,6 @@ def find_permutations(target: int, terms: int) -> set:
     
     return perms_of_combos
 
-
 def process_ingredients(data: list):
     ingr_list = []
 
@@ -180,7 +175,6 @@ def process_ingredients(data: list):
         ingr_list.append(Ingredient(name, props_dict))
 
     return ingr_list
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
