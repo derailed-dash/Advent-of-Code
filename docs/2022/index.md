@@ -6,9 +6,11 @@ title: Advent of Code 2022
 
 **Welcome to AoC 2022!**
 
-Coming soon!!
+It's time to [save Christmas](https://adventofcode.com/2022/){:target="_blank"} once more!
 
-Ready to save Christmas?  Follow the links below.
+We do this by collecting stars each day.  This year, the stars are food for the reindeer!
+
+Follow the links below.
 
 ## Day Index
 
