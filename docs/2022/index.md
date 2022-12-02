@@ -1,8 +1,14 @@
 ---
 layout: default
 title: Advent of Code 2022
+
+main_img:
+  name: "Star Fruit"
+  link: /assets/images/star-fruit.jpg
 ---
 # {{ page.topic}} {{ page.year }}
+
+<img src="{{ page.main_img.link | relative_url }}" alt="{{ page.main_img.name }}" style="margin:15px 10px 10px 10px; float: right; width:300px" />
 
 **Welcome to AoC 2022!**
 

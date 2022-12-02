@@ -193,3 +193,6 @@ pages:
   - name: 1
     link: /2022/1
     problem: "Calorie Counting"
+  - name: 2
+    link: /2022/2
+    problem: "Rock Paper Scissors"    
