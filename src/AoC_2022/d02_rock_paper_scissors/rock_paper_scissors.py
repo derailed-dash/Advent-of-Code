@@ -119,7 +119,6 @@ def play_part_2(rounds: list):
         this_score = 0
         this_score += xyz_to_ldw[my_goal]
         this_score += RULES[(their_hand, my_goal)]        
-    
         scores.append(this_score)
         
     return scores      
