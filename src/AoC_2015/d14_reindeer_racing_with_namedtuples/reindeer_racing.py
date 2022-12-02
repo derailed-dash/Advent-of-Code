@@ -50,7 +50,6 @@ class Reindeer():
         return ((self.duration*total_cycles) + remainder_travelling) * self.speed
     
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()

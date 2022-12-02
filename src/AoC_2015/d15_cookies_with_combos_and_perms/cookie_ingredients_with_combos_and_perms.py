@@ -16,158 +16,117 @@ Solution 1 of 3:
     and then expanding to permutations of those combinations.
 
 Part 1:
+    Goal: Determine score of best cookie.
+    
     Get all permutations of quantities that sum to 100, 
     where the number of quantities is the number of ingredients.
-    Note that Python permutations function is not suitable, as it doesn't allow for repeating quantities in our 100g.
-    So, we can either use catesian product (slow @13s, because there are many results), or we can use
-    combinations_with_replacement, and then expand these to the possible permutations of those combinations. (Much faster: 1.5s.)
-    For each combo of ingredients, compute sum of quantities * prop.
-    Cookie class to store combo, score, and calories.
-    Determine score of best cookie.    
+    Note that Python permutations function is not suitable, as it doesn't allow for repeating quantities in our 100.
+    So, we can either use catesian product (slow @13s, because there are many results), 
+    or we can use combinations_with_replacement, 
+    and then expand these to the possible permutations of those combinations. (Much faster: ~1s.)
+    For each permutation of ingredients, compute sum of quantities * prop.
+
 
 Part 2:
-    Filter cookies list where calories == 500.
-    Repeat approach to get cookie with highest score, from this new subset.
+    Goal: Determine score of best cookie where calories == 500.
+    As before, but filter on calories == 500.
 """
-from __future__ import absolute_import
-import os
+from dataclasses import dataclass
+from pathlib import Path
 import time
 from itertools import permutations, combinations_with_replacement
 from math import prod
 from collections import defaultdict
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+SCRIPT_DIR = Path(__file__).parent
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 CAL_TARGET = 500
 INGREDIENT_QTY = 100
 
+@dataclass(frozen=True)
 class Cookie:
-    def __init__(self, combo: tuple, score: int, calories:int) -> None:
-        self._combo = combo
-        self._score = score
-        self._calories = calories
-
-    def get_combo(self):
-        return self._combo
-    
-    def get_calories(self) -> int:
-        return self._calories
-
-    def get_score(self) -> int:
-        return self._score
+    """ A cookie is made up of 4 ingredients with quantities (a, b, c, d)
+    and it has a score and calorie value """
+    ingredients: tuple  # Ingredient amounts, e.g. (28, 35, 18, 19)
+    score: int   
+    calories: int
 
     def __str__(self) -> str:
-        return f"{str(self._combo)}, cals={self.get_calories()}, score={self.get_score()}"
+        return f"{str(self.ingredients)}, cals={self.calories}, score={self.score}"
 
-    def __repr__(self):
-        return (f"{self.__class__.__name__}: {self.__str__()}")
-
+@dataclass
 class Ingredient:
+    """ Every ingredient has a name, and a set of five properties:
+        capacity, durability, flavour, texture, calories. """
     CALORIES = "calories"
+    
+    name: str
+    properties: dict
 
-    def __init__(self, name: str, properties: dict) -> None:
-        """Input name and props.
-
-        Args:
-            name (str): name of this ingredient
-            properties (dict): k:v pairs of all props for this ingredient
-                Note that we pop 'calories' and store as a separate property
-        """
-        self._name = name
-        self._properties = properties
-        self._calories = self._properties.pop(Ingredient.CALORIES)
-
-    def get_properties(self) -> dict:
-        return self._properties
-
-    def get_calories(self) -> int:
-        return self._calories
-
-    def __str__(self) -> str:
-        return self._name
-
-    def __repr__(self):
-        return (f"{self.__class__.__name__}: {self._name}")
-
+    def __post_init__(self) -> None:
+        """ We pop 'calories' and store as a separate property.
+        Note that the dataclass automatically calls __post_init__() after __init__(), 
+        if the method is defined. """
+        self.calories = self.properties.pop(Ingredient.CALORIES)
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
 
     ingr_list = process_ingredients(data)
 
-    cookies = []
+    cookies: list[Cookie] = []
     perms = find_permutations(INGREDIENT_QTY, len(ingr_list))
 
-    print(f"Got {len(perms)} combos.")
-    for perm in perms:
-        # e.g. with 2 ingredients, a combo might be [44, 56]
+    print(f"A total of {len(perms)} cookie recipes to process...")
+    for perm in perms:   # e.g. with 2 ingredients, a perm might be (44, 56)
         prop_scores = defaultdict(int)
         calories = 0
-        ingr: Ingredient
         for qty, ingr in zip(perm, ingr_list):
-            for prop, value in ingr.get_properties().items():
+            for prop, value in ingr.properties.items():
                 prop_scores[prop] += qty * value
 
-            calories += qty * ingr.get_calories()
+            calories += qty * ingr.calories
 
+        # If any properties have negative value, set it to 0.
         for prop, value in prop_scores.items():
             if value < 0:
                 prop_scores[prop] = 0
     
         total_score = prod(list(prop_scores.values()))
         cookies.append(Cookie(perm, total_score, calories))
-    
-    print(f"A total of {len(cookies)} cookie recipes.")
 
-    # Let's reduce our cookies down to only those with positive scores
-    cookies = [cookie for cookie in cookies if cookie.get_score() > 0]
-    print(f"{len(cookies)} with a positive score.")
-    best_cookie = max(cookies, key=get_cookie_score)
+    # Part 1
+    best_cookie = max(cookies, key=lambda x: x.score)
     print(f"Best cookie: {best_cookie}")
 
     # Part 2
-    fixed_cal_cookies = [cookie for cookie in cookies if cookie.get_calories() == CAL_TARGET]
-    print(f"{len(fixed_cal_cookies)} positive scoring cookies at {CAL_TARGET} calories.")
-    best_fixed_cal_cookie = max(fixed_cal_cookies, key=get_cookie_score)
+    fixed_cal_cookies = list(filter(lambda x: x.calories == CAL_TARGET, cookies))
+    best_fixed_cal_cookie = max(fixed_cal_cookies, key=lambda x: x.score)
     print(f"Best {CAL_TARGET} calorie cookie: {best_fixed_cal_cookie}")
 
-def get_cookie_score(cookie: Cookie) -> int:
-    return cookie.get_score()
+def find_permutations(target: int, terms: int) -> set[tuple]: 
+    """ Return all permutations of terms that sum to the target number.
+    We need to include repeats. E.g. (10, 10, 40, 40) would be valid.
+    Use combinations_with_replacement. E.g. if target = 6 and terms = 2, the results would be:
+    (0, 6), (1, 5), (2, 4), (3, 3).
+    However, order is important since (0, 6) is different properties to (6, 0).
+    So we need to determine the permutations for each combo.
 
-def find_permutations(target: int, terms: int) -> set: 
-    """Return all permutations of terms that sum to the target numberself.
-    We need to include repeats (e.g. 5, 5 would be valid), so we could use cartesian product with repeats.
-    But finding combinations_with_replacement is much quicker and returns a much smaller set.
-    E.g. if target = 6 and terms = 2, the results would be:
-    (0, 6), (1, 5), (2, 4), (3, 3)
-
-    Then we determine the permutations for each combo.  
-    E.g. perms for (0, 6) would be (0, 6) and (6, 0)
-
-    Args:
-        target (int): The sum our terms need to add up to
-        terms (int): How many terms need to add up to the sum
-
-    Returns:
-        list: Tuples of valid term combinations
-    """
+    Returns: Set containing tuples of valid term permutations """
+    
     combos = [combo for combo in combinations_with_replacement(range(target), terms) if sum(combo) == target]
-    perms_of_combos = set()
+    perms_of_combos = set() # use a set to filter out duplicates
     for combo in combos:
         for perm in permutations(combo):
             perms_of_combos.add(perm) 
     
     return perms_of_combos
 
-def process_ingredients(data: list):
+def process_ingredients(data: list) -> list[Ingredient]:
     ingr_list = []
-
-    line: str
     for line in data:
         name, properties = line.split(":")
         properties = [x.strip().split(" ") for x in properties.split(",")]

@@ -51,7 +51,7 @@ def main():
         
     print(find_max_score(ingredients, 0, [0]*len(ingredients), INGREDIENT_QTY))
 
-def ingredient_prop_score(ingredients: list, masses: list, prop) -> int: 
+def ingredient_prop_score(ingredients: list, quantities: list, prop) -> int: 
     """Get score for this property, by calculating the sum of the prop*mass for each ingredient used
 
     Args:
@@ -62,39 +62,39 @@ def ingredient_prop_score(ingredients: list, masses: list, prop) -> int:
     Returns:
         [int]: Score for this property, or 0 if the score is negative
     """
-    return max(sum([ingredient[prop] * mass for ingredient, mass in zip(ingredients, masses)]), 0)
+    return max(sum([ingredient[prop] * mass for ingredient, mass in zip(ingredients, quantities)]), 0)
 
-def score(ingredients, masses): 
-    return (ingredient_prop_score(ingredients, masses, CAPACITY)
-            * ingredient_prop_score(ingredients, masses, DURABILITY) 
-            * ingredient_prop_score(ingredients, masses, FLAVOR) 
-            * ingredient_prop_score(ingredients, masses, TEXTURE))
+def score(ingredients, quantities): 
+    return (ingredient_prop_score(ingredients, quantities, CAPACITY)
+            * ingredient_prop_score(ingredients, quantities, DURABILITY) 
+            * ingredient_prop_score(ingredients, quantities, FLAVOR) 
+            * ingredient_prop_score(ingredients, quantities, TEXTURE))
 
-def find_max_score(ingredients: list, current_ingr: int, ingr_masses: list, remaining_weight: int) -> int:
+def find_max_score(ingredients: list, current_ingr: int, ingr_quantities: list, remaining_qty: int) -> int:
     """Determine max score for these ingredients
 
     Args:
         ingredients ([list]): list of ingredients
         current_ingr ([int]): current ingr index
-        ingr_masses ([list]): list of masses, for each ingredient
-        remaining_weight ([int]): ingredients weight left to add
+        ingr_quantities ([list]): list of quantities, for each ingredient
+        remaining_qty ([int]): ingredients qty left to add
 
     Returns:
         [int]: Best cookie score
     """
     # we're on the last ingredient
     if current_ingr == len(ingredients)-1:
-        ingr_masses[current_ingr] = remaining_weight
-        if ingredient_prop_score(ingredients, ingr_masses, CALORIES) != CAL_TARGET: return 0
-        return score(ingredients, ingr_masses)
+        ingr_quantities[current_ingr] = remaining_qty
+        if ingredient_prop_score(ingredients, ingr_quantities, CALORIES) != CAL_TARGET: return 0
+        return score(ingredients, ingr_quantities)
 
     best_score = 0
-    for m in range(1, remaining_weight):
-        ingr_masses[current_ingr] = m
+    for m in range(1, remaining_qty):
+        ingr_quantities[current_ingr] = m
 
         # recurse into this method, incrementing current ingr (if we're not on the last ingr)
         # and decrementing the remainder
-        best_score = max(best_score, find_max_score(ingredients, current_ingr+1, ingr_masses, remaining_weight-m))
+        best_score = max(best_score, find_max_score(ingredients, current_ingr+1, ingr_quantities, remaining_qty-m))
 
     return best_score
 
