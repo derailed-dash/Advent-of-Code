@@ -4,7 +4,7 @@ Date: 03/12/2022
 
 Solving https://adventofcode.com/2022/day/3
 
-Input lines look like:
+Input lines each represent a rucksack full of items. Lines look like:
 vJrwpWtwJgWrhcsFMMfFFhFp
 - Each letter represents an item. 
 - 1st half is compartment 1. 2nd half is compartment 2.
@@ -49,13 +49,10 @@ def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
         
-    little_a_ord = ord("a")
-    big_a_ord = ord("A")
-    
     item_to_priority = {} # a:1, b:2... Y:51, Z:52
-    for i, ordinal in enumerate(range(little_a_ord, little_a_ord+26), start=1):
+    for i, ordinal in enumerate(range(ord('a'), ord('z')+1), start=1):
         item_to_priority[chr(ordinal)] = i
-    for i, ordinal in enumerate(range(big_a_ord, big_a_ord+26), start=27):
+    for i, ordinal in enumerate(range(ord('A'), ord('Z')+1), start=27):
         item_to_priority[chr(ordinal)] = i
     
     priorities = []

@@ -195,4 +195,8 @@ pages:
     problem: "Calorie Counting"
   - name: 2
     link: /2022/2
-    problem: "Rock Paper Scissors"    
+    problem: "Rock Paper Scissors"
+  - name: 3
+    link: /2022/3
+    problem: "Rucksack Reorganization"
+    
