@@ -1,8 +1,8 @@
 """
 Author: Darren
-Date: 01/12/2022
+Date: 04/12/2022
 
-Solving https://adventofcode.com/2022/day/1
+Solving https://adventofcode.com/2022/day/4
 
 Part 1:
 
@@ -15,7 +15,6 @@ import time
 SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
