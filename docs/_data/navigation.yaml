@@ -40,7 +40,7 @@ pages:
     link: /python/images
   - name: Enumerate
     link: /python/enumerate
-  - name: Lambda, Map, Filter, and Reduce
+  - name: Map, Filter, and Reduce
     link: /python/map-filter-reduce
   - name: Working with Binary and Other Bases
     link: /python/binary
@@ -201,5 +201,5 @@ pages:
     problem: "Rucksack Reorganization"
   - name: 4
     link: /2022/4
-    problem: "Coming Soon"    
+    problem: "Camp Cleanup"    
     
