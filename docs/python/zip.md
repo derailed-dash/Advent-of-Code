@@ -17,6 +17,7 @@ tags:
 - [Transposing Rows and Columns](#transposing-rows-and-columns)
 - [Unpacking An Arbitrary Number of Iterables](#unpacking-an-arbitrary-number-of-iterables)
 - [Turning (x,y) coordinates into a List of x and a List of y](#turning-xy-coordinates-into-a-list-of-x-and-a-list-of-y)
+- [Making a Mapping Dictionary](#making-a-mapping-dictionary)
 
 ## Overview
 
@@ -170,7 +171,7 @@ And the rendered plot:
 
 <img src="{{'/assets/images/plot_from_zip.png' | relative_url }}" alt="Argand Plot" style="width:480px;" />
 
-# Making a Mapping Dictionary
+## Making a Mapping Dictionary
 
 We can use `zip()` to create a `dictionary` that maps one value to another. For example:
 
