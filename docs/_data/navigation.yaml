@@ -58,6 +58,8 @@ pages:
     link: /python/exceptions
   - name: Permutations and Combinations
     link: /python/perms_combos
+  - name: Zip
+    link: /python/zip
 - name: "2015"
   link: /2015/
   mainnav: True

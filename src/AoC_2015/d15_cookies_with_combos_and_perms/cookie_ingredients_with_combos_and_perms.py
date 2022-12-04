@@ -45,17 +45,6 @@ INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 CAL_TARGET = 500
 INGREDIENT_QTY = 100
 
-@dataclass(frozen=True)
-class Cookie:
-    """ A cookie is made up of 4 ingredients with quantities (a, b, c, d)
-    and it has a score and calorie value """
-    ingredients: tuple  # Ingredient amounts, e.g. (28, 35, 18, 19)
-    score: int   
-    calories: int
-
-    def __str__(self) -> str:
-        return f"{str(self.ingredients)}, cals={self.calories}, score={self.score}"
-
 @dataclass
 class Ingredient:
     """ Every ingredient has a name, and a set of five properties:
@@ -70,12 +59,25 @@ class Ingredient:
         Note that the dataclass automatically calls __post_init__() after __init__(), 
         if the method is defined. """
         self.calories = self.properties.pop(Ingredient.CALORIES)
+        
+@dataclass(frozen=True)
+class Cookie:
+    """ A cookie is made up of 4 ingredients with quantities (a, b, c, d)
+    and it has a score and calorie value """
+    ingredients: tuple  # Ingredient amounts, e.g. (28, 35, 18, 19)
+    score: int   
+    calories: int
+
+    def __str__(self) -> str:
+        return f"{str(self.ingredients)}, cals={self.calories}, score={self.score}"
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
 
     ingr_list = process_ingredients(data)
+    for ingr in ingr_list:
+        print(ingr)
 
     cookies: list[Cookie] = []
     perms = find_permutations(INGREDIENT_QTY, len(ingr_list))
