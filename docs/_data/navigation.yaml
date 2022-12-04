@@ -201,5 +201,8 @@ pages:
     problem: "Rucksack Reorganization"
   - name: 4
     link: /2022/4
-    problem: "Camp Cleanup"    
+    problem: "Camp Cleanup"
+  - name: 5
+    link: /2022/5
+    problem: "Coming Soon!"           
     
