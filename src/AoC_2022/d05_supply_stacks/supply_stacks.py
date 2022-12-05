@@ -89,7 +89,7 @@ def process_stack_data(stack_data: list[str]) -> list[list]:
     stacks = [[] for _ in range(num_stacks)] # empty list for each stack
         
     # proces the stacks
-    for stack_row in stack_data[1:]:     # starting at the row of crates
+    for stack_row in stack_data[1:]:     # starting at the first row of crates
         for stack_num in range(num_stacks):
             match = p.search(stack_row[stack_num * stack_width:(stack_num+1) * stack_width])
             if match:
