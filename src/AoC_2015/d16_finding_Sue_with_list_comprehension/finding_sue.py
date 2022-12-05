@@ -24,34 +24,35 @@ Part 2:
     Cats and trees readings indicates that there are greater than that many
     Pomeranians and goldfish readings indicate that there are fewer than that many
 """
+from dataclasses import dataclass
 import os
 import time
 
 SCRIPT_DIR = os.path.dirname(__file__)
 INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
-
-CATS = 'cats'
-TREES = 'trees'
-POMS = 'pomeranians'
-FISH = 'goldfish'
 
 known_attribs = {
     'children': 3,
-    CATS: 7,
+    'cats': 7,
     'samoyeds': 2,
-    POMS: 3,
+    'pomeranians': 3,
     'akitas': 0,
     'vizslas': 0,
-    FISH: 5,
-    TREES: 3,
+    'goldfish': 5,
+    'trees': 3,
     'cars': 2,
     'perfumes': 1
 }
 
+@dataclass
+class Sue:
+    """ A Sue has a unique number and a set of properties that look like...
+    {'pomeranians': 3, 'perfumes': 1, 'vizslas': 0}
+    """
+    num: int
+    properties: dict
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     with open(input_file, mode="rt") as f:
         data = f.read().splitlines()
@@ -64,49 +65,45 @@ def main():
     # we need to find any Sue where k:v is an exact match
     # but also consider any Sue where the k is not present as we don't know the v
     for known_attrib, known_attrib_value in known_attribs.items():
-        sues_missing_attrib = [sue for sue in sue_candidates if known_attrib not in sue[1]]
-        sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue[1]
-                                and known_attrib_value == sue[1][known_attrib]]
+        sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue.properties
+                                and known_attrib_value == sue.properties[known_attrib]]
+        sues_missing_attrib = [sue for sue in sue_candidates if known_attrib not in sue.properties]
 
         sue_candidates = sues_matching_attrib + sues_missing_attrib
 
-    result = [sue[0] for sue in sue_candidates]
-    print(f"Part 1: Aunt Sue candidates matching MFCSAM attributes: {result}")
+    print(f"Part 1: Aunt Sue candidates matching MFCSAM attributes: {sue_candidates[0].num}")
 
     # Part 2
     sue_candidates = sue_list.copy()
     for known_attrib, known_attrib_value in known_attribs.items():
-        sues_missing_attrib = [sue for sue in sue_candidates if known_attrib not in sue[1]]
+        sues_missing_attrib = [sue for sue in sue_candidates if known_attrib not in sue.properties]
         sues_matching_attrib = []
 
-        if known_attrib in [CATS, TREES]:
-            sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue[1]
-                                and known_attrib_value < sue[1][known_attrib]]
-        elif known_attrib in [POMS, FISH]:
-            sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue[1]
-                                and known_attrib_value > sue[1][known_attrib]]
+        if known_attrib in ['cats', 'trees']:
+            sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue.properties
+                                and known_attrib_value < sue.properties[known_attrib]]
+        elif known_attrib in ['pomeranians', 'goldfish']:
+            sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue.properties
+                                and known_attrib_value > sue.properties[known_attrib]]
         else:
-            sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue[1]
-                                and known_attrib_value == sue[1][known_attrib]]
+            sues_matching_attrib = [sue for sue in sue_candidates if known_attrib in sue.properties
+                                and known_attrib_value == sue.properties[known_attrib]]
 
         sue_candidates = sues_matching_attrib + sues_missing_attrib
 
-    result = [sue[0] for sue in sue_candidates]
-    print(f"Part 2: Aunt Sue candidates matching MFCSAM attributes: {result}")
+    print(f"Part 2: Aunt Sue candidates matching MFCSAM attributes: {sue_candidates[0].num}")
 
-
-def process_input(data):
+def process_input(data) -> list[Sue]:
     # Input looks like:
     # Sue 1: cars: 9, akitas: 3, goldfish: 0
-    # Return list.  Each item is [i, {k:v, k:v...}]
+    # Return list of Sue objects.
     sue_list = []
 
-    line: str
     for line in data:
-        name, attribs = line[4:].split(":", 1)
+        sue_num, attribs = line[4:].split(":", 1)
         properties = [x.strip().split(":") for x in attribs.split(",")]
         props_dict = {prop[0]: int(prop[1]) for prop in properties}
-        sue_list.append([int(name), props_dict])
+        sue_list.append(Sue(int(sue_num), props_dict))
 
     return sue_list
 
