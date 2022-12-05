@@ -86,10 +86,7 @@ def process_stack_data(stack_data: list[str]) -> list[list]:
     stack_data = stack_data[::-1]
     num_stacks = len(stack_data[0].split())
 
-    stacks = []
-    for stack_num in range(num_stacks):
-        this_stack = []
-        stacks.append(this_stack)
+    stacks = [[] for _ in range(num_stacks)] # empty list for each stack
         
     # proces the stacks
     for stack_row in stack_data[1:]:     # starting at the row of crates
