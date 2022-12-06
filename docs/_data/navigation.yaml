@@ -212,5 +212,8 @@ pages:
     problem: "Camp Cleanup"
   - name: 5
     link: /2022/5
-    problem: "Supply Stacks"           
+    problem: "Supply Stacks"
+  - name: 6
+    link: /2022/6
+    problem: "Tuning Trouble"           
     
