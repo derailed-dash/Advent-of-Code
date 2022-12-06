@@ -37,10 +37,7 @@ TARGET = 150
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
-        data = f.read().splitlines()
-
-    containers = process_input(data)
-    print(containers)
+        containers = [int(x) for x in f.read().splitlines()]
 
     all_valid_combos = []  # all the container combos that add up to TARGET
     
@@ -63,9 +60,6 @@ def main():
             break
     
     print(f"Part 2: Combinations with minimum number of containers={len(all_valid_combos)}")
-
-def process_input(data):
-    return [int(x) for x in data]
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
