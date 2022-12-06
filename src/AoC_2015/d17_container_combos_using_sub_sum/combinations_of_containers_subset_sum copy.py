@@ -41,7 +41,6 @@ def main():
     min_container_combos = [combo for combo in valid_combos if len(combo) == min_containers]
     print(f"Number of combos only using the minimum number of containers: {len(min_container_combos)}")
 
-
 # pylint: disable=dangerous-default-value
 def subset_sum(numbers: list, target: int, partial=[], results=[]) -> list:
     """
@@ -86,7 +85,6 @@ def subset_sum(numbers: list, target: int, partial=[], results=[]) -> list:
         subset_sum(remaining_numbers, target, partial + [n], results)
 
     return results
-
 
 def process_input(data):
     return [int(x) for x in data]
