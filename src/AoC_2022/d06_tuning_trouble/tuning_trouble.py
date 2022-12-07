@@ -12,6 +12,8 @@ Read the input stream. Report how many characters have been read when the last f
   - Let distinct_chars_required = 4
   - Process the data stream one char at a time and track the slice of the last distinct_chars_required
   - Perform count of all chars in distinct_chars_required. If they are all 1, then we have our goal.
+    (Incidentally another good solution would be to turn the slice into a set, 
+    and check the length of the set.)
 
 Part 2:
 
