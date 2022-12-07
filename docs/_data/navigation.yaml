@@ -216,4 +216,7 @@ pages:
   - name: 6
     link: /2022/6
     problem: "Tuning Trouble"           
-    
+  - name: 7
+    link: /2022/7
+    problem: "No Space Left On Device"
+        

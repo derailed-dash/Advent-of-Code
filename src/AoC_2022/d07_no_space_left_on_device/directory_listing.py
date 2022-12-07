@@ -150,7 +150,7 @@ def fs_parse(instructions: list[str]) -> Directory:
     Lines starting with $ are commands
       $ cd ..
       $ cd some_dir
-      $ ls some_dir 
+      $ ls 
     
     Else, lines are listings, which show either:
       sz some_file
