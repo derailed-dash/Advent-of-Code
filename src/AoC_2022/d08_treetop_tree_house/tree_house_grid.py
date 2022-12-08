@@ -89,16 +89,9 @@ class Grid():
     
     def get_hidden_trees(self) -> set[Point]:
         """ Returns all locations where trees are hidden from view. """
-        hidden_trees: set[Point] = set()
-        
-        # process across then down
-        for y in range(self._width):
-            for x in range(self._height):
-                point = Point(x, y)
-                if not self.is_visible(point):
-                    hidden_trees.add(point)
-                            
-        return hidden_trees
+        return {Point(x, y) for x in range(self._height)
+                            for y in range(self._width)
+                            if not self.is_visible(Point(x,y))}
     
     def get_scenic_scores(self) -> list[int]:
         """ Returns the scenic scores for every tree in the grid """
@@ -159,7 +152,7 @@ def main():
     print(f"Number of hidden trees={len(hidden_trees)}")
     print(f"Number of visible trees={grid.size - len(hidden_trees)}")
     
-    # Part 1 - How many visible trees?
+    # Part 2 - What is the maximum scenic score?
     print("\nPart 2:")
     scenic_scores = grid.get_scenic_scores()
     print(f"Highest score={max(scenic_scores)}")
