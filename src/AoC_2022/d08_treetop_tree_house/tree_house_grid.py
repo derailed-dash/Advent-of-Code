@@ -68,7 +68,6 @@ class Grid():
     def is_visible(self, point: Point) -> bool:
         """ A tree is visible if it is on any edge, 
         or if there are no taller trees in the same row or column. """
-        visible = False
         
         # check if it's on an edge
         if point.x == 0 or point.x == self._width-1:
@@ -85,7 +84,7 @@ class Grid():
         if value > max(self.cols[point.x][0:point.y]): return True
         if value > max(self.cols[point.x][point.y+1:]): return True
         
-        return visible
+        return False
     
     def get_hidden_trees(self) -> set[Point]:
         """ Returns all locations where trees are hidden from view. """
