@@ -40,10 +40,14 @@ from dataclasses import dataclass
 import math
 from pathlib import Path
 import time
+from PIL import Image
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+
+RENDER = True
+OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
 
 @dataclass(frozen=True)
 class Point():
@@ -136,6 +140,37 @@ class Grid():
     def __repr__(self):
         return (f"{self.__class__.__name__}" 
                + f"(size={self.size}, rows={len(self.rows)}, cols={len(self.cols)})")
+        
+    def render_image(self, target_width:int=600) -> Image.Image:
+        """ Render grid as a heatmap image
+
+        Args:
+            width (int, optional): Target width, in pxiels. Defaults to 600.
+        """
+        scale = target_width // self._width  # our original image is only a few pixels across. We need to scale up.
+        
+        hidden_trees = self.get_hidden_trees()
+        
+        # Flatten our x,y array into a single list of height values
+        # If the tree is a hidden tree, set its height to -1 in the flattened array
+        height_values = [self.height_at_point(Point(x,y)) 
+                         if Point(x,y) not in hidden_trees else -1
+                                        for y in range(self._height) 
+                                        for x in range(self._width)]
+        
+        max_height = max(height_values)
+
+        # create a new list of RGB values, where each is given by an (R,G,B) tuple.
+        # To achieve a yellow->amber->red effect, we want R to always be 255, B to always be 0, and G to vary based on height
+        pixel_colour_map = list(map(
+                    lambda x: (255, int(255*((max_height-x)/max_height)), 0) if x >= 0 else (0, 0, 0), 
+                    height_values))        
+
+        image = Image.new(mode='RGB', size=(self._width, self._height))
+        image.putdata(pixel_colour_map)  # load our colour map into the image
+
+        # scale the image and return it
+        return image.resize((self._width*scale, self._height*scale), Image.Resampling.NEAREST)
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -155,6 +190,14 @@ def main():
     print("\nPart 2:")
     scenic_scores = grid.get_scenic_scores()
     print(f"Highest score={max(scenic_scores)}")
+    
+    if RENDER:
+        dir_path = Path(OUTPUT_FILE).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+
+        image = grid.render_image(400)
+        image.save(OUTPUT_FILE)
     
 if __name__ == "__main__":
     t1 = time.perf_counter()
