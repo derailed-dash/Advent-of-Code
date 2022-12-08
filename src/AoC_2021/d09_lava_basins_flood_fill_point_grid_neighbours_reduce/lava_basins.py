@@ -62,7 +62,7 @@ class Point():
 class Grid():
     """ 2D grid of point values. Knows how to:
        - Determine value at any point
-       - Whether the point is lower than adjancent
+       - Whether the point is lower than adjacent
        - Determine the entire basin, given a low point """
     def __init__(self, grid_array: list) -> None:
         self._array = grid_array
