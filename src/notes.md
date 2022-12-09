@@ -26,8 +26,12 @@ We can do this per repo, but we can also use the same key between multiple repos
 
 - git-crypt status // check what will be encrypted
 - git-crypt status -e  // show only encrypted [and should be encrypted]
-- git-crypt status -f  // FIX, i.e. retrospectively encrypt files that were previous staged / committed
 
 - git-crypt lock // lock all files locally. (This happens transparently on push to remote.)
 - git-crypt unlock [path to keyfile] // unlock all encrypted local files. (Transparent on pull.)
-    
+
+### Retrospective Encryption
+
+- git-crypt status -f  // FIX, i.e. retrospectively encrypt files that were previous staged / committed
+- git commit -m "Retrofix"
+- git push 
