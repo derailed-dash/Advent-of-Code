@@ -219,8 +219,8 @@ class RopeSim():
                         self._knots[i] = self._knots[i] + RopeSim._get_next_move(vector)
                         visited_locations.add(self._knots[-1])
 
-                        if self._animator and self._animator.enabled:
-                            self._render_frame(visited_locations, step)
+                    if self._animator and self._animator.enabled:
+                        self._render_frame(visited_locations, step)
     
         return visited_locations
     
