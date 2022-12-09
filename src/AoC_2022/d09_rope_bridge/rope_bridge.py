@@ -123,9 +123,6 @@ def get_move(vector: Point) -> Point:
 
     return Point(x_move, y_move)
 
-def print_grid(knots, visited: set[Point]):
-    pass  
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
