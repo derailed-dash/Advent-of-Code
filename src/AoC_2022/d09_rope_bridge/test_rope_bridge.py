@@ -16,11 +16,13 @@ class TestRopeBridge(unittest.TestCase):
         
     def test_part_1(self):
         expected = 88
-        self.assertEqual(len(rope_bridge.pull_rope(self.data, 2)), expected)
+        rope_sim = rope_bridge.RopeSim(self.data, 2)
+        self.assertEqual(len(rope_sim.pull_rope()), expected)
         
     def test_part_2(self):
         expected = 36
-        self.assertEqual(len(rope_bridge.pull_rope(self.data, 10)), expected)
+        rope_sim = rope_bridge.RopeSim(self.data, 10)
+        self.assertEqual(len(rope_sim.pull_rope()), expected)
 
 if __name__ == "__main__":
     unittest.main()

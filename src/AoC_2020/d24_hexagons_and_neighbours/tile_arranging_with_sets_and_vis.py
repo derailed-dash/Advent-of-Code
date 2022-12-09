@@ -74,7 +74,6 @@ def main():
     else:
         print("Visualisation disabled.")
 
-
 def is_vis_enabled():
     return ANIM_ENABLED and NUMBER_OF_ITERATIONS <= 15
 
@@ -95,7 +94,6 @@ def pad_all_tiles(black_tiles, all_tiles):
                 elif (locn[0] %2 != 0 and locn[1] %2 != 0):
                     all_tiles.add(locn)
     return
-
 
 def vis_state(black_tiles, all_tiles, iteration):
     white_tiles = all_tiles.difference(black_tiles)
@@ -148,7 +146,6 @@ def build_anim():
     for filename in set(anim_frame_files):
         os.remove(filename)
 
-
 def living_art(black_tiles, iterations):
     iteration = 0
     all_tiles = set()
@@ -183,13 +180,11 @@ def living_art(black_tiles, iterations):
         black_tiles.update(tiles_to_add)
         black_tiles.difference_update(tiles_to_remove)
 
-
 def read_input(a_file):
     with open(a_file, mode="rt") as f:
         data = f.read().splitlines()
 
     return data
-
 
 def process_tile_positions(data):
     ''' Return only black tiles at the referenced positions '''
@@ -214,7 +209,6 @@ def process_tile_positions(data):
             tiles[target_location].flip()
     
     return set(coord for coord, hex in tiles.items() if hex.is_black())
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

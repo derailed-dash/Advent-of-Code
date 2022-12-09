@@ -34,7 +34,7 @@ With each iteration:
 import os
 import time
 import re
-from d24_hexagons_and_neighbours.hex import Hexagon
+from hex import Hexagon
 
 INPUT_FILE = "input/data.txt"
 SAMPLE_INPUT_FILE = "input/sample_data.txt"
@@ -78,7 +78,6 @@ def pad_missing_tiles(tiles):
 
     return
 
-
 def living_art(tiles, iterations):
     iteration = 0
 
@@ -108,13 +107,11 @@ def living_art(tiles, iterations):
         for tile in tiles_to_flip:
             tile.flip()
 
-
 def read_input(a_file):
     with open(a_file, mode="rt") as f:
         data = f.read().splitlines()
 
     return data
-
 
 def process_tile_positions(data):
     ''' Return all tiles at the referenced positions '''
@@ -139,7 +136,6 @@ def process_tile_positions(data):
             tiles[target_location].flip()
 
     return tiles
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
