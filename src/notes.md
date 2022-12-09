@@ -7,7 +7,13 @@ My solution:
 ## Use Git-Crypt
 
 ### Install
+
+On Linux / WSL:
 - sudo apt install git-crypt
+
+Alas, this is not installed in Windows, and therefore the git integration in Windows VS Code will break. To fix:
+- download the x86_64.exe from the latest tag here: https://github.com/AGWA/git-crypt/tags
+- Rename it to git-crypt.exe and store it in a location in your path.
 
 ### Setup
 
