@@ -60,6 +60,8 @@ pages:
     link: /python/perms_combos
   - name: Zip
     link: /python/zip
+  - name: Unit Testing
+    link: /python/unit_test
 - name: "2015"
   link: /2015/
   mainnav: True
@@ -222,3 +224,6 @@ pages:
   - name: 8
     link: /2022/8
     problem: "Treetop Tree House"
+  - name: 9
+    link: /2022/9
+    problem: "Rope Bridge"    
