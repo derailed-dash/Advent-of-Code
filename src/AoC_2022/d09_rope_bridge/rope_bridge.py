@@ -11,18 +11,43 @@ Instructions describe the movement of the head.
 
 Part 1:
 
+We have a rope with two knots: head + tail.
 How many positions does the tail of the rope visit at least once?
+
+- Solution:
+  - Point dataclass to store locations.
+    - Knows how to add and subtract to return a new Point.
+    - Contains a list of (x,y) vectors that immediately surround and include this point.  I.e.
+      [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+  - VECTORS to map input instruction to a vector.
+  - Create head Point and tail Point. They both start at (0,0).
+  - Store tail in in visited set.  We use a set, because we only one to count location visited at least once.
+  - Process each instruction.
+    - For each step in the instruction:
+      - Add the instruction vector to head, to create new head location.
+      - Get the vector between head and tail.
+      - If tail needs to move to catch up, determine the movement required.
+      - Add the movement to the tail to create the new tail location, and store this in visisted.
+   - Return the length of visisted.
 
 Part 2:
 
+The rope now has 10 knots. How many positions does the tail of the rope visit at least once?
+
+Solution:
+
+- Same as before.  But now, instead of just head and tail, we keep a list of knots.
+- Process the instruction for head.
+  - Make each subsequent knot move in turn, as it it were a tail.
+  - Store the locations where the actual tail moves.
 """
 from dataclasses import dataclass
 from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 @dataclass(frozen=True)
 class Point:
@@ -30,7 +55,7 @@ class Point:
     x: int
     y: int
     
-    # create a list of points surrounding and including this point
+    # create a list of (x,y) vectors that sorround and include this point
     WITHIN_ONE = [(dx,dy) for dx in range(-1, 2) for dy in range(-1, 2)]
     
     def __add__(self, other):
@@ -63,7 +88,6 @@ def pull_rope(instructions, num_knots: int) -> set[Point]:
     visited_locations: set[Point] = set()
     visited_locations.add(knots[-1]) # track the tail
     
-    move_count = 0
     for direction, mag in instructions: # read char by char
         for _ in range(mag): # move one step at a time
             # print(f"Tail: {knots[-1]}; unique positions: {len(visited_locations)}")
@@ -74,10 +98,7 @@ def pull_rope(instructions, num_knots: int) -> set[Point]:
                 if vector in [Point(x,y) for (x,y) in Point.WITHIN_ONE]:
                     continue # don't need to move
                 else:
-                    move = get_move(vector)
-                    move_count += 1
-                    # print(f"Moving knot {i} by {move}; move count={move_count}")
-                    knots[i] = knots[i] + move
+                    knots[i] = knots[i] + get_move(vector)
                     visited_locations.add(knots[-1])
     
     return visited_locations
