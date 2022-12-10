@@ -226,4 +226,7 @@ pages:
     problem: "Treetop Tree House"
   - name: 9
     link: /2022/9
-    problem: "Rope Bridge"    
+    problem: "Rope Bridge"
+  - name: 10
+    link: /2022/10
+    problem: "Cathode-Ray Tube"        
