@@ -4,10 +4,54 @@ Date: 11/12/2022
 
 Solving https://adventofcode.com/2022/day/11
 
+Monkeys have my stuff! They each have a number of my items. 
+The input data gives tells us how worried we are about each item.
+The monkeys are throwing my items to each other. 
+The input data specifies the rules for how a monkey inspects each item in order,
+how our worry score is affected, and then which other monkey the item gets thrown to.
+A game round = each monkey plays in order; each monkey inspects and throws each item, in order.
+
 Part 1:
+
+Count how many times each monkey inspects my items.
+Monkey business = the product of this count from the two monkeys with the greatest count.
+Determine monkey business for 20 rounds.
+
+Solution:
+- Create a Monkey class which:
+  - Stores id, items (list), worry operation (str), test divisor, and inspection count.
+  - Has an `inspect()` method which:
+    - Increases inspect count
+    - Retrieves the worry score for the first item stored
+    - Performs the worry operation, which changes the worry score for this item
+    - Performs the "relief" step, i.e. dividing by 3 and rounding down.
+    - Performs the test by checking if the modulus of the divisor is 0, 
+      and setting the target monkey accordingly.
+- Read in the input data and create a list of Monkeys from this data.
+- Perform 20 rounds:
+  - Iterate through each monkey in order.
+    - Perform the inspect and item transfer, for each item this monkey has.
+- Determine the final inspect_count for each monkey. Return the product of the two largest counts.
 
 Part 2:
 
+Worry level is no longer reduced after inspection.
+Caclulate monkey business for 10000 rounds.
+
+The problem here is that with the Part 1 solution, the worry scores get very, very fast.
+This solution is going to take too long. We need a way to make these scores smaller.
+A≡B(mod C)
+A is congruent to B mod C.
+≡ means "is congruent to". I.e. that it belongs in the same remainder class, or bucket.
+Numbers are "congruent modulo n" if they have the same remainder after division.
+If a≡b(mod M) and b=d(mod m) then a≡d(mod m)
+If a≡b(mod m), then a+c≡b+c(mod m)
+If a≡b(mod m), then ax≡bx(mod mx)
+
+Modulo congruence is preserved with addition and multiplication (in our worry op).
+And we're not dividing any more, which would break conguence.
+So we only need to maintain a number which preserves the remainder, not the actual worry score.
+So, we can just store %w(mod n). And for n, we can use the LCM of all our divisors.
 """
 from __future__ import annotations
 from collections import Counter
@@ -92,16 +136,18 @@ def main():
     print(f"Part 1: monkey business={monkey_business}")
     
     # Part 2
-    lcm = math.prod(monkey.divisor for monkey in monkeys.values())
+    lcm = math.lcm(*[monkey.divisor for monkey in monkeys.values()])
+    # Note that here, the lcm is actually the product of these numbers, since they are all prime.
+    # But in general, we would want to use LCM.
     monkey_business = play(monkeys, 10000, relief=False, lcm=lcm)
     print(f"Part 2: monkey business={monkey_business}")
 
-def play(monkeys, rounds_to_play: int, relief=True, lcm=None) -> int:
+def play(monkeys: dict[int, Monkey], rounds_to_play: int, relief=True, lcm=None) -> int:
     """ Play required number of rounds.
     Returns 'Monkey Business' = product of the top two inspection counts """
     for _ in tqdm(range(1, rounds_to_play+1)):
         for monkey in monkeys.values(): # Iterator through monkeys in order
-            while monkey.start_items: # Monkey inspects and thorws until it has no more items
+            while monkey.start_items: # Monkey inspects and throws until it has no more items
                 to_monkey = monkeys[monkey.inspect(relief=relief, lcm=lcm)]
                 monkey.throw_to(to_monkey)
     

@@ -229,4 +229,10 @@ pages:
     problem: "Rope Bridge"
   - name: 10
     link: /2022/10
-    problem: "Cathode-Ray Tube"        
+    problem: "Cathode-Ray Tube" 
+  - name: 11
+    link: /2022/11
+    problem: "Monkey in the Middle"
+  - name: 12
+    link: /2022/12
+    problem: "Coming Soon"       

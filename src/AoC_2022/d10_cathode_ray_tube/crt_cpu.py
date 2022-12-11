@@ -55,7 +55,7 @@ class CrtComputer():
         self.running_program = True # Set to false when instructions are complete
         
         self._display_posn = [0,0]
-        self._display = [["." for _ in range(CrtComputer.DISPLAY_WIDTH)] 
+        self._display = [[" " for _ in range(CrtComputer.DISPLAY_WIDTH)] 
                             for _ in range(CrtComputer.DISPLAY_HEIGHT)]
         
     @property
@@ -177,7 +177,7 @@ def main():
             signal_strength_sum += crt_computer.signal_strength
     
     print(f"Part 1: {signal_strength_sum}")
-    print("Part 2:\n", crt_computer.render_display())
+    print(f"Part 2:\n{crt_computer.render_display()}")
     crt_computer.render_as_plt()
 
 if __name__ == "__main__":
