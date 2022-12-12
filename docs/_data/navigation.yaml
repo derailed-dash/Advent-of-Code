@@ -64,6 +64,8 @@ pages:
     link: /python/unit_test
   - name: Priority Queues and Heaps
     link: /python/priority_queues
+  - name: Shortest Path Algorithms
+    link: /python/shortest_paths
 - name: "2015"
   link: /2015/
   mainnav: True

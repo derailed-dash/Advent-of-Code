@@ -1,8 +1,8 @@
 ---
 title: Priority Queues and Heaps
 main_img:
-  name: Graphs
-  link: /assets/images/shortest_path.png
+  name: Heapq
+  link: /assets/images/heapq.png
 tags: 
   - name: Graphs and Graph Theory
     link: /python/graph
