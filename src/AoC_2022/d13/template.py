@@ -1,8 +1,8 @@
 """
 Author: Darren
-Date: 01/12/2022
+Date: 13/12/2022
 
-Solving https://adventofcode.com/2022/day/1
+Solving https://adventofcode.com/2022/day/13
 
 Part 1:
 
@@ -28,4 +28,3 @@ if __name__ == "__main__":
     main()
     t2 = time.perf_counter()
     print(f"Execution time: {t2 - t1:0.4f} seconds")
-
