@@ -27,7 +27,6 @@ What is the shortest number of steps (path), given all starting locations `a` to
 """
 from __future__ import annotations
 from collections import deque
-from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 import time
@@ -54,7 +53,7 @@ class Grid():
     def __init__(self, grid_array: list[str]) -> None:
         """ Generate Grid instance from 2D array. 
         This works on a deep copy of the input data, so as not to mutate the input. """                                         
-        self.array = deepcopy(grid_array)  # Store a deep copy of input data
+        self.array = grid_array  # Store a deep copy of input data
         self.x_size = len(self.array[0])
         self.y_size = len(self.array)
         self.start = self._get_point_for_elevation("S")
