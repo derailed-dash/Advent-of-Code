@@ -24,6 +24,7 @@ tags:
   - [Breadcrumb Trail](#breadcrumb-trail)
 - [Dijkstra's Algorithm](#dijkstras-algorithm)
 - [A* Algorithm](#a-algorithm)
+- [Credit Where It's Due](#credit-where-its-due)
 
 ## Overview
 
@@ -196,3 +197,7 @@ path.reverse() # optional - depends whether we want start->end or end->start
 ## A* Algorithm
 
 // Coming soon
+
+## Credit Where It's Due
+
+When I first learned these algorithms, the best guide I came across was [this one](https://www.redblobgames.com/pathfinding/a-star/introduction.html){:target="_blank"}. I wrote a lot of notes when I first read it, and in writing this page today, I've been referring to my previous notes.  So, the content I've written here will likely have a lot in common with the amazing content from [https://www.redblobgames.com](https://www.redblobgames.com/){:target="_blank"}.
