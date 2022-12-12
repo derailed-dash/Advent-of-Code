@@ -45,11 +45,31 @@ Here are my three top reasons why you should learn this:
 
 First, let me provide a quick summary and comparison.  Then we'll get into the details after.
 
-|Algorithm|Summary|When To Use It|
-|---------|-------|--------------|
-|_Breadth First Search (BFS)_|Aka "flood fill". Explores equally in all directions. Uses a FIFO queue. A `list` will do fine.|For finding the shortest path where the _cost_ is constant for any move. Or, for finding ALL paths from a to b.|
-|_Dijkstra’s Algorithm_|BFS + a cost-based optimisation. I.e. prioritises paths to explore, favouring lower cost paths. Uses a _priority queue_, i.e. `heapq`.|When movement costs may vary.|
-|_A*_|Optimised for a single destination. I.e. prioritises paths that _seem_ to be approaching the goal. Still uses a `heapq`, but uses some sort of cost heuristic. Depending on the value of the distance heuristic, it may not add much value over Dijkstra, and may actually be slower.|When we have an idea of the direction we need to follow|
+<table class="dazbo-table" style="width: 800px">
+    <tr>
+      <th style="width:100px">Algorithm</th>
+      <th style="width:350px">Summary</th>
+      <th style="width:350px">When To Use It</th>
+    </tr>
+    <tr>
+      <td style="font-weight: bold">Breadth First Search (BFS)</td>
+      <td>Aka "flood fill". Explores equally in all directions. Uses a FIFO queue. 
+      A <code class="language-plaintext highlighter-rouge">list</code> will work, 
+      but a <code class="language-plaintext highlighter-rouge">deque</code> is best.</td>
+      <td>For finding the shortest path where the _cost_ is constant for any move. 
+      Or, for finding every point in a graph.  Or for finding ALL paths from a to b.</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold">Dijkstra’s Algorithm</td>
+      <td>Flood fill + a cost-based optimisation. I.e. prioritises paths to explore, favouring lower cost paths. Uses a _priority queue_, i.e. <code class="language-plaintext highlighter-rouge">heapq</code>.</td>
+      <td>When movement costs may vary.</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold">A*</td>
+      <td>Optimised for a single destination. I.e. prioritises paths that _seem_ to be approaching the goal. Still uses a <code class="language-plaintext highlighter-rouge">heapq</code>, but uses some sort of cost heuristic. Depending on the value of the distance heuristic, it may not add much value over Dijkstra, and may actually be slower.</td>
+      <td>When we have an idea of the direction we need to follow.</td>
+    </tr>
+</table>
 
 ## The Final Frontier!
 
@@ -189,6 +209,8 @@ while current != start:
 path.append(start) # optional - depends if we want the first node to be included or not
 path.reverse() # optional - depends whether we want start->end or end->start
 ```
+
+See [2022 Day 12](/2022/12) for a fairly simple implementation of a BFS.
 
 ## Dijkstra's Algorithm
 
