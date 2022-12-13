@@ -242,4 +242,7 @@ pages:
     problem: "Hill Climbing Algorithm"
   - name: 13
     link: /2022/13
-    problem: "Coming Soon"         
+    problem: "Distress Signal"
+  - name: 14
+    link: /2022/14
+    problem: "Coming Soon"        

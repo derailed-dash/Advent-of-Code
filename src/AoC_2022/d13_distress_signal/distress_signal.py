@@ -49,8 +49,7 @@ class Packet():
         self.value = value
         
     def __lt__(self, other: Packet) -> bool:
-        # Base case
-        # if both are ints
+        # Base case - both are ints
         if isinstance(self.value, int) and isinstance(other.value, int):
             if self.value < other.value:
                 return True 
@@ -100,7 +99,6 @@ def main():
     pairs = get_pairs(data)
     right_order = []    
     for i, pair in enumerate(pairs, start=1):
-        print(f"{i}, {pair}")
         if pair.left < pair.right:
             right_order.append(i)
             
