@@ -113,7 +113,7 @@ def main():
     all_packets.append(div_two)
     all_packets.append(div_six)
     sorted_items = sorted(all_packets)
-    loc_div_two = sorted_items.index(div_two) + 1
+    loc_div_two = sorted_items.index(div_two) + 1 # Packets are numbered from 1
     loc_div_six = sorted_items.index(div_six) + 1
     print(f"Part 2 = {loc_div_two*loc_div_six}")
 
@@ -123,10 +123,7 @@ def get_pairs(data: str) -> list[Pair]:
     
     for block in blocks:
         lines = block.splitlines()
-        left = Packet(literal_eval(lines[0]))
-        right = Packet(literal_eval(lines[1]))
-        pair = Pair(left, right)
-        pairs.append(pair)
+        pairs.append(Pair(Packet(literal_eval(lines[0])), Packet(literal_eval(lines[1]))))
         
     return pairs
 
