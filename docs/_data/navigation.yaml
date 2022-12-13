@@ -62,6 +62,8 @@ pages:
     link: /python/zip
   - name: Unit Testing
     link: /python/unit_test
+  - name: Eval and Literal Eval
+    link: /python/eval
   - name: Priority Queues and Heaps
     link: /python/priority_queues
   - name: Shortest Path Algorithms
