@@ -113,7 +113,7 @@ class Grid():
             for v in Grid.SAND_VECTORS:
                 candidate = Point(grain.x + v.x, grain.y + v.y)
                 if self._is_empty(candidate):
-                    if not self._floor and candidate.x < self.min_x: # we've reached fall-through
+                    if not self._floor and candidate.y == self._floor_y: # we've reached fall-through
                         return None
                     else: # there is a floor; expand the grid
                         self.min_x = min(self.min_x, grain.x - 1)
