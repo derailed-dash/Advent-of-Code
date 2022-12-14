@@ -69,11 +69,10 @@ class Grid():
     def __init__(self, lines: set[Line], floor=False) -> None:
         self.rock: set[Point] = self._get_rock(lines)
         self.sand = set()
-        self.filled = self.rock | self.sand  # union of two sets
-        self.min_x = min(point.x for point in self.filled)
-        self.max_x = max(point.x for point in self.filled)
-        self.min_y = min(point.y for point in self.filled)
-        self.max_y = max(point.y for point in self.filled)
+        self.min_x = min(point.x for point in self.rock)
+        self.max_x = max(point.x for point in self.rock)
+        self.min_y = min(point.y for point in self.rock)
+        self.max_y = max(point.y for point in self.rock)
         self._set_floor(floor)
 
     def _set_floor(self, floor: bool):
@@ -96,7 +95,7 @@ class Grid():
     
     def _is_empty(self, point: Point) -> bool:
         """ If this point is not rock or sand, return True. """
-        if point not in self.filled:
+        if point not in self.rock and point not in self.sand:
             if self._floor:
                 if point.y == self._floor_y:
                     return False
@@ -127,15 +126,11 @@ class Grid():
             else: # Get here if all our fall positions are full
                 falling = False
 
-        self._add_sand(grain)
+        self.sand.add(grain)
         if grain == Grid.SAND_ORIGIN:
             return None                  
         
         return grain
-
-    def _add_sand(self, grain):
-        self.sand.add(grain)
-        self.filled.add(grain)
     
     def __str__(self) -> str:
         rows = []
