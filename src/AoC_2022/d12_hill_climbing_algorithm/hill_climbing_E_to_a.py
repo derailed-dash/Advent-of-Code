@@ -31,6 +31,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import time
 
+from matplotlib import pyplot as plt
+
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
@@ -59,12 +61,12 @@ class Grid():
         self.start = self._get_point_for_elevation("S")
         self.goal = self._get_point_for_elevation("E")
         
-    def _all_points(self) -> list[Point]:
+    def all_points(self) -> list[Point]:
         points = [Point(x, y) for x in range(self.x_size) for y in range(self.y_size)]
         return points
     
     def all_lowest_elevation_points(self) -> set[Point]:
-        low_points = {point for point in self._all_points() 
+        low_points = {point for point in self.all_points() 
                         if self.array[point.y][point.x] == "a"
                         or self.array[point.y][point.x] == "S"}
         return low_points
@@ -105,7 +107,7 @@ class Grid():
                 if self.elevation_at_point(neighbour) <= current_elevation + 1:
                     yield neighbour
 
-    def get_path(self, end: Point) -> dict:
+    def get_breadcrumbs(self, end: Point) -> dict[Point, Point]:
         """ Given the start point, find all paths to destination. """
         points_to_assess: deque[Point] = deque() # Points we want to get value of, and get neighbours for
         points_to_assess.append(end)   # where we start
@@ -123,43 +125,65 @@ class Grid():
                     came_from[neighbour] = current
         
         return came_from
+    
+    @staticmethod
+    def create_path(breadcrumbs: dict[Point, Point], start: Point, goal: Point):
+        """ Calculate the path from goal to start, as list of Points. 
+        Return None if no valid path. """
+        path = []
+        current = goal  # we need to walk backwards from destination to start
+        while current != start: 
+            path.append(current)
+            if current in breadcrumbs:
+                current = breadcrumbs[current]
+            else:
+                return None
+            
+        return path
 
     def __repr__(self) -> str:
-        return "\n".join("".join(map(str, row)) for row in self.array)     
+        return "\n".join("".join(map(str, row)) for row in self.array)
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
         
     grid = Grid(data)
-    came_from = grid.get_path(grid.start)
+    breadcrumbs = grid.get_breadcrumbs(grid.start) # every path to every point
     
     # Part 1
-    goal = grid.start   # Going to 'S'
-    path = []
-    current = grid.goal  # Starting with 'E'
-    while current != goal: 
-        path.append(current)
-        current = came_from[current]
-    p1_length = len(path)
-    
-    print(f"Part 1: {p1_length}")
+    path = grid.create_path(breadcrumbs, grid.start, grid.goal) # from 'S' to 'E'
+    print(f"Part 1: {len(path)}")
     
     # Part 2  
-    p2_length = p1_length
+    best_path = path
     for goal in grid.all_lowest_elevation_points():  # Going to all 'a'
-        if goal in came_from:
-            path = []
-            current = grid.goal # Starting with 'E'
-            while current != goal: 
-                path.append(current)
-                if current in came_from:
-                    current = came_from[current]
-                else:
-                    break
-            p2_length = min(p2_length, len(path))
+        if goal in breadcrumbs:
+            path = grid.create_path(breadcrumbs, goal, grid.goal) # from 'a' to 'E'
+            if path:
+                if len(path) < len(best_path):
+                    best_path = path
 
-    print(f"Part 2: {p2_length}")
+    print(f"Part 2: {len(best_path)}")
+    render_as_plt(grid, best_path)
+    
+def render_as_plt(grid, path):
+    """ Render the display as a scatter plot """  
+    x_vals = [point.x for point in grid.all_points()]
+    y_vals = [point.y for point in grid.all_points()]
+    
+    path_x = [point.x for point in path]
+    path_y = [point.y for point in path]
+    
+    axes = plt.gca()
+    axes.set_aspect('equal')
+    axes.set_xlim(min(x_vals)-1, max(x_vals)+1)
+    axes.set_ylim(min(y_vals)-1, max(y_vals)+1)
+    axes.invert_yaxis()
+    
+    axes.scatter(x_vals, y_vals, marker="o", s=5, color="black")
+    axes.scatter(path_x, path_y, marker="o", s=5, color="red")
+    plt.show()    
     
 if __name__ == "__main__":
     t1 = time.perf_counter()

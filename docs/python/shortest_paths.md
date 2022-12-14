@@ -105,10 +105,10 @@ It is **guaranteed to find a solution if one exists.**  The frontier expands at 
 
 ### How It Works
 
-- We want to explore a graph, with a _start_. If our graph was a tree, then we start with the root node. So we add the root to the frontier.
-- It then explores all adjacent nodes. I.e. we add those to the frontier.
-- Then we explore all the nodes that are adjacent to _those_ nodes.
-- The BFS algorithm ensures that the same vertex is not followed twice.
+- We want to explore a graph, made up of edges connected by vertices. E.g. if we're solving the path through a map, then each map location is a vertex. The graph has a _start_ location, which is the root node of our tree. So we add the root to the frontier.
+- It then explores all adjacent nodes. These will be `distance=1` from the root. We add those to the frontier.
+- Then we explore all the nodes that are adjacent to _those_ nodes. I.e. the nodes that are `distance=2` from the root.
+- The BFS algorithm ensures that the same vertex is not followed twice; i.e. we never revisit a node we've visited before. This is crucial because it means that once we've a path to a note, we must have found the _shortest_ route to that node.
 
 So the sequence of exploration looks like this:
 
@@ -155,7 +155,7 @@ There are a couple of convenient ways to label a node as explored:
 If we use a `set`:
 
 ```python
-frontier = deque() # For BFS, we just use a FIFO queue. A deque is perfect.
+frontier = deque() # For BFS, we need a FIFO queue. A deque is perfect.
 frontier.append(start)
 explored = set()  # To stop us exploring the same location more than once.
 explored.append(start)
@@ -174,6 +174,34 @@ while frontier:
 
 if current != goal:
     # there was no solution!
+```
+
+### Keeping Track of Distance
+
+If we're only interested in the shortest distance to a point, but we don't need to create the actual path, a cool trick is to keep track of the distance in our queue.  E.g.
+
+```python
+frontier = deque() # For BFS, we need a FIFO queue. A deque is perfect.
+frontier.append(start, 0) # Queue always includes (point, steps)
+explored = set()  # To stop us exploring the same location more than once.
+explored.append(start)
+
+# keep going until the frontier is empty; i.e. when we've explored all the valid nodes
+while frontier:   
+    current, steps = frontier.popleft()  # pop the first item off the FIFO queue
+
+    if current == goal:
+        break
+
+    for next in graph.neighbors(current):  # get all the valid neighbours
+        if next not in explored:
+            frontier.put(next, steps+1) # add it to the frontier
+            explored.add(next)  # mark it as explored
+
+if current != goal:
+    # there was no solution!
+
+# distance from start to goal = steps 
 ```
 
 ### Breadcrumb Trail
