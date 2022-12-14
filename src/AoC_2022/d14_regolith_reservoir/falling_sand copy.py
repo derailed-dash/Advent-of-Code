@@ -66,20 +66,14 @@ class Grid():
     SAND_ORIGIN = Point(500,0)
     SAND_VECTORS = [Point(0,1), Point(-1, 1), Point(1, 1)] # down, diagonal left, diagonal right
     
-    def __init__(self, lines: set[Line], floor=False) -> None:
+    def __init__(self, lines: set[Line]) -> None:
         self.rock: set[Point] = self._get_rock(lines)
         self.sand = set()
         self.filled = self.rock | self.sand  # union of two sets
         self.min_x = min(point.x for point in self.filled)
         self.max_x = max(point.x for point in self.filled)
         self.min_y = min(point.y for point in self.filled)
-        self.max_y = max(point.y for point in self.filled)
-        self._set_floor(floor)
-
-    def _set_floor(self, floor: bool):
-        self._floor = floor
-        self._floor_y = self.max_y + 2
-        self.max_y = self._floor_y        
+        self.max_y = max(point.y for point in self.filled)   
         
     def _get_rock(self, lines: set[Line]):
         """ Process lines of rock. For each point in those lines, add a rock point to the set. """
@@ -97,9 +91,6 @@ class Grid():
     def _is_empty(self, point: Point) -> bool:
         """ If this point is not rock or sand, return True. """
         if point not in self.filled:
-            if self._floor:
-                if point.y == self._floor_y:
-                    return False
             return True
         
         return False
@@ -113,12 +104,8 @@ class Grid():
             for v in Grid.SAND_VECTORS:
                 candidate = Point(grain.x + v.x, grain.y + v.y)
                 if self._is_empty(candidate):
-                    if not self._floor and candidate.y == self._floor_y: # we've reached fall-through
+                    if candidate.x < self.min_x or candidate.x > self.max_x: # we've reached fall-through
                         return None
-                    else: # there is a floor; expand the grid
-                        self.min_x = min(self.min_x, grain.x - 1)
-                        self.max_x = max(self.max_x, grain.x + 1)
-                        self.min_y = min(self.min_y, grain.y)
                     
                     grain = candidate
                     self.min_y = min(self.min_y, grain.y)
@@ -128,9 +115,6 @@ class Grid():
                 falling = False
 
         self._add_sand(grain)
-        if grain == Grid.SAND_ORIGIN:
-            return None                  
-        
         return grain
 
     def _add_sand(self, grain):
@@ -146,9 +130,6 @@ class Grid():
             for x in range(self.min_x-1, self.max_x+2):
                 point = Point(x,y)
                 if point in self.rock:
-                    row += "#"
-                    continue
-                if self._floor and y == self._floor_y:
                     row += "#"
                     continue
                 if point in self.sand:
@@ -174,16 +155,7 @@ def main():
         adding_sand = grid.drop_sand()
         # print(f"\n{grid}")
     
-    print(f"Part 1: resting grains={len(grid.sand)}")
-    
-    # Part 2
-    grid = Grid(lines, floor=True)
-    adding_sand = True    
-    while adding_sand:
-        adding_sand = grid.drop_sand()
-        # print(f"\n{grid}")
-        
-    print(f"Part 2: resting grains={len(grid.sand)}")        
+    print(f"Part 1: resting grains={len(grid.sand)}") 
         
 def process_lines(data):
     lines = set()

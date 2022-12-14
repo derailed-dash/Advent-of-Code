@@ -247,4 +247,7 @@ pages:
     problem: "Distress Signal"
   - name: 14
     link: /2022/14
-    problem: "Coming Soon"        
+    problem: "Regolith Reservoir"
+  - name: 15
+    link: /2022/15
+    problem: "Coming Soon"   
