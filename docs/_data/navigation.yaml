@@ -68,6 +68,8 @@ pages:
     link: /python/priority_queues
   - name: Shortest Path Algorithms
     link: /python/shortest_paths
+  - name: Useful Algorithms
+    link: /python/useful_algorithms
 - name: "2015"
   link: /2015/
   mainnav: True

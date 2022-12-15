@@ -47,6 +47,8 @@ DISTRESS_Y_BOUNDS = (0, 20)
 
 @dataclass(frozen=True)
 class Point():
+    """ Point with x, y coords. Knows how to add a vector, remove a vector, 
+    and calculate Manhattan distance to to another point. """
     x: int
     y: int
     
@@ -64,15 +66,21 @@ class Point():
         return sum((abs(diff.x), abs(diff.y)))
 
 class SensorGrid():
+    """ Stores a grid of Sensors, and each sensor's nearest beacon. """
+    
     def __init__(self, sensor_to_beacon: dict[Point, Point]) -> None:
+        """ Takes a dictionary of Sensors and their beacons """
         self.sensor_to_beacon = sensor_to_beacon
         self.beacons = set(sensor_to_beacon.values())
         self.sensor_range = {s: b.manhattan_distance_to(s) 
                              for s, b in self.sensor_to_beacon.items()}
         
-        max_distance = max(self.sensor_range.items(), key=lambda x: x[1])[1]
+        max_distance = max(self.sensor_range.items(), key=lambda x: x[1])[1]        
+        self.init_bounds(max_distance)
 
-        # Get the bounds by finding min and max values of any scanner or beacon
+    def init_bounds(self, max_distance):
+        """ Get the bounds by finding min and max values of any scanner or beacon,
+        then adding to each edge the maximum distance we've found for any Scanner->Beacon """
         self.min_x = self.min_y = self.max_x = self.max_y = 0
         for s, b in self.sensor_to_beacon.items():
             self.min_x = min([self.min_x, s.x, b.x])
@@ -96,33 +104,44 @@ class SensorGrid():
         
         return True
     
-    def _get_row_coverage_intervals(self, row: int) -> set[tuple]:
-        """ For each nearby sensor, get all the possible x covered for this row """
+    def _get_row_coverage_intervals(self, row: int) -> list[list]:
+        """ For each nearby sensor, get all x interval for this row.
+        Each sensor will return a range of coverage, like [a, b].
+        So all sensors will return a list of ranges, like [[a, b][c, d][d, e]...] """
         
+        # Get only the sensors that are within range of this row
         close_sensors = {s:r for s, r in self.sensor_range.items() if abs(s.y - row) <= r}
-        row_coverage: set[tuple] = set() # store start and end y for each sensor
-        for s, r in close_sensors.items():
-            vert_dist_to_row = abs(s.y - row)
-            max_x_vector = (r - vert_dist_to_row)
-            start_x = s.x - max_x_vector
-            end_x = s.x + max_x_vector
-            row_coverage.add((start_x, end_x))
+        
+        intervals: list[list] = [] # store start and end y for each sensor
+        for sensor, max_rng in close_sensors.items():
+            vert_dist_to_row = abs(sensor.y - row)
+            max_x_vector = (max_rng - vert_dist_to_row)
+            start_x = sensor.x - max_x_vector
+            end_x = sensor.x + max_x_vector
+            intervals.append([start_x, end_x])
+
+        return intervals
     
-        return row_coverage
+    def _merge_intervals(self, row: int) -> list[list]:
+        """ Takes intervals in the form [[a, b][c, d][d, e]...]
+        Intervals can overlap.  Compresses to minimum number of non-overlapping intervals. """
+        intervals = self._get_row_coverage_intervals(row)
+        intervals.sort()
+        stack = []
+        stack.append(intervals[0])
+        
+        for interval in intervals[1:]:
+            # Check for overlapping interval
+            if stack[-1][0] <= interval[0] <= stack[-1][-1]:
+                stack[-1][-1] = max(stack[-1][-1], interval[-1])
+            else:
+                stack.append(interval)
+         
+        return stack
     
-    def compress_coords(self, row: int):
-        y_intervals_inclusive = []
-        for interval in self._get_row_coverage_intervals(row):
-            y_intervals_inclusive.append(interval[0])
-            y_intervals_inclusive.append(interval[1] + 1)
-        
-        # All y vertices
-        y_intervals_inclusive.sort()
-        
-        # Store the sizes of each successive interval. They will be overlapping.
-        y_boundaries = [y_intervals_inclusive[i+1]-y_intervals_inclusive[i] for i in range(len(y_intervals_inclusive)-1)]
-        
-        return y_boundaries
+    def coverage_for_row(self, row: int):
+        compressed = self._merge_intervals(row)
+        return sum(interval[1]-interval[0]+1 for interval in compressed)
 
     def __str__(self) -> str:
         rows = []
@@ -146,35 +165,15 @@ def main():
         data = f.read().splitlines()
         
     grid = SensorGrid(process_sensors(data))
-    # print(grid)
 
     # Part 1
-    invalid_locations = 0
-    for x in range(grid.min_x, grid.max_x+1):
-        candidate = Point(x, TARGET_ROW)
-        if not grid.valid_for_beacon(candidate) and candidate not in grid.beacons:
-            invalid_locations += 1    
-    print(f"JP row {TARGET_ROW}: {invalid_locations}")
-    
-
-    for y in range(grid.min_y, grid.max_y+1):
-        invalid_locations = 0
-        for x in range(grid.min_x, grid.max_x+1):
-            candidate = Point(x, y)
-            if not grid.valid_for_beacon(candidate) and candidate not in grid.beacons:
-                invalid_locations += 1    
-        print(f"JP row {y}: {invalid_locations}")    
-    
-    compressed_ints = grid.compress_coords(TARGET_ROW)
-    total_coverage = sum(compressed_ints)    
+    total_coverage = grid.coverage_for_row(TARGET_ROW)
     beacons_to_exclude = sum(1 for beacon in grid.beacons if beacon.y == TARGET_ROW)
     print(f"Part 1 - row {TARGET_ROW}: {total_coverage - beacons_to_exclude}")
     
-    for y in range(grid.min_y, grid.max_y+1):
-        compressed_ints = grid.compress_coords(y)
-        total_coverage = sum(compressed_ints)    
-        beacons_to_exclude = sum(1 for beacon in grid.beacons if beacon.y == y)
-        print(f"Part 1 - row {y}: {total_coverage - beacons_to_exclude}")    
+    total_coverage = grid.coverage_for_row(11)
+    beacons_to_exclude = sum(1 for beacon in grid.beacons if beacon.y == -6)
+    print(f"Part 1 - row {11}: {total_coverage - beacons_to_exclude}")    
     
     # # Part 2: we need to find the only non-coverage point in the given area
     for row in range(DISTRESS_Y_BOUNDS[0], DISTRESS_Y_BOUNDS[1] + 1):
@@ -190,18 +189,6 @@ def main():
     #     #     print(f"{x, row}")
     #     #     print(f"{x*TUNING_FREQ_MULTIPLIER + row}")
     #     #     break
-
-
-    
-def get_row_coverage_points(row_coverage_intervals):
-    row_coverage_points = set()
-    for interval in row_coverage_intervals:
-        points = set(range(interval[0], interval[1]+1))
-        row_coverage_points.update(points)
-    return row_coverage_points
-
-def get_close_sensors_for_row(sensor_coverage, row: int):
-    return {s:r for s, r in sensor_coverage.items() if abs(s.y - row) <= r}
 
 def process_sensors(data) -> dict[Point, Point]:
     # Find four digits, preceeded by "not digit"
