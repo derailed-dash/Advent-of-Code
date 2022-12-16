@@ -42,14 +42,13 @@ Soln:
   - I.e. determine all points at d+1 relative to a sensor.
   - For each of these points, check whether the point outside all coverage intervals for this row y.
   - We use this using the same row coverage approach as Part 1.
-  - If it sits outside all coverage areas, then it's our missing beacon.
+  - If there are any gaps between coverage intervals, then this is where our x must be.
 """
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import re
 import time
-from tqdm import tqdm
 
 SCRIPT_DIR = Path(__file__).parent
 TUNING_FREQ_MULTIPLIER = 4000000
@@ -116,7 +115,7 @@ class SensorGrid():
 
     def test_points_outside_perimeter(self) -> Point:
         """ The signal beacon must be one outside of the perimeter of existing sensor boundaries. """
-        for sensor_point, dist_to_nearest in tqdm(self.sensor_range.items()):
+        for sensor_point, dist_to_nearest in self.sensor_range.items():
             for dx in range(dist_to_nearest+2): # max dx is dist_to_nearest + 1
                 dy = (dist_to_nearest+1) - dx   # To always be on perimeter, dx+dy must be dist_to_nearest + 1
                 
@@ -129,15 +128,28 @@ class SensorGrid():
                             and DISTRESS_Y_BOUNDS[0] <= y <= DISTRESS_Y_BOUNDS[1]):
                         continue
 
-                    coverage = self.coverage_for_row(y) # get all disallowed points for this row
-                    in_any_interval = False  # Assume our x is not matching an interval
-                    for interval in coverage:  # test all intervals
-                        if interval[0] <= x <= interval[1]:
-                            in_any_interval = True
-                            break # This point is not valid as it is within an existing coverage area
-                    
-                    if not in_any_interval: # This point was outside all coverage ranges for this row
-                        return Point(x,y)
+                    coverage = self.coverage_for_row(y) # get all disallowed intervals
+                    # look for a gap between any intervals
+                    if len(coverage) > 1:
+                        for i in range(1, len(coverage)+1):
+                            if coverage[i][0] > coverage[0][1] + 1:
+                                x = coverage[i][0] - 1
+                                print(f"x must be {x}")
+                                return Point(x,y)
+        
+        return None
+    
+    def test_all_rows(self) -> Point:
+        """ The signal beacon must be one outside of the perimeter of existing sensor boundaries. """
+        for row in range(DISTRESS_Y_BOUNDS[0], DISTRESS_Y_BOUNDS[1]+1):
+            coverage = self.coverage_for_row(row) # get all disallowed intervals
+            # look for a gap between any intervals
+            if len(coverage) > 1:
+                for i in range(1, len(coverage)+1):
+                    if coverage[i][0] > coverage[0][1] + 1:
+                        x = coverage[i][0] - 1
+                        print(f"x must be {x}")
+                        return Point(x,row)
         
         return None
     
@@ -213,7 +225,7 @@ def main():
     
     # # Part 2: we need to find the only non-coverage point in the given area
     beacon_location = grid.test_points_outside_perimeter()
-    print(f"Part 2: {grid.tuning_frequency(beacon_location)}")
+    print(f"Part 2: point={beacon_location}, tuning freq={grid.tuning_frequency(beacon_location)}")
 
 def process_sensors(data) -> dict[Point, Point]:
     # Find four digits, preceeded by "not digit"
