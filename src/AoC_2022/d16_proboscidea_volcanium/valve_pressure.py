@@ -59,20 +59,22 @@ def main():
     print("\n".join(str(valve) for valve in valves.values()))
 
     @functools.cache
-    def most_relief(opened, mins_remaining, curr_valve_id, elephant=False):
+    def calc_max_relief(opened, mins_remaining, curr_valve_id, elephant=False):
         """ We need to embed this function to make our valves dict available. 
-        We can't pass valves to the method, because it's not hashable so we could cache it."""
+        We can't pass valves to the method, because it the dict is not hashable and can't be cached. """
+        
+        # Base case
         if mins_remaining <= 0:
-            if elephant:
-                return most_relief(opened, 26, "AA")
+            if elephant: # Perform again, but for the elephant
+                return calc_max_relief(opened, 26, "AA")
             else:
                 return 0
 
-        best = 0
+        most_relief = 0
         current_valve = valves[curr_valve_id]
         for neighbour in current_valve.leads_to:
             # Recurse for each neighbouring position
-            best = max(best, most_relief(opened, mins_remaining - 1, neighbour, elephant))
+            most_relief = max(most_relief, calc_max_relief(opened, mins_remaining - 1, neighbour, elephant))
 
         # We only want to open valves that are closed, and where flow rate is > 0
         if curr_valve_id not in opened and current_valve.rate > 0 and mins_remaining > 0:
@@ -83,13 +85,13 @@ def main():
 
             for neighbour in current_valve.leads_to:
                 # Try each neighbour and recurse in. Save the best one.
-                best = max(best, 
-                           total_released + most_relief(frozenset(opened), mins_remaining - 1, neighbour, elephant))
+                most_relief = max(most_relief, 
+                           total_released + calc_max_relief(frozenset(opened), mins_remaining - 1, neighbour, elephant))
 
-        return best
+        return most_relief
 
-    print(f"Part 1: {most_relief(frozenset(), 30, 'AA')}")
-    print(f"Part 2: {most_relief(frozenset(), 26, 'AA', True)}")
+    print(f"Part 1: {calc_max_relief(frozenset(), 30, 'AA')}")
+    print(f"Part 2: {calc_max_relief(frozenset(), 26, 'AA', True)}")
 
 def parse_input(data) -> dict[str, Valve]:
     pattern = re.compile(r"Valve ([A-Z]{2}) has flow rate=(\d+);.+[valve]s? (.+)")
