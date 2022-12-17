@@ -50,7 +50,7 @@ SHAPES = {
 MOVE = {
     "<": (-1, 0),
     ">": (1, 0),
-    "V": (0, 1)
+    "V": (0, -1)
 }
 
 @dataclass(frozen=True)
@@ -69,25 +69,35 @@ class Shape():
     """ Stores the points that make up this shape. 
     Has a factory method to create Shape instances based on shape type. """
     
-    def __init__(self, shape_type: str, points: set[Point]) -> None:
-        self.type = shape_type
+    def __init__(self, points: set[Point], at_rest=False) -> None:
         self.points = points   # the points that make up the shape
-        
-    def top(self) -> int:
-        return min(point.y for point in self.points)
+        self.at_rest = at_rest
     
     @classmethod
-    def create_shape(cls, shape_type: str, origin: Point):
+    def create_shape_by_type(cls, shape_type: str, origin: Point):
         """ Factory method to create an instance of our shape.
         The shape points are offset by the supplied origin. """
-        return cls(shape_type, {(Point(*coords) + origin) for coords in SHAPES[shape_type]})
+        return cls({(Point(*coords) + origin) for coords in SHAPES[shape_type]})
+
+    @classmethod
+    def create_shape_from_points(cls, points: set[Point], at_rest=False):
+        """ Factory method to create an instance of our shape.
+        The shape points are offset by the supplied origin. """
+        return cls(points, at_rest)
     
-    def __repr__(self) -> str:
-        return f"Shape(type={self.type}, points={self.points}"
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Shape):
+            if self.points == __o.points:
+                return True
+        else:
+            return NotImplemented  
     
     def __hash__(self) -> int:
         return hash(repr(self))
 
+    def __repr__(self) -> str:
+        return f"Shape(at_rest={self.at_rest}, points={self.points}"
+    
 class Tower():
     WIDTH = 7
     LEFT_WALL_X = 0  # left wall at x=0
@@ -95,6 +105,7 @@ class Tower():
     OFFSET_X = 2 + 1  # objects start with left edge at x=3
     OFFSET_Y = 3 + 1
     FLOOR_Y = 0
+    
     FALLING = "@"
     AT_REST = "#"
     EMPTY = "."
@@ -105,13 +116,13 @@ class Tower():
         self._jet_pattern = itertools.cycle(jet_pattern)
         self._shape_generator = itertools.cycle(SHAPES)
         self._highest_floor = Tower.FLOOR_Y
-        self._x_origin = Tower.LEFT_WALL_X + Tower.OFFSET_X
-        self._y_origin = self._highest_floor + Tower.OFFSET_Y
-        self._all_shapes: set[Shape] = set()
         self._all_at_rest_shapes: set[Shape] = set()
-
-        self.shape_count = 0
-        self.shape_falling = False
+    
+    def _x_origin(self):
+        return Tower.LEFT_WALL_X + Tower.OFFSET_X
+    
+    def _y_origin(self):
+        return self._highest_floor + Tower.OFFSET_Y
     
     def _next_shape(self):
         """ Get the next shape from the generator """
@@ -122,40 +133,59 @@ class Tower():
         return next(self._jet_pattern)
     
     def drop_shape(self):
-        if not self.shape_falling:
-            self.current_shape = Shape.create_shape(
-                    self._next_shape(), 
-                    Point(self._x_origin, self._y_origin))
-            self._all_shapes.add(self.current_shape)
-            print(f"Added {self.current_shape}")
+        self.current_shape = Shape.create_shape_by_type(
+                self._next_shape(), Point(self._x_origin(), self._y_origin()))
+        print(f"Added {self.current_shape}")
+        print(self)
             
-            self.shape_falling = True
-        
-        while self.shape_falling:
-            # TODO
-            # push it sideways
-            # move it down or settle
-            break
+        self.shape_falling = True
+        while True:
+            self._move_shape(self._next_jet())
+            print(self)
+            if not self._move_shape("V"):
+                self._highest_floor = max(point.y for point in self.current_shape.points)
+                settled_shape = Shape.create_shape_from_points(self.current_shape.points, True)
+                self._all_at_rest_shapes.add(settled_shape)
+                break
     
-    def move_shape(self, direction):
-        # TODO
-        if direction == MOVE["<"]:
+    def _move_shape(self, direction) -> bool:
+        """ Move a shape in the direction indicated. 
+        Return False if we can't move. """
+        if direction == "<":
             shape_left_x = min(point.x for point in self.current_shape.points)
-
-    def _get_all_points(self, settled_only=False):
-        all_shapes_points = set()
-        shapes = self._all_at_rest_shapes if settled_only else self._all_shapes
-        for shape in shapes:
-            all_shapes_points = set.union(shape.points)
+            if shape_left_x == Tower.LEFT_WALL_X + 1:
+                return False # can't move left
             
-        return all_shapes_points # reverse them, because row 0 needs to be at the bottom
+        if direction == ">":
+            shape_right_x = max(point.x for point in self.current_shape.points)
+            if shape_right_x == Tower.RIGHT_WALL_X - 1:
+                return False # can't move right
+            
+        if direction == "V":
+            shape_bottom = min(point.y for point in self.current_shape.points)
+            if shape_bottom == Tower.FLOOR_Y + 1:
+                return False # can't move down
+        
+        # Move the shape; construct a new shape from the new Points
+        candidate_points = {(point + Point(*MOVE[direction])) for point in self.current_shape.points}
+        if self._get_at_rest_points() & candidate_points:
+            return False
+        else:
+            self.current_shape = Shape.create_shape_from_points(candidate_points)
+        return True
+                    
+    def _get_at_rest_points(self):
+        """ Get all the points from all the at_rest shapes """
+        points = set()
+        for shape in self._all_at_rest_shapes:
+            points |= shape.points
+        return points 
     
     def __str__(self) -> str:
         rows = []
-        all_shapes_points = self._get_all_points()
-        all_at_rest_shapes_points = self._get_all_points(settled_only=True)
+        all_at_rest_shapes_points = self._get_at_rest_points()
             
-        for y in range(Tower.FLOOR_Y, max(point.y for point in all_shapes_points) + 1):
+        for y in range(Tower.FLOOR_Y, max(point.y for point in self.current_shape.points) + 1):
             line = ""
             if y == Tower.FLOOR_Y:
                 line += "+" + (Tower.FLOOR * Tower.WIDTH) + "+"
@@ -165,18 +195,17 @@ class Tower():
                         line += Tower.WALL
                     elif Point(x,y) in all_at_rest_shapes_points:
                         line += Tower.AT_REST
-                    elif Point(x,y) in all_shapes_points:
+                    elif Point(x,y) in self.current_shape.points:
                         line += Tower.FALLING
                     else:
                         line += Tower.EMPTY
                     
             rows.append(line)
         
-        return "\n".join(rows[::-1]) 
+        return f"{repr(self)}\n" + "\n".join(rows[::-1]) 
     
     def __repr__(self) -> str:
-        return (f"Tower(shapes={len(self._all_shapes)}, " +
-                f"rested={len(self._all_at_rest_shapes)})")
+        return (f"Tower(rested={len(self._all_at_rest_shapes)})")
 
 
 def main():
@@ -186,9 +215,10 @@ def main():
     print(data)
     
     tower = Tower(jet_pattern=data)
-    for _ in range(3):
+    for _ in range(2022):
         tower.drop_shape()
-        print(f"{tower}\n")
+    
+    # print the height
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
