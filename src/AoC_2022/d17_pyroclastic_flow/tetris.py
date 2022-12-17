@@ -56,16 +56,21 @@ class Point():
         return f"P({self.x},{self.y})"
     
 class Shape():
-      
+    """ Stores the points that make up this shape. 
+    Has a factory method to create Shape instances based on shape type. """
+    
     def __init__(self, shape_type: str, points: set[Point]) -> None:
         self.type = shape_type
         self.points = points   # the points that make up the shape
         
     def bottom_left(self) -> Point:
         """ Return the logical bottom left of this shape. The BL could be empty """
-        min_x = min(point.x for point in self.points)
-        min_y = min(point.y for point in self.points)
-        return Point(min_x, min_y)
+        left_x = min(point.x for point in self.points)
+        bottom_y = max(point.y for point in self.points) # remember, y will decrease going up
+        return Point(left_x, bottom_y)
+    
+    def top(self) -> int:
+        return min(point.y for point in self.points)
     
     @classmethod
     def create_shape(cls, shape_type: str):
