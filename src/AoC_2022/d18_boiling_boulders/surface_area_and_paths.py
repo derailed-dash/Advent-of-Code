@@ -13,6 +13,8 @@ Count total exposed surface area.
 
 Soln:
 - Cube class knows how to find location of all six adjacent cubes.
+- Droplet class stores cubes.
+  - 
 - Each cube has a surface area of 6 - (intersection of cube adjacents with all cubes)
 
 Part 2:
@@ -25,12 +27,19 @@ Soln:
 - We now need to ignore internal pockets that are sealed to the outside.
 - We need to know if a empty location is interior and if it has a path to the outside.
 - Assume all cubes in our list are connected.
-- Find all adjacent cubes that are not in our list:
+- Find all adjacent cubes. These are either:
   - These are either:
     - Part of internal pockets. If we flood fill a pocket, it will have a boundary.
-    - Part of path to the outside. If we flood fill, we will reach a cube beyond all adjacents. No close boundary.
+    - Part of path to the outside. If we flood fill, we will reach a cube beyond all the droplet bounds.
 - To solve:
-  - Subtract surface area of all internal pockets.
+  - For each filled cube, get its adjacents
+  - BFS for each adacent, if adjacent is empty space.
+  - If the BFS only leads to filled cubes, then all paths are blocked, so cube is internal.
+  - If the BFS leads to cubes that our outside our bounds, then this cube has a path out.
+  - Store all cubes that have a path out or are internal, and use these to cache the BFS.
+  - Only increment the surface area count every time we find an adjacent location that has a path out.
+  
+Takes about 5s.
 """
 from __future__ import annotations
 from collections import deque
@@ -65,8 +74,6 @@ class Droplet():
     filled_cubes: set[Cube]
     
     def __post_init__(self) -> None:
-        self._all_adjacent_positions: set[Cube] = set()  # filled or empty adjacent
-        self._adjacent_empty: set[Cube] = set()  # only empty adjacent
         self.all_surface_area: int = 0  # surface area, internal+external
         
         # Store max bounds, so we can tell if we've followed a path beyond the perimeter
@@ -76,19 +83,14 @@ class Droplet():
         self._calculate_values()
     
     def __repr__(self) -> str:
-        return (f"Droplet(filled_cubes={len(self.filled_cubes)}, " +
-                f"all_adjacent={len(self._all_adjacent_positions)}, " +
-                f"empty adjacent={len(self._adjacent_empty)}")
+        return (f"Droplet(filled_cubes={len(self.filled_cubes)}")
         
     def _calculate_values(self): 
         """ Determine:
-            - All filled adjacent positions
-            - All empty adjacent positions
             - Total surface area of all filled positions
+            - Outer boundaries (min/max x/y/z values) for the droplet.
         """
         for filled_cube in self.filled_cubes:
-            self._all_adjacent_positions |= filled_cube.adjacent()
-            self._adjacent_empty.update(cube for cube in filled_cube.adjacent() if cube not in self.filled_cubes)
             self.all_surface_area += Droplet.ADJACENT_FACES - len(self.filled_cubes & filled_cube.adjacent())
             
             self._min_x = min(filled_cube.x, self._min_x)
@@ -130,14 +132,15 @@ class Droplet():
             # Check caches
             if current_cube in cubes_to_outside:
                 return True # We've got out from here before
-            
-            if current_cube in no_path_to_outside or current_cube in self.filled_cubes:
+            if current_cube in no_path_to_outside:
                 continue # This cube doesn't have a path, so no point checking its neighbours
+            
+            if current_cube in self.filled_cubes:
+                continue # This path is blocked
             
             # Check if we've followed a path outside of the bounds
             if current_cube.x > self._max_x or current_cube.y > self._max_y or current_cube.z > self._max_z:
                 return True
-
             if current_cube.x < self._min_x or current_cube.y < self._min_y or current_cube.z < self._min_z:
                 return True
             
