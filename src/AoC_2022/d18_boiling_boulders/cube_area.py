@@ -74,7 +74,7 @@ class Droplet():
         for cube in self.cubes:
             self._all_adjacent_positions |= cube.adjacent()
             self._adjacent_empty.union(cube for cube in cube.adjacent() if cube not in self.cubes)
-            self.all_surface_area += 6 - len(self.cubes & cube.adjacent())
+            self.all_surface_area += Droplet.ADJACENT_FACES - len(self.cubes & cube.adjacent())
     
 def main():
     with open(INPUT_FILE, mode="rt") as f:
