@@ -25,7 +25,40 @@ Part 1:
 
 How many units tall will the tower of rocks be after 2022 rocks have stopped falling?
 
+- Shape class:
+  - Has a set of all the Points it occupies.
+  - Factory methods to create each shape.
+    Point coordinates are created with the appropriate starting position (offset).
+  - Factory method to create a shape for a set of points (e.g. when we move a shape)
+  - Is hashable, so we can store it in sets.
+
+- Tower class:
+  - Use itertools.cycle to infinitely iterate through the input jet pattern.
+    We can always generate the next jet.
+  - Use itertools.cycle to infinitely iterate through the shapes in order.
+    We can always generate the next shape.
+  - Stores all points for all at rest shapes (set).
+  - Stores the current top of all the settled points.
+  - Can determine origin for new shapes, using current top.
+  - Simulates dropping a shape:
+    - Creates the new shape at the appropriate origin.
+    - Calls move with next jet.
+    - Calls move with down. 
+      If we can't move down, settles the shape by adding current shape to settled points.
+  - To move a shape:
+    - Check if we can move left, right or down based on bounds; return if we can't.
+    - If bounds are okay, generate candidate points from current shape.
+    - Check if candidate intersects with settled.  If so, we can't move there.
+    - Otherwise, update current shape to be new shape from candidate points.
+
+- Finally, call tower.drop_shape 2022 times.
+    
 Part 2:
+
+How tall will the tower be after 1000000000000 rocks have stopped?
+
+Part 1 achieves 1M drops / minute. So running Part 1 for this many drops would take 2 years!
+We need a better solution.
 
 """
 from dataclasses import dataclass
@@ -114,14 +147,12 @@ class Tower():
     def __init__(self, jet_pattern: str) -> None:
         self._jet_pattern = itertools.cycle(jet_pattern)
         self._shape_generator = itertools.cycle(SHAPES)
-        self._highest_floor = Tower.FLOOR_Y
+        self.top = Tower.FLOOR_Y  # keep track of top of blocks
         self._all_at_rest_shapes: set[Shape] = set()
+        self._all_at_rest_points: set[Point] = set() # tracking this for speed
     
-    def _x_origin(self):
-        return Tower.LEFT_WALL_X + Tower.OFFSET_X
-    
-    def _y_origin(self):
-        return self._highest_floor + Tower.OFFSET_Y
+    def _current_origin(self) -> Point:
+        return Point(Tower.LEFT_WALL_X + Tower.OFFSET_X, self.top + Tower.OFFSET_Y)
     
     def _next_shape(self):
         """ Get the next shape from the generator """
@@ -133,18 +164,23 @@ class Tower():
     
     def drop_shape(self):
         self.current_shape = Shape.create_shape_by_type(
-                self._next_shape(), Point(self._x_origin(), self._y_origin()))
-        print(self)
+                self._next_shape(), self._current_origin())
             
-        self.shape_falling = True
         while True:
             self._move_shape(self._next_jet())
-            print(self)
-            if not self._move_shape("V"):
-                self._highest_floor = max(point.y for point in self.current_shape.points)
+            # print(self)
+            if not self._move_shape("V"): # failed to move down
+                self.top = max(self.top, max(point.y for point in self.current_shape.points))
                 settled_shape = Shape.create_shape_from_points(self.current_shape.points, True)
-                self._all_at_rest_shapes.add(settled_shape)
+                self._settle_shape(settled_shape)
                 break
+        
+        # print(self)
+    
+    def _settle_shape(self, shape: Shape):
+        """ Add this shape to the settled sets """
+        self._all_at_rest_shapes.add(shape)
+        self._all_at_rest_points.update(shape.points)
     
     def _move_shape(self, direction) -> bool:
         """ Move a shape in the direction indicated. 
@@ -166,32 +202,25 @@ class Tower():
         
         # Move the shape; construct a new shape from the new Points
         candidate_points = {(point + Point(*MOVE[direction])) for point in self.current_shape.points}
-        if self._get_at_rest_points() & candidate_points: # If the candidate would intersect
+        if self._all_at_rest_points & candidate_points: # If the candidate would intersect
             return False # Then this is not a valid posiiton
         else: # We can move there. Update our current shape position.
             self.current_shape = Shape.create_shape_from_points(candidate_points)
         return True
                     
-    def _get_at_rest_points(self) -> set[Point]:
-        """ Get all the points from all the at_rest shapes """
-        points = set()
-        for shape in self._all_at_rest_shapes:
-            points |= shape.points
-        return points 
-    
     def __str__(self) -> str:
         rows = []
-        all_at_rest_shapes_points = self._get_at_rest_points()
+        top_for_vis = max(self.top, max(point.y for point in self.current_shape.points))
             
-        for y in range(Tower.FLOOR_Y, self.height() + 1):
-            line = ""
+        for y in range(Tower.FLOOR_Y, top_for_vis + 1):
+            line = f"{y:3d} "
             if y == Tower.FLOOR_Y:
                 line += "+" + (Tower.FLOOR * Tower.WIDTH) + "+"
             else:            
                 for x in range(Tower.LEFT_WALL_X, Tower.RIGHT_WALL_X + 1):
                     if x in (Tower.LEFT_WALL_X, Tower.RIGHT_WALL_X):
                         line += Tower.WALL
-                    elif Point(x,y) in all_at_rest_shapes_points:
+                    elif Point(x,y) in self._all_at_rest_points:
                         line += Tower.AT_REST
                     elif Point(x,y) in self.current_shape.points:
                         line += Tower.FALLING
@@ -200,23 +229,18 @@ class Tower():
                     
             rows.append(line)
         
-        return f"{repr(self)}\n" + "\n".join(rows[::-1]) 
+        return f"{repr(self)}:\n" + "\n".join(rows[::-1]) 
 
-    def height(self) -> int:
-        points = self._get_at_rest_points() | self.current_shape.points
-        return max(point.y for point in points)
-    
     def __repr__(self) -> str:
-        return (f"Tower(height={self.height()}, rested={len(self._all_at_rest_shapes)})")
+        return (f"Tower(height={self.top}, rested={len(self._all_at_rest_shapes)})")
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read()
-        
-    print(data)
-    
+
+    # Part 1        
     tower = Tower(jet_pattern=data)
-    for _ in range(15):
+    for _ in range(2022):
         tower.drop_shape()
     
     print(f"Part 1: {repr(tower)}")
