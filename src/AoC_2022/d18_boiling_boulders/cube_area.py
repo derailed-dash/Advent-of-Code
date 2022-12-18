@@ -35,7 +35,6 @@ Soln:
 from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass
-from functools import cache
 from pathlib import Path
 import time
 
@@ -63,58 +62,90 @@ class Cube():
 class Droplet():
     """ Droplet is a volume of 1x1x1 cubes """
     ADJACENT_FACES = 6
-    cubes: set[Cube]
+    filled_cubes: set[Cube]
     
     def __post_init__(self) -> None:
         self._all_adjacent_positions: set[Cube] = set()  # filled or empty adjacent
         self._adjacent_empty: set[Cube] = set()  # only empty adjacent
         self.all_surface_area: int = 0  # surface area, internal+external
         
+        # Store max bounds, so we can tell if we've followed a path beyond the perimeter
+        self._min_x = self._min_y = self._min_z = 0
+        self._max_x = self._max_y = self._max_z = 0
+        
         self._calculate_values()
     
+    def __repr__(self) -> str:
+        return (f"Droplet(filled_cubes={len(self.filled_cubes)}, " +
+                f"all_adjacent={len(self._all_adjacent_positions)}, " +
+                f"empty adjacent={len(self._adjacent_empty)}")
+        
     def _calculate_values(self): 
-        for cube in self.cubes:
-            self._all_adjacent_positions |= cube.adjacent()
-            self._adjacent_empty.update(cube for cube in cube.adjacent() if cube not in self.cubes)
-            self.all_surface_area += Droplet.ADJACENT_FACES - len(self.cubes & cube.adjacent())
+        """ Determine:
+            - All filled adjacent positions
+            - All empty adjacent positions
+            - Total surface area of all filled positions
+        """
+        for filled_cube in self.filled_cubes:
+            self._all_adjacent_positions |= filled_cube.adjacent()
+            self._adjacent_empty.update(cube for cube in filled_cube.adjacent() if cube not in self.filled_cubes)
+            self.all_surface_area += Droplet.ADJACENT_FACES - len(self.filled_cubes & filled_cube.adjacent())
+            
+            self._min_x = min(filled_cube.x, self._min_x)
+            self._min_y = min(filled_cube.y, self._min_y)
+            self._min_z = min(filled_cube.z, self._min_z)
+            self._max_x = max(filled_cube.x, self._max_x)
+            self._max_y = max(filled_cube.y, self._max_y)
+            self._max_z = max(filled_cube.z, self._max_z)
     
-    def get_internal_surface_area(self):
-        internal_empty_cubes = self._get_internal_space()
-        internal_surface_area = 0
-        for internal_empty in internal_empty_cubes:
-            internal_surface_area += Droplet.ADJACENT_FACES - len(internal_empty_cubes & internal_empty.adjacent())
-        
-        return internal_surface_area
-    
-    def _get_internal_space(self):
-        """ Process all adjacent empty locations. 
-        Find those that don't connect outside and therefore must be internally bound. """
-        
-        cube_internal = set()  # store all internal empty
-        for cube in self._adjacent_empty:   # loop through all adjacent empty
-            if not self._external_connect(cube):  # if this empty doesn't connect to outside, it's internal
-                cube_internal.add(cube)
+    def get_external_surface_area(self) -> int:
+        """ Determine surface area of all cubes that can reach the outside. """
+        cubes_to_outside = set()   # cache cubes we have already identified a path to outside for
+        no_path_to_outside = set()  # store all internal empty
+        surfaces_to_outside = 0
 
-        print(f"Internal empty: {cube_internal}")                
-        return cube_internal
+        # Loop through the cubes and find any that can reach outside
+        for cube in self.filled_cubes:
+            for adjacent in cube.adjacent(): # for each adjacent...
+                if self._has_path_to_outside(adjacent, cubes_to_outside, no_path_to_outside): 
+                    cubes_to_outside.add(adjacent)
+                    surfaces_to_outside += 1
+                else:
+                    no_path_to_outside.add(adjacent)
+            
+        return surfaces_to_outside
     
-    def _external_connect(self, cube: Cube) -> bool:
+    def _has_path_to_outside(self, cube: Cube, 
+                              cubes_to_outside: set[Cube], 
+                              no_path_to_outside: set[Cube]) -> bool:
+        """ Perform BFS to flood fill from this empty cube.
+        Param cubes_to_outside is to cache cubes we've seen before, that we know have a path. 
+        Param internal_cubues is to cache cubes we've seen before, that are internal. """
         frontier = deque([cube])
         explored = {cube}
         
         while frontier:
             current_cube = frontier.popleft() # FIFO for BFS
             
-            # our goal is when this point seems to have no bound
-            if len(explored) > 5000:
+            # Check caches
+            if current_cube in cubes_to_outside:
+                return True # We've got out from here before
+            
+            if current_cube in no_path_to_outside or current_cube in self.filled_cubes:
+                continue # This cube doesn't have a path, so no point checking its neighbours
+            
+            # Check if we've followed a path outside of the bounds
+            if current_cube.x > self._max_x or current_cube.y > self._max_y or current_cube.z > self._max_z:
+                return True
+
+            if current_cube.x < self._min_x or current_cube.y < self._min_y or current_cube.z < self._min_z:
                 return True
             
-            # We want to look at all neighbours of this empty space, but only if they are also empty
+            # We want to look at all neighbours of this empty space
             for neighbour in current_cube.adjacent():
-                if neighbour not in self.cubes:
-                    if neighbour not in explored:
-                        explored.add(neighbour)
-                        frontier.append(neighbour)
+                if neighbour not in explored:
+                    frontier.append(neighbour)
+                    explored.add(neighbour)
                     
         return False
     
@@ -123,14 +154,15 @@ def main():
         data = f.read().splitlines()
         
     droplet = Droplet(parse_cubes(data))
+    print(droplet)
     
     # Part 1
     print(f"Part 1: all surface area={droplet.all_surface_area}")
 
     # Part 2
-    internal = droplet.get_internal_surface_area()
-    print(f"Part 2: external surface area={droplet.all_surface_area - internal}")
-    
+    external_faces = droplet.get_external_surface_area()
+    print(f"Part 2: external surface area={external_faces}")
+
 def parse_cubes(data: list[str]) -> set[Cube]:
     cubes = set()
     for line in data:
