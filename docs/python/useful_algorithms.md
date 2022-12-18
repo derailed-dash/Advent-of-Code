@@ -11,7 +11,7 @@ tags:
 ## Page Contents
 
 - [Overview](#overview)
-- [Merging Overlapping Intervals](#iterating-over-two-iterables-at-once)
+- [Merging Overlapping Intervals](#merging-overlapping-intervals)
 
 ## Overview
 

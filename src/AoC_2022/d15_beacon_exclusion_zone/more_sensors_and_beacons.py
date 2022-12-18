@@ -139,20 +139,6 @@ class SensorGrid():
         
         return None
     
-    def test_all_rows(self) -> Point:
-        """ The signal beacon must be one outside of the perimeter of existing sensor boundaries. """
-        for row in range(DISTRESS_Y_BOUNDS[0], DISTRESS_Y_BOUNDS[1]+1):
-            coverage = self.coverage_for_row(row) # get all disallowed intervals
-            # look for a gap between any intervals
-            if len(coverage) > 1:
-                for i in range(1, len(coverage)+1):
-                    if coverage[i][0] > coverage[0][1] + 1:
-                        x = coverage[i][0] - 1
-                        print(f"x must be {x}")
-                        return Point(x,row)
-        
-        return None
-    
     def tuning_frequency(self, point: Point) -> int:
         return point.x * TUNING_FREQ_MULTIPLIER + point.y
                                                        
