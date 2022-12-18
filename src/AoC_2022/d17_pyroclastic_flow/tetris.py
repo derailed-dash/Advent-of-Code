@@ -58,7 +58,12 @@ Part 2:
 How tall will the tower be after 1000000000000 rocks have stopped?
 
 Part 1 achieves 1M drops / minute. So running Part 1 for this many drops would take 2 years!
-We need a better solution.
+We need a better solution. We need a repeating cycle. 
+
+Look for a repeat of:
+- Identical rock formation - try over 100 rows.
+- Same dropped rock. (Enumerate the rocks.)
+- Same index in the jets. (Enumerate the jet data.)
 
 """
 from dataclasses import dataclass
@@ -87,6 +92,7 @@ MOVE = {
 
 @dataclass(frozen=True)
 class Point():
+    """ Point with x,y coordinates and knows how to add a vector to create a new Point. """
     x: int
     y: int
     
@@ -102,7 +108,7 @@ class Shape():
     Has a factory method to create Shape instances based on shape type. """
     
     def __init__(self, points: set[Point], at_rest=False) -> None:
-        self.points = points   # the points that make up the shape
+        self.points: set[Point] = points   # the points that make up the shape
         self.at_rest = at_rest
     
     @classmethod
@@ -132,12 +138,13 @@ class Shape():
     
 class Tower():
     WIDTH = 7
-    LEFT_WALL_X = 0  # left wall at x=0
+    LEFT_WALL_X = 0  
     RIGHT_WALL_X = LEFT_WALL_X + 7 + 1  # right wall at x=8
     OFFSET_X = 2 + 1  # objects start with left edge at x=3
-    OFFSET_Y = 3 + 1
+    OFFSET_Y = 3 + 1  # new rocks have a gap of 3 above top of highest settled rock
     FLOOR_Y = 0
     
+    # Printing characters
     FALLING = "@"
     AT_REST = "#"
     EMPTY = "."
@@ -145,13 +152,14 @@ class Tower():
     FLOOR = "-"
     
     def __init__(self, jet_pattern: str) -> None:
-        self._jet_pattern = itertools.cycle(jet_pattern)
-        self._shape_generator = itertools.cycle(SHAPES)
+        self._jet_pattern = itertools.cycle(enumerate(jet_pattern)) # infinite cycle
+        self._shape_generator = itertools.cycle(enumerate(SHAPES))  # infinite cycle
         self.top = Tower.FLOOR_Y  # keep track of top of blocks
         self._all_at_rest_shapes: set[Shape] = set()
         self._all_at_rest_points: set[Point] = set() # tracking this for speed
     
     def _current_origin(self) -> Point:
+        """ Rocks are dropped 2 from the left edge, and 3 above the current tallest settled rock. """
         return Point(Tower.LEFT_WALL_X + Tower.OFFSET_X, self.top + Tower.OFFSET_Y)
     
     def _next_shape(self):
@@ -163,11 +171,12 @@ class Tower():
         return next(self._jet_pattern)
     
     def drop_shape(self):
-        self.current_shape = Shape.create_shape_by_type(
-                self._next_shape(), self._current_origin())
+        shape_index, next_shape_type = self._next_shape()
+        self.current_shape = Shape.create_shape_by_type(next_shape_type, self._current_origin())
             
         while True:
-            self._move_shape(self._next_jet())
+            jet_index, jet = self._next_jet()
+            self._move_shape(jet)
             # print(self)
             if not self._move_shape("V"): # failed to move down
                 self.top = max(self.top, max(point.y for point in self.current_shape.points))
@@ -183,8 +192,9 @@ class Tower():
         self._all_at_rest_points.update(shape.points)
     
     def _move_shape(self, direction) -> bool:
-        """ Move a shape in the direction indicated. 
-        Return False if we can't move. """
+        """ Move a shape in the direction indicated. Return False if we can't move. """
+        
+        # Test against boundaries
         if direction == "<":
             shape_left_x = min(point.x for point in self.current_shape.points)
             if shape_left_x == Tower.LEFT_WALL_X + 1:
@@ -200,11 +210,11 @@ class Tower():
             if shape_bottom == Tower.FLOOR_Y + 1:
                 return False # can't move down
         
-        # Move the shape; construct a new shape from the new Points
+        # Move phase - test for collision
         candidate_points = {(point + Point(*MOVE[direction])) for point in self.current_shape.points}
         if self._all_at_rest_points & candidate_points: # If the candidate would intersect
             return False # Then this is not a valid posiiton
-        else: # We can move there. Update our current shape position.
+        else: # We can move there. Update our current shape position, by constructing a new shape a the new position
             self.current_shape = Shape.create_shape_from_points(candidate_points)
         return True
                     
