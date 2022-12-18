@@ -48,7 +48,7 @@ class Cube():
     y: int
     z: int
 
-    # To generate deltas only for faces, we need two of three dims to 0
+    # To generate deltas only for faces, we need two of three dims to be 0
     ADJ_DELTAS = [(dx,dy,dz) for dx in range(-1, 1+1)
                         for dy in range(-1, 1+1) 
                         for dz in range(-1, 1+1)
@@ -64,10 +64,17 @@ class Droplet():
     cubes: set[Cube]
     
     def __post_init__(self) -> None:
-        pass
+        self._all_adjacent_positions: set[Cube] = set()  # filled or empty adjacent
+        self._adjacent_empty: set[Cube] = set()  # only empty adjacent
+        self.all_surface_area: int = 0  # surface area, internal+external
+        
+        self._calculate_values()
     
-    def surface_area(self): 
-        return sum(6 - len(self.cubes & cube.adjacent()) for cube in self.cubes)
+    def _calculate_values(self): 
+        for cube in self.cubes:
+            self._all_adjacent_positions |= cube.adjacent()
+            self._adjacent_empty.union(cube for cube in cube.adjacent() if cube not in self.cubes)
+            self.all_surface_area += 6 - len(self.cubes & cube.adjacent())
     
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -76,7 +83,7 @@ def main():
     droplet = Droplet(parse_cubes(data))
     
     # Part 1
-    print(f"Part 1: surface_area={droplet.surface_area()}")
+    print(f"Part 1: surface_area={droplet.all_surface_area}")
 
     # Part 2
 
@@ -90,10 +97,6 @@ def parse_cubes(data: list[str]) -> set[Cube]:
     
     return cubes
     
-def bfs(cubes):
-    pass
-    
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
