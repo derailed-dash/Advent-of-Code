@@ -61,10 +61,36 @@ Part 1 achieves 1M drops / minute. So running Part 1 for this many drops would t
 We need a better solution. We need a repeating cycle. 
 
 Look for a repeat of:
-- Identical rock formation - try over 100 rows.
 - Same dropped rock. (Enumerate the rocks.)
 - Same index in the jets. (Enumerate the jet data.)
+- Identical rock formation - lets build a str (which is hashable) from the last 20 rows.
 
+We will store these three values in a cache, implemented as a dict:
+  - Key = rock_index, jet_index, rock_formation.
+  - Value = (current height, current shape count)
+  
+Implement check_cache() method:
+  - Check if the current key is in the cache. 
+  - If it is, return (True, height, last_height, shape count, last shape count)
+  - if not, update the cache
+  
+- Modify drop_shape():
+  - When our shape is settled, check the cache.
+  - If we get a cache hit, update a property for repeats_found.
+  - Store the two crucial values of our repeat cycle: height delta, and shape count delta.
+  
+- Add calculate_height(drops) method:
+  - Determine how many drops are still required.
+  - Determine how many repeat cycles we need, by dividing by the shape count delta.
+    Also determine if there is a remainder, so we can manually drop the remaining shapes.
+  - Determine the height increase, based on this number of repeats. Add this to current height.
+  - Finally, return the calculated height, and the shape drop remainder.
+
+- Back in main():
+  - Drop shapes until we find our first repeat. Store the initial height at this point.
+  - Call calculate_height to determine the calculated height after n drops.
+  - Manually drop shapes for any remainder. Get the new height.
+  - The final height = calculated height + new height - initial height.
 """
 from dataclasses import dataclass
 import itertools
@@ -72,8 +98,8 @@ from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
 
 SHAPES = {
@@ -157,6 +183,10 @@ class Tower():
         self.top = Tower.FLOOR_Y  # keep track of top of blocks
         self._all_at_rest_shapes: set[Shape] = set()
         self._all_at_rest_points: set[Point] = set() # tracking this for speed
+        
+        self.repeat_identified = False
+        self._cache: dict[tuple, tuple] = {}    # K=(rock_idx, jet_idx, rock_formation): V=(height, shape_ct)
+        self._repeat: tuple = (0, 0)  # height_diff, shape_diff
     
     def _current_origin(self) -> Point:
         """ Rocks are dropped 2 from the left edge, and 3 above the current tallest settled rock. """
@@ -170,6 +200,18 @@ class Tower():
         """ Get the next jet blast from the generator """
         return next(self._jet_pattern)
     
+    def _check_cache(self, shape_index: int, jet_index: int, formation: str) -> tuple:
+        key = (shape_index, jet_index, formation)
+        shape_ct = len(self._all_at_rest_shapes)
+        if key in self._cache: # We've found a repeat!
+            # print(key)
+            last_height, last_shape_count = self._cache[key]
+            return (True, self.top, last_height, shape_ct, last_shape_count)
+        else:
+            self._cache[key] = (self.top, shape_ct)
+            
+        return (False, self.top, 0, shape_ct, 0)
+    
     def drop_shape(self):
         shape_index, next_shape_type = self._next_shape()
         self.current_shape = Shape.create_shape_by_type(next_shape_type, self._current_origin())
@@ -182,9 +224,34 @@ class Tower():
                 self.top = max(self.top, max(point.y for point in self.current_shape.points))
                 settled_shape = Shape.create_shape_from_points(self.current_shape.points, True)
                 self._settle_shape(settled_shape)
+                if not self.repeat_identified:
+                    cache_response = self._check_cache(shape_index, jet_index, self.get_recent_formation())
+                    if cache_response[0]: # Cache hit
+                        # print(cache_response)
+                        self.repeat_identified = True
+                        self._repeat = (cache_response[1] - cache_response[2], # current top - last top
+                                        cache_response[3] - cache_response[4]) # current shape ct - last shape ct
+
                 break
+    
+    def calculate_height(self, shape_drops: int) -> tuple[int, int]:
+        """ Calculate the additional height given n shape drops. 
+        We know that x shapes (shape repeat) create a height delta (height repeat) of y.
+        x - current_shape_ct -> required_drops
+        required_drops // shape_repeat -> whole repeats required 
+        required_drops % shape_repeat -> remaining drops required
+        required_drops * height_repeat -> height delta
         
-        # print(self)
+        Returns tuple: new_height (int), remaining drops (int)
+        """
+        remaining_drops = shape_drops - len(self._all_at_rest_shapes)
+        repeats_req = remaining_drops // self._repeat[1]    # full repeats
+        remaining_drops %= self._repeat[1]      # remaining individual drops
+        
+        height_delta = self._repeat[0] * repeats_req  # height created by these repeats
+        new_height = self.top + height_delta
+        
+        return new_height, remaining_drops
     
     def _settle_shape(self, shape: Shape):
         """ Add this shape to the settled sets """
@@ -217,7 +284,25 @@ class Tower():
         else: # We can move there. Update our current shape position, by constructing a new shape a the new position
             self.current_shape = Shape.create_shape_from_points(candidate_points)
         return True
-                    
+    
+    def get_recent_formation(self) -> str:
+        """ Covert last (top) 20 rows into a str representation. """
+        rows = []
+        min_y = max(0, self.top-20) # we want the last 20 lines
+        for y in range(min_y, self.top+1):
+            line = ""
+            for x in range(Tower.LEFT_WALL_X, Tower.RIGHT_WALL_X):
+                if Point(x,y) in self._all_at_rest_points:
+                    line += Tower.AT_REST
+                elif Point(x,y) in self.current_shape.points:
+                    line += Tower.FALLING
+                else:
+                    line += Tower.EMPTY
+            
+            rows.append(line)
+            
+        return "\n".join(rows[::-1])
+                   
     def __str__(self) -> str:
         rows = []
         top_for_vis = max(self.top, max(point.y for point in self.current_shape.points))
@@ -254,6 +339,28 @@ def main():
         tower.drop_shape()
     
     print(f"Part 1: {repr(tower)}")
+    
+    # Part 2
+    tower = Tower(jet_pattern=data)  # Recreate the initial tower
+    while not tower.repeat_identified:  # Drop until we identify the first repeat
+        tower.drop_shape()
+    height_at_repeat_start = tower.top  # The height achieved before first repeat
+    print(f"\nPart 2: Repeat found at: {repr(tower)}")
+    
+    # Here we calculate the new height.  But we're NOT modifying the actual tower height.
+    new_height, remaining_drops = tower.calculate_height(1000000000000)
+    print(f"Part 2: Calculated new height from repeats: {new_height}")
+        
+    # If drops was not an exact multiple of drop repeat, 
+    # then we'll need to top up with the remaining drops.
+    # However, we're continuing the drops with our tower at the point where the repeat was identified.
+    for _ in range(remaining_drops):
+        tower.drop_shape()
+    height_after_top_up = tower.top  # But this number does NOT include the calculated height delta.
+    # So get the diff between the height now, and the height when we stopped dropping.
+    final_height = new_height + height_after_top_up - height_at_repeat_start
+    
+    print(f"Part 2: Final height after top-up: {final_height}")
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
