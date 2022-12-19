@@ -11,7 +11,6 @@ We need to make robots:
 - ore-collecting; we have 1 already
 
 Our input contains blueprints for robot types.
-
 Robots can collect one of its resources per minute. 
 Robot factory takes one minute to construct a robot; resources are consumed at the beginning of the minute.
 
@@ -43,14 +42,6 @@ INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
 
-# robots
-MINERALS = {
-    "ORE": "ore",
-    "CLAY": "clay",
-    "OBSIDIAN": "obsidian",
-    "GEODE": "geode"
-}
-
 @dataclass
 class Blueprint():
     id: int
@@ -58,28 +49,70 @@ class Blueprint():
 
 @dataclass(frozen=True)
 class State():
-    ore_robots: int
-    clay_robots: int
-    obsidian_robots: int
-    geode_robots: int
-    
-    ore: int
-    clay: int
-    obsidian_robots: int
-    geode: int
-    
+    blueprint: Blueprint
     time_remaining: int
     
+    geode_robots: int = 0
+    obsidian_robots: int = 0
+    clay_robots: int = 0
+    ore_robots: int = 1
+    
+    geode: int = 0
+    obsidian: int = 0
+    clay: int = 0
+    ore: int = 0
+    
     def next_state(self) -> State:
-        # TODO implement all possible next states from here
-        pass
+        """ Generator that returns next state. There are only five next states:
+        1: Build nothing (accumulate) 
+        2-5: Build a robot, if you can """
+        time_remaining = self.time_remaining-1
+        
+        # each robot collects one of its resources per minute
+        geode = self.geode + self.geode_robots
+        obsidian = self.obsidian + self.obsidian_robots
+        clay = self.clay + self.clay_robots
+        ore = self.ore + self.ore_robots
+        
+        # do nothing        
+        yield State(self.blueprint, time_remaining, 
+                    self.geode_robots, self.obsidian_robots, self.clay_robots, self.ore_robots,
+                    geode, obsidian, clay, ore)
+        
+        # build a geode robot
+        if (self.obsidian >= self.blueprint.costs["geode"]["obsidian"] 
+                and  self.ore >= self.blueprint.costs["geode"]["ore"]):
+            yield State(self.blueprint, time_remaining, 
+                        self.geode_robots+1, self.obsidian_robots, self.clay_robots, self.ore_robots,
+                        geode, 
+                        obsidian - self.blueprint.costs["geode"]["obsidian"],
+                        clay,
+                        ore - self.blueprint.costs["geode"]["ore"])
+        
+        # build obsidian robot
+        if (self.ore >= self.blueprint.costs["obsidian"]["ore"] 
+                and  self.clay >= self.blueprint.costs["obsidian"]["clay"]):
+            yield State(self.blueprint, time_remaining, 
+                        self.geode_robots, self.obsidian_robots+1, self.clay_robots, self.ore_robots,
+                        geode, 
+                        obsidian,
+                        clay - self.blueprint.costs["obsidian"]["clay"],
+                        ore - self.blueprint.costs["obsidian"]["ore"])
     
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
         
     blueprints = parse_data(data)
-    print(blueprints)
+    
+    for blueprint in blueprints:
+        state = State(blueprint, time_remaining=24)
+        best = bfs(state)
+        print(state)
+        print(f"Best={best}\n")
+    
+def bfs(state: State) -> int:
+    return 0
     
 def parse_data(data: list[str]) -> list[Blueprint]:
     """ Read the input and return a list of Blueprint """
