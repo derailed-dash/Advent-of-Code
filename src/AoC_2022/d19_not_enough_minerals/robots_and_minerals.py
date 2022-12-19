@@ -78,7 +78,6 @@ def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
         
-    print(data)
     blueprints = parse_data(data)
     print(blueprints)
     
