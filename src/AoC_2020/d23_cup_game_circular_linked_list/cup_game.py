@@ -23,7 +23,7 @@ Solution:
 """
 import os
 import time
-from circular_linked_list import Circular_Linked_List
+from circular_linked_list import CircularLinkedList
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/data.txt"
@@ -59,7 +59,7 @@ def main():
 
 def play_game(cups, iterations):
     iteration = 0
-    list_size = cups.get_size()
+    list_size = len(cups)
     while iteration < iterations:
         iteration += 1
         #print(f"\nMove {iteration}")
@@ -114,7 +114,7 @@ def read_input(a_file):
 
 
 def get_cups(data):
-    cups = Circular_Linked_List()
+    cups = CircularLinkedList()
     for num in data:
         cups.insert_end(int(num))
 
@@ -122,7 +122,7 @@ def get_cups(data):
 
 
 def pad_cups(cups, total_cups):
-    for i in range(cups.get_size()+1, total_cups+1):
+    for i in range(len(cups)+1, total_cups+1):
         cups.insert_end(i)
 
     return cups
