@@ -14,60 +14,67 @@ Mix your encrypted file exactly once. What is the sum of the three numbers that 
 (I.e. numbers at index 1000, 2000, 3000.)
 
 Soln:
-- We need to store 3 things: 
-  - the original index -> number, so we can move the next number, wherever it is
-  - the current index -> number, to keep track of where the number is now
-- We need to track original position and current position for every number.
-- Store the numbers in a circular_linked_list, because using a list or going to be slow for large datasets.
 
 Part 2:
 
 """
+from collections import deque
 from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+
+DECRYPTION_KEY = 811589153
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = list(map(int, f.read().splitlines()))
-        
-    print(data)
     
-    # Store "pairs" as (val, original_index)
-    curr_idx_to_pair = {i:(v,i) for i,v in enumerate(data)} # to find pair by index
-    pair_to_curr_idx = {v:k for k,v in curr_idx_to_pair.items()} # to find the current index for a pair
+    # Part 1
+    enumerated = deque(list(enumerate(data.copy())))  # deque of tuples of (original index, value)    
+    enumerated = mix(enumerated)
     
-    for i, val in enumerate(data): # process numbers in original order
-        # E.g. 1, 3, 2, 5, 7, 9, with i=1 and val=3
-        if val == 0:
-            continue
-        curr_idx = pair_to_curr_idx[(val, i)]
-        if curr_idx + val <= 0:
-            fudge = -1
-        elif curr_idx + val > len(data):
-            fudge = 1
-        else:
-            fudge = 0
-        modulo_fudge = 1 if curr_idx + val <= 0 else 0
-        displacement_idx = (curr_idx+val+fudge) % len(data) # idx=4, i.e. where 7 is. It can rollover
-        print(f"Moving {val} from {curr_idx} to {displacement_idx}")
+    coord_sum = 0
+    for n in (1000, 2000, 3000):
+        # Turn our enumerated list into a list
+        coord_sum += value_at_n([val[1] for val in enumerated], n)
+    print(f"Part 1: {coord_sum}")
+    
+    # Part 2
+    new_data = [val*DECRYPTION_KEY for val in data]
+    enumerated = deque(list(enumerate(new_data)))  # new deque    
+    for _ in range(10): # run the mix 10 times, but always with same enumeration (starting order)
+        enumerated = mix(enumerated) 
         
-        displaced_pair = curr_idx_to_pair[displacement_idx] # grab the (4, 7)
-        curr_idx_to_pair[displacement_idx] = curr_idx_to_pair[curr_idx] # move our value from idx 1 to idx 4
+    coord_sum = 0
+    for n in (1000, 2000, 3000):
+        coord_sum += value_at_n([val[1] for val in enumerated], n)
+    print(f"Part 2: {coord_sum}")
+
+def mix(enumerated: deque):
+    """ Perform the mix algorithm on our enumerated deque of numbers """
+    # Move each number once, using original indexes
+    # We can't iterate over actual values from enumerated, since we'll be modifying it as we go
+    for original_index in range(len(enumerated)): 
+        while enumerated[0][0] != original_index: # bring our required element to the front
+            enumerated.rotate(-1) 
+    
+        current_pair = enumerated.popleft()    
+        shift = current_pair[1] % len(enumerated)  # allow for wrapping over
+        enumerated.rotate(-shift) # if value n, we need to shift it n positions
+        enumerated.append(current_pair)
         
-        # Now move everything in between down one
-        for j in range(curr_idx+1, displacement_idx+1):
-            pair_to_curr_idx[curr_idx_to_pair[j]] = j-1
-            curr_idx_to_pair[j-1] = curr_idx_to_pair[j]
-            
-        # And finally, put the displaced pair back in the gap
-        curr_idx_to_pair[displacement_idx-1] = displaced_pair
-        pair_to_curr_idx[displaced_pair] = displacement_idx-1        
+        # print(enumerated)
         
-        print(f"{i+1}: {[val[0] for val in curr_idx_to_pair.values()]}")
+    return enumerated
+    
+def value_at_n(values: list, n: int):
+    """ Determine the value at position n in our list.
+    If index is beyond the end, then wrap the values as many times as required. """
+    digit_posn = (values.index(0)+n) % len(values)
+    return values[digit_posn]
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
