@@ -18,7 +18,7 @@ Soln:
 
 - We have an unweighted, undirected graph.  Each node has a value.
 - We need to find the optimum journey path that opens the most high flow valves earlier.
-- This is memoization problem, which we can do using recursion and caching with lru_cache.
+- This is memoization problem, which we can do using recursion and caching with cache.
 
 Takes a minute or so to run.
 
