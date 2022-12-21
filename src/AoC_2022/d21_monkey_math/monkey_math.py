@@ -34,8 +34,8 @@ import re
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -66,14 +66,28 @@ def main():
     
     # Part 2
     monkeys = {}  # recreate known monkeys, {monkey: value}
-    rows_to_remove = []
     for row, line in enumerate(data):
         if match := yell_pattern.match(line):
             monkeys[match.groups()[0]] = int(match.groups()[1])
 
-    # change the root monkey instruction
-    calcs["root"] = (calcs["root"][0], "==", calcs["root"][2])
-    print(calcs)
+    # change the root monkey instruction; the goal is to return 0
+    calcs["root"] = (calcs["root"][0], "-", calcs["root"][2])
+    
+    # maybe brute force?
+    res = 1
+    low, high = 0, 1000000000000000
+    while res != 0:
+        humn = (low+high)//2
+        print(f"{humn}->{res}")
+        monkeys_try = monkeys.copy()
+        monkeys_try["humn"] = humn
+        res = evaluate_monkey("root", calcs, monkeys_try)
+        if res > 0:
+            high = humn
+        else:
+            low = humn
+        
+    print(f"Part 2: root={monkeys_try['root']}, with humn={humn}")
     
 def evaluate_monkey(monkey_id, calcs, monkeys) -> int:
     """ Recursive evaluation of calcs like: pppw + sjmn """
@@ -88,8 +102,17 @@ def evaluate_monkey(monkey_id, calcs, monkeys) -> int:
         evaluate_monkey(monkey3, calcs, monkeys)
 
     # base case
-    evaluation = str(monkeys[monkey2]) + op + str(monkeys[monkey3])
-    monkeys[monkey_id] = int(eval(evaluation))
+    # We could use eval, but it's dangerous, and relatively slow
+    # monkeys[monkey_id] = int(eval(str(monkeys[monkey2]) + op + str(monkeys[monkey3])))
+    if op == "+":
+        monkeys[monkey_id] = monkeys[monkey2] + monkeys[monkey3]
+    if op == "-":
+        monkeys[monkey_id] = monkeys[monkey2] - monkeys[monkey3]
+    if op == "*":
+        monkeys[monkey_id] = monkeys[monkey2] * monkeys[monkey3]
+    if op == "/":
+        monkeys[monkey_id] = monkeys[monkey2] // monkeys[monkey3]
+    
     return monkeys[monkey_id]
             
 if __name__ == "__main__":
