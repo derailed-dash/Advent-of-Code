@@ -25,8 +25,13 @@ Part 2:
 
 What number do you yell to pass root's equality test?
 
-- Recreate known monkeys.
-- Change the calc instruction for root monkey to be equality check.
+- Recreate our initial known monkeys state.
+- Change the calc instruction for root monkey to be a "-".
+  Now we can check for equality by doing monkey2 - monkey3, and testing if the reuslt is 0.
+  So 0 is our goal.
+- Now we need to try different values for humn, until we reach our goal.
+  Use a binary search for values of humn.  If the binary search fails,
+  reverse the assumption of our binary search and try it again.
 
 """
 from pathlib import Path
@@ -34,8 +39,8 @@ import re
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -70,24 +75,49 @@ def main():
         if match := yell_pattern.match(line):
             monkeys[match.groups()[0]] = int(match.groups()[1])
 
-    # change the root monkey instruction; the goal is to return 0
+    # change the root monkey instruction. We'll change it to a subtract operator.
+    # That way, we'll know both operands have the same value when the result is 0
     calcs["root"] = (calcs["root"][0], "-", calcs["root"][2])
     
-    # maybe brute force?
-    res = 1
-    low, high = 0, 1000000000000000
-    while res != 0:
-        humn = (low+high)//2
-        print(f"{humn}->{res}")
-        monkeys_try = monkeys.copy()
-        monkeys_try["humn"] = humn
-        res = evaluate_monkey("root", calcs, monkeys_try)
-        if res > 0:
-            high = humn
-        else:
-            low = humn
+    # We need to try values that will return will result in root == 0.
+    # Brute force is really slow, but binary search works well!
+    humn = binary_search(0, 0, 1e16, try_monkeys, calcs, monkeys)
+    
+    print(f"Part 2: humn={humn}")
+
+def binary_search(target, low:int, high:int, func, *func_args) -> int:
+    """ Generic binary search function that takes a target to find,
+    low and high values to start with, and a function to run, plus its args. """
+    
+    res = "bad"  # just set it to something that isn't the target
+    candidate = 0  # initialise; we'll set it to the mid point in a second
+    
+    current_low, current_high = low, high
+    flipped = False
+    while res != target:
+        candidate = (current_low+current_high) // 2  # pick mid-point of our low and high
+        if candidate in (current_low, current_high): # we've reached a limit; try reversing search
+            flipped = True # We'll flip the side of our binary search from now on
+            current_low, current_high = low, high # reset the search to initial values
+            candidate = (current_low+current_high) // 2
         
-    print(f"Part 2: root={monkeys_try['root']}, with humn={humn}")
+        print(f"{candidate}->{res}")
+        res = func(candidate, *func_args) # run our function, whatever it is
+        if flipped:
+            res *= -1
+
+        if res > 0:
+            current_low = candidate
+        else:
+            current_high = candidate
+
+    return candidate
+
+def try_monkeys(candidate, calcs: dict, monkeys: dict) -> int:
+    monkeys_try = monkeys.copy()
+    monkeys_try["humn"] = candidate
+    res = evaluate_monkey("root", calcs, monkeys_try)
+    return res
     
 def evaluate_monkey(monkey_id, calcs, monkeys) -> int:
     """ Recursive evaluation of calcs like: pppw + sjmn """
