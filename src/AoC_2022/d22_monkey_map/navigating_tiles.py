@@ -24,6 +24,20 @@ Part 1:
 
 What is the final password?
 
+Soln:
+- Store a map of vectors to >, v, < and ^, which can be indexed by 0, 1, 2, 3.
+- Map class instantiated from the input grid.
+- Stores current position, current direction, and the path taken, made up of (Point, direction).
+- Processes two types of instruction:
+  - change_direction: if R, select the (n+1)%4 vector. If left, select (n+3)%4 vector.
+  - move_forward:
+    - Determine what the next position would be by adding the appropriate vector.
+    - If the candidate is in the grid and not a space, then this is a valid candidate.
+      If not blocked, move there.
+    - If the candidate is not in the grid or is a space, then we need to re-enter from the other side.
+      We do this by reversing direction and moving all the way to the opposite edge. 
+      Then reverse direction again, so we're still facing the right way.
+
 Part 2:
 
 """
@@ -33,8 +47,8 @@ from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 @dataclass(frozen=True)
 class Point():
@@ -51,6 +65,9 @@ class Point():
         return [Point(self.x+dx, self.y+dy) for dx in range(-1, 2)
                                             for dy in range(-1, 2)
                                             if abs(dy) != abs(dx)]
+        
+    def __str__(self):
+        return f"P({self.x}, {self.y})"
 
 DIRECTION_SYMBOLS = ['>', 'v', '<', '^']
 VECTOR_COORDS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
@@ -60,31 +77,34 @@ class Map():
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
         self._set_start()
+        self._last_instruction = "" # just to help with debugging
     
     def _set_start(self):
-        """ Start position is first open space on the grid, starting at (0, 0) 
-        and moving right. """
+        """ Start position is first open space on the grid, 
+        starting at (0, 0) - which could be in 'emtpy' space, and moving right. """
         first_space = self._grid[0].find(".")
         self._posn = Point(first_space, 0)
         self._direction = 0  # index of ['>', 'v', '<', '^']
-        self._path = {self._posn: self._direction}
+        self._path = {self._posn: self._direction} # Everywhere we've been, including direction
         
     @property
     def posn(self) -> Point:
+        """ Point coordinate of the current position. """
         return self._posn
     
     def move(self, instruction: str):
-        """ E.g. R or 10 """
+        """ Can be direction instruction, i.e. L or R, or a move forward instruction, e.g. 10 """
+        self._last_instruction = instruction
         if instruction.isdigit():
             self._move_forward(int(instruction))
         else:
             self._change_direction(instruction)
     
     def _change_direction(self, instruction):
+        """ Rotate to the left or the right, relative to current orientation. """
         change = 1 if instruction == "R" else 3 # add 3 rather than -1, to avoid negative mod
-        self._direction += change
-        self._direction %= len(VECTORS)
-        self._path[self._posn] = self._direction # update direction in path
+        self._direction = (self._direction+change) % len(VECTORS)
+        self._path[self._posn] = self._direction # update direction in the path
         
     def _move_forward(self, steps: int):
         """ Move in the current direction until we hit an obstacle. """
@@ -124,13 +144,16 @@ class Map():
         return True
         
     def _get_value(self, point: Point) -> str:
+        """ The value of the grid at the specified point. """
         return self._grid[point.y][point.x]
         
     def _is_possible(self, locn: Point):
-        """ Check if this space is open """
+        """ Check if this space is open. Only '.' counts as open. """
         return True if self._get_value(locn) == "." else False
         
     def score(self) -> int:
+        """ Score is given by sum of: (1000*y), (4*x), facing. 
+        For this calculation, x and y are 1-indexed. Facing = direction index. """
         return 1000*(self.posn.y+1) + 4*(self.posn.x+1)+self._direction
         
     def __str__(self) -> str:
@@ -147,6 +170,9 @@ class Map():
             lines.append(line)
             
         return "\n".join(lines)
+
+    def __repr__(self):
+        return f"Map(posn={self.posn}, last_instr={self._last_instruction}, score={self.score()})"
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -173,6 +199,7 @@ def main():
 
         # print(f"Instr: {this_instr}")
         the_map.move(this_instr)
+        print(repr(the_map))
     
     print(the_map)
     print(f"Part 1: score={the_map.score()}")
