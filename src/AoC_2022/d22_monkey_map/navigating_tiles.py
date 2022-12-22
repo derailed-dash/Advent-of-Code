@@ -147,8 +147,8 @@ def main():
         
     print(instructions)
     
-    map = Map(the_map.splitlines())
-    print(map)
+    the_map = Map(the_map.splitlines())
+    print(the_map)
     
     # process the instructions
     # todo: process next char. If a digit, look for where next str starts.
