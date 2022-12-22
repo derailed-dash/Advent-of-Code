@@ -33,8 +33,8 @@ from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 @dataclass(frozen=True)
 class Point():
@@ -53,10 +53,8 @@ class Point():
                                             if abs(dy) != abs(dx)]
 
 DIRECTION_SYMBOLS = ['>', 'v', '<', '^']
-VECTOR_COORDS = [(1, 0), (1, 0), (-1, 0), (0, -1)]
+VECTOR_COORDS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 VECTORS = {k: Point(*v) for k, v in enumerate(VECTOR_COORDS)} # so we can retrieve by index
-
-# Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^).
 
 class Map():    
     def __init__(self, grid: list[str]) -> None:
@@ -68,7 +66,7 @@ class Map():
         and moving right. """
         first_space = self._grid[0].find(".")
         self._posn = Point(first_space, 0)
-        self._direction = 0
+        self._direction = 0  # index of ['>', 'v', '<', '^']
         self._path = {self._posn: self._direction}
         
     @property
@@ -83,13 +81,13 @@ class Map():
             self._change_direction(instruction)
     
     def _change_direction(self, instruction):
-        change = 1 if instruction == "R" else -1
-        self._direction += change % len(VECTORS)
+        change = 1 if instruction == "R" else 3 # add 3 rather than -1, to avoid negative mod
+        self._direction += change
+        self._direction %= len(VECTORS)
         self._path[self._posn] = self._direction # update direction in path
         
     def _move_forward(self, steps: int):
-        """ Move in the current direction until we hit an obstacle. Wrap if we need to. """
-        # todo: move forward until blocked. Wrap if we need to
+        """ Move in the current direction until we hit an obstacle. """
         for _ in range(steps):
             candidate_next = self._next_posn()
             if self._is_possible(candidate_next):
@@ -99,21 +97,31 @@ class Map():
                 break
             
     def _next_posn(self) -> Point:
-        """ Determine next Point in this direction, including wrapping.
-        Does not check if blocked. """
+        """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
         # To check wrap, see if next space is a tile.
         # If not, then move in the opposite direction until we reach a non-tile.
         next_posn = self._posn + VECTORS[self._direction]
-        if next_posn == " ": # we're off the tiles
+        if not self._in_grid(next_posn) or self._get_value(next_posn) == " ": # we're off the tiles
             look_back_dir = (self._direction + 2) % len(VECTORS) # set the vector to be opposite
-            while next_posn != " ": # we want to find the first off-tile in the opposite direction
-                next_posn += VECTORS[look_back_dir]
-            
+            next_posn = self._posn + VECTORS[look_back_dir] # first move backwards
+            while self._in_grid(next_posn) and self._get_value(next_posn) != " ": # keep going 
+                next_posn += VECTORS[look_back_dir] # until we find the first off-tile in the opposite direction
+        
             # And now step back one to get the tile we need to apear on
             next_posn += VECTORS[self._direction]
         
         return next_posn
+    
+    def _in_grid(self, point: Point) -> bool:
+        if point.y < 0 or point.y >= len(self._grid):
+            return False
+                
+        # check not outside the bounds of the current row
+        if point.x < 0 or point.x >= len(self._grid[point.y]):
+            return False
+        
+        return True
         
     def _get_value(self, point: Point) -> str:
         return self._grid[point.y][point.x]
@@ -123,8 +131,7 @@ class Map():
         return True if self._get_value(locn) == "." else False
         
     def score(self) -> int:
-        # todo calculate score. Remember it is 1-indexed
-        pass
+        return 1000*(self.posn.y+1) + 4*(self.posn.x+1)+self._direction
         
     def __str__(self) -> str:
         lines = []
@@ -145,17 +152,31 @@ def main():
     with open(INPUT_FILE, mode="rt") as f:
         the_map, instructions = f.read().split("\n\n")
         
-    print(instructions)
-    
     the_map = Map(the_map.splitlines())
-    print(the_map)
     
     # process the instructions
-    # todo: process next char. If a digit, look for where next str starts.
-    # if alpha, look for where next digit starts
-    
+    next_transition = 0
+    this_instr = "" 
+    for i, char in enumerate(instructions):
+        if i < next_transition:
+            continue
+        if char.isdigit():
+            for j, later_char in enumerate(instructions[i:len(instructions)], i):
+                if not later_char.isdigit():
+                    next_transition = j
+                    this_instr = instructions[i: next_transition]
+                    break
+                else:   # we've reached the end
+                    this_instr = instructions[i]    
+        else:   # we're processing alphabetical characters
+            this_instr = instructions[i]
 
-  
+        # print(f"Instr: {this_instr}")
+        the_map.move(this_instr)
+    
+    print(the_map)
+    print(f"Part 1: score={the_map.score()}")
+            
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
