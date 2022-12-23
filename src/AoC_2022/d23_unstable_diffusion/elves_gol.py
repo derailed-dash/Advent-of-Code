@@ -129,7 +129,7 @@ class Grid():
             for direction_checks, proposed_direction in self._directions:
                 if elf_locn.get_neighbours(direction_checks).isdisjoint(self._elves):
                     proposals[elf_locn] = elf_locn + proposed_direction.value
-                    break
+                    break # exit at the first matching direction
             
         # turn into {proposed locn: [elf1_locn, elf2_locn, ...], ...}
         elves_per_proposal = defaultdict(list)
