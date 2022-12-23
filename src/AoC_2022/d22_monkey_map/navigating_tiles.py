@@ -40,6 +40,8 @@ Soln:
 
 Part 2:
 
+- We need to map all the edges.
+
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -76,9 +78,27 @@ VECTORS = {k: Point(*v) for k, v in enumerate(VECTOR_COORDS)} # so we can retrie
 class Map():    
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
+        self._width = max(len(line) for line in self._grid) # the widest line
+        self._pad_grid() # make all rows same length
+        self._cols = self._generate_cols()
         self._set_start()
         self._last_instruction = "" # just to help with debugging
     
+    def _pad_grid(self):
+        """ Ideally, all rows are the same length """
+        lines = []
+        for line in self._grid:
+            if len(line) < self._width:
+                line += " " * (self._width - len(line))
+            lines.append(line)
+            
+        self._grid = lines
+    
+    def _generate_cols(self):
+        """ Create a list of str, where each str is a column """
+        cols_list = list(zip(*self._grid))
+        return ["".join(str(char) for char in col) for col in cols_list]
+        
     def _set_start(self):
         """ Start position is first open space on the grid, 
         starting at (0, 0) - which could be in 'emtpy' space, and moving right. """
@@ -115,7 +135,13 @@ class Map():
                 self._path[self._posn] = self._direction # update direction in path
             else: # we need to stop here
                 break
-            
+    
+    def _get_row_length(self, row_num: int):
+        return len(self._grid[row_num]) - self._grid[row_num].count(" ")
+    
+    def _get_col_length(self, col_num: int):
+        return len(self._cols[col_num]) - self._cols[col_num].count(" ")
+         
     def _next_posn(self) -> Point:
         """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
@@ -174,11 +200,19 @@ class Map():
     def __repr__(self):
         return f"Map(posn={self.posn}, last_instr={self._last_instruction}, score={self.score()})"
 
+class CubeMap(Map):
+    def __init__(self, grid: list[str]) -> None:
+        super().__init__(grid)
+        
+    def _create_faces(self):
+        pass
+
 def main():
     with open(INPUT_FILE, mode="rt") as f:
-        the_map, instructions = f.read().split("\n\n")
+        map_data, instructions = f.read().split("\n\n")
         
-    the_map = Map(the_map.splitlines())
+    map_data = map_data.splitlines()
+    the_map = Map(map_data)
     
     # process the instructions
     next_transition = 0
@@ -199,10 +233,26 @@ def main():
 
         # print(f"Instr: {this_instr}")
         the_map.move(this_instr)
-        print(repr(the_map))
+        # print(repr(the_map))
     
     print(the_map)
     print(f"Part 1: score={the_map.score()}")
+    
+    # # Create an nd_array where all rows are the same length
+    # width = max(len(line) for line in map_data)
+    # lines = []
+    # for line in map_data:
+    #     curr_line = [char for char in line]
+    #     if len(curr_line) < width:
+    #         curr_line.extend([" "] * (width - len(curr_line)))
+    #     lines.append(curr_line)
+        
+    # nd_array = np.array(lines)
+    # print(nd_array.ndim)
+    # print(nd_array.shape)
+    # print(nd_array.size)
+    # nd_cube = np.reshape(nd_array, (-1, 4, 4))
+    # print(nd_cube)
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
