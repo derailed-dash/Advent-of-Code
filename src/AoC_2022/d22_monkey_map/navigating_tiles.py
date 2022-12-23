@@ -49,8 +49,8 @@ from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 @dataclass(frozen=True)
 class Point():
@@ -141,7 +141,7 @@ class Map():
     
     def _get_col_length(self, col_num: int):
         return len(self._cols[col_num]) - self._cols[col_num].count(" ")
-         
+
     def _next_posn(self) -> Point:
         """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
@@ -149,13 +149,9 @@ class Map():
         # If not, then move in the opposite direction until we reach a non-tile.
         next_posn = self._posn + VECTORS[self._direction]
         if not self._in_grid(next_posn) or self._get_value(next_posn) == " ": # we're off the tiles
-            look_back_dir = (self._direction + 2) % len(VECTORS) # set the vector to be opposite
-            next_posn = self._posn + VECTORS[look_back_dir] # first move backwards
-            while self._in_grid(next_posn) and self._get_value(next_posn) != " ": # keep going 
-                next_posn += VECTORS[look_back_dir] # until we find the first off-tile in the opposite direction
-        
-            # And now step back one to get the tile we need to apear on
-            next_posn += VECTORS[self._direction]
+            new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
+            new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
+            next_posn = Point(new_x, new_y)
         
         return next_posn
     
