@@ -25,6 +25,7 @@ Part 2:
 from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass
+import functools
 import heapq
 from pathlib import Path
 import time
@@ -220,34 +221,35 @@ def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
         
+    @functools.cache
+    def a_star(state: MapState, goal: Point):
+        current_state: MapState = state
+        # frontier = []
+        # heapq.heappush(frontier, current_state)
+        frontier = deque([current_state])
+        explored = {current_state}
+        
+        while frontier:
+            # current_state = heapq.heappop(frontier)
+            current_state = frontier.popleft()
+            print(repr(current_state))
+            
+            if current_state.me == goal:
+                break
+            
+            next_blizzard_state = current_state.next_blizzard_state()
+            
+            for next_state in next_blizzard_state.next_me_state():
+                if next_state not in explored:
+                    # heapq.heappush(frontier, next_state)
+                    frontier.append(next_state)
+                    explored.add(next_state)
+            
+        return current_state
+
     state = MapState.create_from_grid(data)
     last_state = a_star(state, state.goal)
     print(f"Time={last_state.time}")
-
-def a_star(state: MapState, goal: Point):
-    current_state: MapState = state
-    # frontier = []
-    # heapq.heappush(frontier, current_state)
-    frontier = deque([current_state])
-    explored = {current_state}
-    
-    while frontier:
-        # current_state = heapq.heappop(frontier)
-        current_state = frontier.popleft()
-        print(repr(current_state))
-        
-        if current_state.me == goal:
-            break
-        
-        next_blizzard_state = current_state.next_blizzard_state()
-        
-        for next_state in next_blizzard_state.next_me_state():
-            if next_state not in explored:
-                # heapq.heappush(frontier, next_state)
-                frontier.append(next_state)
-                explored.add(next_state)
-        
-    return current_state
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
