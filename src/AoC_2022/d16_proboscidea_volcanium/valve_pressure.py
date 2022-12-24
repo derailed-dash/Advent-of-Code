@@ -44,7 +44,7 @@ INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 # sys.setrecursionlimit(10000)
 
-@dataclass(frozen=True, order=True) # state is mutable, but we hash only on other fields
+@dataclass(frozen=True)
 class Valve():
     """ Valve has an ID, a flow rate, and valves it is connected to. """
     id: str    # E.g. "AA"
@@ -60,7 +60,9 @@ def main():
 
     @functools.cache
     def calc_max_relief(opened, mins_remaining, curr_valve_id, elephant=False):
-        """ We need to embed this function to make our valves dict available. 
+        """ Return maximum pressure that can be vented if we start at curr_valve)id, 
+        with n minutes remaining.
+        We need to embed this function to make our valves dict available. 
         We can't pass valves to the method, because it the dict is not hashable and can't be cached. """
         
         # Base case
