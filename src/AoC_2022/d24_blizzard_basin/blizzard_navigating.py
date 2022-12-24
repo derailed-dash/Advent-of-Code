@@ -23,14 +23,15 @@ Part 2:
 
 """
 from __future__ import annotations
-from collections import defaultdict
+from collections import deque
 from dataclasses import dataclass
+import heapq
 from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 @dataclass(frozen=True)
 class Point():
@@ -53,84 +54,161 @@ class Point():
     def __repr__(self):
         return f"P({self.x},{self.y})"
 
-class MapState():    
-    def __init__(self, grid_dims: tuple, locations: dict, me_locn: Point) -> None:
-        self._map_locs: dict[Point, set] = locations # { point: { blizzards } }  Can contain a blizzard or a wall
-        self._width, self._height = grid_dims
+class MapState():
+    def __init__(self, grid: list, me_locn: Point, t=0) -> None:
+        self.grid: list[list] = grid # { point: { blizzards } }  Can contain a blizzard or a wall
+        
+        self._height = len(grid)
+        self._width = len(grid[0])
         self._me = me_locn
-        self._goal = Point(self._width-2, self._height-1)
+        self._time = t
+        self.goal = Point(self._width-2, self._height-1)
 
+    def __hash__(self) -> int:
+        row = self.grid[1]
+        row_str = ""
+        for item in row:
+            if isinstance(item, set):
+                val = len(item)
+            else:
+                val = item
+                
+            row_str += str(val)
+        
+        return hash((self._me, "\n".join(row_str)))  
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, MapState):
+            if self.grid == other.grid and self.me == other.me:
+                return True
+            
+            return False
+        else:
+            return NotImplemented
+
+    @property
+    def me(self) -> Point:
+        return self._me
+    
+    @property
+    def time(self) -> int:
+        return self._time
+    
+    def _distance_to_goal(self) -> int:
+        """ Use to determine how close we are to succeeding. """
+        return self.goal.distance_to(self.me)
+    
+    def __lt__(self, other):
+        """ Use distance heuristic. Lower is better. """
+        if isinstance(other, MapState):
+            return self._distance_to_goal() < other._distance_to_goal()
+        else:
+            return NotImplemented
+        
     def next_blizzard_state(self) -> MapState:
         """ Move blizzards to achieve next blizzard state.  There is only one possible next blizzard state """
-        new_blizzard_locs = defaultdict(set)
+
         row_width = self._width - 2 # ignore walls
         col_height = self._height - 2 # ignore walls
         
-        for y in range(1, self._height):
-            for x in range(1, self._width):
-                curr_locn = Point(x,y)
-                if curr_locn in self._map_locs: # go through all locations that contain something
-                    for map_locn, contained in self._map_locs.items():
-                        for item in contained: # it could be a '#', or one-or-many blizzards
-                            # Because our grid area excludes row 0 and col 0, subtract 1 from these coords
-                            x = (map_locn.x-1)
-                            y = (map_locn.y-1)
-                            if item is not '#':
-                                # For blizzard, find next position by adding blizzard vector. Handle the wrap around.
-                                x = (x + VECTORS[item].x + row_width) % row_width
-                                y = (y + VECTORS[item].y + col_height) % col_height
-                            
-                            # And now add the +1 back to both coords
-                            new_blizzard_locs[Point(x+1, y+1)].add(item)        
+        # Create new grid, with edges and all inner tiles containing an empty set
+        tmp_grid = []
+        for y, current_row in enumerate(self.grid):
+            new_row = []
+            if y in (0, self._height-1):
+                new_row = current_row
+            else:        
+                for x, current_val in enumerate(current_row):
+                    if x in (0, self._width-1): # add the edges
+                        new_row.append(current_val)
+                    else:
+                        new_row.append(set()) # create an empty set to store blizzards
+                        
+            tmp_grid.append(new_row)
         
-        return MapState((self._width, self._height), new_blizzard_locs, self._me)
+        for y in range(1, self._height-1):
+            for x in range(1, self._width-1):
+                current = self.grid[y][x]
+                if isinstance(current, set):
+                    for bliz in current:
+                        # For blizzard, find next position by adding blizzard vector. Handle the wrap around.
+                        move_to_x = (x-1 + VECTORS[bliz].x + row_width) % row_width
+                        move_to_y = (y-1 + VECTORS[bliz].y + col_height) % col_height
+                        tmp_grid[move_to_y+1][move_to_x+1].add(bliz)
+        
+        return MapState(tmp_grid, self._me, self._time+1)
     
     def next_me_state(self):
         # now yield MapStates with with all valid positions for me
-        for proposed in self._me.adjacent_points():
+        proposals = self._me.adjacent_points()
+        proposals.add(self._me)
+        
+        for proposed in proposals:
             if self._is_valid(proposed):
-                yield MapState((self._width, self._height), self._map_locs, proposed)
+                yield MapState(self.grid, proposed, self._time)
         
     def _is_valid(self, point: Point) -> bool:
-        if not (0 <= point.x < self._height):   # out of bounds
+        if not (0 <= point.x < self._width):   # out of bounds
             return False
         
-        if point in self._map_locs: # it's a blizzard or a wall
+        if not (0 <= point.y < self._height):   # out of bounds
             return False
         
-        return True
+        if self.grid[point.y][point.x] == '#':
+            return False
+        
+        if self.grid[point.y][point.x] == '.':
+            return True
+        
+        if isinstance(self.grid[point.y][point.x], set):
+            if len(self.grid[point.y][point.x]) == 0:
+                return True
+        
+        return False
     
     @classmethod
     def create_from_grid(cls, grid: list[str]):
-        """ Normal route to create an initial MapState from a grid """
-        locations = defaultdict(set)
-        for y, row in enumerate(grid):
-            for x, val in enumerate(row):
-                if val is not ".": 
-                    locations[Point(x,y)].add(val)
+        """ New grid from input data. Blizzards stored in sets. """
+        rows = []
+        for row in grid:
+            new_row = []
+            for val in row:
+                if val in VECTORS:
+                    new_row.append({val})
+                else:
+                    new_row.append(val)
+            
+            rows.append(new_row)
         
-        grid_dims = (len(grid[0]), len(grid))
         me = Point(1,0)
-        return cls(grid_dims, locations, me)
+        return cls(rows, me)
         
     def __str__(self) -> str:
         lines = []
         for y in range(0, self._height):
             line = ""
             for x in range (0, self._width):
-                curr_locn = Point(x,y)
-                count = len(self._map_locs[curr_locn])
-                if count == 1: # one blizzard here
-                    line += next(val for val in self._map_locs[curr_locn])
-                elif count == 0: # Nothing here
-                    line += "."
-                else: # more than one blizzard here
-                    line += str(len(self._map_locs[curr_locn]))
+                val = self.grid[y][x]
+                if Point(x,y) == self._me:
+                    line += "M" 
+                elif isinstance(val, set):
+                    if len(val) == 1: # one blizzard here
+                        line += next(bliz for bliz in val)
+                    elif len(val) > 1: # more than one blizzard here
+                        line += str(len(val))
+                    else:
+                        line += '.'
+                else: # must be a str
+                    line += val
                     
             lines.append(line)
             
-        return "\n".join(lines) + f"\nCurrent={self._me}, Goal={self._goal}"
+        return ("\n".join(lines) + 
+                f"\nTime={self.time}, Me={self._me}, Distance={self._distance_to_goal()}, Hash={hash(self)}")
 
+    def __repr__(self) -> str:
+        return f"Time={self.time}, Me={self._me}, Distance={self._distance_to_goal()}, Hash={hash(self)}"
+    
 VECTORS = {
     '^': Point(0, -1),
     '>': Point(1, 0),
@@ -143,13 +221,34 @@ def main():
         data = f.read().splitlines()
         
     state = MapState.create_from_grid(data)
-    print(state)
-    
-    for i in range(1, 6):
-        print(f"\nRound {i}")
-        state = state.next_blizzard_state()
-        print(state)
+    last_state = a_star(state, state.goal)
+    print(f"Time={last_state.time}")
 
+def a_star(state: MapState, goal: Point):
+    current_state: MapState = state
+    # frontier = []
+    # heapq.heappush(frontier, current_state)
+    frontier = deque([current_state])
+    explored = {current_state}
+    
+    while frontier:
+        # current_state = heapq.heappop(frontier)
+        current_state = frontier.popleft()
+        print(repr(current_state))
+        
+        if current_state.me == goal:
+            break
+        
+        next_blizzard_state = current_state.next_blizzard_state()
+        
+        for next_state in next_blizzard_state.next_me_state():
+            if next_state not in explored:
+                # heapq.heappush(frontier, next_state)
+                frontier.append(next_state)
+                explored.add(next_state)
+        
+    return current_state
+            
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
