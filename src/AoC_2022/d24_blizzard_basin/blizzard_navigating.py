@@ -15,7 +15,9 @@ What is the fewest number of minutes required to avoid the blizzards and reach t
 Soln:
 - Create a MapState.
 - There are no v or ^ blizzards in the cols with openings, so we can ignore this case.
-- Use BFS.
+- Stores all blizzards at a given location. Because there can be more than one blizzard.  Thus dict of {Point: {blizzards}}
+- MapState able to yield next MapState by moving all blizzards.
+- Now A* through the map. Use Manhattan distance for the heuristic.
 
 Part 2:
 
@@ -41,6 +43,13 @@ class Point():
         """ Subtract other point from this point, returning new point vector """
         return Point(self.x + other.x, self.y + other.y)
     
+    def adjacent_points(self) -> set[Point]:
+        return set(self+vector for vector in VECTORS.values())
+    
+    def distance_to(self, other: Point) -> int:
+        """ Manhattan distance between points """
+        return abs(self.x - other.x) + abs(self.y - other.y)
+    
     def __repr__(self):
         return f"P({self.x},{self.y})"
 
@@ -51,7 +60,8 @@ class MapState():
         self._me = me_locn
         self._goal = Point(self._width-2, self._height-1)
 
-    def next_state(self):
+    def next_blizzard_state(self) -> MapState:
+        """ Move blizzards to achieve next blizzard state.  There is only one possible next blizzard state """
         new_blizzard_locs = defaultdict(set)
         row_width = self._width - 2 # ignore walls
         col_height = self._height - 2 # ignore walls
@@ -73,8 +83,23 @@ class MapState():
                             # And now add the +1 back to both coords
                             new_blizzard_locs[Point(x+1, y+1)].add(item)        
         
-        return MapState((self._width, self._height), new_blizzard_locs, self._me)        
+        return MapState((self._width, self._height), new_blizzard_locs, self._me)
+    
+    def next_me_state(self):
+        # now yield MapStates with with all valid positions for me
+        for proposed in self._me.adjacent_points():
+            if self._is_valid(proposed):
+                yield MapState((self._width, self._height), self._map_locs, proposed)
         
+    def _is_valid(self, point: Point) -> bool:
+        if not (0 <= point.x < self._height):   # out of bounds
+            return False
+        
+        if point in self._map_locs: # it's a blizzard or a wall
+            return False
+        
+        return True
+    
     @classmethod
     def create_from_grid(cls, grid: list[str]):
         """ Normal route to create an initial MapState from a grid """
@@ -104,7 +129,7 @@ class MapState():
                     
             lines.append(line)
             
-        return "\n".join(lines) + f"\nCurrent={self._me}, Goal = {self._goal}"
+        return "\n".join(lines) + f"\nCurrent={self._me}, Goal={self._goal}"
 
 VECTORS = {
     '^': Point(0, -1),
@@ -120,8 +145,9 @@ def main():
     state = MapState.create_from_grid(data)
     print(state)
     
-    for i in range(5):
-        state = state.next_state()
+    for i in range(1, 6):
+        print(f"\nRound {i}")
+        state = state.next_blizzard_state()
         print(state)
 
 if __name__ == "__main__":
