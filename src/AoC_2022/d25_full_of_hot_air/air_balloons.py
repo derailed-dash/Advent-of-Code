@@ -10,19 +10,26 @@ Numbers in the snafu system; it's base-5.
 So, 1=-0-2
 
 Part 1:
+Add up all the snafu numbers, and represent the total in snafu format.
 
-Part 2:
+Solution:
+- Add snafu numbers column by column, from right to left, just like any other base.
+- For column addition: convert to decimal, add up, and determine any carry to the left column.
+  - We need to carry-over, if the current column adds up to < -2, or > 2.
+    If current col > 2: add one carry-over unit and subtract 5 in the current column.
+    If current col < -2: subtract one carry-over unit and add 5 in the current column.
+  - Convert the current col back to snafu and store it.
 
+Part 2: There is no part 2!
 """
 from pathlib import Path
 import time
-import string
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
-convert = {
+snafu_to_dec = {
     '2': 2,
     '1': 1,
     '0': 0,
@@ -30,48 +37,42 @@ convert = {
     '=': -2
 }
 
+int_to_snafu = {v:k for k,v in snafu_to_dec.items()}
+
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
-        
-    print(data)
     
-    # convert rows from snafu to decimal
-    totals = []
-    for row in data:
-        row_total = 0
-        for posn, digit in enumerate(row, 1):
-            row_total += 5**(len(row) - posn) * convert[digit]
-        
-        totals.append(row_total)
-    
-    total = sum(totals)
-    print(f"Decimal total: {total}") # represent total as snafu
-    
-    base_5 = int_to_base(total, 5) # convert to base 5
-    print(base_5)
-    
-    convert_num = total
-    index = 0
-    divisible = True
-    while divisible:
-        index += 1
-        if (convert_num*2-1) // 5**index == 0:
-            divisible = False
+    print(add_snafu(data))
             
-    print(index)
-    
-def int_to_base(int_num, base):
-    """ Return base N representation for int n. """
-    base_n_digits = string.digits + string.ascii_lowercase + string.ascii_uppercase
-    result = ""
-    while int_num > 0:
-        q, r = divmod(int_num, base)
-        result += base_n_digits[r]
-        int_num = q
-    if result == "":
-        result = "0"
-    return "".join(reversed(result))
+def add_snafu(nums: list[str]) -> str:
+    """ Add up snafu digits with column carry, just like any other base system.
+    All the input digits are in snafu format, so are passed as str.
+    Add up decimal values, calculate the carries, and convert the current column to snafu. """
+    max_cols = max(len(num) for num in nums) # the longest digit in our input
+        
+    snafu_total_digits = []
+    carry = 0
+    for col in range(max_cols): # add up ALL numbers from right to left
+        sum_col = carry # carry this number from previous column
+        for num in nums:
+            if col < len(num): # We need to include this number in the column addition
+                # get the appropriate snafu digit from this number, convert to dec for addition
+                sum_col += snafu_to_dec[num[len(num)-1-col]]
+        
+        carry = 0 # reset carry
+        while sum_col > 2:
+            # every unit carried is worth 5 from the column before
+            carry += 1
+            sum_col -= 5
+            
+        while sum_col < -2: # since snafu digits can be negative, we need to handle this
+            carry -= 1
+            sum_col += 5
+
+        snafu_total_digits.append(int_to_snafu[sum_col])
+
+    return (''.join(snafu_total_digits[::-1]))  
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
