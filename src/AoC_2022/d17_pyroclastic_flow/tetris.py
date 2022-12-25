@@ -5,7 +5,7 @@ Date: 17/12/2022
 Solving https://adventofcode.com/2022/day/17
 
 Rocks are falling.  And they resemble tetris pieces! They always fall in this order:
--, +, backwards Lâ, |, ■.
+-, +, backwards L, |, ■.
 
 Chamber is 7 units wide.  Rocks start to fall from:
 - left edge 2 units from left wall
@@ -93,6 +93,7 @@ Implement check_cache() method:
   - The final height = calculated height + new height - initial height.
 """
 from dataclasses import dataclass
+from enum import Enum
 import itertools
 from pathlib import Path
 import time
@@ -100,15 +101,13 @@ import time
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
 
-SHAPES = {
-    "HLINE":       {(0, 0), (1, 0), (2, 0), (3, 0)},
-    "PLUS":        {(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)},
-    "BACKWARDS_L": {(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)},
-    "I":           {(0, 0), (0, 1), (0, 2), (0, 3)},
-    "SQUARE":      {(0, 0), (1, 0), (0, 1), (1, 1)}
-}
+class ShapeType(Enum):
+    HLINE =       {(0, 0), (1, 0), (2, 0), (3, 0)}
+    PLUS =        {(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)}
+    BACKWARDS_L = {(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)}
+    I =           {(0, 0), (0, 1), (0, 2), (0, 3)}
+    SQUARE =      {(0, 0), (1, 0), (0, 1), (1, 1)}    
 
 MOVE = {
     "<": (-1, 0),
@@ -141,7 +140,7 @@ class Shape():
     def create_shape_by_type(cls, shape_type: str, origin: Point):
         """ Factory method to create an instance of our shape.
         The shape points are offset by the supplied origin. """
-        return cls({(Point(*coords) + origin) for coords in SHAPES[shape_type]})
+        return cls({(Point(*coords) + origin) for coords in ShapeType[shape_type].value})
 
     @classmethod
     def create_shape_from_points(cls, points: set[Point], at_rest=False):
@@ -153,6 +152,8 @@ class Shape():
         if isinstance(__o, Shape):
             if self.points == __o.points:
                 return True
+            else:
+                return False
         else:
             return NotImplemented  
     
@@ -179,7 +180,7 @@ class Tower():
     
     def __init__(self, jet_pattern: str) -> None:
         self._jet_pattern = itertools.cycle(enumerate(jet_pattern)) # infinite cycle
-        self._shape_generator = itertools.cycle(enumerate(SHAPES))  # infinite cycle
+        self._shape_generator = itertools.cycle(enumerate(item.name for item in ShapeType))  # infinite cycle
         self.top = Tower.FLOOR_Y  # keep track of top of blocks
         self._all_at_rest_shapes: set[Shape] = set()
         self._all_at_rest_points: set[Point] = set() # tracking this for speed

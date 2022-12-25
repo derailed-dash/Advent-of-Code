@@ -19,6 +19,7 @@ Here I'll go into the basics of working with classes and objects in Python. This
 - [Defining a Class](#defining-a-class)
 - [Comparing Objects](#comparing-objects)
 - [Dataclass](#dataclass)
+- [Factory Pattern](#factory-pattern)
 
 ## What is a Class? What is an Object?
 
@@ -280,3 +281,60 @@ if point_c in points:
 ```
 
 Similar to using `dataclass`, Python also has something called a `NamedTuple`.  This allows us to define a an immutable class with only attributes.  Thus, a `NamedTuple` is very similar to a frozen (immutable) `dataclass`.  The `dataclass` is a lot more powerful and flexible than `NamedTuple`, so I'd generally always recommend using `dataclass` over `NamedTuple`.
+
+## Factory Pattern
+
+Here I show a useful way to instantiate a class using factory method. In the example below, one factory method instantiates a `Shape` given a `ShapeType`. Another factory method allows us to instantiate a `Shape` given a set of points.
+
+```python
+from __future__ import annotations
+from dataclasses import dataclass
+from enum import Enum
+
+class ShapeType(Enum):
+    HLINE =       {(0, 0), (1, 0), (2, 0), (3, 0)}
+    PLUS =        {(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)}
+    BACKWARDS_L = {(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)}
+    I =           {(0, 0), (0, 1), (0, 2), (0, 3)}
+    SQUARE =      {(0, 0), (1, 0), (0, 1), (1, 1)}    
+
+@dataclass(frozen=True)
+class Point():
+    """ Point with x,y coordinates and knows how to add a vector to create a new Point. """
+    x: int
+    y: int
+    
+    def __add__(self, other):
+        """ Add other point/vector to this point, returning new point """
+        return Point(self.x + other.x, self.y + other.y)     
+    
+    def __repr__(self) -> str:
+        return f"P({self.x},{self.y})"
+
+class Shape():
+    """ Stores points that make up this shape. 
+    Has a factory method to create Shape instances based on shape type. """
+    
+    def __init__(self, points: set[Point], at_rest=False) -> None:
+        self.points: set[Point] = points   # the points that make up the shape
+        self.at_rest = at_rest
+    
+    @classmethod
+    def create_shape_by_type(cls, shape_type: str, origin: Point):
+        """ Factory method to create an instance of our shape.
+        The shape points are offset by the supplied origin. """
+        return cls({(Point(*coords) + origin) for coords in ShapeType[shape_type].value})
+
+    @classmethod
+    def create_shape_from_points(cls, points: set[Point], at_rest=False):
+        """ Factory method to create an instance of our shape.
+        The shape points are offset by the supplied origin. """
+        return cls(points, at_rest)
+    
+    def __str__(self):
+        return f"Shape:({self.points})"
+
+start = Point(0,0)
+my_shape = Shape.create_shape_by_type(ShapeType.PLUS.name, start)
+print(my_shape)
+```
