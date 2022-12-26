@@ -11,6 +11,8 @@ tags:
     link: https://pythonbasics.org/decorators/
   - name: Inheritance
     link: https://www.geeksforgeeks.org/inheritance-in-python/
+  - name: Enum
+    link: /python/enumerate#enum
 ---
 Here I'll go into the basics of working with classes and objects in Python. This is not an exhaustive treatment, but should be enough to give you the basics, and should be enough to make my AoC solutions easier to follow.
 
@@ -349,36 +351,45 @@ class MyChildClass(MyParentClass):
 
 Some general notes on inheritance:
 
-- Inheritance is explicitly defined by placing the parent classes in parentheses, at the end of the class definition.  There can be more than one parent class.
+- Inheritance is explicitly defined by placing the parent classes in parentheses, at the end of the class definition.  A given subclass can inherit from more than one parent class.
 - Subclasses inherit all methods of any parent classes.
 - The base classes for a subclass can be obtained in the form of a tuple, using __bases__.
 - Initialisers:
-  - If a subclass does not define an initialiser, the base class initialiser is called automatically.
+  - If a subclass does not define an initialiser, then the initialiser of the base class is called automatically.
   - However, consider being explicit; if you want to call a base class initialiser, then do so explicitly using `super()`. 
-- _Method resolution order (MRO)_ is used to resolve methods at run time.  We can return this for a class using __mro__, or using the `mro()` method. It is dependent on base class definition order. Subclasses come before base classes.
+- When inheriting from multiple parent classes, _method resolution order (MRO)_ is used to resolve methods at run time.  We can return this for a class using __mro__, or using the `mro()` method. It is dependent on base class definition order. Subclasses come before base classes.
 
 Here's a simple inheritance example:
 
 ```python
 class Foo:
+    def __init__(self) -> None:
+        print("Initialising a Foo")
+    
     def do_foo(self):
         print(f"{self.__class__.__name__}: I know how to foo")
-        
+    
     def __repr__(self):
         return f"I am a {self.__class__.__name__}"
     
 class Bar(Foo):
+    def __init__(self) -> None:
+        super().__init__()
+        print("Initialising a Bar")
+        
     def do_bar(self):
         print(f"{self.__class__.__name__}: I know how to bar")
     
     def __repr__(self):
         return f"I am a {self.__class__.__name__}"
-    
+
+print("Let's create a Foo...")
 foo = Foo()
 print(foo)
 foo.do_foo()
 # foo.do_bar() - We can't do this!
- 
+
+print("\nLet's create a Bar...")
 bar = Bar()
 print(bar)
 bar.do_bar()
@@ -388,8 +399,14 @@ bar.do_foo() # Inherited from parent class!
 Here's the output:
 
 ```text
+Let's create a Foo...
+Initialising a Foo
 I am a Foo
 Foo: I know how to foo
+
+Let's create a Bar...
+Initialising a Foo
+Initialising a Bar
 I am a Bar
 Bar: I know how to bar
 Bar: I know how to foo
@@ -397,7 +414,7 @@ Bar: I know how to foo
 
 ## Factory Pattern
 
-Here I show a useful way to instantiate a class using factory method. In the example below, one factory method instantiates a `Shape` given a `ShapeType`. Another factory method allows us to instantiate a `Shape` given a set of points.
+Here I show a useful way to instantiate a class using factory method. In the example below, one factory method instantiates a `Shape` given a `ShapeType` (which is itself a subclass of [Enum](/python/enum)). Another factory method allows us to instantiate a `Shape` given a set of points.
 
 ```python
 from __future__ import annotations

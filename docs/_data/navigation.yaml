@@ -38,7 +38,7 @@ pages:
     link: /python/numpy
   - name: Working with Images
     link: /python/images
-  - name: Enumerate
+  - name: Enumerate and Enum
     link: /python/enumerate
   - name: Map, Filter, and Reduce
     link: /python/map-filter-reduce
