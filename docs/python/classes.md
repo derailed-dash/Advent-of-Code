@@ -9,6 +9,8 @@ tags:
     link: https://www.geeksforgeeks.org/understanding-python-dataclasses/
   - name: Decorator
     link: https://pythonbasics.org/decorators/
+  - name: Inheritance
+    link: https://www.geeksforgeeks.org/inheritance-in-python/
 ---
 Here I'll go into the basics of working with classes and objects in Python. This is not an exhaustive treatment, but should be enough to give you the basics, and should be enough to make my AoC solutions easier to follow.
 
@@ -17,16 +19,20 @@ Here I'll go into the basics of working with classes and objects in Python. This
 - [What is a Class? What is an Object?](#what-is-a-class-what-is-an-object)
 - [Object-Oriented Programming (OOP)](#object-oriented-programming-oop)
 - [Defining a Class](#defining-a-class)
-- [Comparing Objects](#comparing-objects)
+- [Instance vs Class](#instance-vs-class)
+  - [Attributes](#attributes)
+  - [Methods](#methods)
+- [Comparing Objects and Hashing](#comparing-objects-and-hashing)
 - [Dataclass](#dataclass)
+- [Inheritance](#inheritance)
 - [Factory Pattern](#factory-pattern)
 
 ## What is a Class? What is an Object?
 
 Think of a _class_ as a blueprint.  It is the blueprint of a _thing_, where that thing has:
 
-- State - called _attributes_.
-- Behaviour - called _methods_.
+- **State** - called _attributes_.
+- **Behaviour** - called _methods_.
 
 So a class is kind of an abstract concept. But we can create an _instance_ of the class; think of it as building something according to the blueprint. The instance is called an _object_.
 
@@ -70,11 +76,7 @@ In simplistic terms, this is simply a way of programming where we primarily use 
 
 In OOP, there are some standard concepts:
 
-- **Inheritance** - I.e. where an object can inherit - and override - the properties and methods from some sort of ancester, called a _base class_.  Using our simple analogy again:
-  - `Vehicle` is a very abstract thing. It can accelerate, decelerate, and turn.
-  - `Car` is a **subclass** (i.e. inherits from or **extends**) Vehicle.  A `Car` adds some additional attributes and methods.  E.g. a `Car` has four wheels.  Whereas a `Bike` has two.
-  - `Mustang` is a **subclass** (i.e. inherits from or **extends**) of `Car`.  It adds some additional attributes and methods.  For example, it has two doors.  It is made by _Ford_.
-  - `Mustang 5.0GT`  is a **subclass** (i.e. inherits from or **extends**) of `Mustang`.  It adds some additional attributes and methods.  For example, it has a 5L V8 engine.
+- **Inheritance** - I.e. where an object can inherit - and override - the properties and methods from some sort of ancester, called a _parent class_.  We'll look at this in a bit more detail [later](#inheritance).
 - **Polymorphism** - the idea that different objects can have the same _method signatures_, and exhibit different behavours at runtime, depending on the specific type of class that was instantiated.
 - **Encapsulation** - the idea that an object can hide its internal implementation, so that we only interact with the object using its publicly accessible interface.  In Python, _encapsulation_ is not enforced, but there are _conventions_ we should follow.  E.g. if an _attribute_ or _method_ should not be used by anything other than the object itself, then we prefix the _attribute_ or _method_ with an `_` (underscore) character.
 
@@ -87,12 +89,7 @@ class Dog():
     """ A Dog class """
     
     def __init__(self, name: str) -> None:
-        """ How we create an instance of Dog.
-
-        Args:
-            name (str): The name of the dog
-        """
-        
+        """ How we create an instance of Dog. """s
         self._name = name   # note how this is intended to be a private instance attribute
         
     # Use the @property decorator to provide a public interface to a method, that resembles an attribute.
@@ -121,14 +118,19 @@ Some notes:
 - Whilst Python typically uses _snake_case_ for all names (e.g. `my_variable_name`), _upper camel case_ is used for class names (e.g. `MyClassName`).
 - Note that **ALL** instance variables and instance methods must be prefixed with `self`, in the class.
 - Method definitions must always have `self` as the first argument. However, when we call these methods, the `self` is implicit.
-- We use the `__init__()` method to initialise any new instances of a class. I.e. whenever we create a new `Dog`, this is the method that gets called. We can define which attributes are required (or are optional) to the initialiser.
+- We use the `__init__()` method to _initialise_ any new instances of a class. I.e. whenever we create a new `Dog`, this is the method that gets called. We can define which attributes are required (or are optional) to the initialiser.
 - In our Dog's `__init__()`, we expect a single explicit parameter to be passed, which is the `name` of the `Dog`. We're using _type hinting_ to tell the Python compiler that the `name` argument should be a `str`.  If we try to run code that passes anything else, our _linter_ will warn us we've probably done something wrong.
 - The `__init__()` method initialises a single instance variable when an instance (object) is created. This is the `_name` instance variable.  Note that it is intended to be a private variable.
 - We provide a method called `name()` which returns the name of a Dog instance. However, to make it easier to get our Dog's name, we can use the `@property` decorator to expose the name as if it were a public attribute.
-- We define a `__repr__()` method that can be used to unambiguously identify a given instance.  This can be useful in debugging.
-- We define a `__str__()` method, which is used to generate a friendly, human-readable representation of our `Dog`.
+- We define a `__repr__()` method that can be used to unambiguously identify a given instance.  This can be useful in debugging. The example below shows how we can introspection to get the name of this class: \
 
-To exercise our `Dog` class:
+```python
+def __repr__(self) -> str:
+    return f"{self.__class__.__name__}(name={self._name})"
+```
+- We define a `__str__()` method, which is used to generate a friendly, human-readable representation of our `Dog`. Note that if a `__str__()` method has not been defined, Python will fall back on the `__repr__()`, if it is defined.
+
+To use our `Dog` class:
 
 ```python
 dog_a = Dog("Fido") # Create a new dog
@@ -155,7 +157,51 @@ dog_b is named Henry
 Woof!
 ```
 
-## Comparing Objects
+## Instance vs Class
+
+### Attributes
+
+_Instance attributes_ belong to a specific instance of a class, i.e. a specific object. Whereas _class attributes_ belong to the class; this value is common across all instances of the class.
+
+**Instance attributes** are prefixed with `self`.  They should generally be initialised in the `__init__()` method. If instance attributes will be set in a different method, then consider first initialising them to `None` in the `__init__()` method.
+
+**Class attributes** are defined outside of any method, and do not include a `self` prefix.
+
+Here's a couple of scenarios where we might want to use a **class attribute**:
+
+```python
+class MyClass():
+    id = 0
+    brand = "Foo"
+    
+    def __init__(self) -> None:
+        self.id = MyClass.id
+        MyClass.id += 1
+        
+my_instance_1 = MyClass()
+print(f"ID: {my_instance_1.id}, brand: {MyClass.brand}")
+my_instance_2 = MyClass()
+print(f"ID: {my_instance_2.id}, brand: {MyClass.brand}")
+```
+
+Here's the output:
+
+```text
+ID: 0, brand: Foo
+ID: 1, brand: Foo
+```
+
+### Methods
+
+Similarly, it is possible for methods to _instance_, _class_ methods, or even _static_ methods.
+
+|Method Type|How to Define|How to Use|Example Use Case|
+|-----------|-------------|----------|----------------|
+|Instance|`def some_method(self, parms...)`|From within the class using `self.some_method(parms)`; from outside the class using `my_instance.some_method(parms)`|Methods that need access to **instance attributes**.|
+|Class|`def some_method(cls, parms...)` and decorate with `@classmethod`|From within or outside the class using `MyClass.some_method(parms)`|Methods that need access only to **class attributes**. E.g. to implement a _factory method_.|
+|Static|`def some_method(parms...)` and decorate with `@staticmethod`|From within or outside the class using `MyClass.some_method(parms)`|Methods that have **no need to access or modify either class _or_ instance attributes**, but are otherwise logically linked to the _class_. This means that we could actually implement this method outside of the class; but it makes sense to method definition within the class.|
+
+## Comparing Objects and Hashing
 
 - For objects to be comparable using `==`, we need to implement the `__eq__()` method.
 - For objects to be checked in a _Collection_, - e.g. using `if thing in things` - then we also need to implement the `__hash__()` method.  This should always return a different `int` value for any unequal instances of immutable objects. (Mutable objects are unhashable).  Common ways to achieve such as hash include:
@@ -281,6 +327,73 @@ if point_c in points:
 ```
 
 Similar to using `dataclass`, Python also has something called a `NamedTuple`.  This allows us to define a an immutable class with only attributes.  Thus, a `NamedTuple` is very similar to a frozen (immutable) `dataclass`.  The `dataclass` is a lot more powerful and flexible than `NamedTuple`, so I'd generally always recommend using `dataclass` over `NamedTuple`.
+
+## Inheritance
+
+Recall that inheritance is an OO concept that allows a class to inherit properties and behaviour from a parent class.
+
+Using our simple analogy again:
+
+  - `Vehicle` is a very abstract thing. It can accelerate, decelerate, and turn.
+  - `Car` is a **subclass** (i.e. inherits from or **extends**) Vehicle.  A `Car` adds some additional attributes and methods.  E.g. a `Car` has four wheels.  Whereas a `Bike` has two.
+  - `Mustang` is a **subclass** (i.e. inherits from or **extends**) of `Car`.  It adds some additional attributes and methods.  For example, it has two doors.  It is made by _Ford_.
+
+The class we inherit from is called a _parent_ class.  The class that inherits from this _parent_ class is known as any of: _child_ class, _subclass_ or _descendent_.
+
+In Python, the syntax for inheriting is:
+
+```python
+class MyChildClass(MyParentClass):
+    # code
+```
+
+Some general notes on inheritance:
+
+- Inheritance is explicitly defined by placing the parent classes in parentheses, at the end of the class definition.  There can be more than one parent class.
+- Subclasses inherit all methods of any parent classes.
+- The base classes for a subclass can be obtained in the form of a tuple, using __bases__.
+- Initialisers:
+  - If a subclass does not define an initialiser, the base class initialiser is called automatically.
+  - However, consider being explicit; if you want to call a base class initialiser, then do so explicitly using `super()`. 
+- _Method resolution order (MRO)_ is used to resolve methods at run time.  We can return this for a class using __mro__, or using the `mro()` method. It is dependent on base class definition order. Subclasses come before base classes.
+
+Here's a simple inheritance example:
+
+```python
+class Foo:
+    def do_foo(self):
+        print(f"{self.__class__.__name__}: I know how to foo")
+        
+    def __repr__(self):
+        return f"I am a {self.__class__.__name__}"
+    
+class Bar(Foo):
+    def do_bar(self):
+        print(f"{self.__class__.__name__}: I know how to bar")
+    
+    def __repr__(self):
+        return f"I am a {self.__class__.__name__}"
+    
+foo = Foo()
+print(foo)
+foo.do_foo()
+# foo.do_bar() - We can't do this!
+ 
+bar = Bar()
+print(bar)
+bar.do_bar()
+bar.do_foo() # Inherited from parent class!
+```
+
+Here's the output:
+
+```text
+I am a Foo
+Foo: I know how to foo
+I am a Bar
+Bar: I know how to bar
+Bar: I know how to foo
+```
 
 ## Factory Pattern
 
