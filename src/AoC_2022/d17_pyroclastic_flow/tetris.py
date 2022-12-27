@@ -95,6 +95,7 @@ Implement check_cache() method:
 from dataclasses import dataclass
 from enum import Enum
 import itertools
+import os
 from pathlib import Path
 import time
 
@@ -102,7 +103,10 @@ SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
+VIS_ENABLED = False
+
 class ShapeType(Enum):
+    """ Enum for our five shapes """
     HLINE =       {(0, 0), (1, 0), (2, 0), (3, 0)}
     PLUS =        {(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)}
     BACKWARDS_L = {(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)}
@@ -162,21 +166,34 @@ class Shape():
 
     def __repr__(self) -> str:
         return f"Shape(at_rest={self.at_rest}, points={self.points}"
-    
+
+class Colours(Enum):
+    """ ANSI escape sequences for coloured console output """
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    BOLD = "\033[1m"
+    RESET = "\033[0m"
+         
 class Tower():
+    """ Fixed width tower that generates new shapes to drop, and blows shapes left and right as they drop. """
     WIDTH = 7
     LEFT_WALL_X = 0  
     RIGHT_WALL_X = LEFT_WALL_X + 7 + 1  # right wall at x=8
     OFFSET_X = 2 + 1  # objects start with left edge at x=3
     OFFSET_Y = 3 + 1  # new rocks have a gap of 3 above top of highest settled rock
     FLOOR_Y = 0
-    
-    # Printing characters
-    FALLING = "@"
-    AT_REST = "#"
-    EMPTY = "."
-    WALL = "|"
-    FLOOR = "-"
+        
+    class PrintingChars(Enum):
+        FALLING = Colours.BOLD.value + Colours.BLUE.value + "@" + Colours.RESET.value
+        AT_REST = Colours.YELLOW.value+ "#" + Colours.RESET.value
+        EMPTY = Colours.GREEN.value + "." + Colours.RESET.value
+        CORNER = Colours.GREEN.value + "+" + Colours.RESET.value
+        WALL = Colours.GREEN.value + "|" + Colours.RESET.value
+        FLOOR = Colours.GREEN.value + "-" + Colours.RESET.value
     
     def __init__(self, jet_pattern: str) -> None:
         self._jet_pattern = itertools.cycle(enumerate(jet_pattern)) # infinite cycle
@@ -208,7 +225,7 @@ class Tower():
             # print(key)
             last_height, last_shape_count = self._cache[key]
             return (True, self.top, last_height, shape_ct, last_shape_count)
-        else:
+        else: # cache miss, so add new entry to the cache
             self._cache[key] = (self.top, shape_ct)
             
         return (False, self.top, 0, shape_ct, 0)
@@ -220,7 +237,9 @@ class Tower():
         while True:
             jet_index, jet = self._next_jet()
             self._move_shape(jet)
-            # print(self)
+            if VIS_ENABLED:
+                print_and_clear(str(self))
+            
             if not self._move_shape("V"): # failed to move down
                 self.top = max(self.top, max(point.y for point in self.current_shape.points))
                 settled_shape = Shape.create_shape_from_points(self.current_shape.points, True)
@@ -294,11 +313,11 @@ class Tower():
             line = ""
             for x in range(Tower.LEFT_WALL_X, Tower.RIGHT_WALL_X):
                 if Point(x,y) in self._all_at_rest_points:
-                    line += Tower.AT_REST
+                    line += Tower.PrintingChars.AT_REST.value
                 elif Point(x,y) in self.current_shape.points:
-                    line += Tower.FALLING
+                    line += Tower.PrintingChars.FALLING.value
                 else:
-                    line += Tower.EMPTY
+                    line += Tower.PrintingChars.EMPTY.value
             
             rows.append(line)
             
@@ -306,22 +325,25 @@ class Tower():
                    
     def __str__(self) -> str:
         rows = []
-        top_for_vis = max(self.top, max(point.y for point in self.current_shape.points))
+        # top_for_vis = max(self.top, max(point.y for point in self.current_shape.points))
+        top_for_vis = self.top + Tower.OFFSET_Y
             
         for y in range(Tower.FLOOR_Y, top_for_vis + 1):
             line = f"{y:3d} "
             if y == Tower.FLOOR_Y:
-                line += "+" + (Tower.FLOOR * Tower.WIDTH) + "+"
+                line += (Tower.PrintingChars.CORNER.value 
+                            + (Tower.PrintingChars.FLOOR.value * Tower.WIDTH) 
+                            + Tower.PrintingChars.CORNER.value)
             else:            
                 for x in range(Tower.LEFT_WALL_X, Tower.RIGHT_WALL_X + 1):
                     if x in (Tower.LEFT_WALL_X, Tower.RIGHT_WALL_X):
-                        line += Tower.WALL
+                        line += Tower.PrintingChars.WALL.value
                     elif Point(x,y) in self._all_at_rest_points:
-                        line += Tower.AT_REST
+                        line += Tower.PrintingChars.AT_REST.value
                     elif Point(x,y) in self.current_shape.points:
-                        line += Tower.FALLING
+                        line += Tower.PrintingChars.FALLING.value
                     else:
-                        line += Tower.EMPTY
+                        line += Tower.PrintingChars.EMPTY.value
                     
             rows.append(line)
         
@@ -329,6 +351,15 @@ class Tower():
 
     def __repr__(self) -> str:
         return (f"Tower(height={self.top}, rested={len(self._all_at_rest_shapes)})")
+
+def print_and_clear(msg: str, delay=0.05):
+    print(msg)
+    time.sleep(delay)
+    cls()
+
+def cls():
+    """ Clear console """
+    os.system('cls' if os.name=='nt' else 'clear')
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
