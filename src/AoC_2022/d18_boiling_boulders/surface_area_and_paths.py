@@ -44,6 +44,8 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
@@ -76,6 +78,8 @@ class Droplet():
         self._min_x = self._min_y = self._min_z = 0
         self._max_x = self._max_y = self._max_z = 0
         self._all_surface_area: int = 0  # surface area, internal+external
+        self._internal = set()
+        self._external = set()
         
         self._calculate_values()
     
@@ -103,24 +107,20 @@ class Droplet():
     
     def get_external_surface_area(self) -> int:
         """ Determine surface area of all cubes that can reach the outside. """
-        cubes_to_outside = set()   # cache cubes we have already identified a path to outside for
-        no_path_to_outside = set()  # store all internal empty
         surfaces_to_outside = 0
 
         # Loop through the cubes and find any that can reach outside
         for cube in self.filled_cubes:
             for adjacent in cube.adjacent(): # for each adjacent...
-                if self._has_path_to_outside(adjacent, cubes_to_outside, no_path_to_outside): 
-                    cubes_to_outside.add(adjacent)
+                if self._has_path_to_outside(adjacent): 
+                    self._external.add(adjacent)
                     surfaces_to_outside += 1
                 else:
-                    no_path_to_outside.add(adjacent)
+                    self._internal.add(adjacent)
             
         return surfaces_to_outside
     
-    def _has_path_to_outside(self, cube: Cube, 
-                              cubes_to_outside: set[Cube], 
-                              no_path_to_outside: set[Cube]) -> bool:
+    def _has_path_to_outside(self, cube: Cube) -> bool:
         """ Perform BFS to flood fill from this empty cube.
         Param cubes_to_outside is to cache cubes we've seen before, that we know have a path. 
         Param internal_cubues is to cache cubes we've seen before, that are internal. """
@@ -131,9 +131,9 @@ class Droplet():
             current_cube = frontier.popleft() # FIFO for BFS
             
             # Check caches
-            if current_cube in cubes_to_outside:
+            if current_cube in self._external:
                 return True # We've got out from here before
-            if current_cube in no_path_to_outside:
+            if current_cube in self._internal:
                 continue # This cube doesn't have a path, so no point checking its neighbours
             
             if current_cube in self.filled_cubes:
@@ -153,6 +153,26 @@ class Droplet():
                     
         return False
     
+    def vis(self):
+        """ Render a visualisation of our droplet """
+
+        axes = [self._max_x+1, self._max_y+1, self._max_z+1]  # set bounds
+
+        grid = np.zeros(axes, dtype=np.int8)   # Initialise 3d grid to empty
+        for point in self.filled_cubes:  # set our array to filled for all filled cubes
+            grid[point.x, point.y, point.z] = 1
+        
+        facecolors = np.where(grid==1, 'red', 'black')
+        
+        # Plot figure
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.voxels(grid, facecolors=facecolors, edgecolors="grey", alpha=0.3)
+        ax.set_aspect('equal')
+        plt.axis("off")
+        plt.show()
+        
+        
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
@@ -166,6 +186,8 @@ def main():
     # Part 2
     external_faces = droplet.get_external_surface_area()
     print(f"Part 2: external surface area={external_faces}")
+    
+    droplet.vis()
 
 def parse_cubes(data: list[str]) -> set[Cube]:
     cubes = set()
