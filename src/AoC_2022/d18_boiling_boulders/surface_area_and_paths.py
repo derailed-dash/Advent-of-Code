@@ -14,7 +14,6 @@ Count total exposed surface area.
 Soln:
 - Cube class knows how to find location of all six adjacent cubes.
 - Droplet class stores cubes.
-  - 
 - Each cube has a surface area of 6 - (intersection of cube adjacents with all cubes)
 
 Part 2:
@@ -28,9 +27,8 @@ Soln:
 - We need to know if a empty location is interior and if it has a path to the outside.
 - Assume all cubes in our list are connected.
 - Find all adjacent cubes. These are either:
-  - These are either:
-    - Part of internal pockets. If we flood fill a pocket, it will have a boundary.
-    - Part of path to the outside. If we flood fill, we will reach a cube beyond all the droplet bounds.
+  - Part of internal pockets. If we flood fill a pocket, it will have a boundary.
+  - Part of path to the outside. If we flood fill, we will reach a cube beyond all the droplet bounds.
 - To solve:
   - For each filled cube, get its adjacents
   - BFS for each adacent, if adjacent is empty space.
@@ -74,16 +72,19 @@ class Droplet():
     filled_cubes: set[Cube]
     
     def __post_init__(self) -> None:
-        self.all_surface_area: int = 0  # surface area, internal+external
-        
         # Store max bounds, so we can tell if we've followed a path beyond the perimeter
         self._min_x = self._min_y = self._min_z = 0
         self._max_x = self._max_y = self._max_z = 0
+        self._all_surface_area: int = 0  # surface area, internal+external
         
         self._calculate_values()
     
+    @property
+    def all_surface_area(self):
+        return self._all_surface_area
+    
     def __repr__(self) -> str:
-        return (f"Droplet(filled_cubes={len(self.filled_cubes)}")
+        return (f"Droplet(filled_cubes={len(self.filled_cubes)})")
         
     def _calculate_values(self): 
         """ Determine:
@@ -91,7 +92,7 @@ class Droplet():
             - Outer boundaries (min/max x/y/z values) for the droplet.
         """
         for filled_cube in self.filled_cubes:
-            self.all_surface_area += Droplet.ADJACENT_FACES - len(self.filled_cubes & filled_cube.adjacent())
+            self._all_surface_area += Droplet.ADJACENT_FACES - len(self.filled_cubes & filled_cube.adjacent())
             
             self._min_x = min(filled_cube.x, self._min_x)
             self._min_y = min(filled_cube.y, self._min_y)
