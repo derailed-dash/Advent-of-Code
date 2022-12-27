@@ -157,7 +157,6 @@ class Droplet():
         """ Render a visualisation of our droplet """
 
         axes = [self._max_x+1, self._max_y+1, self._max_z+1]  # set bounds
-
         grid = np.zeros(axes, dtype=np.int8)   # Initialise 3d grid to empty
         for point in self.filled_cubes:  # set our array to filled for all filled cubes
             grid[point.x, point.y, point.z] = 1
@@ -171,7 +170,6 @@ class Droplet():
         ax.set_aspect('equal')
         plt.axis("off")
         plt.show()
-        
         
 def main():
     with open(INPUT_FILE, mode="rt") as f:

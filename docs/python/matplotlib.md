@@ -16,6 +16,8 @@ tags:
     link: https://pythonguides.com/category/python-tutorials/matplotlib/
   - name: Seaborn
     link: https://seaborn.pydata.org/
+  - name: NumPy
+    link: /python/numpy
 ---
 ## Page Contents
 
@@ -32,6 +34,7 @@ tags:
   - [Argand Diagram](#argand-diagram)
   - [Scatter Plot: No Lines](#scatter-plot-no-lines)
   - [Inverted and With Hidden Axes: Rendering Characters!](#inverted-and-with-hidden-axes-rendering-characters)
+  - [Rendering Cubes using Matplotlib and NumPy](#rendering-cubes-using-matplotlib-and-numpy)
 - [Seaborn](#seaborn)
 
 ## Overview
@@ -280,6 +283,34 @@ plt.show()
 Output:
 
 <img src="{{'/assets/images/matplotlib_render_dots.png' | relative_url }}" alt="Render Dots" style="width:480px;" />
+
+### Rendering Cubes Using Matplotlib and NumPy
+
+Here's an example that renders 3D cubes based on a `set` of 3D coordinates:
+
+```python
+    def vis(self):
+        """ Render a visualisation of our droplet """
+
+        axes = [self._max_x+1, self._max_y+1, self._max_z+1]  # set bounds
+        grid = np.zeros(axes, dtype=np.int8)   # Initialise 3d grid to empty
+        for point in self.filled_cubes:  # set our array to filled for all filled cubes
+            grid[point.x, point.y, point.z] = 1
+        
+        facecolors = np.where(grid==1, 'red', 'black')
+        
+        # Plot figure
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.voxels(grid, facecolors=facecolors, edgecolors="grey", alpha=0.3)
+        ax.set_aspect('equal')
+        plt.axis("off")
+        plt.show()
+```
+
+The code above is taken from my [2022 Day 18](/python/2022/18) solution.  The rendered image looks like this:
+
+![Droplet](/assets/images/lava_droplet.png)
 
 ## Seaborn
 
