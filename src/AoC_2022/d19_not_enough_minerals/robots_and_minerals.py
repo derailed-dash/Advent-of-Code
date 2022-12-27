@@ -32,6 +32,7 @@ Part 2:
 - As above, but with more minutes.
 """
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from collections import deque
 import re
@@ -41,16 +42,28 @@ SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 
-@dataclass
+class MineralType(Enum):
+    """ Enumerate mineral / robot types """
+    ORE = "ore"
+    CLAY = "clay"
+    OBSIDIAN = "obsidian"
+    GEODE = "geode"
+
+@dataclass(frozen=True)
 class Blueprint():
+    """ Store blueprint ID, with a dict for each robot type, that in turn contains a nested dict
+    of all mineral costs for that robot. """
     id: int
     costs: dict # { "ore": {"ore": 4}, "obsidian": {"ore": 3, clay: 14}, ...}
     
-    def get_max_ore_cost(self):
-        return max([self.costs["ore"]["ore"], 
-                    self.costs["clay"]["ore"], 
-                    self.costs["obsidian"]["ore"], 
-                    self.costs["geode"]["ore"]])
+    def get_max_cost(self, mineral: MineralType):
+        """ Return the maximum cost of a given mineral type for all robots in this blueprint. """
+        
+        # If this robot does not contain a given mineral in the blueprint, return 0 for this mineral
+        return max([self.costs[MineralType.ORE.value].get(mineral.value, 0), 
+                    self.costs[MineralType.CLAY.value].get(mineral.value, 0), 
+                    self.costs[MineralType.OBSIDIAN.value].get(mineral.value, 0), 
+                    self.costs[MineralType.GEODE.value].get(mineral.value, 0)])
  
 @dataclass(frozen=True)
 class State():
@@ -65,29 +78,38 @@ class State():
     clay_r: int = 0
     obsidian_r: int = 0
     geode_r: int = 0
-    
+
 def bfs(blueprint: Blueprint, state: State):
     best = 0
     frontier = deque([state])
     explored = set()
+
+    max_ore_cost = blueprint.get_max_cost(MineralType.ORE)
+    max_clay_cost = blueprint.get_max_cost(MineralType.CLAY)
+    max_obsidian_cost = blueprint.get_max_cost(MineralType.OBSIDIAN)
     
     while frontier:
-        state = frontier.popleft()
+        state = frontier.popleft() # popleft for BFS; pop for DFS
 
         best = max(best, state.geode)
         if state.t_remaining == 0:
             continue
-
-        max_ore_cost = blueprint.get_max_ore_cost()
         
+        # Optimise state space by throwing away robots we can't use
+        # E.g. if the highest per minute ore cost is 4, then there's no point having more than 4 ore robots.
         ore_r = min(state.ore_r, max_ore_cost)
-        clay_r = min(state.clay_r, blueprint.costs["obsidian"]["clay"])
-        obs_r = min(state.obsidian_r, blueprint.costs["geode"]["obsidian"])
-            
+        clay_r = min(state.clay_r, max_clay_cost)
+        obs_r = min(state.obsidian_r, max_obsidian_cost)
+        
+        # optimise state space by throwing away resources we can't possibly spend in the time we have left.
+        # E.g. if t=10 and max ore cost is 4, then we can only spend a max of 40 ore.
+        # So if we have more than 40, throw it away.
+        # Of course, we can't throw away any geodes!
         ore = min(state.ore, state.t_remaining * max_ore_cost - ore_r*(state.t_remaining-1))
-        clay = min(state.clay, state.t_remaining * blueprint.costs["obsidian"]["clay"] - clay_r*(state.t_remaining-1))
-        obs = min(state.obsidian, state.t_remaining * blueprint.costs["geode"]["obsidian"] - obs_r*(state.t_remaining-1))
+        clay = min(state.clay, state.t_remaining * max_clay_cost - clay_r*(state.t_remaining-1))
+        obs = min(state.obsidian, state.t_remaining * max_obsidian_cost - obs_r*(state.t_remaining-1))
 
+        # use our optimisations to create the current state
         state = State(state.t_remaining, 
                  ore, clay, obs, state.geode,
                  ore_r, clay_r, obs_r, state.geode_r)
@@ -96,29 +118,50 @@ def bfs(blueprint: Blueprint, state: State):
             continue
         explored.add(state)
         
-        # Don't make any robots; just accumulate
+        # Now add each possible next state to the frontier...
+        # 1st option: Don't make any robots; just accumulate.
+        # New mineral levels are simply old levels + number of each robot type
         frontier.append(State(state.t_remaining-1, 
-                ore+ore_r, clay+clay_r, obs+obs_r, state.geode+state.geode_r,
+                ore+ore_r, 
+                clay+clay_r, 
+                obs+obs_r, 
+                state.geode+state.geode_r,
                 ore_r, clay_r, obs_r, state.geode_r))
         
-        if ore >= blueprint.costs["ore"]["ore"]: # build ore robot
+        # Remaining options: build one of each bot, if we can
+        if ore >= blueprint.costs[MineralType.ORE.value].get(MineralType.ORE.value, 0):
+            # build ore robot 
             frontier.append(State(state.t_remaining-1,
-                    ore-blueprint.costs["ore"]["ore"]+ore_r, clay+clay_r, obs+obs_r, state.geode+state.geode_r, 
+                    ore-blueprint.costs[MineralType.ORE.value][MineralType.ORE.value]+ore_r, 
+                    clay+clay_r, 
+                    obs+obs_r, 
+                    state.geode+state.geode_r, 
                     ore_r+1, clay_r, obs_r, state.geode_r))
-        if ore >= blueprint.costs["clay"]["ore"]: # build clay robot
+        if ore >= blueprint.costs[MineralType.CLAY.value][MineralType.ORE.value]: 
+            # build clay robot
             frontier.append(State(state.t_remaining-1, 
-                    ore-blueprint.costs["clay"]["ore"]+ore_r, clay+clay_r, obs+obs_r, state.geode+state.geode_r, 
+                    ore-blueprint.costs[MineralType.CLAY.value][MineralType.ORE.value]+ore_r, 
+                    clay+clay_r, 
+                    obs+obs_r, 
+                    state.geode+state.geode_r, 
                     ore_r, clay_r+1, obs_r, state.geode_r))
-        if ore >= blueprint.costs["obsidian"]["ore"] and clay>=blueprint.costs["obsidian"]["clay"]: # build obsidian robot
+        if (ore >= blueprint.costs[MineralType.OBSIDIAN.value][MineralType.ORE.value] 
+                and clay>=blueprint.costs[MineralType.OBSIDIAN.value][MineralType.CLAY.value]): 
+            # build obsidian robot
             frontier.append(State(state.t_remaining-1,
-                    ore-blueprint.costs["obsidian"]["ore"]+ore_r, 
-                    clay-blueprint.costs["obsidian"]["clay"]+clay_r, 
-                    obs+obs_r, state.geode+state.geode_r, 
+                    ore-blueprint.costs[MineralType.OBSIDIAN.value][MineralType.ORE.value]+ore_r, 
+                    clay-blueprint.costs[MineralType.OBSIDIAN.value][MineralType.CLAY.value]+clay_r, 
+                    obs+obs_r, 
+                    state.geode+state.geode_r, 
                     ore_r, clay_r, obs_r+1, state.geode_r))
-        if ore >= blueprint.costs["geode"]["ore"] and obs>=blueprint.costs["geode"]["obsidian"]: # build geode robot
+        if (ore >= blueprint.costs[MineralType.GEODE.value][MineralType.ORE.value] 
+                and obs>=blueprint.costs[MineralType.GEODE.value][MineralType.OBSIDIAN.value]): 
+             # build geode robot
             frontier.append(State(state.t_remaining-1,
-                    ore-blueprint.costs["geode"]["ore"]+ore_r, clay+clay_r, 
-                    obs-blueprint.costs["geode"]["obsidian"]+obs_r, state.geode+state.geode_r, 
+                    ore-blueprint.costs[MineralType.GEODE.value][MineralType.ORE.value]+ore_r, 
+                    clay+clay_r, 
+                    obs-blueprint.costs[MineralType.GEODE.value][MineralType.OBSIDIAN.value]+obs_r, 
+                    state.geode+state.geode_r, 
                     ore_r, clay_r, obs_r, state.geode_r+1))
             
     return best
@@ -136,9 +179,10 @@ def parse_data(data: list[str]) -> list[Blueprint]:
             for i in range(2, len(matches) + 1, 2):
                 if matches[i]: # if not empty
                     minerals[matches[i]] = int(matches[i-1])
-            
+                  
             costs[robot] = minerals
-    
+            # costs = costs.set(robot, minerals)
+        # costs = frozendict({k:v for k,v in costs.items()})
         blueprints.append(Blueprint(blueprint_id, costs))
     
     return blueprints  
