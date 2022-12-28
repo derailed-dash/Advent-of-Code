@@ -45,12 +45,13 @@ Part 2:
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 @dataclass(frozen=True)
 class Point():
@@ -75,7 +76,19 @@ DIRECTION_SYMBOLS = ['>', 'v', '<', '^']
 VECTOR_COORDS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 VECTORS = {k: Point(*v) for k, v in enumerate(VECTOR_COORDS)} # so we can retrieve by index
 
-class Map():    
+class Colours(Enum):
+    """ ANSI escape sequences for coloured console output """
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    BOLD = "\033[1m"
+    RESET = "\033[0m"
+         
+class Map(): 
+        
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
         self._width = max(len(line) for line in self._grid) # the widest line
@@ -185,7 +198,7 @@ class Map():
             for x, val in enumerate(row):
                 posn = Point(x,y)
                 if posn in self._path:
-                    line += DIRECTION_SYMBOLS[self._path[posn]]
+                    line += Colours.CYAN.value + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value
                 else:
                     line += val
                     
@@ -227,28 +240,11 @@ def main():
         else:   # we're processing alphabetical characters
             this_instr = instructions[i]
 
-        # print(f"Instr: {this_instr}")
         the_map.move(this_instr)
         # print(repr(the_map))
     
     print(the_map)
     print(f"Part 1: score={the_map.score()}")
-    
-    # # Create an nd_array where all rows are the same length
-    # width = max(len(line) for line in map_data)
-    # lines = []
-    # for line in map_data:
-    #     curr_line = [char for char in line]
-    #     if len(curr_line) < width:
-    #         curr_line.extend([" "] * (width - len(curr_line)))
-    #     lines.append(curr_line)
-        
-    # nd_array = np.array(lines)
-    # print(nd_array.ndim)
-    # print(nd_array.shape)
-    # print(nd_array.size)
-    # nd_cube = np.reshape(nd_array, (-1, 4, 4))
-    # print(nd_cube)
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
