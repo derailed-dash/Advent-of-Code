@@ -14,9 +14,23 @@ Mix your encrypted file exactly once. What is the sum of the three numbers that 
 (I.e. numbers at index 1000, 2000, 3000.)
 
 Soln:
+- Read our input list into a deque.
+- As we read the numbers, enumerate them, so that we always know the original number position.
+  Thus, our deque is composed of tuples of `(original index, value)`.
+- Now, perform n iterations, where n is the length of the input list:
+  - Rotate our numbers so that the next _pair_ is at the left end.
+  - Pop this pair and retrieve the value, i.e. the number of places we need to move this pair by.
+  - Now rotate the deque by this amount. 
+    The result is that the number _after_ the insertion point will now be at the front.
+  - Finally, add our popped pair back at the right hand end.  
+    Thus, it is logically inserted _before_ the pair now at position 0.
+    When each iteration has completed, the number at the end will always be the number that moved.
 
 Part 2:
-
+- We need to multiply each input number of a constant, resulting in much larger input numbers.
+- Then create a deque as before.
+- Then mix the deque, but mix it 10 times.
+- The existing mix code works fine for Part 2, since we're already using mod to limit the rotations.
 """
 from collections import deque
 from pathlib import Path
@@ -58,13 +72,13 @@ def mix(enumerated: deque):
     # Move each number once, using original indexes
     # We can't iterate over actual values from enumerated, since we'll be modifying it as we go
     for original_index in range(len(enumerated)): 
-        while enumerated[0][0] != original_index: # bring our required element to the front
+        while enumerated[0][0] != original_index: # bring our required element to the left end
             enumerated.rotate(-1) 
     
-        current_pair = enumerated.popleft()    
-        shift = current_pair[1] % len(enumerated)  # allow for wrapping over
-        enumerated.rotate(-shift) # if value n, we need to shift it n positions
-        enumerated.append(current_pair)
+        current_pair = enumerated.popleft() 
+        shift = current_pair[1] % len(enumerated)  # retrieve the value to move by; allow for wrapping over
+        enumerated.rotate(-shift) # rotate everything by n positions
+        enumerated.append(current_pair) # and now reinsert our pair at the end
         
         # print(enumerated)
         

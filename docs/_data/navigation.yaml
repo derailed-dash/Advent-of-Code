@@ -68,6 +68,8 @@ pages:
     link: /python/priority_queues
   - name: Shortest Path Algorithms
     link: /python/shortest_paths
+  - name: LIFO, FIFO, and deques
+    link: /python/lifo_fifo
   - name: Useful Algorithms
     link: /python/useful_algorithms
 - name: "2015"
@@ -267,7 +269,7 @@ pages:
     problem: "Not Enough Minerals"     
   - name: 20
     link: /2022/20
-    problem: "Coming Soon"     
+    problem: "Grove Positioning System"     
   - name: 21
     link: /2022/21
     problem: "Coming Soon"     
