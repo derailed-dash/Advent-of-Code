@@ -109,7 +109,8 @@ def bfs(blueprint: Blueprint, state: State):
         clay = min(state.clay, state.t_remaining * max_clay_cost - clay_r*(state.t_remaining-1))
         obs = min(state.obsidian, state.t_remaining * max_obsidian_cost - obs_r*(state.t_remaining-1))
 
-        # use our optimisations to create the current state
+        # If our optimisations are applicable, amend our state to reflect the optimised state.
+        # Thus, fewer overall states to explore.
         state = State(state.t_remaining, 
                  ore, clay, obs, state.geode,
                  ore_r, clay_r, obs_r, state.geode_r)
