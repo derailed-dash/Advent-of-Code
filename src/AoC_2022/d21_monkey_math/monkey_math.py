@@ -34,13 +34,14 @@ What number do you yell to pass root's equality test?
   reverse the assumption of our binary search and try it again.
 
 """
+import operator
 from pathlib import Path
 import re
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -82,36 +83,30 @@ def main():
     # We need to try values that will return will result in root == 0.
     # Brute force is really slow, but binary search works well!
     humn = binary_search(0, 0, 1e16, try_monkeys, calcs, monkeys)
-    
+    if humn is None: # try reverse correlation binary search
+        humn = binary_search(0, 0, 1e16, try_monkeys, calcs, monkeys, reverse_search=True)
     print(f"Part 2: humn={humn}")
-
-def binary_search(target, low:int, high:int, func, *func_args) -> int:
+    
+def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False) -> int:
     """ Generic binary search function that takes a target to find,
-    low and high values to start with, and a function to run, plus its args. """
+    low and high values to start with, and a function to run, plus its args. 
+    Implicitly returns None if the search is exceeded. """
     
     res = None  # just set it to something that isn't the target
     candidate = 0  # initialise; we'll set it to the mid point in a second
     
-    current_low, current_high = low, high
-    flipped = False
-    while res != target:
-        candidate = int((current_low+current_high) // 2)  # pick mid-point of our low and high
-        if candidate in (current_low, current_high): # we've reached a limit; try reversing search
-            flipped = True # We'll flip the side of our binary search from now on
-            current_low, current_high = low, high # reset the search to initial values
-            candidate = (current_low+current_high) // 2
-        
-        print(f"{candidate}->{res}")
+    while low < high:  # search exceeded        
+        candidate = int((low+high) // 2)  # pick mid-point of our low and high        
+        # print(f"{candidate}->{res}")
         res = func(candidate, *func_args) # run our function, whatever it is
-        if flipped:
-            res *= -1
-
-        if res > 0:
-            current_low = candidate
+        if res == target:
+            return candidate  # solution found
+        
+        comp = operator.gt if not reverse_search else operator.lt
+        if comp(res, target):
+            low = candidate
         else:
-            current_high = candidate
-
-    return candidate
+            high = candidate
 
 def try_monkeys(candidate, calcs: dict, monkeys: dict) -> int:
     monkeys_try = monkeys.copy()

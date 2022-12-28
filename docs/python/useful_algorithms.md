@@ -12,6 +12,7 @@ tags:
 
 - [Overview](#overview)
 - [Merging Overlapping Intervals](#merging-overlapping-intervals)
+- [Binary Search](#binary-search)
 
 ## Overview
 
@@ -45,4 +46,31 @@ Output:
 
 ```text
 [[1, 9]]
+```
+
+## Binary Search
+
+Here I've created a generic binary search algorithm that can be used to pass a candidate number to an arbitrary function, and to finish when the function returns our _goal_.
+
+```python
+def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False) -> int:
+    """ Generic binary search function that takes a target to find,
+    low and high values to start with, and a function to run, plus its args. 
+    Implicitly returns None if the search is exceeded. """
+    
+    res = None  # just set it to something that isn't the target
+    candidate = 0  # initialise; we'll set it to the mid point in a second
+    
+    while low < high:  # search exceeded        
+        candidate = int((low+high) // 2)  # pick mid-point of our low and high        
+        # print(f"{candidate}->{res}")
+        res = func(candidate, *func_args) # run our function, whatever it is
+        if res == target:
+            return candidate  # solution found
+        
+        comp = operator.gt if not reverse_search else operator.lt
+        if comp(res, target):
+            low = candidate
+        else:
+            high = candidate
 ```
