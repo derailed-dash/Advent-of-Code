@@ -7,6 +7,8 @@ main_img:
 tags: 
   - name: Merging intervals
     link: https://www.geeksforgeeks.org/merging-intervals/
+  - name: Binary Search (RealPython)
+    link: https://realpython.com/binary-search-python/
 ---
 ## Page Contents
 
