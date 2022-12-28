@@ -51,7 +51,7 @@ def main():
     calc_pattern = re.compile(r"([a-z]{4}): ([a-z]{4}) (.){1,2} ([a-z]{4})")
 
     # Part 1    
-    monkeys = {}  # monkey: value    
+    monkeys: dict[str, int] = {}  # monkey: value    
     rows_to_remove = []
     for row, line in enumerate(data):
         if match := yell_pattern.match(line):
@@ -89,13 +89,13 @@ def binary_search(target, low:int, high:int, func, *func_args) -> int:
     """ Generic binary search function that takes a target to find,
     low and high values to start with, and a function to run, plus its args. """
     
-    res = "bad"  # just set it to something that isn't the target
+    res = None  # just set it to something that isn't the target
     candidate = 0  # initialise; we'll set it to the mid point in a second
     
     current_low, current_high = low, high
     flipped = False
     while res != target:
-        candidate = (current_low+current_high) // 2  # pick mid-point of our low and high
+        candidate = int((current_low+current_high) // 2)  # pick mid-point of our low and high
         if candidate in (current_low, current_high): # we've reached a limit; try reversing search
             flipped = True # We'll flip the side of our binary search from now on
             current_low, current_high = low, high # reset the search to initial values
@@ -119,7 +119,7 @@ def try_monkeys(candidate, calcs: dict, monkeys: dict) -> int:
     res = evaluate_monkey("root", calcs, monkeys_try)
     return res
     
-def evaluate_monkey(monkey_id, calcs, monkeys) -> int:
+def evaluate_monkey(monkey_id: str, calcs, monkeys) -> int:
     """ Recursive evaluation of calcs like: pppw + sjmn """
     current_calc = calcs[monkey_id]
     monkey2, monkey3 = current_calc[0], current_calc[2]
