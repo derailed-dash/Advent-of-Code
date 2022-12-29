@@ -16,7 +16,7 @@ Input is two parts:
    
 If we go off the map, we reappear the other side. (Assuming not blocked.)
 
-The final password is the sum of 1000 times the row, 4 times the column, and the facing.
+The final password is the sum of 1000 times the row, 4 times the column, and the last facing.
 Note that rows and columns are 1-indexed.
 Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^).
 
@@ -53,6 +53,17 @@ SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
+class Colours(Enum):
+    """ ANSI escape sequences for coloured console output """
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    BOLD = "\033[1m"
+    RESET = "\033[0m"
+    
 @dataclass(frozen=True)
 class Point():
     """ Point class, which knows how to return a list of all adjacent coordinates """    
@@ -72,43 +83,23 @@ class Point():
     def __str__(self):
         return f"P({self.x}, {self.y})"
 
-DIRECTION_SYMBOLS = ['>', 'v', '<', '^']
+DIRECTION_SYMBOLS = ['>', 'v', '<', '^']  # Orientation vector key
 VECTOR_COORDS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 VECTORS = {k: Point(*v) for k, v in enumerate(VECTOR_COORDS)} # so we can retrieve by index
-
-class Colours(Enum):
-    """ ANSI escape sequences for coloured console output """
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
          
 class Map(): 
         
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
         self._width = max(len(line) for line in self._grid) # the widest line
-        self._pad_grid() # make all rows same length
         self._cols = self._generate_cols()
-        self._set_start()
+        self._set_start() # Initialise top-left, pointing right
         self._last_instruction = "" # just to help with debugging
     
-    def _pad_grid(self):
-        """ Ideally, all rows are the same length """
-        lines = []
-        for line in self._grid:
-            if len(line) < self._width:
-                line += " " * (self._width - len(line))
-            lines.append(line)
-            
-        self._grid = lines
-    
     def _generate_cols(self):
-        """ Create a list of str, where each str is a column """
+        """ Create a list of str, where each str is a column.
+        E.g. first col could be '    ....    '
+        """
         cols_list = list(zip(*self._grid))
         return ["".join(str(char) for char in col) for col in cols_list]
         
@@ -158,22 +149,26 @@ class Map():
     def _next_posn(self) -> Point:
         """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
-        # To check wrap, see if next space is a tile.
-        # If not, then move in the opposite direction until we reach a non-tile.
         next_posn = self._posn + VECTORS[self._direction]
-        if not self._in_grid(next_posn) or self._get_value(next_posn) == " ": # we're off the tiles
+        if not self._is_tile(next_posn): # we're off the tiles, so we need to wrap
+            # Subtract vector in the opposite direction equal to the length of the row / col
             new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
             new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
             next_posn = Point(new_x, new_y)
         
         return next_posn
     
-    def _in_grid(self, point: Point) -> bool:
+    def _is_tile(self, point: Point) -> bool:
+        """ Check if the specified point is a tile. I.e. within the bounds and not empty. """
         if point.y < 0 or point.y >= len(self._grid):
             return False
                 
-        # check not outside the bounds of the current row
+        # check not outside the bounds of the current row. (Allow for variable length row)
         if point.x < 0 or point.x >= len(self._grid[point.y]):
+            return False
+        
+        # If we've got this far, we're within the bounds of the input data, but it could still be empty
+        if self._get_value(point) == " ":
             return False
         
         return True
@@ -189,7 +184,7 @@ class Map():
     def score(self) -> int:
         """ Score is given by sum of: (1000*y), (4*x), facing. 
         For this calculation, x and y are 1-indexed. Facing = direction index. """
-        return 1000*(self.posn.y+1) + 4*(self.posn.x+1)+self._direction
+        return 1000*(self.posn.y+1) + 4*(self.posn.x+1) + self._direction
         
     def __str__(self) -> str:
         lines = []
