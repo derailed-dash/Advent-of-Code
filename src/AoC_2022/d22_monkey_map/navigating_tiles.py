@@ -50,8 +50,8 @@ from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 class Colours(Enum):
     """ ANSI escape sequences for coloured console output """
