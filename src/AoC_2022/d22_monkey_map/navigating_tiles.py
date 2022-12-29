@@ -50,8 +50,8 @@ from pathlib import Path
 import time
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 class Colours(Enum):
     """ ANSI escape sequences for coloured console output """
@@ -92,6 +92,7 @@ class Map():
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
         self._width = max(len(line) for line in self._grid) # the widest line
+        self._pad_grid() # make all rows same length
         self._cols = self._generate_cols()
         self._set_start() # Initialise top-left, pointing right
         self._last_instruction = "" # just to help with debugging
@@ -110,6 +111,16 @@ class Map():
         self._posn = Point(first_space, 0)
         self._direction = 0  # index of ['>', 'v', '<', '^']
         self._path = {self._posn: self._direction} # Everywhere we've been, including direction
+
+    def _pad_grid(self):
+        """ Make all rows are the same length. """
+        lines = []
+        for line in self._grid:
+            if len(line) < self._width:
+                line += " " * (self._width - len(line))
+            lines.append(line)
+            
+        self._grid = lines
         
     @property
     def posn(self) -> Point:
