@@ -51,7 +51,6 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 import time
-
 import numpy as np
 
 SCRIPT_DIR = Path(__file__).parent
@@ -221,7 +220,7 @@ class Map():
     def __repr__(self):
         return f"Map(posn={self.posn}, last_instr={self._last_instruction}, score={self.score()})"
 
-faces = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # 0-5
+face_coords = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # 0-5
 face_edge_map = {
     (0, '^'): (1, 'v'),
     (0, '<'): (2, 'v'),
@@ -240,28 +239,47 @@ face_edge_map = {
 }
 
 class CubeMap(Map):
-    def __init__(self, grid: list[str], faces: list[tuple], face_edge_map: dict[tuple, tuple]) -> None:
+    """ Take a 2D grid that is made up of 6 regions, and convert to a cube.
+    The face coordinates of the Cube must be supplied. """
+    
+    def __init__(self, grid: list[str], face_coords: list[tuple], face_edge_map: dict[tuple, tuple]) -> None:
         super().__init__(grid)
-        self._faces = faces
+        self._face_coords = face_coords
         self._face_edge_map = face_edge_map
-        self.full_array = np.array(self._grid)
-        self._h_faces_width = max(x for x,y in self._faces) + 1 # e.g. 4 faces wide
-        self._v_faces_height = max(y for x,y in self._faces) + 1 # e.g. 3 faces tall
+
+        self._h_faces_width = max(x for x,y in self._face_coords) + 1 # e.g. 4 faces wide
+        self._v_faces_height = max(y for x,y in self._face_coords) + 1 # e.g. 3 faces tall
         self._face_width = self._width // self._h_faces_width # E.g. 4, or 50 with real
         self._face_height = self._height // self._v_faces_height # E.g. 4 or 50 with real
-        print()
+        
+        self.full_array = np.array([list(line) for line in self._grid]) # convert to 2D array
+        self._faces = self._make_faces() # split into 6 square arrays
+    
+    def _make_faces(self):
+        """ Carve up the overall array using the face coordintes, and return list of 6 faces. """
+        return [self.full_array[y*self._face_height:(y+1)*self._face_height,
+                                x*self._face_width:(x+1)*self._face_width]
+                for x,y in self._face_coords]
+    
+    def _origin_face(self) -> int:
+        """ Get the face number (index) that this point lives in """
+        face_x = self._posn.x // self._face_width
+        face_y = self._posn.y // self._face_width
+        
+        return self._face_coords.index((face_x, face_y))
         
     def _next_posn(self) -> Point:
         """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
-        # next_posn = self._posn + VECTORS[self._direction]
-        # if not self._is_tile(next_posn): # we're off the tiles, so we need to wrap
-        #     # Subtract vector in the opposite direction equal to the length of the row / col
-        #     new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
-        #     new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
-        #     next_posn = Point(new_x, new_y)
+        next_posn = self._posn + VECTORS[self._direction]
+        print(f"Posn={self.posn}, face={self._origin_face()}")
+        if not self._is_tile(next_posn): 
+            # we're off the tiles, so we need to wrap around the cube
+            new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
+            new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
+            next_posn = Point(new_x, new_y)
         
-        # return next_posn
+        return next_posn
     
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -293,8 +311,27 @@ def main():
     print(the_map)
     print(f"Part 1: score={the_map.score()}")
     
-    cube = CubeMap(map_data, faces=faces, face_edge_map=face_edge_map)
+    cube = CubeMap(map_data, face_coords=face_coords, face_edge_map=face_edge_map)
     print(cube.full_array)
+    
+    # process the instructions
+    next_transition = 0
+    this_instr = "" 
+    for i, char in enumerate(instructions):
+        if i < next_transition:
+            continue
+        if char.isdigit():
+            for j, later_char in enumerate(instructions[i:len(instructions)], i):
+                if not later_char.isdigit():
+                    next_transition = j
+                    this_instr = instructions[i: next_transition]
+                    break
+                else:   # we've reached the end
+                    this_instr = instructions[i]    
+        else:   # we're processing alphabetical characters
+            this_instr = instructions[i]
+
+        cube.move(this_instr)
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
