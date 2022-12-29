@@ -43,6 +43,13 @@ SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
+OPMAP = {
+    '+': operator.add,
+    '*': operator.mul,
+    '-': operator.sub,
+    '/': operator.floordiv
+}
+
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
@@ -129,14 +136,7 @@ def evaluate_monkey(monkey_id: str, calcs, monkeys) -> int:
     # base case
     # We could use eval, but it's dangerous, and relatively slow
     # monkeys[monkey_id] = int(eval(str(monkeys[monkey2]) + op + str(monkeys[monkey3])))
-    if op == "+":
-        monkeys[monkey_id] = monkeys[monkey2] + monkeys[monkey3]
-    if op == "-":
-        monkeys[monkey_id] = monkeys[monkey2] - monkeys[monkey3]
-    if op == "*":
-        monkeys[monkey_id] = monkeys[monkey2] * monkeys[monkey3]
-    if op == "/":
-        monkeys[monkey_id] = monkeys[monkey2] // monkeys[monkey3]
+    monkeys[monkey_id] = OPMAP[op](monkeys[monkey2], monkeys[monkey3])
     
     return monkeys[monkey_id]
             
