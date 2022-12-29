@@ -41,6 +41,9 @@ Soln:
 Part 2:
 
 - We need to map all the edges.
+- Let's map all the edges that don't have an adjacent face in the input. 
+  I.e. what face are we leaving (and in which direction), 
+  and what face will we arrive in (and in which direction).
 
 """
 from __future__ import annotations
@@ -48,6 +51,8 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 import time
+
+import numpy as np
 
 SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
@@ -91,6 +96,7 @@ class Map():
         
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
+        self._height = len(self._grid)
         self._width = max(len(line) for line in self._grid) # the widest line
         self._pad_grid() # make all rows same length
         self._cols = self._generate_cols()
@@ -144,9 +150,9 @@ class Map():
     def _move_forward(self, steps: int):
         """ Move in the current direction until we hit an obstacle. """
         for _ in range(steps):
-            candidate_next = self._next_posn()
-            if self._is_possible(candidate_next):
-                self._posn = candidate_next
+            candidate = self._next_posn()
+            if self._is_possible(candidate):
+                self._posn = candidate
                 self._path[self._posn] = self._direction # update direction in path
             else: # we need to stop here
                 break
@@ -215,13 +221,48 @@ class Map():
     def __repr__(self):
         return f"Map(posn={self.posn}, last_instr={self._last_instruction}, score={self.score()})"
 
-class CubeMap(Map):
-    def __init__(self, grid: list[str]) -> None:
-        super().__init__(grid)
-        
-    def _create_faces(self):
-        pass
+faces = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # 0-5
+face_edge_map = {
+    (0, '^'): (1, 'v'),
+    (0, '<'): (2, 'v'),
+    (0, '>'): (5, '<'),
+    (1, '^'): (0, 'v'),
+    (1, '<'): (5, '^'),
+    (1, 'v'): (4, '^'),
+    (2, '^'): (0, '>'),
+    (2, 'v'): (4, '>'),
+    (3, '>'): (5, 'v'),
+    (4, '<'): (2, '^'),
+    (4, 'v'): (1, '^'),
+    (5, '^'): (3, '<'),
+    (5, '>'): (0, '<'),
+    (5, 'v'): (1, '>')
+}
 
+class CubeMap(Map):
+    def __init__(self, grid: list[str], faces: list[tuple], face_edge_map: dict[tuple, tuple]) -> None:
+        super().__init__(grid)
+        self._faces = faces
+        self._face_edge_map = face_edge_map
+        self.full_array = np.array(self._grid)
+        self._h_faces_width = max(x for x,y in self._faces) + 1 # e.g. 4 faces wide
+        self._v_faces_height = max(y for x,y in self._faces) + 1 # e.g. 3 faces tall
+        self._face_width = self._width // self._h_faces_width # E.g. 4, or 50 with real
+        self._face_height = self._height // self._v_faces_height # E.g. 4 or 50 with real
+        print()
+        
+    def _next_posn(self) -> Point:
+        """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
+        
+        # next_posn = self._posn + VECTORS[self._direction]
+        # if not self._is_tile(next_posn): # we're off the tiles, so we need to wrap
+        #     # Subtract vector in the opposite direction equal to the length of the row / col
+        #     new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
+        #     new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
+        #     next_posn = Point(new_x, new_y)
+        
+        # return next_posn
+    
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         map_data, instructions = f.read().split("\n\n")
@@ -251,6 +292,9 @@ def main():
     
     print(the_map)
     print(f"Part 1: score={the_map.score()}")
+    
+    cube = CubeMap(map_data, faces=faces, face_edge_map=face_edge_map)
+    print(cube.full_array)
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
