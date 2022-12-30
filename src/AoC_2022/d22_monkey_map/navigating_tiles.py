@@ -89,17 +89,24 @@ class Point():
 
 DIRECTION_SYMBOLS = ['>', 'v', '<', '^']  # Orientation vector key
 VECTOR_COORDS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-VECTORS = {k: Point(*v) for k, v in enumerate(VECTOR_COORDS)} # so we can retrieve by index
+VECTORS = [Point(*v) for v in VECTOR_COORDS] # so we can retrieve by index
          
 class Map(): 
         
     def __init__(self, grid: list[str]) -> None:
-        self._grid = grid
-        self._height = len(self._grid)
+        self._grid = grid # store original input grid
+        
+        self._height = len(self._grid) 
         self._width = max(len(line) for line in self._grid) # the widest line
-        self._pad_grid() # make all rows same length
+        self._grid = self._pad_grid() # make all rows same length
         self._cols = self._generate_cols()
+        
+        self._staert = Point(0,0)
+        self._posn = Point(0,0)
+        self._direction = 0
+        self._path = {} # key=point, value=direction
         self._set_start() # Initialise top-left, pointing right
+
         self._last_instruction = "" # just to help with debugging
     
     def _generate_cols(self):
@@ -114,18 +121,13 @@ class Map():
         starting at (0, 0) - which could be in 'emtpy' space, and moving right. """
         first_space = self._grid[0].find(".")
         self._posn = Point(first_space, 0)
+        self._start = self._posn
         self._direction = 0  # index of ['>', 'v', '<', '^']
         self._path = {self._posn: self._direction} # Everywhere we've been, including direction
 
     def _pad_grid(self):
         """ Make all rows are the same length. """
-        lines = []
-        for line in self._grid:
-            if len(line) < self._width:
-                line += " " * (self._width - len(line))
-            lines.append(line)
-            
-        self._grid = lines
+        return [line + " " * (self._width - len(line)) if len(line) < self._width else line for line in self._grid]
         
     @property
     def posn(self) -> Point:
@@ -208,7 +210,13 @@ class Map():
             line = ""
             for x, val in enumerate(row):
                 posn = Point(x,y)
-                if posn in self._path:
+                if posn == self._posn:
+                    line += (Colours.RED.value + Colours.BOLD.value 
+                            + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value)
+                elif posn == self._start:
+                    line += (Colours.YELLOW.value + Colours.BOLD.value 
+                            + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value)
+                elif posn in self._path:
                     line += Colours.CYAN.value + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value
                 else:
                     line += val
@@ -220,22 +228,22 @@ class Map():
     def __repr__(self):
         return f"Map(posn={self.posn}, last_instr={self._last_instruction}, score={self.score()})"
 
-face_coords = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # 0-5
-face_edge_map = {
-    (0, '^'): (1, 'v'),
-    (0, '<'): (2, 'v'),
-    (0, '>'): (5, '<'),
-    (1, '^'): (0, 'v'),
-    (1, '<'): (5, '^'),
-    (1, 'v'): (4, '^'),
-    (2, '^'): (0, '>'),
-    (2, 'v'): (4, '>'),
-    (3, '>'): (5, 'v'),
-    (4, '<'): (2, '^'),
-    (4, 'v'): (1, '^'),
-    (5, '^'): (3, '<'),
-    (5, '>'): (0, '<'),
-    (5, 'v'): (1, '>')
+face_coords = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # Faces 0-5
+face_edge_map = { # each tuple is (face #, direction)
+    (0, 3): (1, 1), # arrow a
+    (0, 2): (2, 1), # arrow g
+    (0, 0): (5, 2), # arrow b
+    (1, 3): (0, 1), # arrow a
+    (1, 2): (5, 3), # arrow d
+    (1, 1): (4, 3), # arrow e
+    (2, 3): (0, 0), # arrow g
+    (2, 1): (4, 0), # arrow f
+    (3, 0): (5, 1), # arrow c
+    (4, 2): (2, 3), # arrow f
+    (4, 1): (1, 3), # arrow e
+    (5, 3): (3, 2), # arrow c
+    (5, 0): (0, 2), # arrow b
+    (5, 1): (1, 0)  # arrow d
 }
 
 class CubeMap(Map):
@@ -244,7 +252,8 @@ class CubeMap(Map):
     
     def __init__(self, grid: list[str], face_coords: list[tuple], face_edge_map: dict[tuple, tuple]) -> None:
         super().__init__(grid)
-        self._face_coords = face_coords
+        
+        self._face_coords = face_coords # the coordinates of the top-left vertices of this cube
         self._face_edge_map = face_edge_map
 
         self._h_faces_width = max(x for x,y in self._face_coords) + 1 # e.g. 4 faces wide
@@ -273,7 +282,10 @@ class CubeMap(Map):
         
         next_posn = self._posn + VECTORS[self._direction]
         print(f"Posn={self.posn}, face={self._origin_face()}")
+        
         if not self._is_tile(next_posn): 
+            dest_face = self._face_edge_map[(self._origin_face(), self._direction)]
+            print(f"Moving to face {dest_face}")
             # we're off the tiles, so we need to wrap around the cube
             new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
             new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
@@ -283,7 +295,7 @@ class CubeMap(Map):
     
 def main():
     with open(INPUT_FILE, mode="rt") as f:
-        map_data, instructions = f.read().split("\n\n")
+        map_data, instructions = f.read().split("\n\n") # input is two blocks, separated by a line
         
     map_data = map_data.splitlines()
     the_map = Map(map_data)
@@ -306,7 +318,6 @@ def main():
             this_instr = instructions[i]
 
         the_map.move(this_instr)
-        # print(repr(the_map))
     
     print(the_map)
     print(f"Part 1: score={the_map.score()}")
