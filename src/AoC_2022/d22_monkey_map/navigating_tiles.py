@@ -260,6 +260,7 @@ class CubeMap(Map):
         self._v_faces_height = max(y for x,y in self._face_coords) + 1 # e.g. 3 faces tall
         self._face_width = self._width // self._h_faces_width # E.g. 4, or 50 with real
         self._face_height = self._height // self._v_faces_height # E.g. 4 or 50 with real
+        assert self._face_width == self._face_height, "Faces should be squares!"
         
         self.full_array = np.array([list(line) for line in self._grid]) # convert to 2D array
         self._faces = self._make_faces() # split into 6 square arrays
@@ -324,6 +325,9 @@ def main():
     
     cube = CubeMap(map_data, face_coords=face_coords, face_edge_map=face_edge_map)
     print(cube.full_array)
+    
+    for i, face in enumerate(cube._faces):
+        print(f"\nFace {i}:\n{face}")
     
     # process the instructions
     next_transition = 0

@@ -49,6 +49,12 @@ tags:
 - [Examples](#examples)
   - [Finding the Difference Between Elements](#finding-the-difference-between-elements)
   - [How Many Times is Value n Greater than Value n-1?](#how-many-times-is-value-n-greater-than-value-n-1)
+  - [Turning a List of Str into a 2D NumPy Char Array](#turning-a-list-of-str-into-a-2d-numpy-char-array)
+  - [Carving Up a 2D Array into Smaller Regions](#carving-up-a-2d-array-into-smaller-regions)
+  - [Creating 2D Arrays, and Selecting / Updating Values](#creating-2d-arrays-and-selecting--updating-values)
+  - [Counting the Intersection of Lines on a 2D Map](#counting-the-intersection-of-lines-on-a-2d-map)
+  - [Counting and Rolling Values](#counting-and-rolling-values)
+  - [NumPy, NetworkX and Dijkstra to Navigate a Height Map](#numpy-networkx-and-dijkstra-to-navigate-a-height-map)
 
 ## NumPy is Awesome
 
@@ -214,6 +220,21 @@ Size: 5
 Type: int32
 Data:
 [25 30 35 40 45]
+```
+
+For example, creating a keypad:
+
+```python
+keypad = np.arange(1, 10).reshape(3, 3)
+print(keypad)
+```
+
+Output:
+
+```text
+[[1 2 3]
+ [4 5 6]
+ [7 8 9]]
 ```
 
 ### Creating Linearly Spaced Values
@@ -969,3 +990,207 @@ print(f"Count of (n > n-1): {increases.sum()}")
 n > n-1? [ True  True False False  True]
 Count of (n > n-1): 3
 ```
+
+See a more sophisticated example at [2021 Day 1](/2021/1).
+
+### Turning a List of Str into a 2D NumPy Char Array
+
+```python
+import numpy as np
+
+data = """abcd
+1234
+efgh"""
+
+my_array = np.array([list(line) for line in data.splitlines()])
+print(my_array)
+```
+
+Output:
+
+```text
+[['a' 'b' 'c' 'd']
+ ['1' '2' '3' '4']
+ ['e' 'f' 'g' 'h']]
+```
+
+### Carving Up a 2D Array into Smaller Regions
+
+This is taken from [2022 Day 22](/2022/22).
+
+```python
+import numpy as np
+
+# Start with data where rows are of different lengths
+data = """        1111
+        1111
+        1111
+        1111
+222233334444
+222233334444
+222233334444
+222233334444
+        55556666
+        55556666
+        55556666
+        55556666"""
+
+data = data.splitlines()
+max_width = max(len(line) for line in data)
+        
+# Make all rows the same length
+data = [line + " " * (max_width - len(line)) if len(line) < max_width else line for line in data]
+
+my_array = np.array([list(line) for line in data])
+print(my_array)
+
+face_coords = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # Faces 0-5
+num_horiz_faces = max(x for x,y in face_coords) + 1
+face_width = max_width // num_horiz_faces
+
+faces = [my_array[y*face_width:(y+1)*face_width,
+                  x*face_width:(x+1)*face_width] for x,y in face_coords]
+
+for face in faces:
+    print(face)
+```
+
+Output:
+
+```text
+[[' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '1' '1' '1' '1' ' ' ' ' ' ' ' ']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '1' '1' '1' '1' ' ' ' ' ' ' ' ']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '1' '1' '1' '1' ' ' ' ' ' ' ' ']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '1' '1' '1' '1' ' ' ' ' ' ' ' ']
+ ['2' '2' '2' '2' '3' '3' '3' '3' '4' '4' '4' '4' ' ' ' ' ' ' ' ']
+ ['2' '2' '2' '2' '3' '3' '3' '3' '4' '4' '4' '4' ' ' ' ' ' ' ' ']
+ ['2' '2' '2' '2' '3' '3' '3' '3' '4' '4' '4' '4' ' ' ' ' ' ' ' ']
+ ['2' '2' '2' '2' '3' '3' '3' '3' '4' '4' '4' '4' ' ' ' ' ' ' ' ']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '5' '5' '5' '5' '6' '6' '6' '6']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '5' '5' '5' '5' '6' '6' '6' '6']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '5' '5' '5' '5' '6' '6' '6' '6']
+ [' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '5' '5' '5' '5' '6' '6' '6' '6']]
+
+Faces:
+[['1' '1' '1' '1']
+ ['1' '1' '1' '1']
+ ['1' '1' '1' '1']
+ ['1' '1' '1' '1']]
+[['2' '2' '2' '2']
+ ['2' '2' '2' '2']
+ ['2' '2' '2' '2']
+ ['2' '2' '2' '2']]
+[['3' '3' '3' '3']
+ ['3' '3' '3' '3']
+ ['3' '3' '3' '3']
+ ['3' '3' '3' '3']]
+[['4' '4' '4' '4']
+ ['4' '4' '4' '4']
+ ['4' '4' '4' '4']
+ ['4' '4' '4' '4']]
+[['5' '5' '5' '5']
+ ['5' '5' '5' '5']
+ ['5' '5' '5' '5']
+ ['5' '5' '5' '5']]
+[['6' '6' '6' '6']
+ ['6' '6' '6' '6']
+ ['6' '6' '6' '6']
+ ['6' '6' '6' '6']]
+```
+
+### Creating 2D Arrays, and Selecting / Updating Values
+
+Based on [2015 Day 6](/2015/6).
+
+```python
+""" 
+Configure 900 lights in a 30x30 grid, by following a set of instructions.
+Lights begin turned off.
+Coords are 0-indexed
+
+Part 1:
+    Instructions require lights to be toggled, turned on, or off.
+    Calculate total lights turned on.
+
+Part 2:
+    Lights have variable brightness.  Instructions have new meanings:
+        Turn on = increase by 1
+        Turn off = decrease by 1
+        Toggle = increase by 2
+    Calculate total brightness.
+"""
+import re
+import numpy as np
+
+DATA = """toggle 1,6 through 2,6
+turn off 1,7 through 2,9
+turn off 6,1 through 6,3
+turn off 8,2 through 11,6
+turn on 19,2 through 21,3
+turn on 17,4 through 26,8
+turn on 10,10 through 19,15
+turn off 4,14 through 6,16
+toggle 5,15 through 15,25
+toggle 20,1 through 29,10"""
+
+INSTR_PATTERN = re.compile(r"(\d+),(\d+) through (\d+),(\d+)")
+
+def main():
+    data = DATA.splitlines()
+    width = height = 30
+
+    # Part 1
+    lights = np.full((width, height), False, dtype=np.bool_) # fill with False
+    process_instructions(data, lights)
+    print(f"Part 1, lights on: {lights.sum()}")
+
+    # Part 2
+    lights = np.zeros((width, height), dtype=np.int8)   # Initialise with 0
+    process_variable_brightness_instructions(data, lights)
+    print(f"Part 2, brightness: {lights.sum()}")
+    
+    print(lights)
+
+def process_instructions(data, lights):
+    for line in data:
+        match = INSTR_PATTERN.search(line)
+        assert match, "All instruction lines are expeted to match"
+        tl_x, tl_y, br_x, br_y = map(int, match.groups())
+
+        if "toggle" in line:
+            # lights[tl_x:br_x+1, tl_y:br_y+1] ^= True
+            lights[tl_x:br_x+1, tl_y:br_y+1] = np.logical_not(lights[tl_x:br_x+1, tl_y:br_y+1])
+        elif "on" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] = True
+        elif "off" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] = False
+            
+def process_variable_brightness_instructions(data, lights):
+    for line in data:
+        match = INSTR_PATTERN.search(line)
+        assert match, "All instruction lines are expeted to match"
+        tl_x, tl_y, br_x, br_y = map(int, match.groups())
+
+        if "toggle" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] += 2
+        elif "on" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] += 1
+        elif "off" in line:
+            lights[tl_x:br_x+1, tl_y:br_y+1] -= 1
+
+        lights[lights < 0] = 0
+
+main()
+```
+
+### Counting the Intersection of Lines on a 2D Map
+
+See [2021 Day 5: Hydrothermal vents](/2021/5).
+
+### Counting and Rolling Values
+
+See [2021 day 6: Lantern Fish](/2021/6).
+
+### NumPy, NetworkX and Dijkstra to Navigate a Height Map
+
+See [2022 Day 12: Hill Climbing](/2022/12).
