@@ -285,9 +285,10 @@ class CubeMap(Map):
         print(f"Posn={self.posn}, face={self._origin_face()}")
         
         if not self._is_tile(next_posn): 
+            # we're off the tiles, so we need to wrap around the cube
             dest_face = self._face_edge_map[(self._origin_face(), self._direction)]
             print(f"Moving to face {dest_face}")
-            # we're off the tiles, so we need to wrap around the cube
+
             new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
             new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
             next_posn = Point(new_x, new_y)
