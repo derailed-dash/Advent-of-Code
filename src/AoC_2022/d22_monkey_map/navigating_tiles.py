@@ -40,11 +40,15 @@ Soln:
 
 Part 2:
 
-- We need to map all the edges.
-- Let's map all the edges that don't have an adjacent face in the input. 
-  I.e. what face are we leaving (and in which direction), 
-  and what face will we arrive in (and in which direction).
-
+- Instead of wrapping left-to-right, or top-to-bottom, we now need to wrap around cube faces.
+- Extend our Map class with a new CubeMap class. Most of the work is done by overriding _next_posn().
+- Externalise the cube geometry into a separate file, which contains cube 'face coordinates'
+  and edge mappings. I.e. for all edges where folding would be required in more than one plane. 
+- I.e. if we're leaving face n in direction x, what face do we arrive at, 
+  and what new direction are we facing?  This is visualised in the associated diagram, 
+  and represented in the externalised file which can be read in using literal_eval().
+- Map the face coordinate to the arrival coordinate in the new face.
+- Then convert this 'face coordinate' back to an overall grid coordinate.
 """
 from __future__ import annotations
 from ast import literal_eval
@@ -94,7 +98,9 @@ VECTOR_COORDS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 VECTORS = [Point(*v) for v in VECTOR_COORDS] # so we can retrieve by index
          
 class Map(): 
-        
+    """ 2D grid map. Follows 'move' instructions, which can either be a L/R rotation,
+    or n steps forward in the current orientation. If we step off a tile into the abyss, 
+    we wrap around to the opposite edge. Stores the path taken, and uses it to evaluate a total 'score'. """
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid # store original input grid
         
@@ -233,7 +239,7 @@ class Map():
 
 class CubeMap(Map):
     """ Take a 2D grid that is made up of 6 regions, and convert to a cube.
-    The face coordinates of the Cube must be supplied. """
+    The face coordinates of the Cube, and its edge mappings, must be supplied. """
     
     def __init__(self, grid: list[str], face_coords: list[tuple], face_edge_map: dict[tuple, tuple]) -> None:
         super().__init__(grid)
@@ -267,6 +273,9 @@ class CubeMap(Map):
         return next_posn, next_dir
 
     def _next_face_point(self) -> tuple[Point, int]:
+        """ A face point is an x,y point within the current face only. 
+        We return the new face point, and the new direction we're pointing in, 
+        having changed face. """
         dest_face, dest_direction = self._face_edge_map[(self._origin_face(), self._direction)]
         # print(f"Moving to face {dest_face}, with direction={DIRECTION_SYMBOLS[dest_direction]}")
         
@@ -303,6 +312,7 @@ class CubeMap(Map):
         return (self._face_point_to_grid_point(dest_face_point, dest_face), dest_direction)
 
     def _face_point_to_grid_point(self, face_point: Point, face: int) -> Point:
+        """ Converts a point relative to a face back to an overall grid point. """
         return Point(face_point.x + self._face_coords[face][0]*self._face_width, 
                      face_point.y + self._face_coords[face][1]*self._face_height)
     
@@ -315,11 +325,13 @@ def main():
                 
     map_data = map_data.splitlines()
     
+    # Part 1 - 2D map
     the_map = Map(map_data)
     process_instructions(instructions, the_map)
     # print(the_map)
     print(f"Part 1: score={the_map.score()}")
     
+    # Part 2 - Cube
     cube = CubeMap(map_data, face_coords=cube_data[0], face_edge_map=cube_data[1])
     process_instructions(instructions, cube)
     print(f"Part 2: score={cube.score()}")
