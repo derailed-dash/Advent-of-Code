@@ -6,7 +6,7 @@ main_img:
   link: /assets/images/dangerwillrobinson.jpg
 tags: 
   - name: Eval
-    link: hhttps://realpython.com/python-eval-function/
+    link: https://realpython.com/python-eval-function/
 ---
 ## Page Contents
 

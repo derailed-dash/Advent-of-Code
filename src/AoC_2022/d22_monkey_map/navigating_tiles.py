@@ -47,15 +47,17 @@ Part 2:
 
 """
 from __future__ import annotations
+from ast import literal_eval
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 import time
-import numpy as np
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+# INPUT_CUBE = Path(SCRIPT_DIR, "input/sample_cube_in.txt")
+INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+INPUT_CUBE = Path(SCRIPT_DIR, "input/cube_in.txt")
 
 class Colours(Enum):
     """ ANSI escape sequences for coloured console output """
@@ -151,9 +153,10 @@ class Map():
     def _move_forward(self, steps: int):
         """ Move in the current direction until we hit an obstacle. """
         for _ in range(steps):
-            candidate = self._next_posn()
+            candidate, new_dir = self._next_posn()
             if self._is_possible(candidate):
                 self._posn = candidate
+                self._direction = new_dir
                 self._path[self._posn] = self._direction # update direction in path
             else: # we need to stop here
                 break
@@ -164,7 +167,7 @@ class Map():
     def _get_col_length(self, col_num: int):
         return len(self._cols[col_num]) - self._cols[col_num].count(" ")
 
-    def _next_posn(self) -> Point:
+    def _next_posn(self) -> tuple[Point, int]:
         """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
         next_posn = self._posn + VECTORS[self._direction]
@@ -174,7 +177,7 @@ class Map():
             new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
             next_posn = Point(new_x, new_y)
         
-        return next_posn
+        return next_posn, self._direction
     
     def _is_tile(self, point: Point) -> bool:
         """ Check if the specified point is a tile. I.e. within the bounds and not empty. """
@@ -228,24 +231,6 @@ class Map():
     def __repr__(self):
         return f"Map(posn={self.posn}, last_instr={self._last_instruction}, score={self.score()})"
 
-face_coords = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)] # Faces 0-5
-face_edge_map = { # each tuple is (face #, direction)
-    (0, 3): (1, 1), # arrow a
-    (0, 2): (2, 1), # arrow g
-    (0, 0): (5, 2), # arrow b
-    (1, 3): (0, 1), # arrow a
-    (1, 2): (5, 3), # arrow d
-    (1, 1): (4, 3), # arrow e
-    (2, 3): (0, 0), # arrow g
-    (2, 1): (4, 0), # arrow f
-    (3, 0): (5, 1), # arrow c
-    (4, 2): (2, 3), # arrow f
-    (4, 1): (1, 3), # arrow e
-    (5, 3): (3, 2), # arrow c
-    (5, 0): (0, 2), # arrow b
-    (5, 1): (1, 0)  # arrow d
-}
-
 class CubeMap(Map):
     """ Take a 2D grid that is made up of 6 regions, and convert to a cube.
     The face coordinates of the Cube must be supplied. """
@@ -259,18 +244,9 @@ class CubeMap(Map):
         self._h_faces_width = max(x for x,y in self._face_coords) + 1 # e.g. 4 faces wide
         self._v_faces_height = max(y for x,y in self._face_coords) + 1 # e.g. 3 faces tall
         self._face_width = self._width // self._h_faces_width # E.g. 4, or 50 with real
-        self._face_height = self._height // self._v_faces_height # E.g. 4 or 50 with real
+        self._face_height = self._height // self._v_faces_height # E.g. 4 or 50 with real"
         assert self._face_width == self._face_height, "Faces should be squares!"
         
-        self.full_array = np.array([list(line) for line in self._grid]) # convert to 2D array
-        self._faces = self._make_faces() # split into 6 square arrays
-    
-    def _make_faces(self):
-        """ Carve up the overall array using the face coordintes, and return list of 6 faces. """
-        return [self.full_array[y*self._face_height:(y+1)*self._face_height,
-                                x*self._face_width:(x+1)*self._face_width]
-                for x,y in self._face_coords]
-    
     def _origin_face(self) -> int:
         """ Get the face number (index) that this point lives in """
         face_x = self._posn.x // self._face_width
@@ -278,31 +254,77 @@ class CubeMap(Map):
         
         return self._face_coords.index((face_x, face_y))
         
-    def _next_posn(self) -> Point:
+    def _next_posn(self) -> tuple[Point, int]:
         """ Determine next Point in this direction, including wrapping. Does not check if blocked. """
         
         next_posn = self._posn + VECTORS[self._direction]
-        print(f"Posn={self.posn}, face={self._origin_face()}")
+        next_dir = self._direction
         
         if not self._is_tile(next_posn): 
             # we're off the tiles, so we need to wrap around the cube
-            dest_face = self._face_edge_map[(self._origin_face(), self._direction)]
-            print(f"Moving to face {dest_face}")
-
-            new_x = next_posn.x - VECTORS[self._direction].x * self._get_row_length(self._posn.y)
-            new_y = next_posn.y - VECTORS[self._direction].y * self._get_col_length(self._posn.x)
-            next_posn = Point(new_x, new_y)
+            next_posn, next_dir = self._next_face_point()
         
-        return next_posn
+        return next_posn, next_dir
+
+    def _next_face_point(self) -> tuple[Point, int]:
+        dest_face, dest_direction = self._face_edge_map[(self._origin_face(), self._direction)]
+        # print(f"Moving to face {dest_face}, with direction={DIRECTION_SYMBOLS[dest_direction]}")
+        
+        current_face_x = self.posn.x % self._face_width
+        current_face_y = self.posn.y % self._face_height
+        other = 0
+        dest_face_point = Point(0,0)
+        
+        match self._direction: # which way are we currently going?
+            case 0: # >
+                assert current_face_x == self._face_width - 1, "We must be on a right edge"
+                other = current_face_y
+            case 1: # v
+                assert current_face_y == self._face_height - 1, "We must be on a bottom edge"
+                other = self._face_width - 1 - current_face_x
+            case 2: # <
+                assert current_face_x == 0, "We must be on a left edge"
+                other = self._face_height - 1 - current_face_y
+            case 3: # ^
+                assert current_face_y == 0, "We must be on a top edge"
+                other = current_face_x
+                
+        match dest_direction: # which way will we be going? 
+            case 0: # >
+                dest_face_point = Point(0, other)
+            case 1: # v
+                dest_face_point = Point(self._face_height - 1 - other, 0)
+            case 2: # <
+                dest_face_point = Point(self._face_height - 1, self._face_width - 1 - other)
+            case 3: # ^
+                dest_face_point = Point(other, self._face_width - 1)
+        
+        # convert face point to grid point
+        return (self._face_point_to_grid_point(dest_face_point, dest_face), dest_direction)
+
+    def _face_point_to_grid_point(self, face_point: Point, face: int) -> Point:
+        return Point(face_point.x + self._face_coords[face][0]*self._face_width, 
+                     face_point.y + self._face_coords[face][1]*self._face_height)
     
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         map_data, instructions = f.read().split("\n\n") # input is two blocks, separated by a line
         
+    with open(INPUT_CUBE, mode="rt") as f:  # read in Cube input, in Python list format
+        cube_data = literal_eval(f.read())
+                
     map_data = map_data.splitlines()
-    the_map = Map(map_data)
     
-    # process the instructions
+    the_map = Map(map_data)
+    process_instructions(instructions, the_map)
+    # print(the_map)
+    print(f"Part 1: score={the_map.score()}")
+    
+    cube = CubeMap(map_data, face_coords=cube_data[0], face_edge_map=cube_data[1])
+    process_instructions(instructions, cube)
+    print(f"Part 2: score={cube.score()}")
+
+def process_instructions(instructions, the_map):
     next_transition = 0
     this_instr = "" 
     for i, char in enumerate(instructions):
@@ -320,34 +342,6 @@ def main():
             this_instr = instructions[i]
 
         the_map.move(this_instr)
-    
-    print(the_map)
-    print(f"Part 1: score={the_map.score()}")
-    
-    cube = CubeMap(map_data, face_coords=face_coords, face_edge_map=face_edge_map)
-    print(cube.full_array)
-    
-    for i, face in enumerate(cube._faces):
-        print(f"\nFace {i}:\n{face}")
-    
-    # process the instructions
-    next_transition = 0
-    this_instr = "" 
-    for i, char in enumerate(instructions):
-        if i < next_transition:
-            continue
-        if char.isdigit():
-            for j, later_char in enumerate(instructions[i:len(instructions)], i):
-                if not later_char.isdigit():
-                    next_transition = j
-                    this_instr = instructions[i: next_transition]
-                    break
-                else:   # we've reached the end
-                    this_instr = instructions[i]    
-        else:   # we're processing alphabetical characters
-            this_instr = instructions[i]
-
-        cube.move(this_instr)
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
