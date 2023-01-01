@@ -38,6 +38,8 @@ SAMPLE_INPUT_FILE = "input/sample_init_state.txt"
 ACTIVE = '#'
 CYCLES = 6
 
+VIS = False
+
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
     # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
@@ -50,7 +52,8 @@ def main():
     process_init(input_state, grid)
     for i in range(CYCLES):
         print(f"Cycle {i}:")
-        # show_grid(grid)
+        if VIS:
+            show_grid(grid)
         grid = execute_cycle(grid)
 
     print(f"Sum active: {len(grid)}")
