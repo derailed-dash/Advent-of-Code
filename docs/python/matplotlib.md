@@ -14,6 +14,8 @@ tags:
     link: https://www.geeksforgeeks.org/graph-plotting-in-python-set-1/
   - name: Python Guides Matplotlib Tutorials
     link: https://pythonguides.com/category/python-tutorials/matplotlib/
+  - name: Improving Your Graphs
+    link: https://towardsdatascience.com/simple-ways-to-improve-your-matplotlib-b64eebccfd5
   - name: Seaborn
     link: https://seaborn.pydata.org/
   - name: NumPy

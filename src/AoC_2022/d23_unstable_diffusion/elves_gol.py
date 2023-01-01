@@ -46,12 +46,20 @@ from __future__ import annotations
 from collections import deque, defaultdict
 from dataclasses import dataclass
 from enum import Enum
+from io import BytesIO
 from pathlib import Path
 import time
+import imageio as iio
+from matplotlib import pyplot as plt
+from matplotlib.markers import MarkerStyle
+from tqdm import tqdm
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+
+ENABLE_ANIMATIONS = True
+OUTPUT_FOLDER = Path(SCRIPT_DIR, "output/")
 
 @dataclass(frozen=True)
 class Point():
@@ -84,12 +92,71 @@ class Vector(Enum):
     SW = Point(-1, 1)
     W = Point(-1, 0)
     NW = Point(-1, -1)
+
+class Animator():
+    """ Creates an animation file of specified target size. 
+    Designed to be used as Context Manager. E.g. 
+    with Animator(file=Path("path/to/file""), fps=num) as animator:
+        # code
+    """
+   
+    def __enter__(self):
+        """ Required for ContextManager implementation. """
+        if self._enabled:
+            self._create_path()
+        
+        return self # so the as <name> returns an object
+            
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """ Required for ContextManager implementation. """
+        if self._enabled:
+            self._save_anim()
+        
+    def __init__(self, file: Path, fps: int, loop=1, enabled=True) -> None:
+        """ Create an Animator. Suggest the file should be a .gif.
+        Set frames per second (fps). 
+        Set loop to 0, to loop indefinitely. Default is 1. """
+        self._enabled = enabled
+        self._outputfile = file
+        self._frames = []  # can be in-memory BytesIO objects, or files
+        self._fps = fps
+        self._loop = loop
+
+    @property
+    def enabled(self):
+        return self._enabled
+    
+    @enabled.setter
+    def enabled(self, value: bool):
+        self._enabled = value
+    
+    def _create_path(self):
+        if self._enabled:
+            dir_path = Path(self._outputfile).parent
+            if not Path.exists(dir_path):
+                Path.mkdir(dir_path)
+    
+    def _save_anim(self):
+        """ Takes animation frames, and converts to a single animated file. """
+        with iio.get_writer(self._outputfile, mode='I', fps=self._fps, loop=self._loop) as writer:
+            for frame in tqdm(self._frames):
+                image = iio.v3.imread(frame)
+                writer.append_data(image)
+                
+        print(f"Animation saved to {self._outputfile}")
+    
+    def add_frame(self, frame):
+        """ Add a frame to the animation.
+        The frame can be in the form of a BytesIO object, or a file Path
+        """
+        self._frames.append(frame)
     
 class Grid():
     """ Stores a set of all elf positions. """
-    def __init__(self, grid: list[str]) -> None:
+    def __init__(self, grid: list[str], animator=None) -> None:
         self._grid = grid
         self._elves: set[Point] = set()
+        self._animator: Animator = animator
         self._initialise_elves()
         
         self._directions = deque([ # use a deque so we can rotate
@@ -98,6 +165,8 @@ class Grid():
             ([Vector.W, Vector.NW, Vector.SW], Vector.W),
             ([Vector.E, Vector.NE, Vector.SE], Vector.E)
         ])
+        
+        self.plt_data = self.init_plot()
 
     def _initialise_elves(self):
         """ From input, store all current elves - marked with '#' - as a set.
@@ -145,6 +214,9 @@ class Grid():
         self._rotate_direction()
         self._set_bounds()
         
+        if self._animator and self._animator.enabled:
+            self.vis_state()
+        
         return len(elves_per_proposal)
         
     def _rotate_direction(self):
@@ -171,26 +243,59 @@ class Grid():
     
     def __repr__(self) -> str:
         return f"Grid(score={self.score})"
+    
+    def init_plot(self) -> tuple:
+        fig, axes = plt.subplots()
+        axes.get_xaxis().set_visible(False)
+        axes.get_yaxis().set_visible(False)
+        axes.set_facecolor('xkcd:orange')
+        return fig, axes
+        
+    def vis_state(self):
+        fig, axes = self.plt_data
+        axes.clear()
+
+        shape = 's'
+        all_x, all_y = zip(*((point.x+0.5, point.y+0.5) for point in self._elves))
+
+        axes.set_xlim(self._min_x-1, self._max_x+2)
+        axes.set_ylim(self._min_y-1, self._max_y+2)
+        axes.set_aspect("equal")
+        axes.invert_yaxis()
+        
+        # dynamically compute the marker size
+        fig.canvas.draw()
+        sz = ((axes.get_window_extent().width / (self._max_x-self._min_x) * (48/fig.dpi)) ** 2)
+        axes.scatter(all_x, all_y, marker=MarkerStyle(shape), s=sz, 
+                   color='black', edgecolors='white')
+
+        # save the plot as a frame; store the frame in-memory, using a BytesIO buffer
+        frame = BytesIO()
+        plt.savefig(frame, format='png') # save to memory, rather than file
+        self._animator.add_frame(frame)
+        
+        # plt.show()
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
+    
+    with Animator(file=Path(OUTPUT_FOLDER, "grid_anim.gif"), fps=10, enabled=ENABLE_ANIMATIONS) as animator:
+        # Part 1
+        grid = Grid(data, animator=animator)
+        current_round = 1
+        for _ in range(10):
+            grid.iterate()
+            current_round += 1
+    
+        print(f"Part 1: score={grid.score()}")
         
-    grid = Grid(data)
-    print(f"{grid}\n")
+        # Part 2
+        print(f"{grid}\n")
+        while grid.iterate() > 0:
+            current_round += 1
     
-    # Part 1
-    current_round = 1
-    for _ in range(10):
-        grid.iterate()
-        current_round += 1
-    
-    print(f"Part 1: score={grid.score()}")
-    
-    while grid.iterate() > 0:
-        current_round += 1
-    
-    print(f"Part 2: Stable at round {current_round}")
+        print(f"Part 2: Stable at round {current_round}")
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
