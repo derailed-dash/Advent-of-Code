@@ -45,6 +45,10 @@ There are a few ways to work with images in Python. These include:
   - [From BytesIO to ImageIO](#from-bytesio-to-imageio)
   - [From ImageIO to File, and File to Pillow](#from-imageio-to-file-and-file-to-pillow)
 - [Examples](#examples)
+  - [Heatmap](#heatmap)
+  - [Flashing Grid](#flashing-grid)
+  - [Trench Map](#trench-map)
+  - [Height Map](#height-map)
 
 ## Working with Different Imaging Libraries
 
@@ -223,3 +227,159 @@ pil_img.show()
 
 ## Examples
 
+### Heatmap
+
+From [2021 Day 9 - Lava Basins](/2021/9):
+
+```python
+    def render_image(self, target_width:int=600) -> Image.Image:
+        """ Render grid as a heatmap image
+
+        Args:
+            width (int, optional): Target width, in pxiels. Defaults to 600.
+        """
+        scale = target_width // self._width  # our original image is only a few pixels across. We need to scale up.
+        
+        # Flatten our x,y array into a single list of height values
+        height_values = [self.height_at_point(Point(x,y)) for y in range(self._height) 
+                                                          for x in range(self._width)]
+        max_height = max(height_values)
+
+        # create a new list of RGB values, where each is given by an (R,G,B) tuple.
+        # To achieve a yellow->amber->red effect, we want R to always be 255, B to always be 0, and G to vary based on height
+        pixel_colour_map = list(map(lambda x: (255, int(255*((max_height-x)/max_height)), 0), height_values)) 
+
+        image = Image.new(mode='RGB', size=(self._width, self._height))
+        image.putdata(pixel_colour_map)  # load our colour map into the image
+
+        # scale the image and return it
+        return image.resize((self._width*scale, self._height*scale), Image.NEAREST)
+```
+
+<img src="{{'/assets/images/d9_real_heatmap.png' | relative_url }}" alt="Heatmap" style="width:480px;" />
+
+### Flashing Grid
+
+Taken from [2021 Day 11 - Flashing Octopi](/2021/11):
+
+```python
+    def generate_frame(self):
+        """ Render an image frame showing the current cycle state.
+        Saves the frame to the self._frames list.
+        Superimposes the cycle number text to the frame. """
+        scale = 50
+        all_values = [self.value_at_point(point) for point in self.all_points()] # flattened values
+        max_energy = Grid.FLASH_THRESHOLD
+        
+        # create a new list of pixels, where each is given by an (R,G,B) tuple.
+        pixel_colour_map = list(map(lambda x: (x*255//max_energy, 0, 0), all_values)) 
+        
+        # Create an image from the flattened list of pixels, and scale up the size
+        small_image = Image.new(mode='RGB', size=(self.x_size, self.y_size))
+        small_image.putdata(pixel_colour_map)  # load our original data into the image
+        scaled_image = small_image.resize((self.x_size * scale, self.y_size * scale))
+
+        # Add our cycle count text to the bottom right of the image
+        image_draw = ImageDraw.Draw(scaled_image)        
+        font = ImageFont.truetype('arial.ttf', 24)
+        text = str(self._generation)
+        rgba = (140, 200, 250, 255) # light blue
+        textwidth, textheight = image_draw.textsize(text, font)
+        im_width, im_height = scaled_image.size
+        margin = 10     # margin we want round the text to the edge
+        x_locn = im_width - textwidth - margin
+        y_locn = im_height - textheight - margin
+        image_draw.text((x_locn, y_locn), text, font=font, fill=rgba)
+        
+        if (0, 0, 0) in pixel_colour_map:  # if 0 in colour_map, we need to flash  
+            flash_image = small_image.copy()
+            new_image_data = []
+            for pixel in pixel_colour_map:
+                if pixel == (0, 0, 0):  # replace black with white
+                    new_image_data.append((255, 255, 255))
+                else:
+                    new_image_data.append(pixel)
+            
+            # Add the new image data, and then resize as before
+            flash_image.putdata(new_image_data)
+            flash_image = flash_image.resize((self.x_size * scale, self.y_size * scale))
+            
+            flash_image_draw = ImageDraw.Draw(flash_image)
+            flash_image_draw.text((x_locn, y_locn), text, font=font, fill=rgba)
+            
+            # Flash frame needs to get appended before the 'black' frame
+            self._frames.append(flash_image)
+
+        self._frames.append(scaled_image)
+```
+
+![Flashing Octopi](/assets/images/opt_octopi.gif)
+
+### Trench Map
+
+Taken from [2021 Day 20 - Trench Map Enhancement](/2021/20):
+
+```python
+    def _render_image(self) -> Image.Image:
+        """ Render as an image """
+        width = (self._max_x+1) - self._min_x
+        height = (self._max_y+1) - self._min_y
+
+        image = Image.new(mode='RGB', size=(width, height))
+        image_data = []
+        
+        for y in range(width):
+            for x in range(height):
+                x_val = x + self._min_x
+                y_val = y + self._min_y
+                point = Point(x_val, y_val)
+
+                if point in self._pixels:
+                    image_data.append((255, 255, 255)) # lit pixels
+                else:
+                    image_data.append((128, 0, 0)) # dark pixels
+
+        image.putdata(image_data)
+        return image   
+```
+
+![Trench Map](/assets/images/trench_anim_sample.gif)
+
+### Height Map
+
+Taken from [2022 Day 8 - Tree House Grid](/2022/8):
+
+```python
+    def render_image(self, target_width:int=600) -> Image.Image:
+        """ Render grid as a heatmap image
+
+        Args:
+            width (int, optional): Target width, in pxiels. Defaults to 600.
+        """
+        scale = target_width // self._width  # our original image is only a few pixels across. We need to scale up.
+        
+        hidden_trees = self.get_hidden_trees()
+        
+        # Flatten our x,y array into a single list of height values
+        # If the tree is a hidden tree, set its height to -1 in the flattened array
+        height_values = [self.height_at_point(Point(x,y)) 
+                         if Point(x,y) not in hidden_trees else -1
+                                        for y in range(self._height) 
+                                        for x in range(self._width)]
+        
+        max_height = max(height_values)
+
+        # create a new list of RGB values, where each is given by an (R,G,B) tuple.
+        # To achieve a yellow->amber->red effect, we want R to always be 255, B to always be 0, and G to vary based on height
+        pixel_colour_map = list(map(
+                    lambda x: (255, int(255*((max_height-x)/max_height)), 0) if x >= 0 else (0, 0, 0), 
+                    height_values))        
+
+        image = Image.new(mode='RGB', size=(self._width, self._height))
+        image.putdata(pixel_colour_map)  # load our colour map into the image
+
+        # scale the image and return it
+        return image.resize((self._width*scale, self._height*scale), Image.Resampling.NEAREST)
+```
+
+![Hidden Trees]({{"/assets/images/hidden_trees.png" | relative_url }}){:style="width:400px"}

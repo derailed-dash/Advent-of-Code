@@ -39,6 +39,10 @@ tags:
   - [2D Hexagons Animation](#2d-hexagons-animation)
   - [2D Migration Animation](#2d-migration-animation)
   - [Rendering an Animated Snake with Scatter](#rendering-an-animated-snake-with-scatter)
+  - [Visualising a Path Through a Maze](#visualising-a-path-through-a-maze)
+  - [Another Grid Visualisation](#another-grid-visualisation)
+  - [Plotting Trajectories](#plotting-trajectories)
+  - [Plotting 3D Beacons](#plotting-3d-beacons)
 - [Seaborn](#seaborn)
 
 ## Overview
@@ -543,6 +547,162 @@ Taken from [2022 Day 09 - Rope Bridge](/2022/9):
 ```
 
 ![Snake](/assets/images/rope.gif)
+
+### Visualising a Path Through a Maze
+
+Taken from [2021 Day 15: Risk Maze](/2021/15):
+
+```python
+def visualise_path(grid: Grid, path: list[tuple[Point, int]]):
+    """ Render this paper and its dots as a scatter plot """
+    all_x = [point.x for point in grid.all_points()]
+    all_y = [point.y for point in grid.all_points()]
+    labels = [grid.value_at_point(point) for point in grid.all_points()]
+    path_points = [Point(0,0)] + [path_item[0] for path_item in path]
+    
+    axes = plt.gca()
+    axes.set_aspect('equal')
+    plt.axis("off") # hide the border around the plot axes
+    axes.set_xlim(min(all_x)-1, max(all_x)+1)
+    axes.set_ylim(min(all_y)-1, max(all_y)+1)
+    axes.invert_yaxis()
+    
+    for point, label in zip(grid.all_points(), labels):
+        if point in path_points:
+            plt.text(point.x, point.y, s=str(label), color="r")
+        else:
+            plt.text(point.x, point.y, s=str(label), color="b")
+        
+    plt.show()
+```
+
+![Chiton Maze Path]({{"/assets/images/chiton_maze_path.png" | relative_url }}){:style="width:300px"}
+
+### Another Grid Visualisation
+
+Taken from [2022 Day 12: Hill Climbing](/2022/12):
+
+```python
+def render_as_plt(grid, path):
+    """ Render the display as a scatter plot """  
+    x_vals = [point.x for point in grid.all_points()]
+    y_vals = [point.y for point in grid.all_points()]
+    
+    path_x = [point.x for point in path]
+    path_y = [point.y for point in path]
+    
+    axes = plt.gca()
+    axes.set_aspect('equal')
+    axes.set_xlim(min(x_vals)-1, max(x_vals)+1)
+    axes.set_ylim(min(y_vals)-1, max(y_vals)+1)
+    axes.invert_yaxis()
+    
+    axes.scatter(x_vals, y_vals, marker="o", s=5, color="black")
+    axes.scatter(path_x, path_y, marker="o", s=5, color="red")
+    plt.show()    
+```
+
+![Hill Climbing]({{"/assets/images/hill_climbing.png" | relative_url }}){:style="width:420px"}
+
+### Plotting Trajectories
+
+Taken from [2021 Day 17: Probe Trajectories](/2021/17):
+
+```python
+def plot_trajectory(trajectory: list[Point], target: Rect, outputfile=None):
+    """ Render this trajectory as a plot, and optionally save it """
+    axes = plt.gca()
+    
+    # Add axis lines at x=0 and y=0
+    plt.axhline(0, color='green')
+    plt.axvline(0, color='green') 
+    axes.grid(True) # grid lines on
+    
+    # Set up titles
+    axes.set_title("Trajectory")
+    axes.set_xlabel("Horizontal")
+    axes.set_ylabel("Height")
+    
+    axes.fill(*target.as_polygon(), 'cyan')  # add the target area
+    plt.annotate("TARGET", (target.left_x, target.top_y), 
+                 xytext=(target.left_x + ((target.right_x - target.left_x)/2)-2, 
+                        (target.top_y - (target.top_y-target.bottom_y)/2)-1), 
+                 color="blue", weight='bold') 
+    
+    # Plot the trajectory points
+    all_x = [point.x for point in trajectory]
+    all_y = [point.y for point in trajectory]
+    plt.plot(all_x, all_y, marker="o", markerfacecolor="red", markersize=4, color='black')
+    
+    x, y = trajectory[1].x, trajectory[1].y
+    plt.annotate(f"Vel {x},{y}", (x,y), xytext=(x-3, y+2))  # label first point
+    x, y = [(point.x, point.y) for point in trajectory if point.y == max(point.y for point in trajectory)][0]
+    plt.annotate(f"({x},{y})", (x,y), xytext=(x+1, y-1))  # label highest point    
+        
+    if outputfile:
+        dir_path = Path(outputfile).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+        plt.savefig(outputfile)
+        logger.info("Plot saved to %s", outputfile)        
+    else:
+        plt.show()
+```
+
+![Trajectories]({{"/assets/images/trajectory.png" | relative_url }}){:style="width:400px"}
+
+### Plotting 3D Beacons
+
+Taken from [2021 Day 19: Beacons and Scanners](/2021/19):
+
+```python
+def plot(scanner_locations: dict[int, Vector], beacon_locations: set[Vector], outputfile=None):
+    _ = plt.figure(111)
+    axes = plt.axes(projection="3d")
+    axes.set_xlabel("x")
+    axes.set_ylabel("y")
+    axes.set_zlabel("z")
+
+    axes.grid(True) # grid lines on
+    
+    x,y,z = zip(*scanner_locations.values())    # scanner locations
+    axes.scatter3D(x, y, z, marker="o", color='r', s=40, label="Sensor")
+    offset=50
+    for x, y, z, scanner in zip(x, y, z, scanner_locations.keys()): # add scanner numbers
+        axes.text3D(x+offset, y+offset, z+offset, s=scanner, color="red", fontweight="bold")
+    
+    x,y,z = zip(*beacon_locations)
+    axes.scatter3D(x, y, z, marker=".", c='blue', label="Probe", s=10)
+    
+    x_line = [min(x), max(x)]
+    y_line = [0, 0]
+    z_line = [0, 0]
+    plt.plot(x_line, y_line, z_line, color="black", linewidth=1)
+    
+    x_line = [0, 0]
+    y_line = [min(y), max(y)]
+    z_line = [0, 0]
+    plt.plot(x_line, y_line, z_line, color="black", linewidth=1)
+    
+    x_line = [0, 0]
+    y_line = [0, 0]
+    z_line = [min(z), max(z)]
+    plt.plot(x_line, y_line, z_line, color="black", linewidth=1)
+    
+    axes.legend()
+    plt.title("Scanner and Beacon Locations", fontweight="bold")
+
+    if outputfile:
+        dir_path = Path(outputfile).parent
+        if not Path.exists(dir_path):
+            Path.mkdir(dir_path)
+        plt.savefig(outputfile)
+        logger.info("Plot saved to %s", outputfile)        
+    else:
+        plt.show()
+```
+
+![Plot of Scanners and Beacons]({{"/assets/images/scanners-and-beacons.png" | relative_url }}){:style="width:700px"}
 
 ## Seaborn
 

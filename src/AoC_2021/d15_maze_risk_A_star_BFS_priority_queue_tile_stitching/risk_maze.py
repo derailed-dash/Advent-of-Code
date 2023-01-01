@@ -152,7 +152,7 @@ def main():
     path = navigate_grid(grid)
     total_risk = sum([location[1] for location in path])
     logger.info("Part 1 total risk: %d", total_risk)
-    # visualise_path(grid, path)
+    visualise_path(grid, path)
     
     # Part 2
     # Build a new grid, which is 5x5 extension of our existing grid
