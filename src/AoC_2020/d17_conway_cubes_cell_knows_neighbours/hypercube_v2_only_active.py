@@ -38,7 +38,7 @@ SAMPLE_INPUT_FILE = "input/sample_init_state.txt"
 ACTIVE = '#'
 CYCLES = 6
 
-VIS = False
+VIS = True
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
@@ -66,7 +66,6 @@ def main():
         grid = execute_cycle(grid)
 
     print(f"Sum active: {len(grid)}")
-
 
 def show_grid(grid):
     x_vals = [cell.get_x() for cell in grid]
@@ -114,7 +113,6 @@ def show_grid(grid):
 
     plt.show()
     
-
 def execute_cycle(grid):
     cells_to_add = set()
     cells_to_remove = set()

@@ -12,7 +12,6 @@ tags:
     link: https://matplotlib.org/
   - name: ImageIO
     link: https://imageio.readthedocs.io/en/stable/user_guide/index.html    
-
 ---
 ## Overview
 
@@ -45,6 +44,7 @@ There are a few ways to work with images in Python. These include:
   - [From BytesIO to Matplotlib](#from-bytesio-to-matplotlib)
   - [From BytesIO to ImageIO](#from-bytesio-to-imageio)
   - [From ImageIO to File, and File to Pillow](#from-imageio-to-file-and-file-to-pillow)
+- [Examples](#examples)
 
 ## Working with Different Imaging Libraries
 
@@ -220,3 +220,6 @@ print("And from file to Pillow to show...")
 pil_img = Image.open(Path(OUTPUT_DIR, "iio_file.png")) # Pillow open seeks for us
 pil_img.show()
 ```
+
+## Examples
+

@@ -35,6 +35,10 @@ tags:
   - [Scatter Plot: No Lines](#scatter-plot-no-lines)
   - [Inverted and With Hidden Axes: Rendering Characters!](#inverted-and-with-hidden-axes-rendering-characters)
   - [Rendering Cubes using Matplotlib and NumPy](#rendering-cubes-using-matplotlib-and-numpy)
+  - [Rendering 3D Conway Cubes Animation, With NumPy and 3D Scatter](#rendering-3d-conway-cubes-animation-with-numpy-and-3d-scatter)
+  - [2D Hexagons Animation](#2d-hexagons-animation)
+  - [2D Migration Animation](#2d-migration-animation)
+  - [Rendering an Animated Snake with Scatter](#rendering-an-animated-snake-with-scatter)
 - [Seaborn](#seaborn)
 
 ## Overview
@@ -311,6 +315,234 @@ Here's an example that renders 3D cubes based on a `set` of 3D coordinates:
 The code above is taken from my [2022 Day 18](/python/2022/18) solution.  The rendered image looks like this:
 
 ![Droplet](/assets/images/lava_droplet.png)
+
+### Rendering 3D Conway Cubes Animation, With NumPy and 3D Scatter
+
+Taken from [2020 Day 17: Conway Cubes](/2022/17):
+
+```python
+def show_grid(grid):
+    x_vals = [cell.get_x() for cell in grid]
+    y_vals = [cell.get_y() for cell in grid]
+    z_vals = [cell.get_z() for cell in grid]
+
+    min_x_add = 0
+    min_y_add = 0
+    min_z_add = 0
+
+    min_x = min(x_vals)
+    min_y = min(y_vals)
+    min_z = min(z_vals)
+
+    # we need to get rid of negative coords, since numpy doesn't support -ve values for indexes
+    if min_x < 0:
+        min_x_add = 0 - min_x
+    if min_y < 0:
+        min_y_add = 0 - min_y
+    if min_z < 0:
+        min_z_add = 0 - min_z        
+
+    x_size = (max(x_vals) + 1) - min(x_vals)
+    y_size = (max(y_vals) + 1) - min(y_vals)
+    z_size = (max(z_vals) + 1) - min(z_vals)
+    xyz = np.zeros((x_size, y_size, z_size))
+    for cell in grid:
+        x = cell.get_x() + min_x_add
+        y = cell.get_y() + min_y_add
+        z = cell.get_z() + min_z_add
+
+        xyz[x, y, z] = 1
+
+    axes = plt.axes(projection='3d')
+    for index, active in np.ndenumerate(xyz):
+        if active == 1:
+            axes.scatter3D(*index, c='blue', marker='s', s=200, alpha=0.7)
+        else:
+            axes.scatter3D(*index, c='yellow', marker='s', s=200, alpha=0.7)
+
+    axes.set_xlabel('x')
+    axes.set_ylabel('y')
+    axes.set_zlabel('z')
+    axes.set_title('Cells')
+
+    plt.show()
+```
+
+<img src="{{'/assets/images/conway_3d.png' | relative_url }}" alt="Conway 3D" style="width:480px;" />
+
+### 2D Hexagons Animation
+
+Taken from [2020 Day 24: Hexagons and Neighbours](/2020/24):
+
+```python
+def vis_state(black_tiles, all_tiles, iteration):
+    white_tiles = all_tiles.difference(black_tiles)
+
+    all_x, all_y = zip(*all_tiles)
+    white_x, white_y = zip(*white_tiles)
+    black_x, black_y = zip(*black_tiles)
+    
+    min_x, max_x = min(all_x), max(all_x)
+    min_y, max_y = min(all_y), max(all_y)
+
+    # hexagon!
+    shape = 'h'
+
+    fig, ax = plt.subplots(dpi=141)
+    ax.set_facecolor('xkcd:orange')
+    ax.set_xlim(min_x-1, max_x+1)
+    ax.set_ylim(min_y-1, max_y+1)
+
+    # we want x axis compressed, given our hex geometry.
+    # I.e. given that e or w = 2 units.
+    ax.set_aspect(1.75)
+
+    # dynamically compute the marker size
+    fig.canvas.draw()
+    mkr_size = ((ax.get_window_extent().width / (max_x-min_x) * (134/fig.dpi)) ** 2)
+
+    # make sure the ticks have integer values
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    
+    ax.scatter(black_x, black_y, marker=shape, s=mkr_size, color='black', edgecolors='black')
+    ax.scatter(white_x, white_y, marker=shape, s=mkr_size, color='white', edgecolors='black')
+    ax.set_title(f"Tile Floor, Iteration: {iteration-1}")
+    
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+    # save the plot as a frame
+    filename = OUTPUT_DIR + "tiles_anim_" + str(iteration) + ".png"
+    plt.savefig(filename)
+    # plt.show()
+    anim_frame_files.append(filename)
+```
+
+![Hexagons Animation](/assets/images/opt_hex_anim.gif)
+
+### 2D Migration Animation
+
+Taken from [2021 Day 25: Migrating Sea Cucumbers](/2021/25):
+
+```python
+    def _render_frame(self):
+        """ Only renders an animation frame if we've attached an Animator """
+        if not self._animator:
+            return
+        
+        east = set()
+        south = set()
+        
+        for y in range(self._grid_len):
+            for x in range(self._row_len):
+                if self._grid[y][x] == ">":
+                    east.add((x,y))
+                elif self._grid[y][x] == "v":
+                    south.add((x,y))
+        
+        east_x, east_y = zip(*east)
+        south_x, south_y = zip(*south)
+        
+        axes, mkr_size = self._plot_info
+        
+        axes.clear()
+        min_x, max_x = -0.5, self._row_len - 0.5
+        min_y, max_y = -0.5, self._grid_len - 0.5
+        axes.set_xlim(min_x, max_x)
+        axes.set_ylim(max_y, min_y)
+        
+        axes.scatter(east_x, east_y, marker=">", s=mkr_size, color="black")
+        axes.scatter(south_x, south_y, marker="v", s=mkr_size, color="white")
+        
+        # save the plot as a frame; store the frame in-memory, using a BytesIO buffer
+        frame = BytesIO()
+        plt.savefig(frame, format='png') # save to memory, rather than file
+        self._animator.add_frame(frame)
+
+    def setup_fig(self):
+        if not self._animator:
+            return
+        
+        my_dpi = 120
+        fig, axes = plt.subplots(figsize=(1024/my_dpi, 768/my_dpi), dpi=my_dpi, facecolor="black") # set size in pixels
+
+        axes.get_xaxis().set_visible(False)
+        axes.get_yaxis().set_visible(False)
+        axes.set_aspect('equal') # set x and y to equal aspect
+        axes.set_facecolor('xkcd:orange')
+        
+        min_x, max_x = -0.5, self._row_len - 0.5
+        min_y, max_y = -0.5, self._grid_len - 0.5
+        axes.set_xlim(min_x, max_x)
+        axes.set_ylim(max_y, min_y)
+
+        # dynamically compute the marker size
+        fig.canvas.draw()
+        mkr_size = ((axes.get_window_extent().width / (max_x-min_x) * (45/fig.dpi)) ** 2)
+        return axes, mkr_size
+```
+
+![Migrating Sea Cucumbers](/assets/images/opt_migrating_sea_cucumbers.gif)
+
+### Rendering an Animated Snake with Scatter
+
+Taken from [2022 Day 09 - Rope Bridge](/2022/9):
+
+```python
+    def _init_plt(self):
+        """ Generate a Figure and Axes objects which are reused. """
+        my_dpi = 120
+        figure, axes = plt.subplots(figsize=(1024/my_dpi, 768/my_dpi), dpi=my_dpi, facecolor="white") # set size in pixels
+        axes.set_aspect('equal') # set x and y to equal aspect
+        axes.set_facecolor('xkcd:black')
+        
+        return figure, axes
+    
+    def _render_frame(self, visited: set[Point], iteration: int=0):
+        """ Only renders an animation frame if we've attached an enabled Animator """
+        
+        fig, axes = self._plt_info
+        axes.clear()
+        
+        # The grid will grow as the rope heads moves around
+        max_x = max(self._all_head_locations, key=lambda point: point.x).x
+        min_x = min(self._all_head_locations, key=lambda point: point.x).x
+        max_y = max(self._all_head_locations, key=lambda point: point.y).y
+        min_y = min(self._all_head_locations, key=lambda point: point.y).y
+        axes.set_xlim(min_x - 2, max_x + 2)
+        axes.set_ylim(min_y - 2, max_y + 2)
+
+        # dynamically compute the marker size
+        fig.canvas.draw()
+        factor = 40  # Smaller factor means smaller markers
+        mkr_size = int((axes.get_window_extent().width / (max_x-min_x+1) * (factor/fig.dpi)) ** 2)
+
+        # make sure the ticks have integer values
+        axes.xaxis.set_major_locator(MaxNLocator(integer=True))
+        
+        head = self._knots[0]
+        tail = self._knots[-1]
+        others_knots = self._knots[1:-1]
+        
+        visited_x = [point.x for point in visited if point != tail]
+        visited_y = [point.y for point in visited if point != tail]
+
+        for knot in others_knots:
+            axes.scatter(knot.x, knot.y, marker=MarkerStyle("."), s=mkr_size/2, color="white")
+            
+        axes.scatter(head.x, head.y, marker=MarkerStyle("."), s=mkr_size, color="red")
+        axes.scatter(visited_x, visited_y, marker=MarkerStyle("x"), s=mkr_size/3, color="grey")
+        axes.scatter(tail.x, tail.y, marker=MarkerStyle("*"), s=mkr_size/2, color="yellow")
+                
+        axes.set_title(f"Iteration: {iteration}; tail has visited {len(visited)} locations")
+        
+        # save the plot as a frame; store the frame in-memory, using a BytesIO buffer
+        frame = BytesIO()
+        plt.savefig(frame, format='png') # save to memory, rather than file
+        self._animator.add_frame(frame)
+```
+
+![Snake](/assets/images/rope.gif)
 
 ## Seaborn
 
