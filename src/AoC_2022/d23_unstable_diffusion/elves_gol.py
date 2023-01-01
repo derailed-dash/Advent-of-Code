@@ -86,14 +86,13 @@ class Vector(Enum):
     NW = Point(-1, -1)
     
 class Grid():
-    """ Stores a set of all elf positions. 
-    """
+    """ Stores a set of all elf positions. """
     def __init__(self, grid: list[str]) -> None:
         self._grid = grid
         self._elves: set[Point] = set()
         self._initialise_elves()
         
-        self._directions = deque([
+        self._directions = deque([ # use a deque so we can rotate
             ([Vector.N, Vector.NE, Vector.NW], Vector.N),
             ([Vector.S, Vector.SE, Vector.SW], Vector.S),
             ([Vector.W, Vector.NW, Vector.SW], Vector.W),
@@ -117,7 +116,7 @@ class Grid():
     
     def iterate(self) -> int:
         """ Perform a single iteration by following the rules.
-        Returns: number of elves moved. """
+        Returns: the number of elves that moved. """
         proposals: dict = {} # E.g. {elf point: proposed point}
         for elf_locn in self._elves: # for every existing elf location
             
@@ -149,6 +148,7 @@ class Grid():
         return len(elves_per_proposal)
         
     def _rotate_direction(self):
+        """ Rotate our directions.  I.e. direction n+1 becomes direction n, etc. """
         self._directions.rotate(-1)
         
     def score(self) -> int:
@@ -177,6 +177,7 @@ def main():
         data = f.read().splitlines()
         
     grid = Grid(data)
+    print(f"{grid}\n")
     
     # Part 1
     current_round = 1
@@ -190,7 +191,6 @@ def main():
         current_round += 1
     
     print(f"Part 2: Stable at round {current_round}")
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
