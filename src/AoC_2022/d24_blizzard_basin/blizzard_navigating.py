@@ -209,7 +209,8 @@ def main():
     print(f"Part 2: Total time={sum(leg_times)}")
         
 def bfs(state: MapState) -> MapState:
-    """ BFS but allows re-visiting, so we don't track 'explored'. """
+    """ BFS, but we're allowed to backtrack. 
+    Our frontier should only contain the current set of allowed next locations. """
     start = state.start
     goal = state.goal
     
