@@ -171,27 +171,18 @@ class MapState():
                     
             lines.append(line)
             
-        return ("\n".join(lines) + 
-                f"\nTime={self.time}, Hash={hash(self)}")
+        return ("\n".join(lines) + f"\nTime={self.time}")
 
     def __repr__(self) -> str:
         return f"Time={self.time}, Hash={hash(self)}"
-    
-VECTORS = {
-    '^': Point(0, -1),
-    '>': Point(1, 0),
-    'v': Point(0, 1),
-    '<': Point(-1, 0)
-}
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
-    
-    leg_times = []
-    
+
     # Part 1
-    state = MapState.init_from_grid(data)
+    leg_times = []
+    state = MapState.init_from_grid(data)    
     state = bfs(state)
     leg_times.append(state.time)
     print(f"Part 1: Leg time={leg_times[0]}")
@@ -208,6 +199,12 @@ def main():
     leg_times.append(state.time - sum(leg_times))
     print(f"Part 2: Last leg time={leg_times[-1]}")
     print(f"Part 2: Total time={sum(leg_times)}")
+
+def test_blizzard_states(init_state: MapState, iterations: int):
+    state = init_state
+    for _ in range(iterations):
+        print(state, end="\n\n")
+        state = state.next_blizzard_state()
         
 def bfs(state: MapState) -> MapState:
     """ BFS, but we're allowed to backtrack. 
