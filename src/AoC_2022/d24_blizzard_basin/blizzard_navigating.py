@@ -13,14 +13,36 @@ Part 1:
 What is the fewest number of minutes required to avoid the blizzards and reach the goal?
 
 Soln:
-- Create a MapState.
-- There are no v or ^ blizzards in the cols with openings, so we can ignore this case.
-- Stores all blizzards at a given location. Because there can be more than one blizzard.  Thus dict of {Point: {blizzards}}
-- MapState able to yield next MapState by moving all blizzards.
-- Now A* through the map. Use Manhattan distance for the heuristic.
+- VECTORS dict to represent one unit movement in any of the four directions.
+- Point class to store current location, and which allows us to add vectors to return four adjacent Points.
+- Create a MapState:
+  - Create a factory method that initialises a MapState from the input grid.
+  - Defines the grid bounds, but trims out the four edges.
+  - Stores the current time.
+  - Stores all current blizzard locations as a dict:
+    Key is location, and value is a list of blizzards, since we can have more than one blizzard at a loc.
+  - Stores start and goal points, and provides getter / setters for them.
+  - Provide a method to generate t+1 MapState, where all blizzards have moved to their new locations.
+  - Provide a method to check if a given point is 'allowed', i.e. within bounds, 
+    and not meeting a blizzard. (And add in the start and goal locations.)
+
+- Implement a BFS that:
+  - Add the start location to the frontier. Make the frontier a set to eliminate duplicate locations.
+  - Then...
+    - Get next MapState.
+    - Finds all valid next locations for locations in the frontier. This includes checking current location.
+      These locations become a new frontier.
+    - Rinse and repeat until we identify a location that is the goal.
+      Then return the latest state.
+
+- Get the time from the latest state.
 
 Part 2:
 
+Now complete a return journey to the start, and then back to the finish. Whas it the total time?
+
+- Easy... Just swap goal and start, and repeat BFS using our last state.
+- Then swap goal and start one more time, and repeat again. We now have the final time.
 """
 from __future__ import annotations
 from collections import defaultdict
@@ -44,10 +66,6 @@ class Point():
     
     def adjacent_points(self) -> set[Point]:
         return set(self+vector for vector in VECTORS.values())
-    
-    def distance_to(self, other: Point) -> int:
-        """ Manhattan distance between points """
-        return abs(self.x - other.x) + abs(self.y - other.y)
     
     def __repr__(self):
         return f"P({self.x},{self.y})"
@@ -92,6 +110,10 @@ class MapState():
     def start(self) -> Point:
         return self._start
     
+    @start.setter
+    def start(self, point: Point):
+        self._start = point
+    
     @property
     def time(self) -> int:
         return self._time
@@ -100,9 +122,9 @@ class MapState():
     def goal(self) -> Point:
         return self._goal
     
-    def _distance_to_goal(self, point: Point) -> int:
-        """ Use to determine how close we are to succeeding. """
-        return self._goal.distance_to(point)
+    @goal.setter
+    def goal(self, point):
+        self._goal = point
     
     def next_blizzard_state(self) -> MapState:
         """ Move blizzards to achieve next blizzard state.  There is only one possible next blizzard state """
@@ -165,28 +187,43 @@ def main():
     with open(INPUT_FILE, mode="rt") as f:
         data = f.read().splitlines()
     
+    leg_times = []
+    
+    # Part 1
     state = MapState.init_from_grid(data)
-    last_state = bfs(state)
-    print(f"Time={last_state.time}")
+    state = bfs(state)
+    leg_times.append(state.time)
+    print(f"Part 1: Leg time={leg_times[0]}")
+    
+    # Part 2
+    # First, swap goal and start, since we need to go back to the start
+    state.start, state.goal = state.goal, state.start
+    state = bfs(state)
+    leg_times.append(state.time - sum(leg_times))
+    print(f"Part 2: Return leg time={leg_times[-1]}")
+    
+    state.start, state.goal = state.goal, state.start
+    state = bfs(state)
+    leg_times.append(state.time - sum(leg_times))
+    print(f"Part 2: Last leg time={leg_times[-1]}")
+    print(f"Part 2: Total time={sum(leg_times)}")
         
-def bfs(state: MapState):
+def bfs(state: MapState) -> MapState:
     """ BFS but allows re-visiting, so we don't track 'explored'. """
-    current_state = state
-    start = current_state.start
-    goal = current_state.goal
+    start = state.start
+    goal = state.goal
     
     # Use a set because the many neighbours of the points in our frontier may be the same position
     # We don't want to explore the same location twice IN THE SAME ITERATION
     frontier = {start} 
     
     while goal not in frontier:
-        current_state = current_state.next_blizzard_state()
-        # print(repr(current_state))
+        state = state.next_blizzard_state()
         # reset frontier because we can revisit locations we've been to before
-        frontier = set(explore_frontier(current_state, frontier))
-        
-    return current_state
-
+        frontier = set(explore_frontier(state, frontier))
+       
+    return state
+            
 def explore_frontier(current_state, frontier):
     """ Generator that returns all valid next locations with current blizzard state
     from all locations in the frontier. """
