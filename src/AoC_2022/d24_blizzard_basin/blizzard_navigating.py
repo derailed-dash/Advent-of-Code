@@ -78,9 +78,8 @@ VECTORS = {
 }
 
 class MapState():
-    """ Store location of blizzards. Store set """
+    """ Store location of blizzards, grid bounds, start, goal, and time. """
     def __init__(self, blizzards: dict, grid_dims: tuple, start: Point, goal: Point, t: int) -> None:
-
         self._blizzards: dict[Point, list] = blizzards
         self._width = grid_dims[0]
         self._height = grid_dims[1]
@@ -90,6 +89,7 @@ class MapState():
     
     @classmethod
     def init_from_grid(cls, grid_input: list[str]):
+        """ Create a new MapState using an input grid """
         grid: list[str] = grid_input
         blizzards = defaultdict(list)
         for y, row in enumerate(grid[1:-1]): # ignore top and bottom
@@ -138,6 +138,7 @@ class MapState():
         return MapState(next_blizzards, (self._width, self._height), self._start, self._goal, self.time+1)
 
     def is_valid(self, point: Point) -> bool:
+        """ Check if the specified point is an allowed position in the current blizzard state. """
         if point in (self._start, self._goal): # out of bounds, but allowed
             return True
         
