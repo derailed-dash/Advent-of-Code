@@ -25,6 +25,7 @@ In Windows, there is no equivalent, and even if you install in WSL, the git inte
 ### Setup
 
 We can do this per repo, but we can also use the same key between multiple repos.
+If you've already got a key, be careful not to overwrite it!
 
 ```bash
 git-crypt init # generate the secure key
@@ -53,6 +54,12 @@ git-crypt status -e # show only encrypted [and should be encrypted]
 
 git-crypt lock # lock all files locally. (This happens transparently on push to remote.)
 git-crypt unlock [path to keyfile] # unlock all encrypted local files. (Transparent on pull.)
+```
+
+For a newly cloned repo, you will need to unlock any encrypted files manually.  E.g.
+
+```bash
+git-crypt unlock ../git-crypt-key
 ```
 
 ### Retrospective Encryption
