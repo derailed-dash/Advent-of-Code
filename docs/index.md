@@ -7,14 +7,18 @@ title: Dazbo's Advent of Code Walkthroughs
 # Welcome to {{ page.title }}
 
 I've been using [Advent of Code](https://adventofcode.com/){:target="_blank"} as a way to improve my [Python](https://www.python.org/){:target="_blank"} skills. 
-Here I document my solutions across the various AoC years. 
-My hope is that this guide will help others to:
+In this site I have written a number of Python introductory guides, as well as documented my solutions across the various AoC years. 
+My hope is that this site will help others to:
 
 - Become more proficient with Python.
 - Solve AoC problems they might be stuck with.
 - Learn some new libraries and inventive ways of doing things.
 
 Use the navigation above to jump straight into an AoC year. If you're completely new to Python, check out the [Getting Started with Python](python/) page first.
+
+## What Will You Find in the Python Journey?
+
+[Here](/python) you will find a set of pages that guide you through many Python concepts. You can read these pages on their own.  But also, you'll find that many of my AoC solutions point to these pages, because I reuse certain fundamentals and approaches over and over again.
 
 ## What is Advent of Code?
 

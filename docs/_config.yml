@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Advent of Code Walkthroughs
+title: Learning Python with Advent of Code Walkthroughs
 description: Dazbo's Advent of Code solutions, written in Python
 
 # We need the URLs below otherwise overriding CSS wont work
