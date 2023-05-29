@@ -16,7 +16,7 @@ Solution:
     Store the count of previous chars, whenever we find a different char, or at the end.
     
 Part 1: 40 iterations. Takes about 0.5s.
-Part 2: 50 iterations. Takes about 8s. Not terrible. Not great.
+Part 2: 50 iterations. Takes about 7s. Not terrible. Not great.
 """
 import os
 import time

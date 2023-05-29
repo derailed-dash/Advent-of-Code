@@ -22,10 +22,10 @@ Part 2:
     Union with this set at the beginning of every iteration.
     When processing each iteration, ignore rules for corners.
 """
-from typing import Dict, List, Set, Tuple
 import os
 import time
 from itertools import product
+from src.common.type_defs import NINE_BOX_VECTORS
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -34,19 +34,8 @@ SAMPLE_INPUT_FILE = "input/sample_input.txt"
 ITERATIONS = 100
 
 class Cell:
-
-    # static variables
-    vectors: Dict[str, Tuple[int, int]] = {
-        # x, y vector for adjacent locations
-        'tr': (1, 1),
-        'mr': (1, 0),
-        'br': (1, -1),
-        'bm': (0, -1),
-        'bl': (-1, -1),
-        'ml': (-1, 0),
-        'tl': (-1, 1),
-        'tm': (0, 1)
-    }
+    """ A cell is a 2D Point that is on or off.
+    It's behaviour depends on its neighbours """
 
     def __init__(self, on: bool = True):
         # white is default for a tile
@@ -71,10 +60,10 @@ class Cell:
         Returns:
             tuple: the (x, y) coordinates for a given adjacent direction
         """
-        return Cell.vectors[compass_direction]
+        return NINE_BOX_VECTORS[compass_direction]
 
     @staticmethod
-    def get_neighbours(coord: Tuple[int, int]) -> List[Tuple[int, int]]:
+    def get_neighbours(coord: tuple[int, int]) -> list[tuple[int, int]]:
         """ Get list of neighbour coords
 
         Args:
@@ -88,13 +77,12 @@ class Cell:
         x = coord[0]
         y = coord[1]
 
-        for vector in Cell.vectors.values():
+        for vector in NINE_BOX_VECTORS.values():
             new_x = x + vector[0]
             new_y = y + vector[1]
             neighbours.append(tuple([new_x, new_y]))
 
         return neighbours
-
 
 def main():
     # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
@@ -118,8 +106,7 @@ def main():
     final_on_lights = process_iterations(all_lights, on_lights.copy(), ITERATIONS, corner_lights)
     print(f"Part 2, after {ITERATIONS} iterations, there are {len(final_on_lights)} turned on.")
 
-
-def get_corners(lights_length: int, lights_height: int) -> Set[Tuple[int, int]]:
+def get_corners(lights_length: int, lights_height: int) -> set[tuple[int, int]]:
     """ 
     Gets the coordinates of the four corners, given an x size and y size
 
@@ -140,11 +127,10 @@ def get_corners(lights_length: int, lights_height: int) -> Set[Tuple[int, int]]:
 
     return on_lights_to_add
 
-
-def process_iterations(all_lights: Set[Tuple[int, int]], 
-                       on_lights: Set[Tuple[int, int]], 
+def process_iterations(all_lights: set[tuple[int, int]], 
+                       on_lights: set[tuple[int, int]], 
                        iterations: int,
-                       fixed_lights: Set[Tuple[int, int]] = set()) -> Set[Tuple[int, int]]:
+                       fixed_lights: set[tuple[int, int]] = set()) -> set[tuple[int, int]]:
     """ 
     Carry out Conway-like rules for all lights in the all_lights set.
 
@@ -185,8 +171,7 @@ def process_iterations(all_lights: Set[Tuple[int, int]],
 
     return on_lights
     
-
-def init_state(data: List[str]) -> Set:
+def init_state(data: list[str]) -> set:
     on_lights = set()
 
     for y, line in enumerate(data):
@@ -195,7 +180,6 @@ def init_state(data: List[str]) -> Set:
                 on_lights.add((x, y))
 
     return on_lights
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

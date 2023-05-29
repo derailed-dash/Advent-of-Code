@@ -19,32 +19,13 @@ Part 2:
     Count how many locations were visited by either Santa or Robosanta.
     Here, we use %2 to send alternate directions to each of Santa and Robosanta.    
 """
-from dataclasses import dataclass
 from pathlib import Path
 import time
+from src.common.type_defs import Point, ARROW_VECTORS
 
 SCRIPT_DIR = Path(__file__).parent 
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-
-@dataclass(frozen=True)
-class Point:
-    """ Class for storing a point x,y coordinate """
-    x: int
-    y: int
-    
-    def __add__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
-
-class Vector(Point):
-    """ Same as a Point class. But more intuitive to treat deltas as vectors than points. """
-
-VECTORS = {
-    '^': Vector(0, 1),
-    '>': Vector(1, 0),
-    'v': Vector(0, -1),
-    '<': Vector(-1, 0)
-}
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -55,7 +36,7 @@ def main():
     visited_locations.add(current_location)
 
     for vector in data: # read char by char
-        current_location += VECTORS[vector]
+        current_location += ARROW_VECTORS[vector]
         visited_locations.add(current_location)
 
     print(f"Santa visited {len(visited_locations)} locations.")
@@ -69,10 +50,10 @@ def main():
 
     for i, vector in enumerate(data):
         if i % 2 == 1:
-            santa_location += VECTORS[vector]
+            santa_location += ARROW_VECTORS[vector]
             santa_visited_locations.add(santa_location)
         else:
-            robosanta_location += VECTORS[vector]
+            robosanta_location += ARROW_VECTORS[vector]
             robosanta_visited_locations.add(robosanta_location)
 
     visited_locations = santa_visited_locations | robosanta_visited_locations

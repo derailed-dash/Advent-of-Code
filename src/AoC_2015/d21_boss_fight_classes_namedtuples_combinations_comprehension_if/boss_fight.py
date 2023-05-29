@@ -29,7 +29,7 @@ import time
 import re
 from collections import namedtuple
 from itertools import combinations
-from AoC_2015.d21_boss_fight_classes_namedtuples_combinations_comprehension_if.player import Player
+from src.AoC_2015.d21_boss_fight_classes_namedtuples_combinations_comprehension_if.player import Player
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 BOSS_FILE = "input/boss_stats.txt"
