@@ -36,7 +36,7 @@ def main():
     visited_locations.add(current_location)
 
     for vector in data: # read char by char
-        current_location += ARROW_VECTORS[vector]
+        current_location += Point(*ARROW_VECTORS[vector])
         visited_locations.add(current_location)
 
     print(f"Santa visited {len(visited_locations)} locations.")
@@ -50,10 +50,10 @@ def main():
 
     for i, vector in enumerate(data):
         if i % 2 == 1:
-            santa_location += ARROW_VECTORS[vector]
+            santa_location += Point(*ARROW_VECTORS[vector])
             santa_visited_locations.add(santa_location)
         else:
-            robosanta_location += ARROW_VECTORS[vector]
+            robosanta_location += Point(*ARROW_VECTORS[vector])
             robosanta_visited_locations.add(robosanta_location)
 
     visited_locations = santa_visited_locations | robosanta_visited_locations
