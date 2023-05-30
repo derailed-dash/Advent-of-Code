@@ -47,7 +47,6 @@ def main():
     fish_timers = list(map(int, data.split(",")))
     logger.debug(fish_timers)   # E.g. [3,4,3,1,2]
     
-    t1 = time.perf_counter()
     fish_timers_copy = fish_timers.copy()
     days = 80
     for _ in range(1, days+1):
@@ -59,11 +58,8 @@ def main():
             else:
                 fish_timers_copy[i] -= 1    # decrement this fish timer
     
-    logger.info("After %d days, there are %d fish", days, len(fish_timers_copy))
-    t2 = time.perf_counter()
-    logger.info("Execution time: %0.4f seconds", t2 - t1)      
+    logger.info("After %d days, there are %d fish", days, len(fish_timers_copy)) 
 
-    t1 = time.perf_counter()
     fish_timers_copy = fish_timers.copy()
     days = 120
     for _ in range(1, days+1):
@@ -75,11 +71,8 @@ def main():
             else:
                 fish_timers_copy[i] -= 1    # decrement this fish timer
     
-    logger.info("After %d days, there are %d fish", days, len(fish_timers_copy))
-    t2 = time.perf_counter()
-    logger.info("Execution time: %0.4f seconds", t2 - t1)          
+    logger.info("After %d days, there are %d fish", days, len(fish_timers_copy)) 
     
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()

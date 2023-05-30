@@ -9,25 +9,33 @@ class Point:
     x: int
     y: int
         
-    def __add__(self, other):
+    def __add__(self, other: Point):
         return Point(self.x + other.x, self.y + other.y)
+    
+    def __mul__(self, val):
+        return Point(self.x * val, self.y * val)
+    
+    def __sub__(self, other: Point):
+        return self + (other*-1)
 
-    def neighbours(self, include_diagonals=True, include_self=False) -> set[Point]:
-        """ Return neighbouring Points """
-
+    def yield_neighbours(self, include_diagonals=True, include_self=False):
+        """ Generator to yield neighbouring Points """
+        
+        deltas: set
         if not include_diagonals:
-            neighbours = {(self + Point(*vector.value)) for vector in Vectors
-                                                        if abs(vector.value[0]) != abs(vector.value[1])}
+            deltas = {vector.value for vector in Vectors if abs(vector.value[0]) != abs(vector.value[1])}
         else:
-            neighbours = {(self + Point(*vector.value)) for vector in Vectors}
+            deltas = {vector.value for vector in Vectors}
         
         if include_self:
-            neighbours.add(self)
-            
-        if not include_diagonals:
-            neighbours.difference_update({point for point in neighbours if abs(point.x) == abs(point.y)})
+            deltas.add((0, 0))
         
-        return neighbours
+        for delta in deltas:
+            yield Point(self.x + delta[0], self.y + delta[1])
+
+    def neighbours(self, include_diagonals=True, include_self=False):
+        """ Return all the neighbours, with specified constraints """
+        return set(self.yield_neighbours(include_diagonals, include_self))
     
     def get_specific_neighbours(self, directions: list[Vectors]) -> set[Point]:
         """ Get neighbours, given a specific list of allowed locations """

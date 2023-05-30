@@ -12,7 +12,7 @@ Part 1:
     These are created from the bit which is most common and least common (respectively),
     for each bit position in the diagnostic data.
     We can solve this by simply transposing the rows into columns, 
-    and then determining the most and least common bits in each new trasposed element.
+    and then determining the most and least common bits in each new transposed element.
     Use Counter.most_common(). This returns ordered array based on frequency.
     So most common will be the first element, and least common will be the last.
 

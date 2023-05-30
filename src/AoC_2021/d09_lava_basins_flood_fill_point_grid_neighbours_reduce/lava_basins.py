@@ -28,10 +28,9 @@ import logging
 import os
 import time
 from collections import deque
-from dataclasses import dataclass
 from functools import reduce
-from typing import Iterator
 from PIL import Image
+from common.type_defs import Point
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -43,21 +42,7 @@ OUTPUT_FILE = os.path.join(SCRIPT_DIR, "output/heatmap.png")
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.DEBUG)
-
-@dataclass(frozen=True)
-class Point():
-    """ Our immutable point data class """
-    ADJACENT_DELTAS = [(dx,dy) for dx in range(-1, 2) 
-                               for dy in range(-1, 2) if abs(dy) != abs(dx)]
-    
-    x: int
-    y: int
-    
-    def yield_neighbours(self) -> Iterator[Point]:
-        """ Yield adjacent (orthogonal) neighbour points """
-        for vector in Point.ADJACENT_DELTAS:
-            yield Point(self.x + vector[0], self.y + vector[1])        
+logger.setLevel(level=logging.DEBUG)     
     
 class Grid():
     """ 2D grid of point values. Knows how to:
@@ -93,7 +78,7 @@ class Grid():
         """ Determines if this point is a low point, i.e. surrounded by higher values. """
         value = self.height_at_point(point)
         
-        for neighbour in point.yield_neighbours():
+        for neighbour in point.yield_neighbours(include_diagonals=False):
             if self.valid_location(neighbour):
                 if self.height_at_point(neighbour) <= value:
                     return False
@@ -128,7 +113,7 @@ class Grid():
             if self.height_at_point(point_to_assess) < 9:   # Points lower than 9 count as basin
                 basin_points.add(point_to_assess)         
             
-                for neighbour in point_to_assess.yield_neighbours():
+                for neighbour in point_to_assess.yield_neighbours(include_diagonals=False):
                     if self.valid_location(neighbour):
                         if neighbour not in assessed:   # We will need to assess this point
                             points_to_assess.append(neighbour)
@@ -156,7 +141,7 @@ class Grid():
         image.putdata(pixel_colour_map)  # load our colour map into the image
 
         # scale the image and return it
-        return image.resize((self._width*scale, self._height*scale), Image.NEAREST)
+        return image.resize((self._width*scale, self._height*scale), Image.Resampling.NEAREST)
 
 def main():
     input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
