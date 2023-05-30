@@ -1,8 +1,9 @@
 """ Testing the type_defs module """
 import unittest
-from common.type_defs import Point
+from common.type_defs import Point, Grid
 
 class TestTypes(unittest.TestCase):
+    """ Unit tests of various classes in type_defs """
     
     def setUp(self):
         self.points = set()
@@ -19,6 +20,16 @@ class TestTypes(unittest.TestCase):
         self.points.add(self.e_point)
         
         self.a_point_neighbours = self.a_point.neighbours() 
+        
+        self.input_grid = ["5483143223",
+                           "2745854711",
+                           "5264556173",
+                           "6141336146",
+                           "6357385478",
+                           "4167524645",
+                           "2176841721"]
+    
+        self.input_array_data = [[int(posn) for posn in row] for row in self.input_grid]        
         
     def test_point_arithmetic(self):
         self.assertEqual(self.a_point + self.b_point, self.c_point, "Asserting Point addition")
@@ -50,6 +61,15 @@ class TestTypes(unittest.TestCase):
             
         with self.assertRaises(StopIteration): # no more items to generate
             next(gen)
-
+            
+    def test_grid(self):
+        grid = Grid(self.input_array_data)
+        self.assertEqual(grid.height, len(self.input_grid))
+        self.assertEqual(grid.width, len(self.input_grid[0]))
+        self.assertTrue(grid.valid_location(Point(1, 1)))
+        self.assertFalse(grid.valid_location(Point(11,8)))
+        self.assertEqual(grid.value_at_point(Point(1, 1)), 7)
+        
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+    

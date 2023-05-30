@@ -30,7 +30,7 @@ import time
 from collections import deque
 from functools import reduce
 from PIL import Image
-from common.type_defs import Point
+from common.type_defs import Point, Grid
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -44,19 +44,15 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(m
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.DEBUG)     
     
-class Grid():
+class HeightMap(Grid):
     """ 2D grid of point values. Knows how to:
        - Determine value at any point
        - Whether the point is lower than adjacent
        - Determine the entire basin, given a low point """
-    def __init__(self, grid_array: list) -> None:
-        self._array = grid_array
-        self._width = len(self._array[0])
-        self._height = len(self._array)
-        
+
     def height_at_point(self, point: Point) -> int:
         """ Height is given by the value at this point """
-        return self._array[point.y][point.x]
+        return self.value_at_point(point)
     
     def risk_at_point(self, point: Point) -> int:
         """ Risk is given by height at point + 1 """
@@ -84,13 +80,6 @@ class Grid():
                     return False
                 
         return True
-                   
-    def valid_location(self, point: Point) -> bool:
-        """ Check if a location is within the grid """
-        if (0 <= point.x < self._width and  0 <= point.y < self._height):
-            return True
-        
-        return False
     
     def get_basin(self, low_point: Point) -> set:
         """ Given a low point, determine all the surrounding points that make up a basin.
@@ -148,7 +137,7 @@ def main():
     with open(input_file, mode="rt") as f:
         data = [[int(posn) for posn in row] for row in f.read().splitlines()]
         
-    grid = Grid(data)
+    grid = HeightMap(data)
     low_points = grid.low_points()
     risk_by_point = {point: grid.risk_at_point(point) for point in low_points}
     logger.info("Part 1: low_point_risks = %d", sum(risk_by_point.values()))

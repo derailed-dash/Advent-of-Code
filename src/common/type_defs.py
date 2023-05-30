@@ -81,3 +81,41 @@ NINE_BOX_VECTORS: dict[str, tuple[int, int]] = {
     'tl': (-1, 1),
     'tm': (0, 1)
 }
+
+class Grid():
+    """ 2D grid of point values. """
+    def __init__(self, grid_array: list) -> None:
+        self._array = grid_array
+        self._width = len(self._array[0])
+        self._height = len(self._array)
+        
+    def value_at_point(self, point: Point) -> int:
+        """ The value at this point """
+        return self._array[point.y][point.x]
+
+    def set_value_at_point(self, point: Point, value: int):
+        self._array[point.y][point.x] = value
+        
+    def valid_location(self, point: Point) -> bool:
+        """ Check if a location is within the grid """
+        if (0 <= point.x < self._width and  0 <= point.y < self._height):
+            return True
+        
+        return False
+
+    @property
+    def width(self):
+        """ Array width (cols) """
+        return self._width
+    
+    @property
+    def height(self):
+        """ Array height (rows) """
+        return self._height
+    
+    def all_points(self) -> list[Point]:
+        points = [Point(x, y) for x in range(self.width) for y in range(self.height)]
+        return points
+
+    def __repr__(self) -> str:
+        return "\n".join("".join(map(str, row)) for row in self._array)
