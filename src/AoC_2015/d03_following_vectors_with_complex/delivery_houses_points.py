@@ -21,7 +21,7 @@ Part 2:
 """
 from pathlib import Path
 import time
-from src.common.type_defs import Point, ARROW_VECTORS
+from src.common.type_defs import Point, VectorDicts
 
 SCRIPT_DIR = Path(__file__).parent 
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
@@ -36,7 +36,7 @@ def main():
     visited_locations.add(current_location)
 
     for vector in data: # read char by char
-        current_location += Point(*ARROW_VECTORS[vector])
+        current_location += Point(*VectorDicts.ARROWS[vector])
         visited_locations.add(current_location)
 
     print(f"Santa visited {len(visited_locations)} locations.")
@@ -50,10 +50,10 @@ def main():
 
     for i, vector in enumerate(data):
         if i % 2 == 1:
-            santa_location += Point(*ARROW_VECTORS[vector])
+            santa_location += Point(*VectorDicts.ARROWS[vector])
             santa_visited_locations.add(santa_location)
         else:
-            robosanta_location += Point(*ARROW_VECTORS[vector])
+            robosanta_location += Point(*VectorDicts.ARROWS[vector])
             robosanta_visited_locations.add(robosanta_location)
 
     visited_locations = santa_visited_locations | robosanta_visited_locations

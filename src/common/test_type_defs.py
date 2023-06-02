@@ -1,6 +1,6 @@
 """ Testing the type_defs module """
 import unittest
-from common.type_defs import Point, Grid
+from common.type_defs import Point, Grid, Vectors, VectorDicts
 
 class TestTypes(unittest.TestCase):
     """ Unit tests of various classes in type_defs """
@@ -12,6 +12,7 @@ class TestTypes(unittest.TestCase):
         self.c_point = Point(6, 7)
         self.d_point = Point(4, 3)
         self.e_point = Point(3, 6)
+        self.y_invert_point = Point(0, -1)
         
         self.points.add(self.a_point)
         self.points.add(self.b_point)  
@@ -30,12 +31,32 @@ class TestTypes(unittest.TestCase):
                            "2176841721"]
     
         self.input_array_data = [[int(posn) for posn in row] for row in self.input_grid]        
+    
+    def test_vectors(self):
+        self.assertEqual(Vectors.N.value, (0, 1))
+        self.assertEqual(Vectors.NW.value, (-1, 1))
+        self.assertEqual(Vectors.S.value, (0, -1))
+        self.assertEqual(Vectors.E.value, (1, 0))
+        self.assertEqual(Vectors.N.y_inverted, (0, -1))
+        self.assertEqual(Vectors.SW.value, (-1, -1))
+        
+    def test_vector_dicts(self):
+        self.assertEqual(VectorDicts.ARROWS[">"], (1, 0))
+        self.assertEqual(VectorDicts.ARROWS["v"], (0, -1))
+        self.assertEqual(VectorDicts.DIRS["L"], (-1, 0))
+        self.assertEqual(VectorDicts.DIRS["U"], (0, 1))
+        self.assertEqual(VectorDicts.NINE_BOX["tr"], (1, 1))
+        self.assertEqual(VectorDicts.NINE_BOX["bl"], (-1, -1))
         
     def test_point_arithmetic(self):
         self.assertEqual(self.a_point + self.b_point, self.c_point, "Asserting Point addition")
         self.assertEqual(self.a_point - self.b_point, self.d_point, "Asserting Point subtraction")
-        self.assertEqual(self.b_point * 3, self.e_point, "Asserting multiplication")
+        self.assertEqual(self.b_point * Point(3, 3), self.e_point, "Asserting multiplication")
     
+    def test_manhattan_distance(self):
+        self.assertEqual(Point.manhattan_distance(self.e_point), 3+6)
+        self.assertEqual(self.c_point.manhattan_distance_from(self.b_point), abs(self.a_point.x)+abs(self.a_point.y))
+        
     def test_point_containers(self):
         all_neighbours_count = 8 # point has 8 neighbours
         diag_neighbours_count = 4 # point has 4 orthogonal neighbours
