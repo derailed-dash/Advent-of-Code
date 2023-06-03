@@ -4,6 +4,9 @@ tags:
   - name: Python Logging
     link: https://docs.python.org/3/library/logging.html
 ---
+
+## Logging Module Overview
+
 Rather than simply using `print()` statements, I tend to use the [logging](https://docs.python.org/3/library/logging.html){:target="_blank"} module for generating console output.
 
 It has a number of advantages over `print()` statements. The first is that we can specify a logging threshold `level`. 
@@ -46,12 +49,16 @@ The output from the above looks like this:
 
 Note that we must first `import` the `logging` module.
 
+## Customising Output Messages
+
 Another advantage is that you can customise what appears in the console messages.  For example, this initial configuration tells the logger to print the time, the logging level, the name of the logger, and then the message.
 
 ```python
 # It will print the time (including milliseconds), the logging level, and the logger name
 logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", datefmt='%H:%M:%S')
 ```
+
+## Logging to a File
 
 We can also configure our logger to print logging messages to a file, rather than to the console.  For example:
 
@@ -66,7 +73,9 @@ logging.debug('This message should go to the log file')
 
 The logging configuration itself can also be placed externalised to a file, rather than coded into the program.
 
-It's worth noting how we can pass varaibles into a logging statement. This is a typical example:
+## Passing Variables
+
+It's worth noting how we can pass variables into a logging statement. This is a typical example:
 
 ```python
 import logging
@@ -89,6 +98,42 @@ The output looks like this:
 ```text
 08:41:25.172:INFO:FooBar-App:   My key is named foo, and it's value is bar
 ```
+
+## Writing to Multiple Targets with Handlers
+
+We can use handlers to write to more than one destination simultaneously. E.g. to write to the console and to a file at the same time:
+
+```python
+import logging
+
+# setup
+logger = logging.getLogger("FooBar-App")
+logger.setLevel(logging.DEBUG)
+
+# Write to console with threshold of INFO
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_fmt = logging.Formatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+                               datefmt='%H:%M:%S')
+stream_handler.setFormatter(stream_fmt)
+logger.addHandler(stream_handler)
+
+file_handler = logging.FileHandler('my_file.log', mode='a')
+file_handler.setLevel(logging.DEBUG)
+file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                             datefmt='%H:%M:%S')
+file_handler.setFormatter(file_fmt)
+logger.addHandler(file_handler)
+
+my_key = "foo"
+my_val = "bar"
+logger.info("My key is named %s, and it's value is %s", my_key, my_val)
+logger.debug("Testing a debug line")
+```
+
+Note how we have set different thresholds, as well as different message formats, for the two handlers.
+
+## Summary
 
 To wrap up: the Python **logging** module is pretty sophisticated.  I've only touched the surface here. Check the documentation for more details.
 
