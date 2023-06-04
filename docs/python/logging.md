@@ -131,7 +131,7 @@ logger.info("My key is named %s, and it's value is %s", my_key, my_val)
 logger.debug("Testing a debug line")
 ```
 
-Note how we have set different thresholds, as well as different message formats, for the two handlers.
+Note how we have set different thresholds, as well as different message formats, for the two handlers. So the _debug_ message only gets written to the log file, whereas the _info_ messgae gets written to both the log file, and the console.
 
 ## Summary
 

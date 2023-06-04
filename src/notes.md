@@ -6,7 +6,7 @@ Eric has requested that we do not commit the input data to our repos.  At least,
 
 My solution:
 
-## Use Git-Crypt
+### Use Git-Crypt
 
 Git-Crypt performs **transparent encryption and decryption** of selected files, when pushing/pulling from your GitHub repo, respectively.
 
