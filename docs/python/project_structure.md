@@ -8,6 +8,8 @@ It is a good idea for any Python project to have a clear folder structure. This 
 
 ## A Good General Project Structure
 
+Here is a generic folder structure that you can generally use for Python projects.
+
 ```bash
 .                            # Root - the name of your project
 ├── README.md                   # The top-level project README, describing project purpose, who to use it, etc
@@ -34,7 +36,7 @@ Advent-of-Code               # Root of my project
 ├── requirements.txt 
 ├── .gitignore  
 ├── .pylintrc   
-├── .env   
+├── .env                       # PYTHONPATH=src
 |
 ├── src/                     # Top level of src code
 |   ├── Aoc_2015               # Source for AoC 2015 
@@ -55,5 +57,5 @@ Advent-of-Code               # Root of my project
 |   └── python/                # For the Python journey pages 
 |
 └── scripts/                 # Useful scripts
-    └── create_year.ps         # Windows PowerShell script for generating template files for a year
+    └── create_year.ps1        # Windows PowerShell script for generating template files for a year
 ```
