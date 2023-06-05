@@ -2,6 +2,10 @@
 from __future__ import annotations
 from dataclasses import asdict, dataclass
 from enum import Enum
+import operator
+import logging
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class Point:
@@ -138,3 +142,40 @@ class Grid():
 
     def __repr__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
+
+def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False) -> int:
+    """ Generic binary search function that takes a target to find,
+    low and high values to start with, and a function to run, plus its args. 
+    Implicitly returns None if the search is exceeded. """
+    
+    res = None  # just set it to something that isn't the target
+    candidate = 0  # initialise; we'll set it to the mid point in a second
+    
+    while low < high:  # search exceeded        
+        candidate = int((low+high) // 2)  # pick mid-point of our low and high        
+        res = func(candidate, *func_args) # run our function, whatever it is
+        logger.debug("%d -> %d", candidate, res)
+        if res == target:
+            return candidate  # solution found
+        
+        comp = operator.lt if not reverse_search else operator.gt
+        if comp(res, target):
+            low = candidate
+        else:
+            high = candidate
+            
+def merge_intervals(intervals: list[list]) -> list[list]:
+    """ Takes intervals in the form [[a, b][c, d][d, e]...]
+    Intervals can overlap.  Compresses to minimum number of non-overlapping intervals. """
+    intervals.sort()
+    stack = []
+    stack.append(intervals[0])
+    
+    for interval in intervals[1:]:
+        # Check for overlapping interval
+        if stack[-1][0] <= interval[0] <= stack[-1][-1]:
+            stack[-1][-1] = max(stack[-1][-1], interval[-1])
+        else:
+            stack.append(interval)
+      
+    return stack

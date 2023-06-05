@@ -1,6 +1,13 @@
 """ Testing the type_defs module """
 import unittest
-from common.type_defs import Point, Grid, Vectors, VectorDicts
+from common.type_defs import (
+    Point, 
+    Grid, 
+    Vectors, 
+    VectorDicts, 
+    binary_search, 
+    merge_intervals
+)
 
 class TestTypes(unittest.TestCase):
     """ Unit tests of various classes in type_defs """
@@ -20,17 +27,7 @@ class TestTypes(unittest.TestCase):
         self.points.add(self.d_point)  
         self.points.add(self.e_point)
         
-        self.a_point_neighbours = self.a_point.neighbours() 
-        
-        self.input_grid = ["5483143223",
-                           "2745854711",
-                           "5264556173",
-                           "6141336146",
-                           "6357385478",
-                           "4167524645",
-                           "2176841721"]
-    
-        self.input_array_data = [[int(posn) for posn in row] for row in self.input_grid]        
+        self.a_point_neighbours = self.a_point.neighbours()   
     
     def test_vectors(self):
         self.assertEqual(Vectors.N.value, (0, 1))
@@ -84,13 +81,38 @@ class TestTypes(unittest.TestCase):
             next(gen)
             
     def test_grid(self):
-        grid = Grid(self.input_array_data)
-        self.assertEqual(grid.height, len(self.input_grid))
-        self.assertEqual(grid.width, len(self.input_grid[0]))
+        input_grid = ["5483143223",
+                      "2745854711",
+                      "5264556173",
+                      "6141336146",
+                      "6357385478",
+                      "4167524645",
+                      "2176841721"]
+    
+        input_array_data = [[int(posn) for posn in row] for row in input_grid]      
+        grid = Grid(input_array_data)
+        self.assertEqual(grid.height, len(input_grid))
+        self.assertEqual(grid.width, len(input_grid[0]))
         self.assertTrue(grid.valid_location(Point(1, 1)))
         self.assertFalse(grid.valid_location(Point(11,8)))
         self.assertEqual(grid.value_at_point(Point(1, 1)), 7)
+      
+    def test_binary_search(self):
+        self.assertEqual(binary_search(225, 0, 20, lambda x: x**2, reverse_search=True), None)
+        self.assertEqual(binary_search(225, 0, 20, lambda x: x**2), 15)
+    
+    def test_merge_intervals(self):
+        pairs = [
+            [1, 5],    # Non-overlapping pair
+            [3, 7],    # Overlapping pair
+            [8, 12],   # Non-overlapping pair
+            [10, 15],  # Overlapping pair
+            [18, 20]   # Non-overlapping pair
+        ]
         
+        expected = [[1, 7], [8, 15], [18, 20]]
+        
+        self.assertEqual(merge_intervals(pairs), expected)
+          
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-    

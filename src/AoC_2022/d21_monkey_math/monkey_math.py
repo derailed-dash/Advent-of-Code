@@ -87,7 +87,7 @@ def main():
     # That way, we'll know both operands have the same value when the result is 0
     calcs["root"] = (calcs["root"][0], "-", calcs["root"][2])
     
-    # We need to try values that will return will result in root == 0.
+    # We need to try values that will sresult in root == 0.
     # Brute force is really slow, but binary search works well!
     humn = binary_search(0, 0, 1e16, try_monkeys, calcs, monkeys)
     if humn is None: # try reverse correlation binary search
