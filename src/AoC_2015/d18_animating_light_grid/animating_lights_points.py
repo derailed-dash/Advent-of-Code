@@ -11,7 +11,7 @@ With each iteration, we update whether lights are on or off, according to these 
 
 Solution 2 of 2:
   - Same as solution 1, but this time using Points instead of tuples.
-  - It works, but it's about 5x slower.
+  - It works, but it's about 2x slower.
 """
 import os
 import time
@@ -72,7 +72,7 @@ def get_corners(lights_length: int, lights_height: int) -> set[Point]:
 def process_iterations(all_lights: set[Point], 
                        on_lights: set[Point], 
                        iterations: int,
-                       fixed_lights: set[Point] = set()) -> set[Point]:
+                       fixed_lights: set[Point] = None) -> set[Point]:
     """ 
     Carry out Conway-like rules for all lights in the all_lights set.
 
@@ -86,6 +86,9 @@ def process_iterations(all_lights: set[Point],
         Set[Point]: The coords of lights that are 'on', following specified iterations
     """
 
+    if not fixed_lights:
+        fixed_lights = set()
+        
     for _ in range(iterations):
         on_lights_to_remove = set()
         on_lights_to_add = set()
