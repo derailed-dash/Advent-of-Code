@@ -44,7 +44,6 @@ import os
 import time
 import re
 from collections import defaultdict
-from typing import Tuple
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"
@@ -130,7 +129,7 @@ def substitute_groups(groups: dict, molecule: str) -> list:
     return new_molecules
 
 
-def process_input(data: list) -> Tuple[dict, dict, str]:
+def process_input(data: list) -> tuple[dict, dict, str]:
     subst_match = re.compile(r"^(\w+) => (\w+)")
     
     # each src group can make many target groups
