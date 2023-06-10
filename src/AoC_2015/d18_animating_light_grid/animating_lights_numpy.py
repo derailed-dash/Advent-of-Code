@@ -22,6 +22,36 @@ SAMPLE_INPUT_FILE = "input/sample_input.txt"
 
 ITERATIONS = 100
 
+def main():
+    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
+    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
+    
+    # inport text as a numpy grid, setting each field to 1 char wide
+    grid = np.genfromtxt(input_file, dtype='U1', comments=None, delimiter=1)
+    grid[grid == '#'] = 1
+    grid[grid == '.'] = 0
+    grid = grid.astype(int)
+
+    # Part 1
+    p1_grid = grid.copy()
+    for _ in range(ITERATIONS):
+        p1_grid = update_grid(p1_grid)
+
+    print(f"Part 1: {np.sum(p1_grid)}")
+    
+    # Part 2
+    corners = [(0, 0), 
+               (0, grid.shape[1]-1), 
+               (grid.shape[0]-1, 0), 
+               (grid.shape[0]-1, grid.shape[1]-1)]
+    for x, y in corners:
+        grid[x, y] = 1
+        
+    for _ in range(ITERATIONS):
+        grid = update_grid(grid, corners)
+    
+    print(f"Part 2: {np.sum(grid)}")
+    
 def count_neighbors(grid, x, y):
     """ Count the _on_ neighbours around the light at coords (x, y). """
     min_x, max_x = max(0, x-1), min(grid.shape[0], x+2)
@@ -43,36 +73,6 @@ def update_grid(grid, fixed_lights = None):
                 
     return new_grid
 
-def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    
-    # inport text as a numpy grid, setting each field to 1 char wide
-    grid = np.genfromtxt(input_file, dtype='U1', comments=None, delimiter=1)
-    grid[grid == '#'] = 1
-    grid[grid == '.'] = 0
-    grid = grid.astype(int)
-
-    # Part 1
-    p1_grid = grid.copy()
-    for _ in range(100):
-        p1_grid = update_grid(p1_grid)
-
-    print(f"Part 1: {np.sum(p1_grid)}")
-    
-    # Part 2
-    corners = [(0, 0), 
-               (0, grid.shape[1]-1), 
-               (grid.shape[0]-1, 0), 
-               (grid.shape[0]-1, grid.shape[1]-1)]
-    for x, y in corners:
-        grid[x, y] = 1
-        
-    for _ in range(100):
-        grid = update_grid(grid, corners)
-    
-    print(f"Part 2: {np.sum(grid)}")
-    
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()

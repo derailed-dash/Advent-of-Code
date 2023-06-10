@@ -328,6 +328,30 @@ with_as_array: [0 1 0 3 4]
 data = np.loadtxt(input_file, delimiter=",", dtype=np.int16)
 ```
 
+### By reading a text file
+
+Imagine we want to read in this file:
+
+```text
+.#.#.#
+...##.
+#....#
+..#...
+#.#..#
+####..
+```
+
+To read directly into a NumPy array, we can do this:
+
+```python
+data = np.genfromtxt(input_file, dtype='U1', comments=None, delimiter=1)
+```
+
+Here:
+- We use `U1` as the dtype for single character strings, and a delimiter of `1` to read in the data character by character.
+- We set `comments=None`, because by default, lines starting with `#` are treated as comments and ignored.
+But here, we want to treat `#` as valid data.
+
 ## Changing Shape
 
 ### Changing Dimensions
