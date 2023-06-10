@@ -31,6 +31,7 @@ tags:
   - [With Random Numbers](#with-random-numbers)
   - [Creating an Array Based on Another Array](#creating-an-array-based-on-another-array)
   - [By Reading a CSV](#by-reading-a-csv)
+  - [By Reading a Text File](#by-reading-a-text-file)
 - [Changing Shape](#changing-shape)
   - [Changing Dimensions](#changing-dimensions)
   - [Flattening](#flattening)
@@ -328,7 +329,7 @@ with_as_array: [0 1 0 3 4]
 data = np.loadtxt(input_file, delimiter=",", dtype=np.int16)
 ```
 
-### By reading a text file
+### By Reading a Text File
 
 Imagine we want to read in this file:
 
