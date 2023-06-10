@@ -38,36 +38,20 @@ def main():
                   for point in set(product(range(lights_length), range(lights_height)))}
 
     on_lights = init_state(data)
-    corner_lights = get_corners(lights_length, lights_height)
 
     # Part 1
     final_on_lights = process_iterations(all_lights, on_lights.copy(), ITERATIONS)
     print(f"Part 1, after {ITERATIONS} iterations, there are {len(final_on_lights)} turned on.")
 
     # Part 2
+    corner_lights = set()
+    corner_lights.add(Point(0, 0))
+    corner_lights.add(Point(lights_length-1, 0))
+    corner_lights.add(Point(0, lights_height-1))
+    corner_lights.add(Point(lights_length-1, lights_height-1))
+    
     final_on_lights = process_iterations(all_lights, on_lights.copy(), ITERATIONS, corner_lights)
     print(f"Part 2, after {ITERATIONS} iterations, there are {len(final_on_lights)} turned on.")
-
-def get_corners(lights_length: int, lights_height: int) -> set[Point]:
-    """ 
-    Gets the coordinates of the four corners, given an x size and y size
-
-    Args:
-        lights_length (int): x size
-        lights_height (int): y size
-
-    Returns:
-        Set[Tuple[int, int]]: A set of four (x, y) coords
-    """
-
-    on_lights_to_add: set[Point] = set()
-
-    on_lights_to_add.add(Point(0, 0))
-    on_lights_to_add.add(Point(lights_length-1, 0))
-    on_lights_to_add.add(Point(0, lights_height-1))
-    on_lights_to_add.add(Point(lights_length-1, lights_height-1))
-
-    return on_lights_to_add
 
 def process_iterations(all_lights: set[Point], 
                        on_lights: set[Point], 

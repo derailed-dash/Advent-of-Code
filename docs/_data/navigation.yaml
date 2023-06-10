@@ -130,7 +130,10 @@ pages:
     problem: "Aunt Sue"
   - name: 17
     link: /2015/17
-    problem: "No Such Thing as Too Much"                    
+    problem: "No Such Thing as Too Much"
+  - name: 18
+    link: /2015/18
+    problem: "Like a GIF For Your Yard"                       
 - name: "2021"
   link: /2021/
   mainnav: True
