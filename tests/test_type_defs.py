@@ -5,6 +5,7 @@ from common.type_defs import (
     Grid, 
     Vectors, 
     VectorDicts, 
+    Colours,
     binary_search, 
     merge_intervals
 )
@@ -113,6 +114,11 @@ class TestTypes(unittest.TestCase):
         expected = [[1, 7], [8, 15], [18, 20]]
         
         self.assertEqual(merge_intervals(pairs), expected)
+    
+    def test_console_printing(self):
+        msg = Colours.GREEN.value + "Testing green" + Colours.RESET.value
+        print(msg)
+        self.assertIn(Colours.GREEN.value, msg)
           
 if __name__ == "__main__":
     unittest.main(verbosity=2)

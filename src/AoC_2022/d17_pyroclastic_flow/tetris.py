@@ -95,15 +95,16 @@ Implement check_cache() method:
 from dataclasses import dataclass
 from enum import Enum
 import itertools
-import os
 from pathlib import Path
 import time
+
+from common.type_defs import Colours, cls
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
-VIS_ENABLED = False
+VIS_ENABLED = True
 
 class ShapeType(Enum):
     """ Enum for our five shapes """
@@ -167,17 +168,6 @@ class Shape():
     def __repr__(self) -> str:
         return f"Shape(at_rest={self.at_rest}, points={self.points}"
 
-class Colours(Enum):
-    """ ANSI escape sequences for coloured console output """
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
-         
 class Tower():
     """ Fixed width tower that generates new shapes to drop, and blows shapes left and right as they drop. """
     WIDTH = 7
@@ -356,10 +346,6 @@ def print_and_clear(msg: str, delay=0.05):
     print(msg)
     time.sleep(delay)
     cls()
-
-def cls():
-    """ Clear console """
-    os.system('cls' if os.name=='nt' else 'clear')
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:

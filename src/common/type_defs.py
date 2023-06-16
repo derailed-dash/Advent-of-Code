@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass
 from enum import Enum
 import operator
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +143,23 @@ class Grid():
 
     def __repr__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
+
+class Colours(Enum):
+    """ ANSI escape sequences for coloured console output
+    E.g.
+    print(Colours.GREEN.value + "str" + Colours.RESET.value) """
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    BOLD = "\033[1m"
+    RESET = "\033[0m"
+
+def cls():
+    """ Clear console """
+    os.system('cls' if os.name=='nt' else 'clear')
 
 def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False) -> int:
     """ Generic binary search function that takes a target to find,
