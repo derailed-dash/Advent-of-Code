@@ -25,14 +25,20 @@ How many calories in total for the top three elves?
 Solution:
 - Sort the list.
 - Add up the last three.
-
 """
+import logging
 from pathlib import Path
 import time
+import common.type_defs as td
 
+SCRIPT_NAME = Path(__file__).stem
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+
+logger = logging.getLogger(SCRIPT_NAME)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(td.stream_handler)
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
@@ -43,11 +49,10 @@ def main():
         calories = sum(map(int, elf.splitlines()))
         elf_calories.append(calories)
         
-    print(f"Part 1: {max(elf_calories)}")
+    logger.info("Part 1: %d", max(elf_calories))
     
     elf_calories = sorted(elf_calories)
-    print(f"Part 2: {sum(elf_calories[-3:])}")
-    
+    logger.info("Part 2: %d", sum(elf_calories[-3:]))
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

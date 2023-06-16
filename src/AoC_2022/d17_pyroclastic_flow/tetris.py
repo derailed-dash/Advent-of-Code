@@ -97,14 +97,15 @@ from enum import Enum
 import itertools
 from pathlib import Path
 import time
+from  colorama import Fore, Style
 
-from common.type_defs import Colours, cls
+from common.type_defs import cls
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
-VIS_ENABLED = True
+VIS_ENABLED = False
 
 class ShapeType(Enum):
     """ Enum for our five shapes """
@@ -178,12 +179,12 @@ class Tower():
     FLOOR_Y = 0
         
     class PrintingChars(Enum):
-        FALLING = Colours.BOLD.value + Colours.BLUE.value + "@" + Colours.RESET.value
-        AT_REST = Colours.YELLOW.value+ "#" + Colours.RESET.value
-        EMPTY = Colours.GREEN.value + "." + Colours.RESET.value
-        CORNER = Colours.GREEN.value + "+" + Colours.RESET.value
-        WALL = Colours.GREEN.value + "|" + Colours.RESET.value
-        FLOOR = Colours.GREEN.value + "-" + Colours.RESET.value
+        FALLING = Style.BRIGHT + Fore.BLUE + "@" + Style.RESET_ALL
+        AT_REST = Fore.YELLOW+ "#" + Style.RESET_ALL
+        EMPTY = Fore.GREEN + "." + Style.RESET_ALL
+        CORNER = Fore.GREEN + "+" + Style.RESET_ALL
+        WALL = Fore.GREEN + "|" + Style.RESET_ALL
+        FLOOR = Fore.GREEN + "-" + Style.RESET_ALL
     
     def __init__(self, jet_pattern: str) -> None:
         self._jet_pattern = itertools.cycle(enumerate(jet_pattern)) # infinite cycle
