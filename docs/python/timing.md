@@ -13,6 +13,12 @@ tags:
   - name: tqdm (progress bar)
     link: https://pypi.org/project/tqdm
 ---
+## Page Contents
+
+- [Time Module](#time-module)
+- [Progress Bar with tqdm](#progress-bar-with-tqdm)
+- [Examples](#examples)
+
 ## Time Module
 
 The [time](https://docs.python.org/3/library/time.html){:target="_blank"} module is a convenient and easy way to measure how long something takes to run. 
@@ -91,5 +97,9 @@ steps = 10
 for step in tqdm(range(steps)):
     sleep(0.5)
 ```
-
 ![Progress Bar]({{ '../assets/images/progress_bar.gif' | relative_url }})
+
+## Examples
+
+See:
+- [2022 Day 11](/2022/11)

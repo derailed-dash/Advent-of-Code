@@ -14,10 +14,15 @@ tags:
 <script id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 </script>
+
 ## Page Contents
 
 - [Introduction](#introduction)
 - [So What?](#so-what)
+  - [Complex numbers are first class citizens in Python](#complex-numbers-are-first-class-citizens-in-python)
+  - [It is easy to add complex numbers](#it-is-easy-to-add-complex-numbers)
+  - [They are useful for plotting two dimensional coordinates](#they-are-useful-for-plotting-two-dimensional-coordinates)
+- [Examples](#examples)
 
 ## Introduction
 
@@ -147,3 +152,7 @@ plt.show()
 The result is a plot that looks like this:
 
 <img src="{{'/assets/images/argand_points.png' | relative_url }}" alt="Argand Plot" />
+
+## Examples
+
+- [Vectors with complex numbers - 2015 Day 3](/2015/3)

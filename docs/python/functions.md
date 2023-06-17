@@ -22,6 +22,7 @@ tags:
 - [Overview](#overview)
 - [Fibonacci Example](#fibonacci-example)
 - [Lambda Functions](#lambda-functions)
+- [Examples](#examples)
 
 ### Overview
 
@@ -181,3 +182,8 @@ Oliver Smith
 ```
 
 Consequently, lambda functions are extremely useful as parameters to any functions that work on collections, such as `min`, `max`, `sorted`, `map`, `filter`, and `reduce`.
+
+### Examples
+
+See:
+- [Lambda: 2021 Day 7](/2021/7)

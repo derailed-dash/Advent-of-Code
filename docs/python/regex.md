@@ -24,6 +24,7 @@ tags:
 - [More Examples](#more-examples)
   - [Asserting the Match, and Mapping](#asserting-the-match-and-mapping)
   - [Using findall()](#using-findall)
+- [Examples](#examples)
 
 ## Patterns
 
@@ -225,3 +226,15 @@ And here we use `findall()`, which circumvents the need to first get the `match`
         dims = list(map(int, p.findall(line)[0]))
         boxes.append(Box(dims))
 ```
+
+## Examples
+
+- [Using "search" - 2015 Day 5](/2015/5)
+- [Using "search" and "assert" - 2015 Day 6](/2015/6)
+- [Using "sub" to parse literals - 2015 Day 15](/2015/8)
+- [Using "findall" - 2015 Day 9](/2015/9)
+- [Using "sub" - 2021 Day 18](/2021/18)
+- [Using "search" and "if"](/2022/5)
+- [Using "findall" and "int"](/2022/11)
+- [Using "findall" with "map" and tuple unpacking](/2022/15)
+- [Using "(?:" for non-matchin groups](/2022/19)

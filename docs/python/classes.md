@@ -28,6 +28,7 @@ Here I'll go into the basics of working with classes and objects in Python. This
 - [Dataclass](#dataclass)
 - [Inheritance](#inheritance)
 - [Factory Pattern](#factory-pattern)
+- [Examples](#examples)
 
 ## What is a Class? What is an Object?
 
@@ -468,3 +469,7 @@ start = Point(0,0)
 my_shape = Shape.create_shape_by_type(ShapeType.PLUS.name, start)
 print(my_shape)
 ```
+
+## Examples
+
+- [Factory Pattern: 2022 Day 17 - Tetris!](/2022/17)

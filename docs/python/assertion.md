@@ -6,6 +6,16 @@ tags:
   - name: Exceptions
     link: /python/exceptions
 ---
+## Page Contents
+
+- [Assertions and Invariants](#assertions-and-invariants)
+  - [Overview](#overview)
+  - [Handing AssertionError](#handing-assertionerror)
+  - [Assertions as a Way to Comment Code](#assertions-as-a-way-to-comment-code)
+  - [Asserting Unreachable Conditions](#asserting-unreachable-conditions)
+  - [Performance Considerations](#performance-considerations)
+- [Examples](#examples)
+
 ## Assertions and Invariants
 
 ### Overview
@@ -128,3 +138,7 @@ Used judiciously, assertions should have no significant impact on your applicati
 - It may not be wise to place an assert within a loop that runs many times. (But sometimes it may be worth it!)
 - It is unwise to provide an assert condition that is computationally intensive.
 - You can always tell your program to run without assertions, by passing the `-O` command line paramater at run time.
+
+## Examples
+
+- [2015 Day 6](/2015/6)
