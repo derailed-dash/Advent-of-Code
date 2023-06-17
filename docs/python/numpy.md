@@ -56,6 +56,7 @@ tags:
   - [Counting the Intersection of Lines on a 2D Map](#counting-the-intersection-of-lines-on-a-2d-map)
   - [Counting and Rolling Values](#counting-and-rolling-values)
   - [NumPy, NetworkX and Dijkstra to Navigate a Height Map](#numpy-networkx-and-dijkstra-to-navigate-a-height-map)
+- [More Examples](#more-examples)
 
 ## NumPy is Awesome
 
@@ -1219,3 +1220,12 @@ See [2021 day 6: Lantern Fish](/2021/6).
 ### NumPy, NetworkX and Dijkstra to Navigate a Height Map
 
 See [2022 Day 12: Hill Climbing](/2022/12).
+
+## More Examples
+
+- [On/off grid - 2015 Day 6](/2015/6)
+- [Game of life - 2015 Day 18](/2015/18)
+- [Counting when values increase - 2021 Day 1](/2021/1)
+- [Counting how many times something is true in the grid - 2021 Day 5](/2021/5)
+- [Unique, counts, and rolling - 2021 Day 6](/2015/6)
+- [Reading CSV - 2021 Day 7](/2021/7)

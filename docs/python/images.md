@@ -1,5 +1,5 @@
 ---
-title: Working with Images
+title: Working with Images and Animations
 main_img:
   name: RGB Image
   link: /assets/images/rgb_image.gif
@@ -383,3 +383,65 @@ Taken from [2022 Day 8 - Tree House Grid](/2022/8):
 ```
 
 ![Hidden Trees]({{"/assets/images/hidden_trees.png" | relative_url }}){:style="width:400px"}
+
+### Roap Bridge
+
+Taken from [2022 Day 9 - Road Bridge](/2022/8).
+
+Here we use `matplotlib` and `imageio` to render an animation:
+
+```python
+    def _init_plt(self):
+        """ Generate a Figure and Axes objects which are reused. """
+        my_dpi = 120
+        figure, axes = plt.subplots(figsize=(1024/my_dpi, 768/my_dpi), dpi=my_dpi, facecolor="white") # set size in pixels
+        axes.set_aspect('equal') # set x and y to equal aspect
+        axes.set_facecolor('xkcd:black')
+        
+        return figure, axes
+    
+    def _render_frame(self, visited: set[Point], iteration: int=0):
+        """ Only renders an animation frame if we've attached an enabled Animator """
+        
+        fig, axes = self._plt_info
+        axes.clear()
+        
+        # The grid will grow as the rope heads moves around
+        max_x = max(self._all_head_locations, key=lambda point: point.x).x
+        min_x = min(self._all_head_locations, key=lambda point: point.x).x
+        max_y = max(self._all_head_locations, key=lambda point: point.y).y
+        min_y = min(self._all_head_locations, key=lambda point: point.y).y
+        axes.set_xlim(min_x - 2, max_x + 2)
+        axes.set_ylim(min_y - 2, max_y + 2)
+
+        # dynamically compute the marker size
+        fig.canvas.draw()
+        factor = 40  # Smaller factor means smaller markers
+        mkr_size = int((axes.get_window_extent().width / (max_x-min_x+1) * (factor/fig.dpi)) ** 2)
+
+        # make sure the ticks have integer values
+        axes.xaxis.set_major_locator(MaxNLocator(integer=True))
+        
+        head = self._knots[0]
+        tail = self._knots[-1]
+        others_knots = self._knots[1:-1]
+        
+        visited_x = [point.x for point in visited if point != tail]
+        visited_y = [point.y for point in visited if point != tail]
+
+        for knot in others_knots:
+            axes.scatter(knot.x, knot.y, marker=MarkerStyle("."), s=mkr_size/2, color="white")
+            
+        axes.scatter(head.x, head.y, marker=MarkerStyle("."), s=mkr_size, color="red")
+        axes.scatter(visited_x, visited_y, marker=MarkerStyle("x"), s=mkr_size/3, color="grey")
+        axes.scatter(tail.x, tail.y, marker=MarkerStyle("*"), s=mkr_size/2, color="yellow")
+                
+        axes.set_title(f"Iteration: {iteration}; tail has visited {len(visited)} locations")
+        
+        # save the plot as a frame; store the frame in-memory, using a BytesIO buffer
+        frame = BytesIO()
+        plt.savefig(frame, format='png') # save to memory, rather than file
+        self._animator.add_frame(frame)
+```
+
+[![Rope Simulator Animation]({{"/assets/images/rope_sim_screenshot.png" | relative_url }}){:style="width:400px"}](https://youtu.be/f7ZdSHXCSxc "Rope Simulator Animation"){:target="_blank"}
