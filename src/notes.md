@@ -2,7 +2,7 @@
 
 ## Input Files
 
-Eric has requested that we do not commit the input data to our repos.  At least, not encrypted.
+Eric has requested that we do not commit the input data to our repos.  At least, not in plain text.
 
 My solution:
 
@@ -18,7 +18,8 @@ On Linux / WSL:
 sudo apt install git-crypt
 ```
 
-In Windows, there is no equivalent, and even if you install in WSL, the git integration with, say, Visual Studio Code, will break. To fix:
+In Windows, there is no equivalent, and even if you install in WSL, then the git integration with (say) Visual Studio Code, will break. To fix:
+
 - Download the x86_64.exe from the latest tag here: https://github.com/AGWA/git-crypt/tags
 - Rename it to git-crypt.exe and store it in a location in your path.
 
