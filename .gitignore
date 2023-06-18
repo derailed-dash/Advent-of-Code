@@ -1,6 +1,5 @@
 # Env
 .*-env/
-.env
  
 # Build / distribution / packaging
 .Python
