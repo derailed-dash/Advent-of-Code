@@ -30,6 +30,7 @@ tags:
 - [More Interesting Graphs](#more-interesting-graphs)
   - [Colouring Nodes Based on Attributes](#colouring-nodes-based-on-attributes)
   - [Colouring a Particular Path](#colouring-a-particular-path)
+- [Examples](#examples)
 
 ## Introduction
 
@@ -335,3 +336,10 @@ def draw_graph(graph, route):
 The visualisation looks like this:
 
 ![Shortest Path]({{"/assets/images/networkx-short-route.png" | relative_url }}){:style="width:600px"}
+
+## Examples
+
+- [Travelling Salesman - 2015 Day 9](/2015/9)
+- [Seating arrangement - 2015 Day 13](/2015/13)
+- [Cave navigating and visualisation - 2021 Day 12](/2021/12)
+- [Hillclimbing - shortest path length and multi_source_dijkstra - 2022 Day 12](/2022/12)
