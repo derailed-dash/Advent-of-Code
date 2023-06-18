@@ -19,14 +19,58 @@ In the module below, I've included a few useful things:
 - Useful functions that we [discussed previously](/python/useful_algorithms).
 
 ```python
-""" A set of reusable classes and attributes used by my AoC solutions """
+""" 
+A set of reusable classes and attributes used by my AoC solutions 
+Test with tests/test_type_defs.py
+
+You could import as follows:
+import common.type_defs as td                               
+"""
 from __future__ import annotations
 from dataclasses import asdict, dataclass
 from enum import Enum
 import operator
 import logging
+import os
 
+from colorama import Fore, Style, just_fix_windows_console
+just_fix_windows_console()
+
+#################################################################
+# SETUP LOGGING
+#################################################################
+
+# Create a new instance of "logger" in the client application
+# Set to your preferred logging level
+# And add the stream_handler from this module, if you want coloured output
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+class ColoredFormatter(logging.Formatter):
+    """ Automatically wrap standard logging output with colours """ 
+    COLOURS = {"DEBUG": Fore.BLUE,
+               "INFO": Fore.GREEN,
+               "WARNING": Fore.YELLOW,
+               "ERROR": Style.BRIGHT + Fore.RED,
+               "CRITICAL": Style.BRIGHT + Fore.MAGENTA}
+
+    def format(self, record): 
+        msg = logging.Formatter.format(self, record) 
+        if record.levelname in ColoredFormatter.COLOURS: 
+            msg = ColoredFormatter.COLOURS[record.levelname] + msg + Fore.RESET 
+        return msg
+
+# Write to console with threshold of INFO
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+stream_fmt = ColoredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+                               datefmt='%H:%M:%S')
+stream_handler.setFormatter(stream_fmt)
+logger.addHandler(stream_handler)
+    
+#################################################################
+# POINTS, VECTORS AND GRIDS
+#################################################################
 
 @dataclass(frozen=True)
 class Point:
@@ -163,6 +207,32 @@ class Grid():
 
     def __repr__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
+
+#################################################################
+# CONSOLE STUFF
+#################################################################
+
+class Colours(Enum):
+    """ ANSI escape sequences for coloured console output. E.g.
+    print(Colours.GREEN.value + "str" + Colours.RESET.value).
+    But actually, just use Colorama, which does this for you. 
+    """
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    BOLD = "\033[1m"
+    RESET = "\033[0m"
+
+def cls():
+    """ Clear console """
+    os.system('cls' if os.name=='nt' else 'clear')
+
+#################################################################
+# USEFUL FUNCTIONS
+#################################################################
 
 def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False) -> int:
     """ Generic binary search function that takes a target to find,

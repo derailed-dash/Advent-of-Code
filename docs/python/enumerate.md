@@ -230,3 +230,11 @@ print(start.all_neighbours())
 print(f"Get northerly neighbours to {start}:")
 print(start.get_neighbours([Vector.NW, Vector.N, Vector.NE]))
 ```
+
+## Examples
+
+- [Enumerating ordinals - 2022 Day 3](/2022/3)
+- [Enumerating characters in input - 2022 Day 22](/2022/22)
+- [Enumerating rows and columns - 2022 Day 24](/2022/24)
+- [Tetris Shape Enum and Shape factory - 2022 Day 17](/2022/17)
+- [Enum of Vectors - type_defs](/python/reusable_code)

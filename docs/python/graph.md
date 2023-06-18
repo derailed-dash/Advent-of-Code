@@ -16,6 +16,7 @@ tags:
 
 - [Graph Theory Overview](#graph-theory-overview)
 - [Adjacency Lists](#adjacency-lists)
+- [Examples](#examples)
 
 ## Graph Theory Overview
 
@@ -107,3 +108,8 @@ Note:
 
 - When we have an unweighted graph and we only one to store which nodes are adjacent to another node, we can use a dict where the key is the node, and the values are the set of adjacent nodes.
 - Where we have a weighted graph and we're also interested in the magnitude of the edges, we can use a nested dictionary, where the outer key is the node, and the outer value is the inner dictionary.  The inner dict uses adjacent nodes for keys, and edge manitudes for values. 
+
+## Examples
+
+- [Adjacency lists for seating arrangement - 2015 day 13](/2015/13)
+- [Adjacency lists for cave navigatin - 2021 day 12](/2021/12)

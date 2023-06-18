@@ -13,25 +13,10 @@ tags:
   - name: ImageIO
     link: https://imageio.readthedocs.io/en/stable/user_guide/index.html    
 ---
-## Overview
-
-Images can be described as a two dimensional grid of pixels, where each pixel has a particular colour.  For grayscale images, the pixels simply require intensity.  Consequently, a grayscale image can be represented as a two dimensional ndarray, with shape (x, y).
-Whereas a colour image is typically represented as a two dimensional grid of pixels, plus three channels for each of R, G, B.  Consequently, an RGB image can be represented as an ndarray with shape (x, y, 3).
-
-There are a few ways to work with images in Python. These include:
-
-- **NumPy / Matplotlib**
-  - Images are represented as ndarray objects: [x-size, y-size, colour channels]
-  - When Matplotlib is working with images, the underlying format is the NumPy ndarray.
-- **Pillow**
-  - Extensive image format support and general image processing.
-  - Capabilities include image processing, thumbnail creation, conversion between formats, point operations, animations, and image transformation.
-- **ImageIO**
-  - Useful package for reading and writing images.
-  - Particularly useful for animations, and for capturing images from various sources and streams.
 
 ## Page Contents
 
+- [Overview](#overview)
 - [Working with Different Imaging Libraries](#working-with-different-imaging-libraries)
   - [Loading and Showing Image File with Pillow](#loading-and-showing-image-file-with-pillow)
   - [Loading and Showing Image File with Matplotlib (NumPy)](#loading-and-showing-image-file-with-matplotlib-numpy)
@@ -49,6 +34,24 @@ There are a few ways to work with images in Python. These include:
   - [Flashing Grid](#flashing-grid)
   - [Trench Map](#trench-map)
   - [Height Map](#height-map)
+  - [Roap Bridge](#roap-bridge)
+
+## Overview
+
+Images can be described as a two dimensional grid of pixels, where each pixel has a particular colour.  For grayscale images, the pixels simply require intensity.  Consequently, a grayscale image can be represented as a two dimensional ndarray, with shape (x, y).
+Whereas a colour image is typically represented as a two dimensional grid of pixels, plus three channels for each of R, G, B.  Consequently, an RGB image can be represented as an ndarray with shape (x, y, 3).
+
+There are a few ways to work with images in Python. These include:
+
+- **NumPy / Matplotlib**
+  - Images are represented as ndarray objects: [x-size, y-size, colour channels]
+  - When Matplotlib is working with images, the underlying format is the NumPy ndarray.
+- **Pillow**
+  - Extensive image format support and general image processing.
+  - Capabilities include image processing, thumbnail creation, conversion between formats, point operations, animations, and image transformation.
+- **ImageIO**
+  - Useful package for reading and writing images.
+  - Particularly useful for animations, and for capturing images from various sources and streams.
 
 ## Working with Different Imaging Libraries
 

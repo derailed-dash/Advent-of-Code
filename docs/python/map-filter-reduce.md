@@ -16,6 +16,7 @@ tags:
   - [Example: Filtering Based on Word Length](#example-filtering-based-on-word-length)
 - [reduce](#reduce)
   - [Example: Using Reduce() to Implement a Factorial Function](#example-using-reduce-to-implement-a-factorial-function)
+- [Examples](#examples)
 
 ## map
 
@@ -158,3 +159,7 @@ Result = 3628800
 
 Note that to use `reduce()`, it has to be imported from `functools`.
 
+## Examples
+
+- [Filtering input that matches regex - 2015 day 7](/2015/7)
+- [Reduce to perform a product with a lambda - 2021 day 9](/2021/9)
