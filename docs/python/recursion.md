@@ -22,6 +22,7 @@ tags:
   - [Factorial](#factorial)
   - [Counting Leaf Items in a Nested List](#counting-leaf-items-in-a-nested-list)
   - [Fibonacci](#fibonacci)
+- [AoC Examples](#aoc-examples)
 
 ## Introduction
 
@@ -220,3 +221,13 @@ while True:
 ```
 
 Note: this isn't a particularly efficient function. It doesn't scale well!
+
+## AoC Examples
+
+- [Recursively process json - 2015 day 12](/2015/12)
+- [Recursive string replacement - 2021 day 14](/2021/14)
+- [Various recursinos as methods of a class - 2021 day 16](/2021/16)
+- [Recursive snail mail - 2021 day 18](/2021/18)
+- [Recursive game states using dynamic programming and lru cache - 2021 day 21](/2021/21)
+- [Recursive directory listing by extending the list - 2022 day 7](/2022/7)
+- [Recursive `__lt__` compare - 2022 day 13](/2022/13)
