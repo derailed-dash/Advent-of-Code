@@ -33,6 +33,7 @@ tags:
 - [Pattern: Exception to Break or Continue an Outer Loop](#pattern-exception-to-break-or-continue-an-outer-loop)
 - [Write Exceptions as JSON](#write-exceptions-as-json)
 - [EAFP](#eafp)
+- [Examples](#examples)
 
 ### Overview
 
@@ -958,3 +959,7 @@ The output file looks like this:
 **Easier to Ask Forgiveness Than Permission** is a Python philosophy. (It contrasts from the _Look Before You Leap_ strategy.) EAFP advocates not validating all possible conditions before executing code, but rather: catching exceptions when they occur. The rationale is that the developer does not expend significant effort in trying to prevent every error condition that may occur. But instead, simply handle errors when they do. Thus, this strategy favours happy path coding, but explicitly handles errors.
 
 For example, when opening a file: rather than checking if the file exists and is of the right type, instead, simply catch an OSError if it occurs.
+
+### Examples
+
+- [Custom exception classes when parsing - 2021 day 10](/2021/10)
