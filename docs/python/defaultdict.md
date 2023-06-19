@@ -16,6 +16,7 @@ tags:
   - [set](#set)
   - [dict](#dict)
   - [A Custom Factory](#a-custom-factory)
+- [Examples](#examples)
 
 ### Overview
 
@@ -238,3 +239,10 @@ Output:
 Some value
 Not defined
 ```
+
+### Examples
+
+- [defaultdict(dict) in seating - 2015 day 13](/2015/13)
+- [defaultdict(int) in reindeer racing - 2015 day 14](/2015/14)
+- [defaultdict(set) in beacons - 2021 day 19](/2021/19)
+- [defaultdict(list) in 2022 day 3](/2022/3)
