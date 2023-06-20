@@ -1,5 +1,5 @@
 ---
-title: Permutations and Combinations
+title: Permutations, Combinations, Products and More
 
 main_img:
   name: perms-and-combos
@@ -23,8 +23,12 @@ tags:
 ## Page Contents
 
 - [Overview of Permutations and Combinations](#overview-of-permutations-and-combinations)
+- [Product](#product)
 - [Demonstrating With Code](#demonstrating-with-code)
 - [Rolling Dice Examples](#rolling-dice-examples)
+- [Chain](#chain)
+- [Cycle](#cycle)
+- [AoC Examples](#aoc-examples)
 
 ## Overview of Permutations and Combinations
 
@@ -50,6 +54,14 @@ tags:
 - **Combinations** return unique combinations of items, ignoring sequence. It is about _members_, not _order_. `123` and `321` are _the same_.
 
 The number of permutations will be greater than the number of combinations.
+
+## Product
+
+We use `itertools.product()` to obtain the catesian product, i.e. the product of every item from each iterable supplied. If we pass two iterables of length `x` and `y` respectively, then the resulting iterable will have length `x*y`.
+
+Also, we can use `product()` with the `repeat` attribute, to obtain the cartesian product of the iterable with itself.  E.g. with an iterable of length `x` repeated `n` times, the resulting iterable will have length `x**n`.
+
+This can be a convenient way of way of iterating through multiple dimensions without writing nested loops.
 
 ## Demonstrating With Code
 
@@ -80,7 +92,7 @@ print(",".join(convert_to_num(perm) for perm in perms))
 
 print("\nCOMBINATIONS")
 
-# Get all the ways of picking all the numbers...
+# Get all the ways of picking all the numbers, where order doesn't matter...
 combos = list(combinations(items, len(items)))
 print(f"Count of combos with size {len(items)}: {len(combos)}")
 print(",".join(convert_to_num(combo) for combo in combos))
@@ -89,6 +101,13 @@ print(",".join(convert_to_num(combo) for combo in combos))
 combos = list(combinations(items, SELECTION_SZ))
 print(f"Count of combos with size {SELECTION_SZ}: {len(combos)}")
 print(",".join(convert_to_num(combo) for combo in combos))
+
+print("\nPRODUCT")
+
+# Get all the ways of picking all the numbers...
+prod_items = list(product(items, repeat=3))
+print(f"Count of product with size {len(items)} and repeats=3: {len(prod_items)}")
+print(",".join(convert_to_num(val) for val in prod_items))
 ```
 
 Output:
@@ -106,6 +125,10 @@ Count of combos with size 4: 1
 1234
 Count of combos with size 3: 4
 123,124,134,234
+
+PRODUCT
+Count of product with size 4 and repeats=3: 64
+111,112,113,114,121,122,123,124,131,132,133,134,141,142,143,144,211,212,213,214,221,222,223,224,231,232,233,234,241,242,243,244,311,312,313,314,321,322,323,324,331,332,333,334,341,342,343,344,411,412,413,414,421,422,423,424,431,432,433,434,441,442,443,4444
 ```
 
 ## Rolling Dice Examples
@@ -177,3 +200,63 @@ Count of combos=21
 - If we ignore order, then `(1,2)` and `(2,1)` are the same. We use `itertools.combinations(die, n)` to determine all these combinations.
   - By default, repeating numbers are excluded. E.g. `(1,1)`, `(2,2)`, etc.
   - We can allow repeated numbers by using the method `combinations_with_replacement(die, 2)`. This this method gives more combinations.
+
+## Chain
+
+We can use `itertools.chain(*iterables)` to combine multiple iterables into a single iterator, effectively chaining them together into a continuous sequence. It iterates over each iterable in order, one element at a time. We use itertools.chain() when you want to iterate over multiple iterables as if they were a single sequence.
+
+```python
+colors = ['red', 'blue']
+sizes  = ['small', 'large']
+
+# Chain the two iterables
+chained_iterables = itertools.chain(colors, sizes)
+
+# Iterate over the chained iterables and print the elements
+for item in chained_iterables:
+    print(item)
+```
+
+Output:
+
+```text
+red
+blue
+small
+large
+```
+
+## Cycle
+
+We use `itertools.cycle(iterable)` to infinitely iterate through the elements of an iterable. Once we reach the end of the iterale, we start back at the beginning. It returns an infinite generator.
+
+E.g.
+
+```python
+colors = ['red', 'green', 'blue']
+
+# Create a cycle iterator from the list
+color_cycle = itertools.cycle(colors)
+
+# Iterate over the cycle and print the elements
+for _ in range(6):
+    print(next(color_cycle))
+```
+
+Output:
+
+```text
+red
+green
+blue
+red
+green
+blue
+```
+
+## AoC Examples
+
+- [Chain, to concatenate an arbitrary number of iterables - 2016 day 3](/2016/3)
+- [All permutations of the letters `abcdefg` - 2021 day 8](/2021/8)
+- [Product of rolling three dice - 2021 day 21](/2021/21)
+- [Cycle to infinitely iterate through the list - 2022 day 17](/2022/17)
