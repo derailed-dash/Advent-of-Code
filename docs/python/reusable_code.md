@@ -2,6 +2,12 @@
 title: Reusable Code 
 ---
 
+## Page Contents
+
+- [Motivation](#motivation)
+- [type_defs.py](#type_defspy)
+- [Unit Tests](#unit-tests)
+
 ## Motivation
 
 In Advent of Code, it's common to need to do similar things over and over.  
@@ -205,7 +211,19 @@ class Grid():
         points = [Point(x, y) for x in range(self.width) for y in range(self.height)]
         return points
 
+    def rows_as_str(self):
+        """ Return the grid """
+        return ["".join(str(char) for char in row) for row in self._array]
+        
+    def cols_as_str(self):
+        """ Render columns as str. Returns: list of str """
+        cols_list = list(zip(*self._array))
+        return ["".join(str(char) for char in col) for col in cols_list]
+
     def __repr__(self) -> str:
+        return f"Grid(score={self.width}*{self.height})"
+    
+    def __str__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
 
 #################################################################
@@ -292,6 +310,7 @@ from common.type_defs import (
     Grid, 
     Vectors, 
     VectorDicts, 
+    Colours,
     binary_search, 
     merge_intervals
 )
@@ -383,6 +402,8 @@ class TestTypes(unittest.TestCase):
         self.assertTrue(grid.valid_location(Point(1, 1)))
         self.assertFalse(grid.valid_location(Point(11,8)))
         self.assertEqual(grid.value_at_point(Point(1, 1)), 7)
+        self.assertEqual(grid.rows_as_str()[0], "5483143223")
+        self.assertEqual(grid.cols_as_str()[0], "5256642")
       
     def test_binary_search(self):
         self.assertEqual(binary_search(225, 0, 20, lambda x: x**2, reverse_search=True), None)
@@ -400,6 +421,11 @@ class TestTypes(unittest.TestCase):
         expected = [[1, 7], [8, 15], [18, 20]]
         
         self.assertEqual(merge_intervals(pairs), expected)
+    
+    def test_console_printing(self):
+        msg = Colours.GREEN.value + "Testing green" + Colours.RESET.value
+        print(msg)
+        self.assertIn(Colours.GREEN.value, msg)
           
 if __name__ == "__main__":
     unittest.main(verbosity=2)
