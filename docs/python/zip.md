@@ -18,6 +18,8 @@ tags:
 - [Unpacking An Arbitrary Number of Iterables](#unpacking-an-arbitrary-number-of-iterables)
 - [Turning (x,y) coordinates into a List of x and a List of y](#turning-xy-coordinates-into-a-list-of-x-and-a-list-of-y)
 - [Making a Mapping Dictionary](#making-a-mapping-dictionary)
+- [Examples](#examples)
+
 
 ## Overview
 
@@ -188,3 +190,14 @@ Output:
 ```text
 {'(': ')', '[': ']', '{': '}', '<': '>'}
 ```
+
+## Examples
+
+- [Creating an unscramble map - 2021 day 8](/2021/8)
+- [Pairing openers and closers - 2021 day 10](/2021/10)
+- [Zipping points and labels for a plot - 2021 day 15](/2021/15)
+- [Creating instructions from three lists - 2021 day 24](/2021/24)
+- [Get columns from rows - 2022 day 8](/2022/8)
+- [Transpose list of tuples to x and y lists - 2022 day 10](/2022/10)
+- [Print columns as str from a 2D grid - 2022 day 22](/2022/22)
+- [Transpose a collection of points into list of x and list of y - 2022 day 23](/2022/23)

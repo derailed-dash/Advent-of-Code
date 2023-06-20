@@ -184,7 +184,19 @@ class Grid():
         points = [Point(x, y) for x in range(self.width) for y in range(self.height)]
         return points
 
+    def rows_as_str(self):
+        """ Return the grid """
+        return ["".join(str(char) for char in row) for row in self._array]
+        
+    def cols_as_str(self):
+        """ Render columns as str. Returns: list of str """
+        cols_list = list(zip(*self._array))
+        return ["".join(str(char) for char in col) for col in cols_list]
+
     def __repr__(self) -> str:
+        return f"Grid(score={self.width}*{self.height})"
+    
+    def __str__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
 
 #################################################################

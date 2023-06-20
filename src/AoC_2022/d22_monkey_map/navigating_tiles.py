@@ -109,7 +109,7 @@ class Map():
         self._grid = self._pad_grid() # make all rows same length
         self._cols = self._generate_cols()
         
-        self._staert = Point(0,0)
+        self._start = Point(0,0)
         self._posn = Point(0,0)
         self._direction = 0
         self._path = {} # key=point, value=direction

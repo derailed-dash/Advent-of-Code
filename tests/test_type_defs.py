@@ -97,6 +97,8 @@ class TestTypes(unittest.TestCase):
         self.assertTrue(grid.valid_location(Point(1, 1)))
         self.assertFalse(grid.valid_location(Point(11,8)))
         self.assertEqual(grid.value_at_point(Point(1, 1)), 7)
+        self.assertEqual(grid.rows_as_str()[0], "5483143223")
+        self.assertEqual(grid.cols_as_str()[0], "5256642")
       
     def test_binary_search(self):
         self.assertEqual(binary_search(225, 0, 20, lambda x: x**2, reverse_search=True), None)
