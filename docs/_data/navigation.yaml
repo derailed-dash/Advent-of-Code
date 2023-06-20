@@ -56,7 +56,7 @@ pages:
     link: /python/recursion
   - name: Exceptions
     link: /python/exceptions
-  - name: Permutations and Combinations
+  - name: Permutations, Combinations, Products and More
     link: /python/perms_combos
   - name: Zip
     link: /python/zip
