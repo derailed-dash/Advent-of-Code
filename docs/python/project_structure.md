@@ -30,21 +30,32 @@ Here is a generic folder structure that you can generally use for Python project
 Here's how I've set up my AoC repo:
 
 ```bash
-Advent-of-Code               # Root of my project
-├── README.md  
+Advent-of-Code             # Root of my project
+├── README.md                # Repo documentation
 ├── LICENSE   
-├── requirements.txt 
-├── .gitignore  
-├── .pylintrc   
-├── .env                       # PYTHONPATH=src
+├── requirements.txt         # pip requirements
+├── .gitignore
+├── .pylintrc                # Pylint configuration
+├── .env                     # PYTHONPATH=src
+├── .AoC-env/                # Python virtual env
 |
 ├── src/                     # Top level of src code
-|   ├── Aoc_2015               # Source for AoC 2015 
-|   ├── Aoc_2016               # Source for AoC 2016 
+|   ├── Aoc_2015/              # Source for AoC 2015
+|   |   ├── d01/                 # Day 1
+|   |   |   ├── input/             # Input files
+|   |   |   └── d01_whatever.py    # Solution code
+|   |   ├── d02/                 # Day 2
+|   |   |   ├── input/             # Input files
+|   |   |   └── d02_whatever.py    # Solution code
+|   |   └── ...                  # Day n
+|   ├── Aoc_2016/              # Source for AoC 2016 
 |   ├── ...                    # And so on... 
-|   ├── Aoc_2022               # Source for AoC 2022 
-|   └── common/                # A package containing some reused code 
-|       └── type_defs.py         # Some reused classes and other definitions
+|   ├── Aoc_2022/              # Source for AoC 2022 
+|   ├── common/                # A package containing some reused code 
+|   |   └── type_defs.py         # Some reused classes and other definitions
+|   └── template_folder/       # A package containing some reused code 
+|       ├── input/               # Input files
+|       └── template.py          # My solution template
 |
 ├── tests/                   # For storing tests, e.g. unit tests 
 |   └── test_type_defs.py      # Unit tests for the type_defs module
