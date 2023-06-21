@@ -22,8 +22,11 @@ tags:
   - [The Queue](#the-queue)
   - [Implementing the BFS](#implementing-the-bfs)
   - [Breadcrumb Trail](#breadcrumb-trail)
+  - [BFS Examples](#bfs-examples)
 - [Dijkstra's Algorithm](#dijkstras-algorithm)
+  - [Dijkstra's Algorithm Examples](#dijkstras-algorithm-examples)
 - [A* Algorithm](#a-algorithm)
+  - [A* Examples](#a-examples)
 - [Credit Where It's Due](#credit-where-its-due)
 
 ## Overview
@@ -238,15 +241,22 @@ path.append(start) # optional - depends if we want the first node to be included
 path.reverse() # optional - depends whether we want start->end or end->start
 ```
 
-See [2022 Day 12](/2022/12) for a fairly simple implementation of a BFS.
+### BFS Examples
+
+- [Cave navigating - 2021 Day 12](/2021/12)
+- [Path through a map with elevation - 2022 Day 12](/2022/12)
+- [BFS path to outside - 2022 Day 18](/2022/18)
+- [BFS with class generating next states - 2022 Day 24](/2022/24)
 
 ## Dijkstra's Algorithm
 
-// Coming soon
+### Dijkstra's Algorithm Examples
+
+- [Lowest cost rearranging amphipods - with next state - 2021 day 13](/2021/23)
 
 ## A* Algorithm
 
-// Coming soon
+### A* Examples
 
 ## Credit Where It's Due
 

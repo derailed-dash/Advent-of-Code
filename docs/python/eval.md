@@ -12,6 +12,7 @@ tags:
 
 - [Eval](#eval)
 - [Literal_Eval](#literal_eval)
+- [Examples](#examples)
 
 ## Eval
 
@@ -103,4 +104,7 @@ The output:
 
 Neat, right?
 
-Take a look at [this program](/2022/13){:target="_blank"} for an example of how to make use of this.
+## Examples
+
+- [Parsing strings with escape sequences - 2015 Day 8](/2015/8)
+- [Reading a nested list - 2022 Day 13](/2022/13)
