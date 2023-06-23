@@ -74,8 +74,58 @@ print(Style.BRIGHT + Fore.WHITE + Back.GREEN + 'bold white with a green backgrou
 
 The output looks like this:
 
-<img src="{{'/assets/images/term_colors.png' | relative_url }}" alt="Colorama" width="400px" />
+<img src="{{'/assets/images/term_colors.png' | relative_url }}" alt="Colorama" width="320px" />
 
 ## Logging with Colour
 
 TBD.
+
+```python
+import logging
+from pathlib import Path
+from colorama import Fore
+
+colors = {"DEBUG": Fore.BLUE,
+          "INFO": Fore.GREEN,
+          "WARNING": Fore.YELLOW,
+          "ERROR": Fore.RED,
+          "CRITICAL": Fore.MAGENTA} 
+
+class ColouredFormatter(logging.Formatter):
+    """ Custom Formater which adds colour to output, based on logging level """
+    def format(self, record): 
+        msg = logging.Formatter.format(self, record) 
+        if record.levelname in colors: 
+            msg = colors[record.levelname] + msg + Fore.RESET 
+        return msg
+
+SCRIPT_DIR = Path(__file__).parent
+LOG_FILE = Path(SCRIPT_DIR, "my_file.log")
+
+# setup
+logger = logging.getLogger("FooBar-App")
+logger.setLevel(logging.DEBUG)
+
+# Write to console with threshold of INFO
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+                               datefmt='%H:%M:%S')
+stream_handler.setFormatter(stream_fmt)
+logger.addHandler(stream_handler)
+
+file_handler = logging.FileHandler(LOG_FILE, mode='a')
+file_handler.setLevel(logging.DEBUG)
+file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
+                             datefmt='%H:%M:%S')
+file_handler.setFormatter(file_fmt)
+logger.addHandler(file_handler)
+
+my_key = "foo"
+my_val = "bar"
+logger.debug("Testing a debug line")
+logger.info("My key is named %s, and its value is %s", my_key, my_val)
+logger.warning("Warning!")
+logger.error("Testing an error line")
+logger.critical("Ooops!")
+```
