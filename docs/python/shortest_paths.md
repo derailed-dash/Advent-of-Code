@@ -243,8 +243,10 @@ path.reverse() # optional - depends whether we want start->end or end->start
 
 ### BFS Examples
 
-- [Cave navigating - 2021 Day 12](/2021/12)
-- [Path through a map with elevation - 2022 Day 12](/2022/12)
+- [Lava basins flood fill with BFS - 2021 Day 9](/2021/9)
+- [Cave navigating with BFS and allowing repeats - 2021 Day 12](/2021/12)
+- [Cave navigating with BFS and NetworkX - 2021 Day 12](/2021/12)
+- [Path through a map with elevation, plus breadcrumb trail - 2022 Day 12](/2022/12)
 - [BFS path to outside - 2022 Day 18](/2022/18)
 - [BFS with class generating next states - 2022 Day 24](/2022/24)
 
@@ -252,7 +254,9 @@ path.reverse() # optional - depends whether we want start->end or end->start
 
 ### Dijkstra's Algorithm Examples
 
-- [Lowest cost rearranging amphipods - with next state - 2021 day 13](/2021/23)
+- [Risk maze - with heapq and breadcrumbs - 2021 day 15](/2021/15)
+- [Lowest cost rearranging amphipods - with next state, heapq and breadcrumbs - 2021 day 23](/2021/23)
+- [Hill climbing with NetworkX - 2022 Day 12](/2022/12)
 
 ## A* Algorithm
 
