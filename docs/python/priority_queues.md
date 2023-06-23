@@ -21,6 +21,7 @@ tags:
 - [Heapq](#heapq)
   - [Heapq Methods](#heapq-methods)
   - [Heapq Elements and Priority](#heapq-elements-and-priority)
+- [Examples](#examples)
 
 ## Overview
 
@@ -102,3 +103,8 @@ heapq.heappush(frontier, (priority, item))
 ```
 
 We'll look at some real `heapq` usage when we move on to look at [Shortest Path Algorithms](/python/shortest_paths).
+
+## Examples
+
+- [Risk maze priority queue - 2021 day 15](/2021/15)
+- [Rearranging amphipods BFS - 2021 day 23](/2021/23)

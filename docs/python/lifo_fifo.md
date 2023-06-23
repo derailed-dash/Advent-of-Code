@@ -143,6 +143,12 @@ Left by 4:  deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
 ## Examples
 
-- [BFS flood printing with dqeue - 2022 day 18](/2022/18)
+- [Deque with sliding window - 2021 day 3](/2021/3)
+- [Lantern fish timers and circular deque - 2021 day 6](/2021/6)
+- [Flood fill lava basins with deque - 2021 day 9](/2021/9)
+- [Stack popping using deque - 2021 day 10](/2021/10)
+- [DFS exploding of nested tree with deque - 2021 day 18](/2021/18)
+- [BFS best path with deque - 2022 day 12](/2022/12)
+- [BFS flood fill with deque - 2022 day 18](/2022/18)
 - [Circular numbers - 2022 day 20](/2022/20)
 - [A deque to rotate through vectors - 2022 Day 23](/2022/23)
