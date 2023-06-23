@@ -12,8 +12,7 @@ import operator
 import logging
 import os
 
-from colorama import Fore, Style, just_fix_windows_console
-just_fix_windows_console()
+from colorama import Fore, Style
 
 #################################################################
 # SETUP LOGGING
@@ -203,20 +202,6 @@ class Grid():
 # CONSOLE STUFF
 #################################################################
 
-class Colours(Enum):
-    """ ANSI escape sequences for coloured console output. E.g.
-    print(Colours.GREEN.value + "str" + Colours.RESET.value).
-    But actually, just use Colorama, which does this for you. 
-    """
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
-
 def cls():
     """ Clear console """
     os.system('cls' if os.name=='nt' else 'clear')
@@ -225,7 +210,7 @@ def cls():
 # USEFUL FUNCTIONS
 #################################################################
 
-def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False) -> int:
+def binary_search(target, low:int, high:int, func, *func_args, reverse_search=False):
     """ Generic binary search function that takes a target to find,
     low and high values to start with, and a function to run, plus its args. 
     Implicitly returns None if the search is exceeded. """

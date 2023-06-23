@@ -230,20 +230,6 @@ class Grid():
 # CONSOLE STUFF
 #################################################################
 
-class Colours(Enum):
-    """ ANSI escape sequences for coloured console output. E.g.
-    print(Colours.GREEN.value + "str" + Colours.RESET.value).
-    But actually, just use Colorama, which does this for you. 
-    """
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
-
 def cls():
     """ Clear console """
     os.system('cls' if os.name=='nt' else 'clear')
@@ -310,7 +296,6 @@ from common.type_defs import (
     Grid, 
     Vectors, 
     VectorDicts, 
-    Colours,
     binary_search, 
     merge_intervals
 )
@@ -421,11 +406,6 @@ class TestTypes(unittest.TestCase):
         expected = [[1, 7], [8, 15], [18, 20]]
         
         self.assertEqual(merge_intervals(pairs), expected)
-    
-    def test_console_printing(self):
-        msg = Colours.GREEN.value + "Testing green" + Colours.RESET.value
-        print(msg)
-        self.assertIn(Colours.GREEN.value, msg)
           
 if __name__ == "__main__":
     unittest.main(verbosity=2)

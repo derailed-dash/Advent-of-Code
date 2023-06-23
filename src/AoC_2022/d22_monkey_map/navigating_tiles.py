@@ -53,26 +53,16 @@ Part 2:
 from __future__ import annotations
 from ast import literal_eval
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 import time
+from colorama import Fore, Style, just_fix_windows_console
+just_fix_windows_console()
 
 SCRIPT_DIR = Path(__file__).parent
-# INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_CUBE = Path(SCRIPT_DIR, "input/sample_cube_in.txt")
-INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-INPUT_CUBE = Path(SCRIPT_DIR, "input/cube_in.txt")
-
-class Colours(Enum):
-    """ ANSI escape sequences for coloured console output """
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
+INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
+INPUT_CUBE = Path(SCRIPT_DIR, "input/sample_cube_in.txt")
+# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
+# INPUT_CUBE = Path(SCRIPT_DIR, "input/cube_in.txt")
     
 @dataclass(frozen=True)
 class Point():
@@ -220,13 +210,13 @@ class Map():
             for x, val in enumerate(row):
                 posn = Point(x,y)
                 if posn == self._posn:
-                    line += (Colours.RED.value + Colours.BOLD.value 
-                            + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value)
+                    line += (Fore.RED + Style.BRIGHT 
+                            + DIRECTION_SYMBOLS[self._path[posn]] + Style.RESET_ALL)
                 elif posn == self._start:
-                    line += (Colours.YELLOW.value + Colours.BOLD.value 
-                            + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value)
+                    line += (Fore.YELLOW + Style.BRIGHT 
+                            + DIRECTION_SYMBOLS[self._path[posn]] + Style.RESET_ALL)
                 elif posn in self._path:
-                    line += Colours.CYAN.value + DIRECTION_SYMBOLS[self._path[posn]] + Colours.RESET.value
+                    line += Fore.CYAN + DIRECTION_SYMBOLS[self._path[posn]] + Style.RESET_ALL
                 else:
                     line += val
                     
@@ -328,7 +318,7 @@ def main():
     # Part 1 - 2D map
     the_map = Map(map_data)
     process_instructions(instructions, the_map)
-    # print(the_map)
+    print(the_map)
     print(f"Part 1: score={the_map.score()}")
     
     # Part 2 - Cube
