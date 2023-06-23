@@ -14,6 +14,7 @@ tags:
 - [Simple Use of the Deque as a Stack or Queue](#simple-use-of-the-deque-as-a-stack-or-queue)
 - [Max Length Deques](#max-length-deques)
 - [Circular Lists and Rotation](#circular-lists-and-rotation)
+- [Examples](#examples)
 
 ## Overview
 
@@ -139,3 +140,9 @@ Right:      deque([10, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 Right by 3: deque([7, 8, 9, 10, 1, 2, 3, 4, 5, 6])
 Left by 4:  deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 ```
+
+## Examples
+
+- [BFS flood printing with dqeue - 2022 day 18](/2022/18)
+- [Circular numbers - 2022 day 20](/2022/20)
+- [A deque to rotate through vectors - 2022 Day 23](/2022/23)

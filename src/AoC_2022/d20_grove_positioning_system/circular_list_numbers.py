@@ -5,7 +5,7 @@ Date: 20/12/2022
 Solving https://adventofcode.com/2022/day/20
 
 We have encrypted coordinates we need to decrypt.
-We have a long circular list of numbers.  We need to move each number forward a back. 
+We have a long circular list of numbers.  We need to move each number forward and back. 
 But we must move all the numbers in the original order.
 
 Part 1:

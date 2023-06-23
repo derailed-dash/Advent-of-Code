@@ -5,7 +5,7 @@ Date: 23/12/2022
 Solving https://adventofcode.com/2022/day/23
 
 We have a map of elf positions. Elves marked with #.
-Rounds: elves alternative between considering where to to move, and actually moving.
+Rounds: elves alternate between considering where to to move, and actually moving.
   Round 1a: Consider all 8 adjacent positions.
   - If no elves in those positions, do nothing in this round.
   - Otherwise, propose moving a step in the first valid direction, from a list of directions.
