@@ -72,14 +72,47 @@ stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelna
 stream_handler.setFormatter(stream_fmt)
 logger.addHandler(stream_handler)
 
-def setup_file_logging(a_logger, folder, script_name):
-    # Create directory if it does not exist
-    Path(folder).mkdir(parents=True, exist_ok=True)
-    file_handler = logging.FileHandler(Path(folder, script_name + ".log"), mode='w')
+def retrieve_console_logger(script_name):
+    """ Create and return a new logger, named after the script """
+    a_logger = logging.getLogger(script_name)
+    a_logger.addHandler(stream_handler)
+    return a_logger
+    
+def setup_file_logging(a_logger: logging.Logger, folder):
+    """ Add a FileHandler to the specified logger.
+
+    Args:
+        a_logger (Logger): The existing logger
+        folder (str): Where the log file will be created. Will be created if it doesn't exist
+    """
+    Path(folder).mkdir(parents=True, exist_ok=True)     # Create directory if it does not exist
+    file_handler = logging.FileHandler(Path(folder, a_logger.name + ".log"), mode='w')
     file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(name)s:%(levelname)8s: %(message)s", 
                                 datefmt='%H:%M:%S')
     file_handler.setFormatter(file_fmt)
     a_logger.addHandler(file_handler)
+
+#################################################################
+# Paths and Locations
+#################################################################
+
+@dataclass
+class Locations:
+    """ Dataclass for storing various location properties """
+    script_name: str
+    script_dir: Path
+    sample_input_file: Path
+    input_file: Path
+    output_dir: Path
+    
+def get_locations(script_file):
+    script_name = Path(script_file).stem   # this script file, without .py
+    script_dir = Path(script_file).parent  # the folder where this script lives
+    sample_input_file = Path(script_dir, "input/sample_input.txt")
+    input_file = Path(script_dir, "input/input.txt")
+    output_dir = Path(script_dir, "output")
+    
+    return Locations(script_name, script_dir, sample_input_file, input_file, output_dir)
 
 #################################################################
 # POINTS, VECTORS AND GRIDS

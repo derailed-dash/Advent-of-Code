@@ -10,24 +10,16 @@ Part 2:
 
 """
 import logging
-from pathlib import Path
 import time
 import common.type_defs as td
 
-SCRIPT_NAME = Path(__file__).stem
-SCRIPT_DIR = Path(__file__).parent
-INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
-# INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-OUTPUT_DIR = Path(SCRIPT_DIR, "output")
-# OUTPUT_FILE = Path(OUTPUT_DIR, "output.png")
-
-logger = logging.getLogger(SCRIPT_NAME)
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.DEBUG)
-logger.addHandler(td.stream_handler)
-# td.setup_file_logging(logger, OUTPUT_DIR, SCRIPT_NAME)
+# td.setup_file_logging(logger, locations.output_dir)
 
 def main():
-    with open(INPUT_FILE, mode="rt") as f:
+    with open(locations.sample_input_file, mode="rt") as f:
         data = f.read().splitlines()
         
     logger.debug(data)

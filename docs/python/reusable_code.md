@@ -26,13 +26,9 @@ In the module below, I've included a few useful things:
 
 ```python
 """ 
-A set of reusable classes and attributes used by my AoC solutions 
-Test with tests/test_type_defs.py
+Author: Darren
+Date: March 2023
 
-You could import as follows:
-import common.type_defs as td                               
-"""
-""" 
 A set of reusable classes and attributes used by my AoC solutions 
 Test with tests/test_type_defs.py
 
@@ -46,6 +42,7 @@ from enum import Enum
 import operator
 import logging
 import os
+from pathlib import Path
 from colorama import Fore
 
 #################################################################
@@ -101,7 +98,49 @@ stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelna
                                datefmt='%H:%M:%S')
 stream_handler.setFormatter(stream_fmt)
 logger.addHandler(stream_handler)
+
+def retrieve_console_logger(script_name):
+    """ Create and return a new logger, named after the script """
+    a_logger = logging.getLogger(script_name)
+    a_logger.addHandler(stream_handler)
+    return a_logger
     
+def setup_file_logging(a_logger: logging.Logger, folder):
+    """ Add a FileHandler to the specified logger.
+
+    Args:
+        a_logger (Logger): The existing logger
+        folder (str): Where the log file will be created. Will be created if it doesn't exist
+    """
+    Path(folder).mkdir(parents=True, exist_ok=True)     # Create directory if it does not exist
+    file_handler = logging.FileHandler(Path(folder, a_logger.name + ".log"), mode='w')
+    file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(name)s:%(levelname)8s: %(message)s", 
+                                datefmt='%H:%M:%S')
+    file_handler.setFormatter(file_fmt)
+    a_logger.addHandler(file_handler)
+
+#################################################################
+# Paths and Locations
+#################################################################
+
+@dataclass
+class Locations:
+    """ Dataclass for storing various location properties """
+    script_name: str
+    script_dir: Path
+    sample_input_file: Path
+    input_file: Path
+    output_dir: Path
+    
+def get_locations(script_file):
+    script_name = Path(script_file).stem   # this script file, without .py
+    script_dir = Path(script_file).parent  # the folder where this script lives
+    sample_input_file = Path(script_dir, "input/sample_input.txt")
+    input_file = Path(script_dir, "input/input.txt")
+    output_dir = Path(script_dir, "output")
+    
+    return Locations(script_name, script_dir, sample_input_file, input_file, output_dir)
+
 #################################################################
 # POINTS, VECTORS AND GRIDS
 #################################################################
@@ -125,25 +164,26 @@ class Point:
     def yield_neighbours(self, include_diagonals=True, include_self=False):
         """ Generator to yield neighbouring Points """
         
-        deltas: set
+        deltas: list
         if not include_diagonals:
-            deltas = {vector.value for vector in Vectors if abs(vector.value[0]) != abs(vector.value[1])}
+            deltas = [vector.value for vector in Vectors if abs(vector.value[0]) != abs(vector.value[1])]
         else:
-            deltas = {vector.value for vector in Vectors}
+            deltas = [vector.value for vector in Vectors]
         
         if include_self:
-            deltas.add((0, 0))
+            deltas.append((0, 0))
         
         for delta in deltas:
             yield Point(self.x + delta[0], self.y + delta[1])
 
-    def neighbours(self, include_diagonals=True, include_self=False):
-        """ Return all the neighbours, with specified constraints """
-        return set(self.yield_neighbours(include_diagonals, include_self))
+    def neighbours(self, include_diagonals=True, include_self=False) -> list[Point]:
+        """ Return all the neighbours, with specified constraints.
+        It wraps the generator with a list. """
+        return list(self.yield_neighbours(include_diagonals, include_self))
     
-    def get_specific_neighbours(self, directions: list[Vectors]) -> set[Point]:
+    def get_specific_neighbours(self, directions: list[Vectors]) -> list[Point]:
         """ Get neighbours, given a specific list of allowed locations """
-        return {(self + Point(*vector.value)) for vector in list(directions)}
+        return [(self + Point(*vector.value)) for vector in list(directions)]
     
     @staticmethod
     def manhattan_distance(a_point: Point) -> int:
