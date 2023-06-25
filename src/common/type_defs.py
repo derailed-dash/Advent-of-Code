@@ -15,6 +15,7 @@ from enum import Enum
 import operator
 import logging
 import os
+from pathlib import Path
 from colorama import Fore
 
 #################################################################
@@ -70,7 +71,16 @@ stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelna
                                datefmt='%H:%M:%S')
 stream_handler.setFormatter(stream_fmt)
 logger.addHandler(stream_handler)
-    
+
+def setup_file_logging(a_logger, folder, script_name):
+    # Create directory if it does not exist
+    Path(folder).mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(Path(folder, script_name + ".log"), mode='w')
+    file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(name)s:%(levelname)8s: %(message)s", 
+                                datefmt='%H:%M:%S')
+    file_handler.setFormatter(file_fmt)
+    a_logger.addHandler(file_handler)
+
 #################################################################
 # POINTS, VECTORS AND GRIDS
 #################################################################
@@ -94,25 +104,26 @@ class Point:
     def yield_neighbours(self, include_diagonals=True, include_self=False):
         """ Generator to yield neighbouring Points """
         
-        deltas: set
+        deltas: list
         if not include_diagonals:
-            deltas = {vector.value for vector in Vectors if abs(vector.value[0]) != abs(vector.value[1])}
+            deltas = [vector.value for vector in Vectors if abs(vector.value[0]) != abs(vector.value[1])]
         else:
-            deltas = {vector.value for vector in Vectors}
+            deltas = [vector.value for vector in Vectors]
         
         if include_self:
-            deltas.add((0, 0))
+            deltas.append((0, 0))
         
         for delta in deltas:
             yield Point(self.x + delta[0], self.y + delta[1])
 
-    def neighbours(self, include_diagonals=True, include_self=False):
-        """ Return all the neighbours, with specified constraints """
-        return set(self.yield_neighbours(include_diagonals, include_self))
+    def neighbours(self, include_diagonals=True, include_self=False) -> list[Point]:
+        """ Return all the neighbours, with specified constraints.
+        It wraps the generator with a list. """
+        return list(self.yield_neighbours(include_diagonals, include_self))
     
-    def get_specific_neighbours(self, directions: list[Vectors]) -> set[Point]:
+    def get_specific_neighbours(self, directions: list[Vectors]) -> list[Point]:
         """ Get neighbours, given a specific list of allowed locations """
-        return {(self + Point(*vector.value)) for vector in list(directions)}
+        return [(self + Point(*vector.value)) for vector in list(directions)]
     
     @staticmethod
     def manhattan_distance(a_point: Point) -> int:

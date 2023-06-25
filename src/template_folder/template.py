@@ -18,11 +18,13 @@ SCRIPT_NAME = Path(__file__).stem
 SCRIPT_DIR = Path(__file__).parent
 INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
-OUTPUT_FILE = Path(SCRIPT_DIR, "output/output.png")
+OUTPUT_DIR = Path(SCRIPT_DIR, "output")
+# OUTPUT_FILE = Path(OUTPUT_DIR, "output.png")
 
 logger = logging.getLogger(SCRIPT_NAME)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(td.stream_handler)
+# td.setup_file_logging(logger, OUTPUT_DIR, SCRIPT_NAME)
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:

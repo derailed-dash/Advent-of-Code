@@ -80,7 +80,7 @@ def process_iterations(all_lights: set[Point],
         on_lights.update(fixed_lights)
         
         for light in all_lights:
-            neighbours = light.neighbours()
+            neighbours = set(light.neighbours())
             on_neighbours = neighbours.intersection(on_lights)
             
             if (light in fixed_lights):

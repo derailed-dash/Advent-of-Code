@@ -27,27 +27,23 @@ as this means there is no path from `E` to this `a`.
 """
 from __future__ import annotations
 from collections import deque
-from dataclasses import dataclass
+import logging
 from pathlib import Path
 import time
-
 from matplotlib import pyplot as plt
+import common.type_defs as td
+from common.type_defs import Point
 
+SCRIPT_NAME = Path(__file__).stem
 SCRIPT_DIR = Path(__file__).parent
+OUTPUT_DIR = Path(SCRIPT_DIR, "output")
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
-@dataclass(frozen=True)
-class Point():
-    """ Point class, which knows how to return a list of all adjacent coordinates """    
-    x: int
-    y: int
-    
-    def neighbours(self) -> list[Point]:
-        """ Return all adjacent orthogonal (not diagonal) Points """
-        return [Point(self.x+dx, self.y+dy) for dx in range(-1, 2)
-                                            for dy in range(-1, 2)
-                                            if abs(dy) != abs(dx)]
+logger = logging.getLogger(SCRIPT_NAME)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(td.stream_handler)
+# td.setup_file_logging(logger, OUTPUT_DIR, SCRIPT_NAME)
 
 class Grid():
     """ 2D grid of point values. """
@@ -101,8 +97,8 @@ class Grid():
         We can move L, R, U, D by one unit. But we can only move to locations that
         are no more than one higher than current elevation. """
         current_elevation = self.elevation_at_point(location)
-        
-        for neighbour in location.neighbours():
+
+        for neighbour in location.neighbours(include_diagonals=False):
             if self._point_in_grid(neighbour):
                 if self.elevation_at_point(neighbour) <= current_elevation + 1:
                     yield neighbour
@@ -153,7 +149,7 @@ def main():
     
     # Part 1
     path = grid.create_path(breadcrumbs, grid.start, grid.goal) # from 'S' to 'E'
-    print(f"Part 1: {len(path)}")
+    logger.info("Part 1: %d", len(path))
     
     # Part 2  
     best_path = path
@@ -161,10 +157,11 @@ def main():
         if goal in breadcrumbs:
             path = grid.create_path(breadcrumbs, goal, grid.goal) # from 'a' to 'E'
             if path:
+                logger.debug("%s in breadcrumbs, length=%d", goal, len(path))
                 if len(path) < len(best_path):
                     best_path = path
-
-    print(f"Part 2: {len(best_path)}")
+    
+    logger.info("Part 2: %d", len(best_path))
     render_as_plt(grid, best_path)
     
 def render_as_plt(grid, path):
@@ -189,4 +186,4 @@ if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    print(f"Execution time: {t2 - t1:0.4f} seconds")
+    logger.info("Execution time: %.3f seconds", t2 - t1)
