@@ -1,4 +1,7 @@
 """ 
+Author: Darren
+Date: March 2023
+
 A set of reusable classes and attributes used by my AoC solutions 
 Test with tests/test_type_defs.py
 

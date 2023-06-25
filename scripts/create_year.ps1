@@ -1,6 +1,11 @@
-# Create an "AoC" folder for the specified year, based on the template folder
+# Author: Darren
+# 
+# Utility script to create an "AoC" folder for the specified year, based on the template folder
 # To use the script:
 # .\create_year.ps1 <year>
+#
+# E.g.
+# .\create_year.ps1 2023
 
 param(
     [Parameter(Mandatory=$true, HelpMessage="Enter a year to use as a path suffix")]
