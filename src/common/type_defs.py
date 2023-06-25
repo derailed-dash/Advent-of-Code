@@ -6,13 +6,13 @@ You could import as follows:
 import common.type_defs as td                               
 """
 from __future__ import annotations
+import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
 import operator
 import logging
 import os
-
-from colorama import Fore, Style
+from colorama import Fore
 
 #################################################################
 # SETUP LOGGING
@@ -24,24 +24,46 @@ from colorama import Fore, Style
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class ColoredFormatter(logging.Formatter):
-    """ Automatically wrap standard logging output with colours """ 
-    COLOURS = {"DEBUG": Fore.BLUE,
-               "INFO": Fore.GREEN,
-               "WARNING": Fore.YELLOW,
-               "ERROR": Style.BRIGHT + Fore.RED,
-               "CRITICAL": Style.BRIGHT + Fore.MAGENTA}
+class ColouredFormatter(logging.Formatter):
+    """ Custom Formater which adds colour to output, based on logging level """
+    
+    def __init__(self, *args, apply_colour=True, shorten_lvl=True, **kwargs) -> None:
+        """ Args:
+            apply_colour (bool, optional): Apply colouring to messages. Defaults to True.
+            shorten_lvl (bool, optional): Shorten level names to 3 chars. Defaults to True.
+        """
+        super().__init__(*args, **kwargs)
+        self._apply_colour = apply_colour
+        self._shorten_lvl = shorten_lvl
+        
+    level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
+                  "INFO": (Fore.GREEN, "INF"),
+                  "WARNING": (Fore.YELLOW, "WRN"),
+                  "ERROR": (Fore.RED, "ERR"),
+                  "CRITICAL": (Fore.MAGENTA, "CRT")
+    }
 
-    def format(self, record): 
-        msg = logging.Formatter.format(self, record) 
-        if record.levelname in ColoredFormatter.COLOURS: 
-            msg = ColoredFormatter.COLOURS[record.levelname] + msg + Fore.RESET 
-        return msg
+    def format(self, record):
+        if record.levelname in ColouredFormatter.level_mapping:
+            new_rec = copy.copy(record)
+            colour, new_level = ColouredFormatter.level_mapping[record.levelname]
+            
+            if self._shorten_lvl:
+                new_rec.levelname = new_level
+            
+            if self._apply_colour:
+                msg = colour + super().format(new_rec) + Fore.RESET
+            else:
+                msg = super().format(new_rec)
+            
+            return msg
+        
+        # If our logging message is not using one of these levels...
+        return super().format(record)
 
 # Write to console with threshold of INFO
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
-stream_fmt = ColoredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
                                datefmt='%H:%M:%S')
 stream_handler.setFormatter(stream_fmt)
 logger.addHandler(stream_handler)

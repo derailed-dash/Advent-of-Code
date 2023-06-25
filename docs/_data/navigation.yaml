@@ -74,10 +74,12 @@ pages:
     link: /python/useful_algorithms
   - name: Project Structure
     link: /python/project_structure
-  - name: Reusable Code
-    link: /python/reusable_code
   - name: Using Colours
     link: /python/colours
+  - name: Reusable Code
+    link: /python/reusable_code
+  - name: My AoC Template, Version 2
+    link: /python/my-aoc-template2    
 - name: "2015"
   link: /2015/
   mainnav: True

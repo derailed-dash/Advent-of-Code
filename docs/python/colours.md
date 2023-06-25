@@ -9,6 +9,10 @@ tags:
     link: /python/enumerate
   - name: Colorama (PyPI)
     link: https://pypi.org/project/colorama/
+  - name: Logging
+    link: /python/logging
+  - name: Extending clases
+    link: python/classes#inheritance
 ---
 ## Page Contents
 
@@ -78,54 +82,107 @@ The output looks like this:
 
 ## Logging with Colour
 
-TBD.
+Ealier, I showed you how to use the Python [logging](/python/logging) module, in order to customise the look of logging messages, to send messages to different outputs, and to set logging thresholds. We used this construct to set the formatting style for each message:
 
 ```python
+stream_fmt = logging.Formatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+                               datefmt='%H:%M:%S')
+stream_handler.setFormatter(stream_fmt)
+```
+
+Here, I've extended the Python `Formatter` class, using a custom class that colours that output, based on the logging level.  It's not rocket science.  First, I override the `__init__()` method, so that we can decide if we want the messages to be coloured, and if we want the level name to be shortened.  They both default to `True`.  Then, I override the `format()` method, such that we wrap the record message with the necessary colour codes.
+
+```python
+""" Demonstrate coloured logging with custom Formatter """
+import copy
 import logging
 from pathlib import Path
 from colorama import Fore
 
-colors = {"DEBUG": Fore.BLUE,
-          "INFO": Fore.GREEN,
-          "WARNING": Fore.YELLOW,
-          "ERROR": Fore.RED,
-          "CRITICAL": Fore.MAGENTA} 
-
 class ColouredFormatter(logging.Formatter):
     """ Custom Formater which adds colour to output, based on logging level """
-    def format(self, record): 
-        msg = logging.Formatter.format(self, record) 
-        if record.levelname in colors: 
-            msg = colors[record.levelname] + msg + Fore.RESET 
-        return msg
+    
+    def __init__(self, *args, apply_colour=True, shorten_lvl=True, **kwargs) -> None:
+        """ Args:
+            apply_colour (bool, optional): Apply colouring to messages. Defaults to True.
+            shorten_lvl (bool, optional): Shorten level names to 3 chars. Defaults to True.
+        """
+        super().__init__(*args, **kwargs)
+        self._apply_colour = apply_colour
+        self._shorten_lvl = shorten_lvl
+        
+    level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
+                  "INFO": (Fore.GREEN, "INF"),
+                  "WARNING": (Fore.YELLOW, "WRN"),
+                  "ERROR": (Fore.RED, "ERR"),
+                  "CRITICAL": (Fore.MAGENTA, "CRT")
+    }
 
-SCRIPT_DIR = Path(__file__).parent
-LOG_FILE = Path(SCRIPT_DIR, "my_file.log")
+    def format(self, record):
+        if record.levelname in ColouredFormatter.level_mapping:
+            new_rec = copy.copy(record)
+            colour, new_level = ColouredFormatter.level_mapping[record.levelname]
+            
+            if self._shorten_lvl:
+                new_rec.levelname = new_level
+            
+            if self._apply_colour:
+                msg = colour + super().format(new_rec) + Fore.RESET
+            else:
+                msg = super().format(new_rec)
+            
+            return msg
+        
+        # If our logging message is not using one of these levels...
+        return super().format(record)
 
-# setup
-logger = logging.getLogger("FooBar-App")
-logger.setLevel(logging.DEBUG)
+def test():
+    SCRIPT_DIR = Path(__file__).parent
+    LOG_FILE = Path(SCRIPT_DIR, "my_file.log")
 
-# Write to console with threshold of INFO
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
-stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
-                               datefmt='%H:%M:%S')
-stream_handler.setFormatter(stream_fmt)
-logger.addHandler(stream_handler)
+    # setup
+    logger = logging.getLogger("FooBar-App")
+    logger.setLevel(logging.DEBUG)
 
-file_handler = logging.FileHandler(LOG_FILE, mode='a')
-file_handler.setLevel(logging.DEBUG)
-file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s", 
-                             datefmt='%H:%M:%S')
-file_handler.setFormatter(file_fmt)
-logger.addHandler(file_handler)
+    # Write to console with threshold of INFO
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.DEBUG)
+    stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s: %(message)s', 
+                                datefmt='%H:%M:%S')
+    stream_handler.setFormatter(stream_fmt)
+    logger.addHandler(stream_handler)
 
-my_key = "foo"
-my_val = "bar"
-logger.debug("Testing a debug line")
-logger.info("My key is named %s, and its value is %s", my_key, my_val)
-logger.warning("Warning!")
-logger.error("Testing an error line")
-logger.critical("Ooops!")
+    file_handler = logging.FileHandler(LOG_FILE, mode='a')
+    file_handler.setLevel(logging.DEBUG)
+    file_fmt = logging.Formatter(fmt="%(asctime)s.%(msecs)03d:%(name)s:%(levelname)8s: %(message)s", 
+                                datefmt='%H:%M:%S')
+    file_handler.setFormatter(file_fmt)
+    logger.addHandler(file_handler)
+
+    my_key = "foo"
+    my_val = "bar"
+    logger.debug("Testing a debug line")
+    logger.info("My key is named %s, and its value is %s", my_key, my_val)
+    logger.warning("Warning!")
+    logger.error("Testing an error line")
+    logger.critical("Ooops!")
+
+if __name__ == "__main__":
+    test()
 ```
+
+In the console, the output looks like this:
+
+<img src="{{'/assets/images/coloured_console_ouput.png' | relative_url }}" alt="Coloured console output" width="540px" />
+
+And our file output looks like this:
+
+```text
+08:32:47.521:FooBar-App:   DEBUG: Testing a debug line
+08:32:47.522:FooBar-App:    INFO: My key is named foo, and its value is bar
+08:32:47.522:FooBar-App: WARNING: Warning!
+08:32:47.522:FooBar-App:   ERROR: Testing an error line
+08:32:47.522:FooBar-App:CRITICAL: Ooops!
+```
+
+Note that for the `file_handler`, I've used `%(levelname)8s` to pad the level names to 8 characters.
