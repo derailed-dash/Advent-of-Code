@@ -48,11 +48,11 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def main():
-    with open(locations.sample_input_file, mode="rt") as f:
-    # with open(locations.input_file, mode="rt") as f:
+    # with open(locations.sample_input_file, mode="rt") as f:
+    with open(locations.input_file, mode="rt") as f:
         data = f.read().splitlines()
 
     src_groups, target_groups, medicine_molecule = process_input(data)
@@ -63,7 +63,7 @@ def main():
     logger.info("Part 1: Identified %d unique molecules.", len(unique_new_molecules))
 
     synthesis_stack = retrosynthesis(target_groups, medicine_molecule)
-    synthesis_steps = sum(step[0] for step in synthesis_stack)
+    synthesis_steps = sum(subs for subs, molecule in synthesis_stack)
     logger.debug(synthesis_stack)
     logger.info("Part 2: Synthesis stack requires %d steps.", synthesis_steps)
 
