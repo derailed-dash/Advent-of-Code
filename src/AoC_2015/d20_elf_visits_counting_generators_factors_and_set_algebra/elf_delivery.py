@@ -32,15 +32,17 @@ Part 2:
     Use set difference to remove these from factors returned.
     (Having the exclude list as a set rather than a list is MUCH faster!)
 """
-import os
 import time
 from collections import defaultdict
+import logging
+import common.type_defs as td
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.DEBUG)
 
-TARGET = 36000000
+# TARGET = 36000000
+TARGET = 200
 MAX_HOUSES_PER_ELF = 50
 
 def main():
@@ -52,7 +54,7 @@ def main():
     while presents_dropped < TARGET:
         house, presents_dropped = next(gen)
 
-    print(f"Part 1: House {house} = {presents_dropped}")
+    logger.info("Part 1: House=%d, presents dropped=%d", house, presents_dropped)
     
     # Part 2
     gen = generate_presents_for_house(11, MAX_HOUSES_PER_ELF)
@@ -61,8 +63,7 @@ def main():
     while presents_dropped < TARGET:
         house, presents_dropped = next(gen)
     
-    print(f"Part 2: House {house} = {presents_dropped}")
-
+    logger.info("Part 2: House=%d, presents dropped=%d", house, presents_dropped)
 
 def generate_presents_for_house(per_elf_multiplier: int, elf_visit_limit: int = 0):
     """ 
@@ -93,13 +94,12 @@ def generate_presents_for_house(per_elf_multiplier: int, elf_visit_limit: int = 
 
         presents_dropped = sum(map(lambda x: (x * per_elf_multiplier), factors_for_house))
         
-        # print(f"House {house_num} visited by: {factors_for_house[house_num]}")
-        # print(f"Presents dropped: {presents_dropped}")
-        # print(f"Factors counter: {factors_counter}")
+        logger.debug("House %d visited by: %s", house_num, factors_for_house)
+        logger.debug("Presents dropped: %d", presents_dropped)
+        logger.debug("Factors counter: %s", factors_counter)
         
         yield house_num, presents_dropped
         house_num += 1
-
 
 def get_factors(num: int) -> set[int]:
     """ 
@@ -126,9 +126,8 @@ def get_factors(num: int) -> set[int]:
     
     return factors
 
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    print(f"Execution time: {t2 - t1:0.4f} seconds")
+    logger.info("Execution time: %.3f seconds", t2 - t1)
