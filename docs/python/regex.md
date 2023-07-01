@@ -20,6 +20,7 @@ tags:
 - [Patterns](#patterns)
 - [Matching Patterns in Python](#matching-patterns-in-python)
 - [Naming Groups](#naming-groups)
+- [Iterating through Matches](#iterating-through-matches)
 - [Replacing](#replacing)
 - [More Examples](#more-examples)
   - [Asserting the Match, and Mapping](#asserting-the-match-and-mapping)
@@ -133,6 +134,43 @@ if (match := re.match(name_pattern, test)):
 
 Note how we're prefixing the pattern string with both `r` to make it _raw_, and `f` in order to use f-string interpoloation, i.e. so that we can reference variables like `{first_name_grp}` within the string.
 
+## Iterating through Matches
+
+The `finditer()` function is useful for iterating over **non-overlapping matches** of a regular expression pattern within a given string. Its first parameter is the pattern to search for, and the second is the string to search.  It returns an iterator that produces `match` objects for each match found.
+
+For example:
+
+```python
+import re
+
+text = "Hello, Mycroft! Mycroft is a hunky cat."
+
+pattern = r"Mycroft"
+
+matches = re.finditer(pattern, text)
+
+for match in matches:
+    print("Match found:", match.group())
+    print("Start position:", match.start())
+    print("End position:", match.end())
+    print("Match span:", match.span())
+    print()
+```
+
+Here is the output:
+
+```text
+Match found: Mycroft
+Start position: 7
+End position: 14
+Match span: (7, 14)
+
+Match found: Mycroft
+Start position: 16
+End position: 23
+Match span: (16, 23)
+```
+
 ## Replacing
 
 Use the `sub()` method to replace occurrences of a match with a replacement string.
@@ -231,8 +269,9 @@ And here we use `findall()`, which circumvents the need to first get the `match`
 
 - [Using "search" - 2015 Day 5](/2015/5)
 - [Using "search" and "assert" - 2015 Day 6](/2015/6)
-- [Using "sub" to parse literals - 2015 Day 15](/2015/8)
 - [Using "findall" - 2015 Day 9](/2015/9)
+- [Using "sub" to parse literals - 2015 Day 8](/2015/8)
+- [Using "finditer" to create an iterator of all matches - 2015 Day 19](/2015/19)
 - [Using "sub" - 2021 Day 18](/2021/18)
 - [Using "search" and "if"](/2022/5)
 - [Using "findall" and "int"](/2022/11)

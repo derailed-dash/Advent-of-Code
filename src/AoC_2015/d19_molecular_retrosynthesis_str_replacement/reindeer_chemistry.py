@@ -40,34 +40,32 @@ Part 2:
 
     Once no more updates are possible, perform substition to get back to e.
 """
-import os
 import time
 import re
+import logging
 from collections import defaultdict
+import common.type_defs as td
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.DEBUG)
 
 def main():
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    with open(locations.sample_input_file, mode="rt") as f:
+    # with open(locations.input_file, mode="rt") as f:
         data = f.read().splitlines()
 
     src_groups, target_groups, medicine_molecule = process_input(data)
 
     new_molecules = substitute_groups(src_groups, medicine_molecule)
-
     unique_new_molecules = set(new_molecules)
-    # print(unique_new_molecules)
-    print(f"Part 1: Identified {len(unique_new_molecules)} unique molecules.")
+    logger.debug("Unique molecules: %s", unique_new_molecules)
+    logger.info("Part 1: Identified %d unique molecules.", len(unique_new_molecules))
 
     synthesis_stack = retrosynthesis(target_groups, medicine_molecule)
     synthesis_steps = sum(step[0] for step in synthesis_stack)
-    print(f"Part 2: Synthesis stack requires {synthesis_steps} steps.")
-    # print(synthesis_stack)
-
+    logger.debug(synthesis_stack)
+    logger.info("Part 2: Synthesis stack requires %d steps.", synthesis_steps)
 
 def retrosynthesis(target_groups: dict, target_molecule: str) -> list:
     synthesis_stack = []
@@ -107,7 +105,6 @@ def retrosynthesis(target_groups: dict, target_molecule: str) -> list:
 
     return synthesis_stack
 
-
 def substitute_groups(groups: dict, molecule: str) -> list:
     new_molecules = []
 
@@ -128,7 +125,6 @@ def substitute_groups(groups: dict, molecule: str) -> list:
     
     return new_molecules
 
-
 def process_input(data: list) -> tuple[dict, dict, str]:
     subst_match = re.compile(r"^(\w+) => (\w+)")
     
@@ -140,15 +136,16 @@ def process_input(data: list) -> tuple[dict, dict, str]:
 
     for line in data:
         if "=>" in line:
-            group, target_group = subst_match.match(line).groups()
+            group, target_group = subst_match.findall(line)[0]
             src_groups[group] += [target_group]
             target_groups[target_group] = group
 
+    logger.debug("Src groups:\n%s", src_groups)
+    logger.debug("Target groups:\n%s", target_groups)
     return src_groups, target_groups, data[-1]
-
 
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    print(f"Execution time: {t2 - t1:0.4f} seconds")
+    logger.info("Execution time: %.3f seconds", t2 - t1)

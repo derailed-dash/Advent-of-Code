@@ -20,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 
 def main():
     with open(locations.sample_input_file, mode="rt") as f:
+    # with open(locations.input_file, mode="rt") as f:        
         data = f.read().splitlines()
         
     logger.debug(data)
