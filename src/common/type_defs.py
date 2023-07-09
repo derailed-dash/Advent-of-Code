@@ -12,6 +12,7 @@ from __future__ import annotations
 import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
+from functools import lru_cache
 import operator
 import logging
 import os
@@ -315,3 +316,18 @@ def merge_intervals(intervals: list[list]) -> list[list]:
             stack.append(interval)
       
     return stack
+
+@lru_cache(maxsize=None)
+def get_factors(num: int) -> set[int]:
+    """ Gets the factors for a given number. Returns a set[int] of factors. 
+        # E.g. when num=8, factors will be 1, 2, 4, 8 """
+    factors = set()
+
+    # Iterate from 1 to sqrt of 8,  
+    # since a larger factor of num must be a multiple of a smaller factor already checked
+    for i in range(1, int(num**0.5) + 1):  # e.g. with num=8, this is range(1, 3)
+        if num % i == 0: # if it is a factor, then dividing num by it will yield no remainder
+            factors.add(i)  # e.g. 1, 2
+            factors.add(num//i)  # i.e. 8//1 = 8, 8//2 = 4
+    
+    return factors

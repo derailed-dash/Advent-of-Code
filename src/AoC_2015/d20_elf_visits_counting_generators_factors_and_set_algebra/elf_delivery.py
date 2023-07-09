@@ -39,81 +39,62 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
-# TARGET = 36000000
-TARGET = 200
+TARGET = 36000000
 MAX_HOUSES_PER_ELF = 50
+
+# TARGET = 200
+# MAX_HOUSES_PER_ELF = 5
 
 def main():
 
     # Part 1
-    gen = generate_presents_for_house(10)
-    presents_dropped = 0
-    house = 0
+    presents_dropped, house_num = 0, 0
     while presents_dropped < TARGET:
-        house, presents_dropped = next(gen)
+        house_num += 1
+        presents_dropped = sum(factor * 10 for factor in td.get_factors(house_num))   
 
-    logger.info("Part 1: House=%d, presents dropped=%d", house, presents_dropped)
+    logger.info("Part 1: House=%d, presents dropped=%d", house_num, presents_dropped)
     
     # Part 2
     gen = generate_presents_for_house(11, MAX_HOUSES_PER_ELF)
-    presents_dropped = 0
-    house = 0
+    presents_dropped, house_num = 0, 0
     while presents_dropped < TARGET:
-        house, presents_dropped = next(gen)
+        house_num, presents_dropped = next(gen)
     
-    logger.info("Part 2: House=%d, presents dropped=%d", house, presents_dropped)
+    logger.info("Part 2: House=%d, presents dropped=%d", house_num, presents_dropped)
 
 def generate_presents_for_house(per_elf_multiplier: int, elf_visit_limit: int = 0):
-    """ 
-    Generator function that returns the number of presents dropped at a given house.
-    Each elf drops a certain number of presents at each house
-
-    Args:
-        per_elf_multiplier (int): Elves drop e*q presents per house, where e is elf number and q is the multiplier
+    """ Generator function that returns the number of presents dropped at a given house.
 
     Yields:
         [tuple]: Current house number, total presents dropped at this house
     """
-    house_num = 1
-    factors_for_house = set()
-    factors_counter = defaultdict(int)
-    factors_to_exclude = set()
+    house_num = 0
+    elf_visits = defaultdict(int)
 
-    while True:
-        factors_for_house = get_factors(house_num)
-        factors_for_house.difference_update(factors_to_exclude)
-
-        for factor in factors_for_house:
-            factors_counter[factor] += 1
-
-            # if an elf has reached the limit, it won't do any more drops
-            if elf_visit_limit and factors_counter[factor] >= elf_visit_limit:
-                factors_to_exclude.add(factor)
-
-        presents_dropped = sum(map(lambda x: (x * per_elf_multiplier), factors_for_house))
+    while True: # iterate for each house, yielding each time
+        house_num += 1
+        presents_dropped = 0
+        factors_for_house = td.get_factors(house_num)
         
-        logger.debug("House %d visited by: %s", house_num, factors_for_house)
-        logger.debug("Presents dropped: %d", presents_dropped)
-        logger.debug("Factors counter: %s", factors_counter)
+        # iterate through all the factors for this house
+        for factor in factors_for_house:
+            if elf_visit_limit and elf_visits[factor] >= elf_visit_limit:
+                pass
+            else:
+                elf_visits[factor] += 1
+                presents_dropped += factor * per_elf_multiplier
+      
+        if logger.isEnabledFor(logging.DEBUG): # avoid expensive sorting
+            logger.debug("House %d visited by: %s", house_num, sorted(factors_for_house))
+            logger.debug("Presents dropped: %d", presents_dropped)
+        
+            # convert defaultdict to dict so we don't print out the default factory information
+            logger.debug("Factors counter: %s", dict(elf_visits)) 
         
         yield house_num, presents_dropped
-        house_num += 1
-
-def get_factors(num: int) -> set[int]:
-    """ Gets the factors for a given number. Returns a set[int] of factors. 
-        # E.g. when num=8, factors will be 1, 2, 4, 8 """
-    factors = set()
-
-    # Iterate from 1 to sqrt of 8,  
-    # since a larger factor of num must be a multiple of a smaller factor already checked
-    for i in range(1, int(num**0.5) + 1):  # e.g. with num=8, this is range(1, 3)
-        if num % i == 0: # if it is a factor, then dividing num by it will yield no remainder
-            factors.add(i)  # e.g. 1, 2
-            factors.add(num//i)  # i.e. 8//1 = 8, 8//2 = 4
-    
-    return factors
 
 if __name__ == "__main__":
     t1 = time.perf_counter()

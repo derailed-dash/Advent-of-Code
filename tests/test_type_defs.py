@@ -6,7 +6,8 @@ from common.type_defs import (
     Vectors, 
     VectorDicts, 
     binary_search, 
-    merge_intervals
+    merge_intervals,
+    get_factors
 )
 
 class TestTypes(unittest.TestCase):
@@ -115,6 +116,10 @@ class TestTypes(unittest.TestCase):
         expected = [[1, 7], [8, 15], [18, 20]]
         
         self.assertEqual(merge_intervals(pairs), expected)
+        
+    def test_get_factors(self):
+        expected = {1, 2, 4, 8}
+        self.assertEqual(get_factors(8), expected)
           
 if __name__ == "__main__":
     unittest.main(verbosity=2)
