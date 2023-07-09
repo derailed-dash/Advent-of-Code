@@ -37,13 +37,13 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
-# TARGET = 36000000
-# MAX_HOUSES_PER_ELF = 50
+TARGET = 36000000
+MAX_HOUSES_PER_ELF = 50
 
-TARGET = 200
-MAX_HOUSES_PER_ELF = 5
+# TARGET = 200
+# MAX_HOUSES_PER_ELF = 5
 
 def main():
 
