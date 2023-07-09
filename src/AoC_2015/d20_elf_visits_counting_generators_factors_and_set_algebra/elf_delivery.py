@@ -28,9 +28,7 @@ Part 1:
 Part 2:
     Elves now have a limit on the number of houses they visit. (50.)
     So, we need to count the occurences of each factor (i.e. each elf visit).
-    When each elf reaches its limit of visits, add them to an exclude list.
-    Use set difference to remove these from factors returned.
-    (Having the exclude list as a set rather than a list is MUCH faster!)
+    When each elf reaches its limit of visits, exclude this elf.
 """
 import time
 from collections import defaultdict
@@ -39,13 +37,13 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
-TARGET = 36000000
-MAX_HOUSES_PER_ELF = 50
+# TARGET = 36000000
+# MAX_HOUSES_PER_ELF = 50
 
-# TARGET = 200
-# MAX_HOUSES_PER_ELF = 5
+TARGET = 200
+MAX_HOUSES_PER_ELF = 5
 
 def main():
 
