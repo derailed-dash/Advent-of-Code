@@ -11,7 +11,7 @@ Elf e visits houses eh. E.g.
     elf 2 visits    2     4     6     8    ...
     elf 3 visits       3        6        9 ...
 
-At each house h, elf e delivers 10x presents.  Thus:
+At each house h, elf e delivers 10e presents.  Thus:
 house 1 gets 10, house 2 gets 30, house 3 gets 40...
 
 Solution:
@@ -102,27 +102,16 @@ def generate_presents_for_house(per_elf_multiplier: int, elf_visit_limit: int = 
         house_num += 1
 
 def get_factors(num: int) -> set[int]:
-    """ 
-    Gets the factors for a given house number.
-    Here, this determines the elves that visit each house.
-
-    Args:
-        num (int): the house number we want to get factors for
-
-    Returns:
-        set[int]: The set of factors (which represent elf numbers)
-    """
+    """ Gets the factors for a given number. Returns a set[int] of factors. 
+        # E.g. when num=8, factors will be 1, 2, 4, 8 """
     factors = set()
 
-    # E.g. factors of 8 = 1, 2, 4, 8
-    # Iterate from 1 to sqrt of 8, where %=0, i.e. 1 and 2
-    # E.g. for i=1, we add factors 1 and 8
-    #      for i=2, we add factors 2 and 4
-    # Use a set to eliminate duplicates, e.g. if i is 4, we only want one 2
-    for i in range(1, (int(num**0.5) + 1)):
-        if num%i == 0:
-            factors.add(i)
-            factors.add(num//i)
+    # Iterate from 1 to sqrt of 8,  
+    # since a larger factor of num must be a multiple of a smaller factor already checked
+    for i in range(1, int(num**0.5) + 1):  # e.g. with num=8, this is range(1, 3)
+        if num % i == 0: # if it is a factor, then dividing num by it will yield no remainder
+            factors.add(i)  # e.g. 1, 2
+            factors.add(num//i)  # i.e. 8//1 = 8, 8//2 = 4
     
     return factors
 

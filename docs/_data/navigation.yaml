@@ -140,7 +140,10 @@ pages:
     problem: "Like a GIF For Your Yard"
   - name: 19
     link: /2015/19
-    problem: "Medicine for Rudolph"    
+    problem: "Medicine for Rudolph"
+  - name: 20
+    link: /2015/20
+    problem: "Infinite Elves and Infinite Houses"        
 - name: "2021"
   link: /2021/
   mainnav: True
