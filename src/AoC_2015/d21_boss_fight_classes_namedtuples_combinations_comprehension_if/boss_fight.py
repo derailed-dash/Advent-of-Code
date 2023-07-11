@@ -6,7 +6,7 @@ Solving https://adventofcode.com/2015/day/21
 
 Alternating turns for player vs boss.
 Loser is first for hit points to reach 0.
-Hit points lost = attacker damange - defender armor
+Hit points lost = attacker damage - defender armor
 (A minimum of 1 hit point lost in any attack.)
 
 Solution:
