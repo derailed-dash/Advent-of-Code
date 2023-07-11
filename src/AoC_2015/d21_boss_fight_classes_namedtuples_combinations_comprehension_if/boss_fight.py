@@ -23,17 +23,22 @@ Part 2:
 
 """
 from __future__ import annotations
+import logging
 import itertools
-import os
 import time
 import re
+from os import path
 from collections import namedtuple
 from itertools import combinations
-from src.AoC_2015.d21_boss_fight_classes_namedtuples_combinations_comprehension_if.player import Player
+from player import Player
+import common.type_defs as td
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-BOSS_FILE = "input/boss_stats.txt"
-SHOP_FILE = "input/shop.txt"
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.INFO)
+
+BOSS_FILE = "boss_stats.txt"
+SHOP_FILE = "shop.txt"
 
 Item = namedtuple("Item", "name cost damage armor")
 
@@ -140,9 +145,9 @@ class Outfit:
         return f"Outfit: {self._item_names}, cost: {self._cost}, damage: {self._damage}, armor: {self._armor}"
     
 
-def main():
-    boss_file = os.path.join(SCRIPT_DIR, BOSS_FILE)
-    shop_file = os.path.join(SCRIPT_DIR, SHOP_FILE)
+def main():    
+    boss_file = path.join(locations.input_dir, BOSS_FILE)
+    shop_file = path.join(locations.input_dir, SHOP_FILE)
     
     # boss stats are determined by an input file
     with open(boss_file, mode="rt") as f:
@@ -187,9 +192,8 @@ def main():
     # else:
     #     print("We lost")
 
-
 def process_shop_items(data) -> tuple[dict, dict, dict]:
-    """Process shop items and return tuple of weapons, armor and rings.
+    """ Process shop items and return tuple of weapons, armor and rings.
     The returned dicts are keyed by the item name, mapped to a value of NamedTuple for item, cost, damage and armor
 
     Args:
@@ -248,7 +252,6 @@ def process_boss_input(data:list[str]):
         boss[key] = int(val)
 
     return boss['Hit Points'], boss['Damage'], boss['Armor']
-
 
 def play_game(player: Player, boss: Player) -> bool:
     """Performs a game, given two players. Determines if player1 wins, vs bloss.

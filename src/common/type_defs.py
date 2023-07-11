@@ -42,10 +42,10 @@ class ColouredFormatter(logging.Formatter):
         self._shorten_lvl = shorten_lvl
         
     level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
-                  "INFO": (Fore.GREEN, "INF"),
-                  "WARNING": (Fore.YELLOW, "WRN"),
-                  "ERROR": (Fore.RED, "ERR"),
-                  "CRITICAL": (Fore.MAGENTA, "CRT")
+                     "INFO": (Fore.GREEN, "INF"),
+                     "WARNING": (Fore.YELLOW, "WRN"),
+                     "ERROR": (Fore.RED, "ERR"),
+                     "CRITICAL": (Fore.MAGENTA, "CRT")
     }
 
     def format(self, record):
@@ -102,18 +102,20 @@ class Locations:
     """ Dataclass for storing various location properties """
     script_name: str
     script_dir: Path
+    input_dir: Path
+    output_dir: Path
     sample_input_file: Path
     input_file: Path
-    output_dir: Path
     
 def get_locations(script_file):
     script_name = Path(script_file).stem   # this script file, without .py
     script_dir = Path(script_file).parent  # the folder where this script lives
-    sample_input_file = Path(script_dir, "input/sample_input.txt")
-    input_file = Path(script_dir, "input/input.txt")
+    input_dir = Path(script_dir, "input")
     output_dir = Path(script_dir, "output")
+    input_file = Path(input_dir, "input.txt")
+    sample_input_file = Path(script_dir, "input/sample_input.txt")
     
-    return Locations(script_name, script_dir, sample_input_file, input_file, output_dir)
+    return Locations(script_name, script_dir, input_dir, output_dir, sample_input_file, input_file)
 
 #################################################################
 # POINTS, VECTORS AND GRIDS

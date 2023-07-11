@@ -1,5 +1,5 @@
 """Player Class"""
-from __future__ import absolute_import, annotations
+from __future__ import annotations
 from math import ceil
 
 class Player:

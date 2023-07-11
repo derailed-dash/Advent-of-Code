@@ -1,5 +1,6 @@
 """ Testing the type_defs module """
 import unittest
+from os import path
 from common.type_defs import (
     Point, 
     Grid, 
@@ -7,7 +8,8 @@ from common.type_defs import (
     VectorDicts, 
     binary_search, 
     merge_intervals,
-    get_factors
+    get_factors,
+    get_locations
 )
 
 class TestTypes(unittest.TestCase):
@@ -30,6 +32,16 @@ class TestTypes(unittest.TestCase):
         
         self.a_point_neighbours = self.a_point.neighbours()   
     
+    def test_locations(self):
+        locations = get_locations(__file__)
+        
+        # use normcase to un-escape and ignore case differences in the paths
+        script_directory = path.normcase(path.dirname(path.realpath(__file__)))
+        self.assertEqual(path.normcase(locations.script_dir), script_directory)
+        
+        this_script = path.splitext(path.basename(__file__))[0]
+        self.assertEqual(locations.script_name, this_script)        
+
     def test_vectors(self):
         self.assertEqual(Vectors.N.value, (0, 1))
         self.assertEqual(Vectors.NW.value, (-1, 1))
