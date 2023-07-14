@@ -143,7 +143,10 @@ pages:
     problem: "Medicine for Rudolph"
   - name: 20
     link: /2015/20
-    problem: "Infinite Elves and Infinite Houses"        
+    problem: "Infinite Elves and Infinite Houses"
+  - name: 21
+    link: /2015/21
+    problem: "RPG Simulator 20XX"      
 - name: "2021"
   link: /2021/
   mainnav: True
