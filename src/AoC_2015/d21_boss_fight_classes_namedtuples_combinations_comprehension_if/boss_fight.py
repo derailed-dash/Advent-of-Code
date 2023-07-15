@@ -52,47 +52,46 @@ class Shop:
     """Represents all the items that can be bought in the shop """
 
     def __init__(self, weapons: dict, armor: dict, rings: dict):
-        """ Creates our Shop. 
-        Stores all_items as a dict to map the item name to the properties.
-        The computes all valid combinations of items, as 'outfits'
+        """ Stores all_items as a dict to map the item name to the properties.
+        Then computes all valid combinations of items, as 'outfits'
         """
         self._all_items = weapons | armor | rings # merge dictionaries
         
-        self._weapons = weapons
-        self._armor = armor
-        self._rings = rings
+        self._weapons = weapons # {'Dagger': Item(name='Dagger', cost=8, damage=4, armor=0)}
+        self._armor = armor     # {'Leather': Item(name='Leather', cost=13, damage=0, armor=1)}
+        self._rings = rings     # {'Damage +1': }
         
-        self._outfits = []
-        self.create_outfits()
+        self._outfits = self._create_outfits()
 
-    def create_outfits(self):
-        """Computes all valid outfits, given the items available in the shop.
-
-        Rules:
+    def _create_outfits(self):
+        """ Computes all valid outfits, given the items available in the shop. Rules:
             - All outfits have one and only one weapon
             - Outfits can have zero or one armor
             - Outfits can have zero, one or two rings.  (But each ring can only be used once.)
         """
-        weapon_options = [weapon for weapon in self._weapons]
-        armor_options = [None] + [armor for armor in self._armor]
+        outfits = []        
+        weapon_options = list(self._weapons) # Get a list of the weapon names
+        armor_options = [None] + list(self._armor) # Get a list of the armor names
 
         # build up the ring options.  Start by adding zero or one ring options.
-        ring_options = [[None]] + [[ring] for ring in self._rings]
+        # E.g. [[None], [Damage +1], [Damage +2]...]
+        ring_options = [[None]] + [[ring] for ring in self._rings] 
         # And now add combinations (without duplicates) if using two rings
         for combo in combinations(self._rings, 2):
-            ring_options.append([combo[0], combo[1]])
+            ring_options.append([combo[0], combo[1]]) # Append, e.g. ['Damage +1', 'Damage +2']
 
-        # smash our valid options together, and then perform cartesian product
+        # Now we have 5 weapons, 5 armors, and 22 different ring combos
+        # smash our valid options together to get a list with three items
+        # Then perform cartesian product to get all ways of combining these three lists (= 550 combos)
         all_items = [weapon_options, armor_options, ring_options]
         all_outfits_combos: list[tuple] = list(itertools.product(*all_items))
 
         # Our product is a tuple with always three items, which looks like (weapon, armor, [rings])
         # Where [rings] can have [None], one or two rings.  
-        # We need to expand this list, by turning each item into a list and then adding the lists, 
-        # so that we end up with... [weapon, armor, ring1...]
-        for outfit_combo in all_outfits_combos:
+        # We need to expand flatten this list, into... [weapon, armor, ring1...]
+        for weapon, armor, rings in all_outfits_combos: # e.g. ('Dagger', 'Leather', [None])
             outfit_item_names = []
-            outfit_item_names = [outfit_combo[0]] + [outfit_combo[1]] + [rings for rings in outfit_combo[2]]
+            outfit_item_names = [weapon] + [armor] + [ring for ring in rings]
 
             # now use the item name to retrieve the actual items for this outfit
             items = []
@@ -103,7 +102,10 @@ class Shop:
 
             # And build an Outfit object, passing in the item names (for identification) and the items themselves
             outfit = Outfit(outfit_item_names, items)
-            self._outfits.append(outfit)
+            outfits.append(outfit)
+
+        
+        return outfits
 
     def get_outfits(self) -> list[Outfit]:
         """ Get the valid outfits (loadouts) that can be assembled from shop items
@@ -184,12 +186,12 @@ def main():
     priciest_losing_loadout = max(losing_loadouts, key=lambda x: x[0])
     print(f"Priciest losing loadout = {priciest_losing_loadout}")
 
-    # If we want to play a game and see each attack...  
-    # player_wins = play_game(player, boss)
-    # if player_wins:
-    #     print("We won!")
-    # else:
-    #     print("We lost")
+def test_game(player, boss):
+    player_wins = play_game(player, boss)
+    if player_wins:
+        print("We won!")
+    else:
+        print("We lost")
 
 def process_shop_items(data) -> tuple[dict, dict, dict]:
     """ Process shop items and return tuple of weapons, armor and rings.
