@@ -55,11 +55,11 @@ class Shop:
         """ Stores all_items as a dict to map the item name to the properties.
         Then computes all valid combinations of items, as 'loadouts'
         """
-        self._all_items = weapons | armor | rings # merge dictionaries
-        
         self._weapons = weapons # {'Dagger': Item(name='Dagger', cost=8, damage=4, armor=0)}
         self._armor = armor     # {'Leather': Item(name='Leather', cost=13, damage=0, armor=1)}
         self._rings = rings     # {'Damage +1': }
+        
+        self._all_items = weapons | armor | rings # merge dictionaries
         
         self._loadouts = self._create_loadouts()
 
@@ -70,8 +70,8 @@ class Shop:
             - Loadouts can have zero, one or two rings.  (But each ring can only be used once.)
         """
         loadouts = []        
-        weapon_options = list(self._weapons) # Get a list of the weapon names
-        armor_options = [None] + list(self._armor) # Get a list of the armor names
+        weapon_options = list(self._weapons) # Get a list of the 5 weapon names
+        armor_options = [None] + list(self._armor) # Get a list of the 6 allowed armor options
 
         # build up the ring options.  Start by adding zero or one ring options.
         # E.g. [[None], [Damage +1], [Damage +2]...]
@@ -80,20 +80,21 @@ class Shop:
         for combo in combinations(self._rings, 2):
             ring_options.append([combo[0], combo[1]]) # Append, e.g. ['Damage +1', 'Damage +2']
 
-        # Now we have 5 weapons, 5 armors, and 22 different ring combos
+        # Now we have 5 weapons, 6 armors, and 22 different ring combos
         # smash our valid options together to get a list with three items
-        # Then perform cartesian product to get all ways of combining these three lists (= 550 combos)
+        # Then perform cartesian product to get all ways of combining these three lists (= 660 combos)
         all_items = [weapon_options, armor_options, ring_options]
         all_loadouts_combos: list[tuple] = list(itertools.product(*all_items))
 
         # Our product is a tuple with always three items, which looks like (weapon, armor, [rings])
         # Where [rings] can have [None], one or two rings.  
-        # We need to expand flatten this list, into... [weapon, armor, ring1...]
-        for weapon, armor, rings in all_loadouts_combos: # e.g. ('Dagger', 'Leather', [None])
-            loadout_item_names = []
-            loadout_item_names = [weapon] + [armor] + [ring for ring in rings]
-
-            # now use the item name to retrieve the actual items for this loadout
+        # We need to flatten this list, into... [weapon, armor, ring1...]
+        for weapon, armor, rings in all_loadouts_combos: 
+            # e.g. 'Dagger', 'Leather', ['Damage +1', 'Damage +2']
+            # Flatten to ['Dagger', 'Leather', 'Damage +1', 'Damage +2']
+            loadout_item_names = [weapon] + [armor] + list(rings)
+            
+            # now use the item name to retrieve the actual Items for this loadout
             items = []
             for item_name in loadout_item_names:
                 if item_name is not None:
