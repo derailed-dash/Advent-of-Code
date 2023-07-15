@@ -16,6 +16,8 @@ house 1 gets 10, house 2 gets 30, house 3 gets 40...
 
 Solution:
     My approach seems inefficient.  It takes ~30s for both parts.
+    I'm using a cache with my get_factors() function,
+    since the 2nd part calcualtes mostly calculates the same factors.
 
 Part 1:
     E.g. for house 6, we must determine all factors of 6.  Why?

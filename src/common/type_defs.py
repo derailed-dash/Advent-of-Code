@@ -12,7 +12,7 @@ from __future__ import annotations
 import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
-from functools import lru_cache
+from functools import cache, lru_cache
 import operator
 import logging
 import os
@@ -265,7 +265,7 @@ class Grid():
         return ["".join(str(char) for char in col) for col in cols_list]
 
     def __repr__(self) -> str:
-        return f"Grid(score={self.width}*{self.height})"
+        return f"Grid(size={self.width}*{self.height})"
     
     def __str__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
@@ -319,7 +319,7 @@ def merge_intervals(intervals: list[list]) -> list[list]:
       
     return stack
 
-@lru_cache(maxsize=None)
+@cache
 def get_factors(num: int) -> set[int]:
     """ Gets the factors for a given number. Returns a set[int] of factors. 
         # E.g. when num=8, factors will be 1, 2, 4, 8 """

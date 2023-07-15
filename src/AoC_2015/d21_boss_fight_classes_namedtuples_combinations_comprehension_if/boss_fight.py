@@ -23,12 +23,12 @@ Part 2:
 
 """
 from __future__ import annotations
+from dataclasses import dataclass
 import logging
 import itertools
 import time
 import re
 from os import path
-from collections import namedtuple
 from itertools import combinations
 from player import Player
 import common.type_defs as td
@@ -40,23 +40,23 @@ logger.setLevel(logging.INFO)
 BOSS_FILE = "boss_stats.txt"
 SHOP_FILE = "shop.txt"
 
-Item = namedtuple("Item", "name cost damage armor")
+@dataclass(frozen=True)
+class Item:
+    """ Immutable class for the properties of shop items """
+    name: str
+    cost: int
+    damage: int
+    armor: int
 
 class Shop:
     """Represents all the items that can be bought in the shop """
 
     def __init__(self, weapons: dict, armor: dict, rings: dict):
-        """ Constructor for the shop.
-
-        Stores all_items as a dict to map the item name to the properties
+        """ Creates our Shop. 
+        Stores all_items as a dict to map the item name to the properties.
         The computes all valid combinations of items, as 'outfits'
-
-        Args:
-            weapons (dict): Weapons, as namedtuple
-            armor (dict): Armor, as namedtuple
-            rings (dict): Rings, as namedtuple
         """
-        self._all_items = weapons | armor | rings
+        self._all_items = weapons | armor | rings # merge dictionaries
         
         self._weapons = weapons
         self._armor = armor
@@ -144,7 +144,6 @@ class Outfit:
     def __repr__(self):
         return f"Outfit: {self._item_names}, cost: {self._cost}, damage: {self._damage}, armor: {self._armor}"
     
-
 def main():    
     boss_file = path.join(locations.input_dir, BOSS_FILE)
     shop_file = path.join(locations.input_dir, SHOP_FILE)
@@ -194,13 +193,14 @@ def main():
 
 def process_shop_items(data) -> tuple[dict, dict, dict]:
     """ Process shop items and return tuple of weapons, armor and rings.
-    The returned dicts are keyed by the item name, mapped to a value of NamedTuple for item, cost, damage and armor
+    Each tuple member is a dict, mapping a shop item to its properties (name, cost, damage, armor).
 
     Args:
         data (List[str]): Lines from the shop file
 
     Returns:
-        Tuple[dict, dict, dict]: Dictionaries of weapons, armor and rings
+        Tuple[dict, dict, dict]: Dictionaries of weapons, armor and rings. 
+                                 Each dict is a mapping of item name to an Item object.
     """
     # e.g. "Damage +1    25     1       0"
     item_match = re.compile(r"^(.*)\s{2,}(\d+).+(\d+).+(\d+)")
@@ -213,20 +213,16 @@ def process_shop_items(data) -> tuple[dict, dict, dict]:
     for line in data:
         if "Weapons:" in line:
             block = "weapons"
-            continue
         elif "Armor:" in line:
             block = "armor"
-            continue
         elif "Rings:" in line:
             block = "rings"
-        else:
+        else: # we're processing items listed in the current block type
             match = item_match.match(line)
             if match:
                 item_name, cost, damage_score, armor_score = match.groups()
                 item_name = item_name.strip()
-                cost = int(cost)
-                damage_score = int(damage_score)
-                armor_score = int (armor_score)
+                cost, damage_score, armor_score = int(cost), int(damage_score), int(armor_score)
                 if block == "weapons":
                     weapons[item_name] = Item(item_name, cost, damage_score, armor_score)
                 elif block == "armor":
@@ -235,7 +231,6 @@ def process_shop_items(data) -> tuple[dict, dict, dict]:
                     rings[item_name] = Item(item_name, cost, damage_score, armor_score)
 
     return weapons, armor, rings
-
 
 def process_boss_input(data:list[str]):
     """ Process boss file input and return tuple of hit_points, damage and armor
@@ -254,7 +249,7 @@ def process_boss_input(data:list[str]):
     return boss['Hit Points'], boss['Damage'], boss['Armor']
 
 def play_game(player: Player, boss: Player) -> bool:
-    """Performs a game, given two players. Determines if player1 wins, vs bloss.
+    """Performs a game, given two players. Determines if player1 wins, vs boss.
 
     Args:
         player (Player): The player
@@ -267,9 +262,9 @@ def play_game(player: Player, boss: Player) -> bool:
     i = 1
     current_player = player
     other_player = boss
-    while (player.get_hit_points() > 0 and boss.get_hit_points() > 0):
+    while (player.hit_points > 0 and boss.hit_points > 0):
         current_player.attack(other_player)
-        print(f"{current_player.get_name()} round {i}")
+        print(f"{current_player.name} round {i}")
         print(other_player)
         if current_player == boss:
             i += 1

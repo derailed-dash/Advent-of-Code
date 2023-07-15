@@ -17,53 +17,44 @@ class Player:
         self._damage = damage
         self._armor = armor
 
-    def get_name(self) -> str:
+    @property
+    def name(self) -> str:
         return self._name
 
-    def get_hit_points(self) -> int:
+    @property
+    def hit_points(self) -> int:
         return self._hit_points
 
-    def get_armor(self) -> int:
+    @property
+    def armor(self) -> int:
         return self._armor
 
     def take_hit(self, loss: int):
+        """ Remove this hit from the current hit points """
         self._hit_points -= loss
 
     def is_alive(self) -> bool:
         return self._hit_points > 0
 
-    def get_attack_damage(self, other_player: Player) -> int:
+    def _damage_inflicted_on_opponent(self, other_player: Player) -> int:
         """Damage inflicted in an attack.  Given by this player's damage minus other player's armor.
-
-        Args:
-            other_player (Player): The defender
-
-        Returns:
-            int: The damage inflicted per attack
-        """
-        return max(self._damage - other_player.get_armor(), 1)
+        Returns: damage inflicted per attack """
+        return max(self._damage - other_player.armor, 1)
 
     def get_attacks_needed(self, other_player: Player) -> int:
-        """The number of conventional attacks needed for this player to defeat the other player.
-
-        Args:
-            other_player (Player): The other player
-
-        Returns:
-            int: The number of rounds needed.
-        """
-        return ceil(other_player.get_hit_points() / self.get_attack_damage(other_player))
+        """ The number of conventional attacks needed for this player to defeat the other player. """
+        return ceil(other_player.hit_points / self._damage_inflicted_on_opponent(other_player))
 
     def will_defeat(self, other_player: Player) -> bool:
         """ Determine if this player will win a fight with an opponent.
         I.e. if this player needs fewer (or same) attacks than the opponent.
-        Assumes this player always goes first.
-        """
+        Assumes this player always goes first. """
         return (self.get_attacks_needed(other_player) 
                 <= other_player.get_attacks_needed(self))
 
     def attack(self, other_player: Player):
-        attack_damage = self.get_attack_damage(other_player)
+        """ Perform an attack on another player, inflicting damage """
+        attack_damage = self._damage_inflicted_on_opponent(other_player)
         other_player.take_hit(attack_damage)
     
     def __str__(self):
