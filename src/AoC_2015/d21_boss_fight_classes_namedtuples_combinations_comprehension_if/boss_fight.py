@@ -49,11 +49,11 @@ class Item:
     armor: int
 
 class Shop:
-    """Represents all the items that can be bought in the shop """
+    """ Represents all the items that can be bought in the shop """
 
     def __init__(self, weapons: dict, armor: dict, rings: dict):
         """ Stores all_items as a dict to map the item name to the properties.
-        Then computes all valid combinations of items, as 'outfits'
+        Then computes all valid combinations of items, as 'loadouts'
         """
         self._all_items = weapons | armor | rings # merge dictionaries
         
@@ -61,15 +61,15 @@ class Shop:
         self._armor = armor     # {'Leather': Item(name='Leather', cost=13, damage=0, armor=1)}
         self._rings = rings     # {'Damage +1': }
         
-        self._outfits = self._create_outfits()
+        self._loadouts = self._create_loadouts()
 
-    def _create_outfits(self):
-        """ Computes all valid outfits, given the items available in the shop. Rules:
-            - All outfits have one and only one weapon
-            - Outfits can have zero or one armor
-            - Outfits can have zero, one or two rings.  (But each ring can only be used once.)
+    def _create_loadouts(self):
+        """ Computes all valid loadouts, given the items available in the shop. Rules:
+            - All loadouts have one and only one weapon
+            - Loadouts can have zero or one armor
+            - Loadouts can have zero, one or two rings.  (But each ring can only be used once.)
         """
-        outfits = []        
+        loadouts = []        
         weapon_options = list(self._weapons) # Get a list of the weapon names
         armor_options = [None] + list(self._armor) # Get a list of the armor names
 
@@ -84,59 +84,63 @@ class Shop:
         # smash our valid options together to get a list with three items
         # Then perform cartesian product to get all ways of combining these three lists (= 550 combos)
         all_items = [weapon_options, armor_options, ring_options]
-        all_outfits_combos: list[tuple] = list(itertools.product(*all_items))
+        all_loadouts_combos: list[tuple] = list(itertools.product(*all_items))
 
         # Our product is a tuple with always three items, which looks like (weapon, armor, [rings])
         # Where [rings] can have [None], one or two rings.  
         # We need to expand flatten this list, into... [weapon, armor, ring1...]
-        for weapon, armor, rings in all_outfits_combos: # e.g. ('Dagger', 'Leather', [None])
-            outfit_item_names = []
-            outfit_item_names = [weapon] + [armor] + [ring for ring in rings]
+        for weapon, armor, rings in all_loadouts_combos: # e.g. ('Dagger', 'Leather', [None])
+            loadout_item_names = []
+            loadout_item_names = [weapon] + [armor] + [ring for ring in rings]
 
-            # now use the item name to retrieve the actual items for this outfit
+            # now use the item name to retrieve the actual items for this loadout
             items = []
-            for item_name in outfit_item_names:
+            for item_name in loadout_item_names:
                 if item_name is not None:
                     an_item = self._all_items[item_name]
                     items.append(an_item)
 
-            # And build an Outfit object, passing in the item names (for identification) and the items themselves
-            outfit = Outfit(outfit_item_names, items)
-            outfits.append(outfit)
-
+            # And build a Loadout object, passing in the item names (for identification) and the items themselves
+            loadout = Loadout(loadout_item_names, items)
+            loadouts.append(loadout)
         
-        return outfits
+        return loadouts
 
-    def get_outfits(self) -> list[Outfit]:
-        """ Get the valid outfits (loadouts) that can be assembled from shop items
+    def get_loadouts(self) -> list[Loadout]:
+        """ Get the valid loadouts that can be assembled from shop items """
+        return self._loadouts
 
-        Returns:
-            list[Outfit]: List of valid Outfits
-        """
-        return self._outfits
-
-class Outfit:
-    """ A valid combination of weapon, armor, and rings.
-    I.e. a valid loadout for a player.
-    """
+class Loadout:
+    """ A valid combination of weapon, armor, and rings. """
+    
     def __init__(self, item_names: list, items: list):
-        self._item_names = item_names
-        self._items = items
-        self._cost = 0
-        self._damage = 0
-        self._armor = 0
-        self.compute_attributes()
+        """ Initialise a loadout.
 
-    def get_cost(self) -> int:
+        Args:
+            item_names (list): A list of item names
+            items (list): _description_
+        """
+        self._item_names = item_names # E.g. ['Dagger', None, 'Damage +1', 'Damage +2']
+        self._items = items # The Items
+        self._cost = 0 # computed
+        self._damage = 0 # computed
+        self._armor = 0 # computed
+        self._compute_attributes()
+
+    @property
+    def cost(self) -> int:
         return self._cost
 
-    def get_damage(self) -> int:
+    @property
+    def damage(self) -> int:
         return self._damage
 
-    def get_armor(self) -> int:
+    @property
+    def armor(self) -> int:
         return self._armor
 
-    def compute_attributes(self):
+    def _compute_attributes(self):
+        """ Compute the total cost, damage and armor of this Loadout """
         an_item:Item
         for an_item in self._items:
             self._cost += an_item.cost
@@ -144,7 +148,7 @@ class Outfit:
             self._armor += an_item.armor
 
     def __repr__(self):
-        return f"Outfit: {self._item_names}, cost: {self._cost}, damage: {self._damage}, armor: {self._armor}"
+        return f"Loadout: {self._item_names}, cost: {self._cost}, damage: {self._damage}, armor: {self._armor}"
     
 def main():    
     boss_file = path.join(locations.input_dir, BOSS_FILE)
@@ -165,16 +169,16 @@ def main():
     shop = Shop(*process_shop_items(data))
 
     # Get the valid loadouts
-    loadouts = shop.get_outfits()
+    loadouts = shop.get_loadouts()
 
     # Create a player using each loadout
     loadouts_tried = []
     for loadout in loadouts:
-        player = Player("Player", hit_points=100, damage=loadout.get_damage(), armor=loadout.get_armor())
+        player = Player("Player", hit_points=100, damage=loadout.damage, armor=loadout.armor)
         player_wins = player.will_defeat(boss)
 
         # Store the loadout we've tried, in a list that looks like [loadout cost, player, success]
-        loadouts_tried.append([loadout.get_cost(), player, player_wins])
+        loadouts_tried.append([loadout.cost, player, player_wins])
     
     # Part 1
     winning_loadouts = [loadout for loadout in loadouts_tried if loadout[2]]
