@@ -23,6 +23,7 @@ Part 2:
 
 """
 from __future__ import annotations
+import copy
 from dataclasses import dataclass
 import logging
 import itertools
@@ -35,7 +36,7 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 BOSS_FILE = "boss_stats.txt"
 SHOP_FILE = "shop.txt"
@@ -162,6 +163,9 @@ def main():
     hit_points, damage, armor = process_boss_input(data)
     boss = Player("Boss", hit_points=hit_points, damage=damage, armor=armor)
     
+    # Uncomment, to actually play a game
+    # test_game(Player("Player", hit_points=100, damage=7, armor=1), boss)
+    
     # shop items come from an input file
     with open(shop_file, mode="rt") as f:
         data = f.read().splitlines()
@@ -178,25 +182,25 @@ def main():
         player = Player("Player", hit_points=100, damage=loadout.damage, armor=loadout.armor)
         player_wins = player.will_defeat(boss)
 
-        # Store the loadout we've tried, in a list that looks like [loadout cost, player, success]
-        loadouts_tried.append([loadout.cost, player, player_wins])
+        # Store the loadout we've tried, in a list with item that look like [loadout, success]
+        loadouts_tried.append([loadout, player_wins])
     
     # Part 1
-    winning_loadouts = [loadout for loadout in loadouts_tried if loadout[2]]
-    cheapest_winning_loadout = min(winning_loadouts, key=lambda x: x[0])
-    print(f"Cheapest winning loadout = {cheapest_winning_loadout}")
+    winning_loadouts = [loadout for loadout, player_wins in loadouts_tried if player_wins]
+    cheapest_winning_loadout = min(winning_loadouts, key=lambda loadout: loadout.cost)
+    logger.info("Cheapest win = %s", cheapest_winning_loadout)
     
     # Part 2
-    losing_loadouts = [loadout for loadout in loadouts_tried if not loadout[2]]
-    priciest_losing_loadout = max(losing_loadouts, key=lambda x: x[0])
-    print(f"Priciest losing loadout = {priciest_losing_loadout}")
+    losing_loadouts = [loadout for loadout, player_wins in loadouts_tried if not player_wins]
+    priciest_losing_loadout = max(losing_loadouts, key=lambda loadout: loadout.cost)
+    logger.info("Priciest loss = %s", priciest_losing_loadout)
 
 def test_game(player, boss):
     player_wins = play_game(player, boss)
     if player_wins:
-        print("We won!")
+        logger.info("We won!")
     else:
-        print("We lost")
+        logger.info("We lost")
 
 def process_shop_items(data) -> tuple[dict, dict, dict]:
     """ Process shop items and return tuple of weapons, armor and rings.
@@ -248,24 +252,25 @@ def process_boss_input(data:list[str]):
 
     return boss['Hit Points'], boss['Damage'], boss['Armor']
 
-def play_game(player: Player, boss: Player) -> bool:
+def play_game(player: Player, opponent: Player) -> bool:
     """Performs a game, given two players. Determines if player1 wins, vs boss.
 
     Args:
         player (Player): The player
-        boss (Player): The boss
+        enemy (Player): The opponent
 
     Returns:
         bool: Whether player wins
     """
-    print("Playing...")
+    boss = copy.deepcopy(opponent)
+    logger.debug("Playing...")
     i = 1
     current_player = player
     other_player = boss
     while (player.hit_points > 0 and boss.hit_points > 0):
         current_player.attack(other_player)
-        print(f"{current_player.name} round {i}")
-        print(other_player)
+        logger.debug("%s round %d", current_player.name, i)
+        logger.debug(other_player)
         if current_player == boss:
             i += 1
 
