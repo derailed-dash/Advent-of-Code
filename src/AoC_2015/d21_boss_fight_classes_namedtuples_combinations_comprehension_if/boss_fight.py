@@ -240,14 +240,7 @@ def process_shop_items(data) -> tuple[dict, dict, dict]:
     return weapons, armor, rings
 
 def process_boss_input(data:list[str]):
-    """ Process boss file input and return tuple of hit_points, damage and armor
-
-    Args:
-        data (List[str]): input file lines
-
-    Returns:
-        tuple: hit_points, damage, armor
-    """
+    """ Process boss file input and return tuple of hit_points, damage and armor """
     boss = {}
     for line in data:
         key, val = line.strip().split(":")

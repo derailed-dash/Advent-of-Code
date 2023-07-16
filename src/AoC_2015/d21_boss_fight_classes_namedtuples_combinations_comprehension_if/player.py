@@ -42,7 +42,7 @@ class Player:
         return max(self._damage - other_player.armor, 1)
 
     def get_attacks_needed(self, other_player: Player) -> int:
-        """ The number of conventional attacks needed for this player to defeat the other player. """
+        """ The number of attacks needed for this player to defeat the other player. """
         return ceil(other_player.hit_points / self._damage_inflicted_on_opponent(other_player))
 
     def will_defeat(self, other_player: Player) -> bool:
