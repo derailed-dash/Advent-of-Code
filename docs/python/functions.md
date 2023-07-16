@@ -186,4 +186,5 @@ Consequently, lambda functions are extremely useful as parameters to any functio
 ### Examples
 
 See:
+- [Lambda: 2015 Day 21](/2015/21)
 - [Lambda: 2021 Day 7](/2021/7)
