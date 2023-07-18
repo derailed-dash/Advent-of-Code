@@ -23,22 +23,22 @@ Part 2:
     Simply deduct one hit point for every player turn in a game.  This reduces the number of winning games.
     Fortunately, still solved with attack sequences with 14 attacks.
 """
-from __future__ import absolute_import
+from __future__ import annotations
 import logging
-import os
 import time
+from os import path
 from typing import Iterable
+import common.type_defs as td
 from AoC_2015.d22_wizards_factories_dataclass_generators.players_and_wizards import Player, Wizard, SpellFactory
 
-# pylint: disable=multiple-statements
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.DEBUG)
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-BOSS_FILE = "input/boss_stats.txt"
+BOSS_FILE = "boss_stats.txt"
 
-# pylint
 def main():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(levelname)s:\t%(message)s")
-    boss_file = os.path.join(SCRIPT_DIR, BOSS_FILE)
+    boss_file = path.join(locations.input_dir, BOSS_FILE)
     
     # boss stats are determined by an input file
     with open(boss_file, mode="rt") as f:
@@ -71,10 +71,10 @@ def main():
         player = Wizard("Bob", hit_points=50, mana=500)
     
         if player_has_won:
-            logging.info("Best winning attack: %s. Total mana: %s. Current attack: %s", 
+            logger.info("Best winning attack: %s. Total mana: %s. Current attack: %s", 
                         winning_games[least_winning_mana], least_winning_mana, attack_combo_lookup)
         else:
-            logging.info("Current attack: %s", attack_combo_lookup)
+            logger.debug("Current attack: %s", attack_combo_lookup)
 
         # Convert the attack combo to a list of spells.
         attack_combo = [spell_key_lookup[int(key)] for key in attack_combo_lookup]
@@ -87,9 +87,8 @@ def main():
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
-    print(f"We found {len(winning_games)} winning solutions. Lowest mana cost was {least_winning_mana}.")
-            
-                
+    logger.info(f"We found {len(winning_games)} winning solutions. Lowest mana cost was {least_winning_mana}.")
+                 
 def to_base_n(number: int, base: int):
     """ Convert any integer number into a base-n string representation of that number.
     E.g. to_base_n(38, 5) = 123
@@ -107,7 +106,6 @@ def to_base_n(number: int, base: int):
         number //= base
 
     return ret_str
-
 
 def attack_combos_generator(max_attacks: int, count_different_attacks: int) -> Iterable[str]:
     """ Generator that returns the next attack combo.
@@ -131,7 +129,6 @@ def attack_combos_generator(max_attacks: int, count_different_attacks: int) -> I
         # and then pad with zeroes such that str length is the same as total number of attacks
         yield to_base_n(i, count_different_attacks).zfill(max_attacks)
 
-
 def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kwargs) -> tuple[bool, int, int]:
     """ Play a game, given a player (Wizard) and an opponent (boss)
 
@@ -152,18 +149,18 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
     mana_consumed: int = 0
     mana_target = kwargs.get('mana_target', None)
 
-    while (player.get_hit_points() > 0 and boss.get_hit_points() > 0):
+    while (player.hit_points > 0 and boss.hit_points > 0):
         if current_player == player:
             # player (wizard) attack
             logging.debug("")
             logging.debug("Round %s...", i)
 
-            logging.debug("%s's turn:", current_player.get_name())
+            logging.debug("%s's turn:", current_player.name)
             if hard_mode:
                 logging.debug("Hard mode hit. Player hit points reduced by 1.")
                 player.take_hit(1)
-                if player.get_hit_points() <= 0:
-                    logging.debug("Hard mode killed %s", boss.get_name())
+                if player.hit_points <= 0:
+                    logging.debug("Hard mode killed %s", boss.name)
                     continue
             try:
                 mana_consumed += player.take_turn(attacks[i-1], boss)
@@ -178,11 +175,11 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
                 return False, mana_consumed, i
 
         else:
-            logging.debug("%s's turn:", current_player.get_name())
+            logging.debug("%s's turn:", current_player.name)
             # effects apply before opponent attacks
             player.opponent_takes_turn(boss)
-            if boss.get_hit_points() <= 0:
-                logging.debug("Effects killed %s!", boss.get_name())
+            if boss.hit_points <= 0:
+                logging.debug("Effects killed %s!", boss.name)
                 continue
 
             boss.attack(other_player)
@@ -194,9 +191,8 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
         # swap players
         current_player, other_player = other_player, current_player
 
-    player_won = player.get_hit_points() > 0
+    player_won = player.hit_points > 0
     return player_won, mana_consumed, i
-
 
 def process_boss_input(data:list[str]) -> tuple:
     """ Process boss file input and return tuple of hit_points, damage
@@ -214,9 +210,8 @@ def process_boss_input(data:list[str]) -> tuple:
 
     return boss['Hit Points'], boss['Damage']
 
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    print(f"Execution time: {t2 - t1:0.4f} seconds")
+    logger.info("Execution time: %.3f seconds", t2 - t1)

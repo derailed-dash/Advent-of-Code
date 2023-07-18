@@ -12,7 +12,7 @@ from __future__ import annotations
 import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
-from functools import cache, lru_cache
+from functools import cache
 import operator
 import logging
 import os
