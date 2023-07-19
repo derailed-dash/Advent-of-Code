@@ -31,6 +31,13 @@ logger.setLevel(logging.DEBUG)
 
 class ColouredFormatter(logging.Formatter):
     """ Custom Formater which adds colour to output, based on logging level """
+
+    level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
+                     "INFO": (Fore.GREEN, "INF"),
+                     "WARNING": (Fore.YELLOW, "WRN"),
+                     "ERROR": (Fore.RED, "ERR"),
+                     "CRITICAL": (Fore.MAGENTA, "CRT")
+    }
     
     def __init__(self, *args, apply_colour=True, shorten_lvl=True, **kwargs) -> None:
         """ Args:
@@ -39,14 +46,7 @@ class ColouredFormatter(logging.Formatter):
         """
         super().__init__(*args, **kwargs)
         self._apply_colour = apply_colour
-        self._shorten_lvl = shorten_lvl
-        
-    level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
-                     "INFO": (Fore.GREEN, "INF"),
-                     "WARNING": (Fore.YELLOW, "WRN"),
-                     "ERROR": (Fore.RED, "ERR"),
-                     "CRITICAL": (Fore.MAGENTA, "CRT")
-    }
+        self._shorten_lvl = shorten_lvl 
 
     def format(self, record):
         if record.levelname in ColouredFormatter.level_mapping:
