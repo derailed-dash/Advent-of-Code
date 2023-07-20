@@ -77,6 +77,7 @@ def retrieve_console_logger(script_name):
     """ Create and return a new logger, named after the script """
     a_logger = logging.getLogger(script_name)
     a_logger.addHandler(stream_handler)
+    a_logger.propagate = False
     return a_logger
     
 def setup_file_logging(a_logger: logging.Logger, folder):
