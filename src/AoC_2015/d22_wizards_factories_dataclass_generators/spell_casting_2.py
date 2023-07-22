@@ -24,6 +24,7 @@ Part 2:
     Fortunately, still solved with attack sequences with 14 attacks.
 """
 from __future__ import annotations
+from enum import Enum
 import logging
 import time
 from math import ceil
@@ -37,6 +38,7 @@ logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.DEBUG)
 
 BOSS_FILE = "boss_stats.txt"
+NUM_ATTACKS = 7 # We need 14
 
 class Player:
     """A player has three key attributes:
@@ -99,9 +101,38 @@ class Player:
     def __repr__(self):
         return f"Player: {self._name}, hit points={self._hit_points}, damage={self._damage}, armor={self._armor}"
 
+class SpellType(Enum):
+    """ Possible spell types. 
+    Any given spell_type.value will return an instance of SpellAttributes. """
+
+    @dataclass
+    class SpellAttributes:
+        """ Define the attributes of a Spell """
+        name: str
+        mana_cost: int
+        duration: int
+        is_effect: bool
+        heal: int
+        damage: int
+        armor: int
+        mana_regen: int
+        delay_start: int
+    
+    MAGIC_MISSILES = SpellAttributes('MAGIC_MISSILES', 53, 0, False, 0, 4, 0, 0, 0)
+    DRAIN = SpellAttributes('DRAIN', 73, 0, False, 2, 2, 0, 0, 0)
+    SHIELD = SpellAttributes('SHIELD', 113, 6, True, 0, 0, 7, 0, 0)
+    POISON = SpellAttributes('POISON', 173, 6, True, 0, 3, 0, 0, 0)
+    RECHARGE = SpellAttributes('RECHARGE', 229, 5, True, 0, 0, 0, 101, 0)
+   
 @dataclass
-class SpellType:
-    """ The attributes and types that must be passed to a Spell factory method."""
+class Spell:
+    """ Spells should be created using create_spell_by_type() factory method.
+
+    Spells have a number of attributes.  Of note:
+    - effects last for multiple turns, and apply on both player and opponent turns.
+    - duration is the number of turns an effect lasts for
+    - mana is the cost of the spell
+    """
     name: str
     mana_cost: int
     duration: int
@@ -109,133 +140,46 @@ class SpellType:
     heal: int = 0
     damage: int = 0
     armor: int = 0
-    heal: int = 0
     mana_regen: int = 0
     delay_start: int = 0
-
-class SpellFactory:
-    """ For creating instances of Spell. Use the create_spell() method.
-
-    Raises:
-        KeyError: If an incorrect spell constant is passed.
-
-    Returns:
-        [Spell]: An instance of Spell.
-    """
-    class SpellConstants:
-        """ Spell Constants """
-        MAGIC_MISSILES = 'magic_missiles'
-        DRAIN = 'drain'
-        SHIELD = 'shield'
-        POISON = 'poison'
-        RECHARGE = 'recharge'
-
-    spell_types = {
-        SpellConstants.MAGIC_MISSILES: SpellType('MAGIC_MISSILES', mana_cost=53, duration=0, is_effect=False, damage=4),
-        SpellConstants.DRAIN: SpellType('DRAIN', mana_cost=73, duration=0, is_effect=False, damage=2, heal=2),
-        SpellConstants.SHIELD: SpellType('SHIELD', mana_cost=113, duration=6, is_effect=True, armor=7),
-        SpellConstants.POISON: SpellType('POISON', mana_cost=173, duration=6, is_effect=True, damage=3),
-        SpellConstants.RECHARGE: SpellType('RECHARGE', mana_cost=229, duration=5, is_effect=True, mana_regen=101)
-    }
+    effect_applied_count = 0
 
     @classmethod
-    def check_spell_castable(cls, spell_type: str, wiz: Wizard):
+    def check_spell_castable(cls, spell_type: SpellType, wiz: Wizard):
         """ Determine if this Wizard can cast this spell.
         Spell can only be cast if the wizard has sufficient mana, and if the spell is not already active.
 
-        Args:
-            spell_type (str): Spell constant
-            wiz (Wizard): A Wizard
-
         Raises:
-            KeyError: If the spell_type does not exist
             ValueError: If the spell is not castable
 
         Returns:
             [bool]: True if castable
         """
-        if spell_type not in SpellFactory.spell_types.keys():
-            raise ValueError(f"{spell_type} does not exist.")
-        
-        spell_attribs = SpellFactory.spell_types[spell_type]
 
         # not enough mana
-        if wiz.get_mana() < spell_attribs.mana_cost:
+        if wiz.get_mana() < spell_type.value.mana_cost:
             raise ValueError(f"Not enough mana for {spell_type}. " \
-                                f"Need {spell_attribs.mana_cost}, have {wiz.get_mana()}.")
+                                f"Need {spell_type.value.mana_cost}, have {wiz.get_mana()}.")
 
         # spell already active
         if spell_type in wiz.get_active_effects():
             raise ValueError(f"Spell {spell_type} already active.")
-    
+        
+        return True
+        
     @classmethod
-    def create_spell(cls, spell_type: str):
-        """ Create a new Spell instance, by passing in the appropriate Spell Type constant.
-
-        Args:
-            spell_type (str): From SpellFactory.SpellConstants
-
-        Raises:
-            KeyError: If an incorrect spell constant is passed.
-
-        Returns:
-            [Spell]: An instance of Spell
-        """
-        if spell_type not in SpellFactory.spell_types.keys():
-            raise KeyError
-
-        return Spell(SpellFactory.spell_types[spell_type])
-
-class Spell:
-    """Spells should be created using Spellfactory.create_spell()
-
-    Spells have a number of attributes.  Of note:
-    - effects last for multiple turns, and apply on both player and opponent turns.
-    - duration is the number of turns an effect lasts for
-    - mana is the cost of the spell
-    """
-
-    def __init__(self, spell_type: SpellType):
-        self._name = spell_type.name
-        self._mana_cost = spell_type.mana_cost
-        self._duration = spell_type.duration
-        self._is_effect = spell_type.is_effect
-        self._heal = spell_type.heal
-        self._damage = spell_type.damage
-        self._armor = spell_type.armor
-        self._mana_regen = spell_type.mana_regen
-        self._effect_applied_count = 0
-
+    def create_spell_by_type(cls, spell_type: SpellType):
+        # Unpack the spell_type.value, which will be a SpellAttributes class
+        # Get all the values, and unpack them, to pass into the factory method.
+        attrs_dict = vars(spell_type.value)
+        return cls(*attrs_dict.values())
+    
     def __repr__(self) -> str:
-        return f"Spell: {self._name}, cost: {self._mana_cost}, " \
-                    f"is effect: {self._is_effect}, remaining duration: {self._duration}"
-
-    def is_effect(self):
-        return self._is_effect
-
-    def get_mana_cost(self):
-        return self._mana_cost
-
-    def get_heal(self):
-        return self._heal
-
-    def get_damage(self):
-        return self._damage
-
-    def get_armor(self):
-        return self._armor
-    
-    def get_duration(self):
-        return self._duration
-
-    def get_mana_regen(self):
-        return self._mana_regen 
-    
-    def get_effect_applied_count(self):
-        return self._effect_applied_count
+        return f"Spell: {self.name}, cost: {self.mana_cost}, " \
+                    f"is effect: {self.is_effect}, remaining duration: {self.duration}"
 
     def increment_effect_applied_count(self):
-        self._effect_applied_count += 1
+        self.effect_applied_count += 1
 
 class Wizard(Player):
     """ Extends Player.
@@ -273,7 +217,7 @@ class Wizard(Player):
     def get_active_effects(self):
         return self._active_effects
 
-    def take_turn(self, spell_key: str, other_player: Player) -> int:
+    def take_turn(self, spell_key, other_player: Player) -> int:
         """ This player takes a turn.
         This means: casting a spell, applying any effects, and fading any expired effects
 
@@ -301,56 +245,55 @@ class Wizard(Player):
         self.apply_effects(other_player)
         self.fade_effects()        
 
-    def cast_spell(self, spell_key: str, other_player: Player) -> int:
+    def cast_spell(self, spell_type: SpellType, other_player: Player) -> int:
         """ Casts a spell.
-        If spell is not an effect, it applies once.
-        Otherwise, it applies for the spell's duration, on both player and opponent turns.
+        - If spell is not an effect, it applies once.
+        - Otherwise, it applies for the spell's duration, on both player and opponent turns.
 
         Args:
-            spell_key (str): a SpellType constant.
-            other_player (Player): The other player
+            spell_type (SpellType): a SpellType constant.
+            other_player (Player): The player to cast against
 
         Returns:
             [int]: Mana consumed
         """
-        SpellFactory.check_spell_castable(spell_key, self)
-
-        spell = SpellFactory.create_spell(spell_key)
+        Spell.check_spell_castable(spell_type, self) # can this wizard cast this spell?
+        spell = Spell.create_spell_by_type(spell_type)
         try:
-            self.use_mana(spell.get_mana_cost())
+            self.use_mana(spell.mana_cost)
         except ValueError as err:
-            raise ValueError(f"Unable to cast {spell_key}: Not enough mana! " \
-                             f"Needed {spell.get_mana_cost()}; have {self._mana}.") from err
+            raise ValueError(f"Unable to cast {spell_type}: Not enough mana! " \
+                             f"Needed {spell.mana_cost}; have {self._mana}.") from err
 
-        logging.debug("%s casted %s", self._name, spell)
+        logger.debug("%s casted %s", self._name, spell)
 
-        if spell.is_effect():
+        if spell.is_effect:
             # add to active effects, apply later
             # this might replace a fading effect
-            self._active_effects[spell_key] = spell
+            self._active_effects[spell_type.name] = spell
         else:
             # apply now.
             # opponent's armor counts for nothing against a magical attack
-            attack_damage = spell.get_damage()
+            attack_damage = spell.damage
             if attack_damage:
-                logging.debug("%s attack. Inflicting damage: %s.", self._name, attack_damage)
+                logger.debug("%s attack. Inflicting damage: %s.", self._name, attack_damage)
                 other_player.take_hit(attack_damage)
 
-            heal = spell.get_heal()
+            heal = spell.heal
             if heal:
-                logging.debug("%s: healing by %s.", self._name, heal) 
+                logger.debug("%s: healing by %s.", self._name, heal) 
                 self._hit_points += heal
 
-        return spell.get_mana_cost()                        
+        return spell.mana_cost                        
             
     def fade_effects(self):
         effects_to_remove = []
         for effect_name, effect in self._active_effects.items():
-            if effect.get_effect_applied_count() >= effect.get_duration():
+            if effect.effect_applied_count >= effect.duration:
                 logging.debug("%s: fading effect %s", self._name, effect_name)
-                if effect.get_armor():
+                if effect.armor:
                     # restore armor to pre-effect levels
-                    self._armor -= effect.get_armor()
+                    self._armor -= effect.armor
 
                 # Now we've faded the effect, flag it for removal
                 effects_to_remove.append(effect_name)
@@ -367,21 +310,21 @@ class Wizard(Player):
         """
         for effect_name, effect in self._active_effects.items():
             # if effect should be active if we've used it fewer times than the duration
-            if effect.get_effect_applied_count() < effect.get_duration():
+            if effect.effect_applied_count < effect.duration:
                 effect.increment_effect_applied_count()
                 logging.debug("%s: applying effect %s, leaving %d turns.", 
-                        self._name, effect_name, effect.get_duration() - effect.get_effect_applied_count())
+                        self._name, effect_name, effect.duration - effect.effect_applied_count)
 
-                if effect.get_armor():
-                    if effect.get_effect_applied_count() == 1:
+                if effect.armor:
+                    if effect.effect_applied_count == 1:
                         # increment armor on first use, and persist this level until the effect fades
-                        self._armor += effect.get_armor()
+                        self._armor += effect.armor
 
-                if effect.get_damage():
-                    other_player.take_hit(effect.get_damage())
+                if effect.damage:
+                    other_player.take_hit(effect.damage)
                 
-                if effect.get_mana_regen():
-                    self._mana += effect.get_mana_regen()
+                if effect.mana_regen:
+                    self._mana += effect.mana_regen
         
     def attack(self, other_player: Player):
         """ A Wizard cannot perform a mundane attack.
@@ -405,14 +348,14 @@ def main():
     boss_hit_points, boss_damage = process_boss_input(data)
 
     spell_key_lookup = {
-        0: SpellFactory.SpellConstants.MAGIC_MISSILES,
-        1: SpellFactory.SpellConstants.DRAIN,
-        2: SpellFactory.SpellConstants.SHIELD,
-        3: SpellFactory.SpellConstants.POISON,
-        4: SpellFactory.SpellConstants.RECHARGE
+        0: SpellType.DRAIN,
+        1: SpellType.DRAIN,
+        2: SpellType.SHIELD,
+        3: SpellType.POISON,
+        4: SpellType.RECHARGE
     }
 
-    attack_combos_lookups = attack_combos_generator(14, len(spell_key_lookup))
+    attack_combos_lookups = attack_combos_generator(NUM_ATTACKS, len(spell_key_lookup))
 
     winning_games = {}
     least_winning_mana = 10000
@@ -425,7 +368,8 @@ def main():
         if attack_combo_lookup.startswith(ignore_combo):
             continue  
         
-        boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
+        # boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
+        boss = Player("Boss Socks", hit_points=30, damage=10, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
     
         if player_has_won:
@@ -510,41 +454,41 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
     while (player.hit_points > 0 and boss.hit_points > 0):
         if current_player == player:
             # player (wizard) attack
-            logging.debug("")
-            logging.debug("Round %s...", i)
+            logger.debug("")
+            logger.debug("Round %s...", i)
 
-            logging.debug("%s's turn:", current_player.name)
+            logger.debug("%s's turn:", current_player.name)
             if hard_mode:
-                logging.debug("Hard mode hit. Player hit points reduced by 1.")
+                logger.debug("Hard mode hit. Player hit points reduced by 1.")
                 player.take_hit(1)
                 if player.hit_points <= 0:
-                    logging.debug("Hard mode killed %s", boss.name)
+                    logger.debug("Hard mode killed %s", boss.name)
                     continue
             try:
                 mana_consumed += player.take_turn(attacks[i-1], boss)
                 if mana_target and mana_consumed > mana_target:
-                    logging.debug('Mana target %s exceeded; mana consumed=%s.', mana_target, mana_consumed)
+                    logger.debug('Mana target %s exceeded; mana consumed=%s.', mana_target, mana_consumed)
                     return False, mana_consumed, i
             except ValueError as err:
-                logging.debug(err)
+                logger.debug(err)
                 return False, mana_consumed, i
             except IndexError:
-                logging.debug("No more attacks left.")
+                logger.debug("No more attacks left.")
                 return False, mana_consumed, i
 
         else:
-            logging.debug("%s's turn:", current_player.name)
+            logger.debug("%s's turn:", current_player.name)
             # effects apply before opponent attacks
             player.opponent_takes_turn(boss)
             if boss.hit_points <= 0:
-                logging.debug("Effects killed %s!", boss.name)
+                logger.debug("Effects killed %s!", boss.name)
                 continue
 
             boss.attack(other_player)
             i += 1
 
-        logging.debug("End of turn: %s", player)
-        logging.debug("End of turn: %s", boss)
+        logger.debug("End of turn: %s", player)
+        logger.debug("End of turn: %s", boss)
 
         # swap players
         current_player, other_player = other_player, current_player

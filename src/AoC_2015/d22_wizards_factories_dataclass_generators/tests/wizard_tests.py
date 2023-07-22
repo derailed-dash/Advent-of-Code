@@ -1,7 +1,11 @@
 """ Test cases for Spell Casting """
+import os
+import sys
 import logging
-from d22_wizards_factories_constants.players_and_wizards import Player, Wizard, SpellFactory
-from d22_wizards_factories_constants.spell_casting import play_game as pg
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from players_and_wizards import Player, Wizard, SpellFactory
+from spell_casting import play_game as pg
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:\t%(message)s")
 

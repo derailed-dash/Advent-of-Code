@@ -28,14 +28,15 @@ import logging
 import time
 from os import path
 from typing import Iterable
+from players_and_wizards import Player, Wizard, SpellFactory
 import common.type_defs as td
-from AoC_2015.d22_wizards_factories_dataclass_generators.players_and_wizards import Player, Wizard, SpellFactory
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.DEBUG)
 
 BOSS_FILE = "boss_stats.txt"
+NUM_ATTACKS = 7 # We need 14
 
 def main():
     boss_file = path.join(locations.input_dir, BOSS_FILE)
@@ -54,7 +55,7 @@ def main():
         4: SpellFactory.SpellConstants.RECHARGE
     }
 
-    attack_combos_lookups = attack_combos_generator(14, len(spell_key_lookup))
+    attack_combos_lookups = attack_combos_generator(NUM_ATTACKS, len(spell_key_lookup))
 
     winning_games = {}
     least_winning_mana = 10000
@@ -67,7 +68,8 @@ def main():
         if attack_combo_lookup.startswith(ignore_combo):
             continue  
         
-        boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
+        # boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
+        boss = Player("Boss Socks", hit_points=30, damage=10, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
     
         if player_has_won:
@@ -152,41 +154,41 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
     while (player.hit_points > 0 and boss.hit_points > 0):
         if current_player == player:
             # player (wizard) attack
-            logging.debug("")
-            logging.debug("Round %s...", i)
+            logger.debug("")
+            logger.debug("Round %s...", i)
 
-            logging.debug("%s's turn:", current_player.name)
+            logger.debug("%s's turn:", current_player.name)
             if hard_mode:
-                logging.debug("Hard mode hit. Player hit points reduced by 1.")
+                logger.debug("Hard mode hit. Player hit points reduced by 1.")
                 player.take_hit(1)
                 if player.hit_points <= 0:
-                    logging.debug("Hard mode killed %s", boss.name)
+                    logger.debug("Hard mode killed %s", boss.name)
                     continue
             try:
                 mana_consumed += player.take_turn(attacks[i-1], boss)
                 if mana_target and mana_consumed > mana_target:
-                    logging.debug('Mana target %s exceeded; mana consumed=%s.', mana_target, mana_consumed)
+                    logger.debug('Mana target %s exceeded; mana consumed=%s.', mana_target, mana_consumed)
                     return False, mana_consumed, i
             except ValueError as err:
-                logging.debug(err)
+                logger.debug(err)
                 return False, mana_consumed, i
             except IndexError:
-                logging.debug("No more attacks left.")
+                logger.debug("No more attacks left.")
                 return False, mana_consumed, i
 
         else:
-            logging.debug("%s's turn:", current_player.name)
+            logger.debug("%s's turn:", current_player.name)
             # effects apply before opponent attacks
             player.opponent_takes_turn(boss)
             if boss.hit_points <= 0:
-                logging.debug("Effects killed %s!", boss.name)
+                logger.debug("Effects killed %s!", boss.name)
                 continue
 
             boss.attack(other_player)
             i += 1
 
-        logging.debug("End of turn: %s", player)
-        logging.debug("End of turn: %s", boss)
+        logger.debug("End of turn: %s", player)
+        logger.debug("End of turn: %s", boss)
 
         # swap players
         current_player, other_player = other_player, current_player
