@@ -24,8 +24,9 @@ Part 2:
     Fortunately, still solved with attack sequences with 14 attacks.
 """
 from __future__ import annotations
-from enum import Enum
+from enum import Enum, member
 import logging
+import math
 import time
 from math import ceil
 from dataclasses import dataclass
@@ -35,10 +36,11 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+# td.setup_file_logging(logger, folder=locations.script_dir)
 
 BOSS_FILE = "boss_stats.txt"
-NUM_ATTACKS = 7 # We need 14
+NUM_ATTACKS = 8 # We need 14
 
 class Player:
     """A player has three key attributes:
@@ -101,22 +103,22 @@ class Player:
     def __repr__(self):
         return f"Player: {self._name}, hit points={self._hit_points}, damage={self._damage}, armor={self._armor}"
 
+@dataclass
+class SpellAttributes:
+    """ Define the attributes of a Spell """
+    name: str
+    mana_cost: int
+    duration: int
+    is_effect: bool
+    heal: int
+    damage: int
+    armor: int
+    mana_regen: int
+    delay_start: int
+    
 class SpellType(Enum):
     """ Possible spell types. 
     Any given spell_type.value will return an instance of SpellAttributes. """
-
-    @dataclass
-    class SpellAttributes:
-        """ Define the attributes of a Spell """
-        name: str
-        mana_cost: int
-        duration: int
-        is_effect: bool
-        heal: int
-        damage: int
-        armor: int
-        mana_regen: int
-        delay_start: int
     
     MAGIC_MISSILES = SpellAttributes('MAGIC_MISSILES', 53, 0, False, 0, 4, 0, 0, 0)
     DRAIN = SpellAttributes('DRAIN', 73, 0, False, 2, 2, 0, 0, 0)
@@ -332,11 +334,9 @@ class Wizard(Player):
         """
         raise NotImplementedError("Wizards cast spells")
 
-
     def __repr__(self):
         return f"{self._name} (Wizard): hit points={self._hit_points}, " \
                         f"damage={self._damage}, armor={self._armor}, mana={self._mana}"
-    
 
 def main():
     boss_file = path.join(locations.input_dir, BOSS_FILE)
@@ -348,7 +348,7 @@ def main():
     boss_hit_points, boss_damage = process_boss_input(data)
 
     spell_key_lookup = {
-        0: SpellType.DRAIN,
+        0: SpellType.MAGIC_MISSILES,
         1: SpellType.DRAIN,
         2: SpellType.SHIELD,
         3: SpellType.POISON,
@@ -369,7 +369,7 @@ def main():
             continue  
         
         # boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
-        boss = Player("Boss Socks", hit_points=30, damage=10, armor=0)
+        boss = Player("Boss Socks", hit_points=40, damage=10, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
     
         if player_has_won:
@@ -378,8 +378,10 @@ def main():
         else:
             logger.debug("Current attack: %s", attack_combo_lookup)
 
-        # Convert the attack combo to a list of spells.
-        attack_combo = [spell_key_lookup[int(key)] for key in attack_combo_lookup]
+        # Convert the attack combo to a list of spells. E.g. convert '00002320'
+        # to [<SpellType.MAGIC_MISSILES: ..., <SpellType.MAGIC_MISSILES: ..., 
+        #    ... <SpellType.SHIELD: ..., <SpellType.MAGIC_MISSILES: ... >]
+        attack_combo = [spell_key_lookup[int(attack)] for attack in attack_combo_lookup]
         player_won, mana_consumed, rounds_started = play_game(attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
         if player_won:
             player_has_won = True
@@ -389,7 +391,8 @@ def main():
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
-    logger.info(f"We found {len(winning_games)} winning solutions. Lowest mana cost was {least_winning_mana}.")
+    logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
+    logger.info("Winning solutions: %s", winning_games)
                  
 def to_base_n(number: int, base: int):
     """ Convert any integer number into a base-n string representation of that number.

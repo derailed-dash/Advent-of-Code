@@ -80,8 +80,8 @@ def retrieve_console_logger(script_name):
     a_logger.propagate = False
     return a_logger
     
-def setup_file_logging(a_logger: logging.Logger, folder):
-    """ Add a FileHandler to the specified logger.
+def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
+    """ Add a FileHandler to the specified logger. File name is based on the logger name.
 
     Args:
         a_logger (Logger): The existing logger

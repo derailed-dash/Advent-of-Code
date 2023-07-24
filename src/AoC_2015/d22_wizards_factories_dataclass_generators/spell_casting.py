@@ -34,7 +34,8 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+# td.setup_file_logging(logger, folder=locations.script_dir)
 
 BOSS_FILE = "boss_stats.txt"
 NUM_ATTACKS = 7 # We need 14
@@ -427,7 +428,7 @@ def main():
             continue  
         
         # boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
-        boss = Player("Boss Socks", hit_points=30, damage=10, armor=0)
+        boss = Player("Boss Socks", hit_points=40, damage=10, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
     
         if player_has_won:
@@ -437,7 +438,9 @@ def main():
             logger.debug("Current attack: %s", attack_combo_lookup)
 
         # Convert the attack combo to a list of spells.
-        attack_combo = [spell_key_lookup[int(key)] for key in attack_combo_lookup]
+        # E.g. convert 4111000 to 
+        # ['recharge', 'drain', 'drain', 'drain', 'magic_missiles', 'magic_missiles', 'magic_missiles']
+        attack_combo = [spell_key_lookup[int(attack)] for attack in attack_combo_lookup]
         player_won, mana_consumed, rounds_started = play_game(attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
         if player_won:
             player_has_won = True
@@ -447,8 +450,9 @@ def main():
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
-    logger.info(f"We found {len(winning_games)} winning solutions. Lowest mana cost was {least_winning_mana}.")
-                 
+    logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
+    logger.info("Winning solutions: %s", winning_games)
+
 def to_base_n(number: int, base: int):
     """ Convert any integer number into a base-n string representation of that number.
     E.g. to_base_n(38, 5) = 123
