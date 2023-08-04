@@ -24,9 +24,8 @@ Part 2:
     Fortunately, still solved with attack sequences with 14 attacks.
 """
 from __future__ import annotations
-from enum import Enum, member
+from enum import Enum
 import logging
-import math
 import time
 from math import ceil
 from dataclasses import dataclass
@@ -37,10 +36,15 @@ import common.type_defs as td
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
-# td.setup_file_logging(logger, folder=locations.script_dir)
+# td.setup_file_logging(logger, folder=locations.output_dir)
 
+TEST_MODE = True
 BOSS_FILE = "boss_stats.txt"
-NUM_ATTACKS = 8 # We need 14
+
+if TEST_MODE:
+    NUM_ATTACKS = 7
+else:
+    NUM_ATTACKS = 14
 
 class Player:
     """A player has three key attributes:
@@ -338,22 +342,23 @@ class Wizard(Player):
         return f"{self._name} (Wizard): hit points={self._hit_points}, " \
                         f"damage={self._damage}, armor={self._armor}, mana={self._mana}"
 
-def main():
-    boss_file = path.join(locations.input_dir, BOSS_FILE)
-    
-    # boss stats are determined by an input file
-    with open(boss_file, mode="rt") as f:
-        data = f.read().splitlines()
-    
-    boss_hit_points, boss_damage = process_boss_input(data)
+spell_key_lookup = {
+    0: SpellType.MAGIC_MISSILES,
+    1: SpellType.DRAIN,
+    2: SpellType.SHIELD,
+    3: SpellType.POISON,
+    4: SpellType.RECHARGE
+}
 
-    spell_key_lookup = {
-        0: SpellType.MAGIC_MISSILES,
-        1: SpellType.DRAIN,
-        2: SpellType.SHIELD,
-        3: SpellType.POISON,
-        4: SpellType.RECHARGE
-    }
+def main():
+
+    
+    if TEST_MODE:
+        boss_hit_points, boss_damage = 40, 10
+    else:
+        # boss stats are determined by an input file
+        with open(path.join(locations.input_dir, BOSS_FILE), mode="rt") as f:
+            boss_hit_points, boss_damage = process_boss_input(f.read().splitlines())
 
     attack_combos_lookups = attack_combos_generator(NUM_ATTACKS, len(spell_key_lookup))
 
@@ -362,14 +367,13 @@ def main():
     ignore_combo = "9999999"
     player_has_won = False
     
-    for attack_combo_lookup in attack_combos_lookups:
+    for attack_combo_lookup in attack_combos_lookups: # play the game with this attack combo
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
             continue  
         
-        # boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
-        boss = Player("Boss Socks", hit_points=40, damage=10, armor=0)
+        boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
     
         if player_has_won:
@@ -391,8 +395,10 @@ def main():
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
+    message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
+    logger.info(message)
+
     logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
-    logger.info("Winning solutions: %s", winning_games)
                  
 def to_base_n(number: int, base: int):
     """ Convert any integer number into a base-n string representation of that number.
