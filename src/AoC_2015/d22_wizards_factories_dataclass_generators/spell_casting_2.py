@@ -18,6 +18,8 @@ Part 1:
     It works, but it requires a combo with 14 attacks for the lowest mana win.
     With 5 different atttacks, this means 5**14 attack sequences, i.e. >6 billion sequences!
     So, it takes a while.
+    
+    This approach currently takes a couple of hours.
 
 Part 2:
     Simply deduct one hit point for every player turn in a game.  This reduces the number of winning games.
@@ -31,7 +33,6 @@ from math import ceil
 from dataclasses import dataclass
 from os import path
 from typing import Iterable
-from tqdm import tqdm
 import common.type_defs as td
 
 locations = td.get_locations(__file__)
@@ -364,8 +365,8 @@ def main():
     test_boss = Player("Test Boss", hit_points=40, damage=10, armor=0) # test boss, which only requires 7 attacks
     player = Wizard("Bob", hit_points=50, mana=500)
 
-    # winning_games, least_winning_mana = try_combos(test_boss, player, 10)
-    winning_games, least_winning_mana = try_combos(actual_boss, player, 14)
+    winning_games, least_winning_mana = try_combos(test_boss, player, 9)
+    # winning_games, least_winning_mana = try_combos(actual_boss, player, 14)
 
     message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
     logger.info(message)
@@ -373,21 +374,21 @@ def main():
 
 def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
     # the generator - without list - is faster, but we lose the tqdm progress bar
-    attack_combos_lookups = list(attack_combos_generator(num_attacks, len(spell_key_lookup)))
+    attack_combos_lookups = attack_combos_generator(num_attacks, len(spell_key_lookup))
 
     winning_games = {}
-    least_winning_mana = 10000
+    least_winning_mana = 1000
     ignore_combo = "9999999"
     player_has_won = False
     
-    for attack_combo_lookup in tqdm(attack_combos_lookups): # play the game with this attack combo
+    for attack_combo_lookup in attack_combos_lookups: # play the game with this attack combo
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
             continue
         
-        # if calculate_combo_mana_cost(attack_combo_lookup) >= least_winning_mana:
-        #     continue
+        if calculate_combo_mana_cost(attack_combo_lookup) >= least_winning_mana:
+            continue
         
         # Much faster than a deep copy
         boss = Player(boss_stats.name, boss_stats.hit_points, boss_stats.damage, boss_stats.armor)
