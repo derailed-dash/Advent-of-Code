@@ -38,7 +38,7 @@ logger.setLevel(logging.INFO)
 # td.setup_file_logging(logger, folder=locations.script_dir)
 
 BOSS_FILE = "boss_stats.txt"
-NUM_ATTACKS = 7 # We need 14
+NUM_ATTACKS = 9 # We need 14
 
 class Player:
     """A player has three key attributes:
@@ -425,7 +425,7 @@ def main():
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
-            continue  
+            continue
         
         # boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
         boss = Player("Boss Socks", hit_points=40, damage=10, armor=0)
@@ -441,7 +441,8 @@ def main():
         # E.g. convert 4111000 to 
         # ['recharge', 'drain', 'drain', 'drain', 'magic_missiles', 'magic_missiles', 'magic_missiles']
         attack_combo = [spell_key_lookup[int(attack)] for attack in attack_combo_lookup]
-        player_won, mana_consumed, rounds_started = play_game(attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
+        player_won, mana_consumed, rounds_started = play_game(
+                attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
         if player_won:
             player_has_won = True
             winning_games[mana_consumed] = attack_combo_lookup
@@ -449,7 +450,8 @@ def main():
         
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
-        
+    
+    # We should get 4 solns, 794, with boss: 40, 10 and 9 attacks.
     logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
     logger.info("Winning solutions: %s", winning_games)
 

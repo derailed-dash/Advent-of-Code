@@ -35,15 +35,15 @@ class TestPlayGame(unittest.TestCase):
         """ Try multiple games, testing combos to find the winning combo that consumes the least mana """
         logger.setLevel(logging.INFO)
                 
-        boss_hit_points, boss_damage, num_attacks = 50, 10, 8
+        boss_hit_points, boss_damage, num_attacks = 40, 10, 8
         boss = Player("Boss", boss_hit_points, boss_damage, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
                 
         winning_games, least_winning_mana = try_combos(boss, player, num_attacks)
         logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
         
-        self.assertEqual(len(winning_games), 1)
-        self.assertEqual(least_winning_mana, 967)
+        self.assertEqual(len(winning_games), 4)  # with 40, 10, 8
+        self.assertEqual(least_winning_mana, 794) # with 40, 10, 8
 
 if __name__ == '__main__':
     unittest.main()

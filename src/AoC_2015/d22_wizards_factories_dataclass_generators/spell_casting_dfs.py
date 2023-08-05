@@ -41,6 +41,7 @@ logger.setLevel(logging.INFO)
 # td.setup_file_logging(logger, folder=locations.output_dir)
 
 BOSS_FILE = "boss_stats.txt"
+NUM_ATTACKS = 14 
 
 class Player:
     """A player has three key attributes:
@@ -355,13 +356,10 @@ def main():
     # boss stats are determined by an input file
     with open(path.join(locations.input_dir, BOSS_FILE), mode="rt") as f:
         boss_hit_points, boss_damage = process_boss_input(f.read().splitlines())
-        actual_boss = Player("Actual Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
 
-    test_boss = Player("Test Boss", hit_points=40, damage=10, armor=0) # test boss, which only requires 7 attacks
+    boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
     player = Wizard("Bob", hit_points=50, mana=500)
-
-    winning_games, least_winning_mana = try_combos(test_boss, player, 7)
-    # winning_games, least_winning_mana = try_combos(actual_boss, player, 14)
+    winning_games, least_winning_mana = try_combos(boss, player, NUM_ATTACKS)
 
     message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
     logger.info(message)
@@ -382,8 +380,8 @@ def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
         if attack_combo_lookup.startswith(ignore_combo):
             continue  
         
-        boss = copy.deepcopy(boss_stats)
-        player = copy.deepcopy(player_stats)
+        boss = copy.copy(boss_stats)
+        player = copy.copy(player_stats)
     
         if player_has_won and logger.getEffectiveLevel() == logging.DEBUG:
             logger.debug("Best winning attack: %s. Total mana: %s. Current attack: %s", 
