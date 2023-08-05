@@ -24,7 +24,6 @@ Part 2:
     Fortunately, still solved with attack sequences with 14 attacks.
 """
 from __future__ import annotations
-import copy
 from enum import Enum
 import logging
 import time
@@ -163,9 +162,9 @@ class Spell:
         """
 
         # not enough mana
-        if wiz.get_mana() < spell_type.value.mana_cost:
+        if wiz.mana < spell_type.value.mana_cost:
             raise ValueError(f"Not enough mana for {spell_type}. " \
-                                f"Need {spell_type.value.mana_cost}, have {wiz.get_mana()}.")
+                                f"Need {spell_type.value.mana_cost}, have {wiz.mana}.")
 
         # spell already active
         if spell_type in wiz.get_active_effects():
@@ -211,7 +210,8 @@ class Wizard(Player):
         # store currently active effects, where key = spell constant, and value = spell
         self._active_effects: dict[str, Spell] = {}
 
-    def get_mana(self):
+    @property
+    def mana(self):
         return self._mana
 
     def use_mana(self, mana_used: int):
@@ -344,13 +344,17 @@ class Wizard(Player):
                         f"damage={self._damage}, armor={self._armor}, mana={self._mana}"
 
 spell_key_lookup = {
-    0: SpellType.MAGIC_MISSILES,
-    1: SpellType.DRAIN,
-    2: SpellType.SHIELD,
-    3: SpellType.POISON,
-    4: SpellType.RECHARGE
+    0: SpellType.MAGIC_MISSILES, # 53
+    1: SpellType.DRAIN, # 73
+    2: SpellType.SHIELD, # 113
+    3: SpellType.POISON, # 173
+    4: SpellType.RECHARGE # 229
 }
 
+def calculate_combo_mana_cost(attack_combo_lookup: str) -> int:
+    """ Pass in combo str, and return the cost of this attack combo """
+    return sum(spell_key_lookup[int(attack)].value.mana_cost for attack in attack_combo_lookup)
+    
 def main():
     # boss stats are determined by an input file
     with open(path.join(locations.input_dir, BOSS_FILE), mode="rt") as f:
@@ -360,8 +364,8 @@ def main():
     test_boss = Player("Test Boss", hit_points=40, damage=10, armor=0) # test boss, which only requires 7 attacks
     player = Wizard("Bob", hit_points=50, mana=500)
 
-    winning_games, least_winning_mana = try_combos(test_boss, player, 7)
-    # winning_games, least_winning_mana = try_combos(actual_boss, player, 14)
+    # winning_games, least_winning_mana = try_combos(test_boss, player, 10)
+    winning_games, least_winning_mana = try_combos(actual_boss, player, 14)
 
     message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
     logger.info(message)
@@ -380,10 +384,14 @@ def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
-            continue  
+            continue
         
-        boss = copy.deepcopy(boss_stats)
-        player = copy.deepcopy(player_stats)
+        # if calculate_combo_mana_cost(attack_combo_lookup) >= least_winning_mana:
+        #     continue
+        
+        # Much faster than a deep copy
+        boss = Player(boss_stats.name, boss_stats.hit_points, boss_stats.damage, boss_stats.armor)
+        player = Wizard(player_stats.name, player_stats.hit_points, player_stats.mana)
     
         if player_has_won and logger.getEffectiveLevel() == logging.DEBUG:
             logger.debug("Best winning attack: %s. Total mana: %s. Current attack: %s", 
@@ -420,13 +428,14 @@ def to_base_n(number: int, base: int):
         [str]: The string representation of the number
     """
     ret_str = ""
-    while number:
-        ret_str = str(number % base) + ret_str
-        number //= base
+    curr_num = number
+    while curr_num:
+        ret_str = str(curr_num % base) + ret_str
+        curr_num //= base
 
-    return ret_str
+    return ret_str if number > 0 else "0"
 
-def attack_combos_generator(max_attacks: int, count_different_attacks: int) -> Iterable[str]:
+def attack_combos_generator(max_attacks: int, count_different_attacks: int, reverse=False) -> Iterable[str]:
     """ Generator that returns the next attack combo.
     E.g. with a max of 3 attacks, and 5 different attacks, 
     the generator will return a max of 5**3 = 125 different attack combos
@@ -439,14 +448,16 @@ def attack_combos_generator(max_attacks: int, count_different_attacks: int) -> I
         Iterator[Iterable[str]]: Next attack sequence
     """
     num_attack_combos = count_different_attacks**max_attacks
-    
-    # yield the next attack combo, i.e. from 
-    # 000, 001, 002, 003, 004, 010, 011, 012, 013, 014, 020, 021, 022, 023, 024, etc
-    # Let's return them in reverse, to give us a nice countdown
     for i in range(num_attack_combos):
-        # convert i to base-n (where n is the number of attacks we can choose from), 
-        # and then pad with zeroes such that str length is the same as total number of attacks
-        yield to_base_n(i, count_different_attacks).zfill(max_attacks)
+        # convert i to base-n (where n is the number of attacks we can choose from) 
+
+        if reverse:
+            # Pad with zeroes such that str length is the same as total number of attacks.
+            # E.g. 000, 001, 002, 003, 004, 010, 011, 012, 013, 014, 020, 021, 022, 023, 024, etc
+            yield to_base_n(i, count_different_attacks).zfill(max_attacks)
+        else:
+            # E.g. 0, 1, 2, 3, 4, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, etc
+            yield to_base_n(i, count_different_attacks)
 
 def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kwargs) -> tuple[bool, int, int]:
     """ Play a game, given a player (Wizard) and an opponent (boss)
