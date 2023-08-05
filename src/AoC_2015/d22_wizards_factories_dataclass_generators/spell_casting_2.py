@@ -24,6 +24,7 @@ Part 2:
     Fortunately, still solved with attack sequences with 14 attacks.
 """
 from __future__ import annotations
+import copy
 from enum import Enum
 import logging
 import time
@@ -31,6 +32,7 @@ from math import ceil
 from dataclasses import dataclass
 from os import path
 from typing import Iterable
+from tqdm import tqdm
 import common.type_defs as td
 
 locations = td.get_locations(__file__)
@@ -38,13 +40,8 @@ logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
 # td.setup_file_logging(logger, folder=locations.output_dir)
 
-TEST_MODE = True
 BOSS_FILE = "boss_stats.txt"
-
-if TEST_MODE:
-    NUM_ATTACKS = 7
-else:
-    NUM_ATTACKS = 14
+NUM_ATTACKS = 14 
 
 class Player:
     """A player has three key attributes:
@@ -73,6 +70,10 @@ class Player:
     def armor(self) -> int:
         return self._armor
 
+    @property
+    def damage(self) -> int:
+        return self._damage
+    
     def take_hit(self, loss: int):
         """ Remove this hit from the current hit points """
         self._hit_points -= loss
@@ -296,7 +297,7 @@ class Wizard(Player):
         effects_to_remove = []
         for effect_name, effect in self._active_effects.items():
             if effect.effect_applied_count >= effect.duration:
-                logging.debug("%s: fading effect %s", self._name, effect_name)
+                logger.debug("%s: fading effect %s", self._name, effect_name)
                 if effect.armor:
                     # restore armor to pre-effect levels
                     self._armor -= effect.armor
@@ -318,8 +319,9 @@ class Wizard(Player):
             # if effect should be active if we've used it fewer times than the duration
             if effect.effect_applied_count < effect.duration:
                 effect.increment_effect_applied_count()
-                logging.debug("%s: applying effect %s, leaving %d turns.", 
-                        self._name, effect_name, effect.duration - effect.effect_applied_count)
+                if logger.getEffectiveLevel() == logging.DEBUG:
+                    logger.debug("%s: applying effect %s, leaving %d turns.", 
+                            self._name, effect_name, effect.duration - effect.effect_applied_count)
 
                 if effect.armor:
                     if effect.effect_applied_count == 1:
@@ -351,33 +353,38 @@ spell_key_lookup = {
 }
 
 def main():
+    # boss stats are determined by an input file
+    with open(path.join(locations.input_dir, BOSS_FILE), mode="rt") as f:
+        boss_hit_points, boss_damage = process_boss_input(f.read().splitlines())
 
-    
-    if TEST_MODE:
-        boss_hit_points, boss_damage = 40, 10
-    else:
-        # boss stats are determined by an input file
-        with open(path.join(locations.input_dir, BOSS_FILE), mode="rt") as f:
-            boss_hit_points, boss_damage = process_boss_input(f.read().splitlines())
+    boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
+    player = Wizard("Bob", hit_points=50, mana=500)
+    winning_games, least_winning_mana = try_combos(boss, player, NUM_ATTACKS)
 
-    attack_combos_lookups = attack_combos_generator(NUM_ATTACKS, len(spell_key_lookup))
+    message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
+    logger.info(message)
+    logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
+
+def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
+    # the generator - without list - is faster, but we lose the tqdm progress bar
+    attack_combos_lookups = list(attack_combos_generator(num_attacks, len(spell_key_lookup)))
 
     winning_games = {}
     least_winning_mana = 10000
     ignore_combo = "9999999"
     player_has_won = False
     
-    for attack_combo_lookup in attack_combos_lookups: # play the game with this attack combo
+    for attack_combo_lookup in tqdm(attack_combos_lookups): # play the game with this attack combo
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
             continue  
         
-        boss = Player("Boss", hit_points=boss_hit_points, damage=boss_damage, armor=0)
-        player = Wizard("Bob", hit_points=50, mana=500)
+        boss = copy.copy(boss_stats)
+        player = copy.copy(player_stats)
     
-        if player_has_won:
-            logger.info("Best winning attack: %s. Total mana: %s. Current attack: %s", 
+        if player_has_won and logger.getEffectiveLevel() == logging.DEBUG:
+            logger.debug("Best winning attack: %s. Total mana: %s. Current attack: %s", 
                         winning_games[least_winning_mana], least_winning_mana, attack_combo_lookup)
         else:
             logger.debug("Current attack: %s", attack_combo_lookup)
@@ -386,7 +393,9 @@ def main():
         # to [<SpellType.MAGIC_MISSILES: ..., <SpellType.MAGIC_MISSILES: ..., 
         #    ... <SpellType.SHIELD: ..., <SpellType.MAGIC_MISSILES: ... >]
         attack_combo = [spell_key_lookup[int(attack)] for attack in attack_combo_lookup]
-        player_won, mana_consumed, rounds_started = play_game(attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
+        player_won, mana_consumed, rounds_started = play_game(
+                attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
+        
         if player_won:
             player_has_won = True
             winning_games[mana_consumed] = attack_combo_lookup
@@ -395,10 +404,7 @@ def main():
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
-    message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
-    logger.info(message)
-
-    logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
+    return winning_games, least_winning_mana
                  
 def to_base_n(number: int, base: int):
     """ Convert any integer number into a base-n string representation of that number.
@@ -463,10 +469,11 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
     while (player.hit_points > 0 and boss.hit_points > 0):
         if current_player == player:
             # player (wizard) attack
-            logger.debug("")
-            logger.debug("Round %s...", i)
-
-            logger.debug("%s's turn:", current_player.name)
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                logger.debug("")
+                logger.debug("Round %s...", i)
+                logger.debug("%s's turn:", current_player.name)
+    
             if hard_mode:
                 logger.debug("Hard mode hit. Player hit points reduced by 1.")
                 player.take_hit(1)
@@ -495,9 +502,10 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
 
             boss.attack(other_player)
             i += 1
-
-        logger.debug("End of turn: %s", player)
-        logger.debug("End of turn: %s", boss)
+        
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            logger.debug("End of turn: %s", player)
+            logger.debug("End of turn: %s", boss)
 
         # swap players
         current_player, other_player = other_player, current_player
