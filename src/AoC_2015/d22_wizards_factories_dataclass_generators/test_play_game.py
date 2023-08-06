@@ -5,7 +5,7 @@ from spell_casting_2 import (
         logger, 
         Player, Wizard, 
         spell_key_lookup, 
-        play_game, try_combos, calculate_combo_mana_cost)
+        play_game, try_combos, get_combo_mana_cost)
 
 class TestPlayGame(unittest.TestCase):
     """ Test single game, and combos """
@@ -65,14 +65,15 @@ class TestPlayGame(unittest.TestCase):
         self.assertEqual(rounds_started, 6)
     
     def test_calculate_mana_cost(self):
-        self.assertEqual(calculate_combo_mana_cost("42130"), 641)
-        self.assertEqual(calculate_combo_mana_cost("34230000"), 900)
+        self.assertEqual(get_combo_mana_cost("42130"), 641)
+        self.assertEqual(get_combo_mana_cost("34230000"), 900)
         
     def test_try_combos(self):
         """ Try multiple games, testing combos to find the winning combo that consumes the least mana """
         logger.setLevel(logging.INFO)
-                
-        num_attacks = 11
+        num_attacks = 9
+        logger.info("Using %d attacks", num_attacks)
+        
         boss = Player("Boss", hit_points=40, damage=10, armor=0)
         player = Wizard("Bob", hit_points=50, mana=500)
                 

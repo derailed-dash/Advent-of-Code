@@ -19,6 +19,8 @@ Part 1:
     With 5 different atttacks, this means 5**14 attack sequences, i.e. >6 billion sequences!
     So, it takes a while.
     
+    Caching the sorted attack_combo_lookup str reduces the overall time by about half.
+    
     This approach currently takes a couple of hours.
 
 Part 2:
@@ -27,6 +29,7 @@ Part 2:
 """
 from __future__ import annotations
 from enum import Enum
+from functools import cache
 import logging
 import time
 from math import ceil
@@ -129,7 +132,18 @@ class SpellType(Enum):
     SHIELD = SpellAttributes('SHIELD', 113, 6, True, 0, 0, 7, 0, 0)
     POISON = SpellAttributes('POISON', 173, 6, True, 0, 3, 0, 0, 0)
     RECHARGE = SpellAttributes('RECHARGE', 229, 5, True, 0, 0, 0, 101, 0)
-   
+
+spell_key_lookup = {
+    0: SpellType.MAGIC_MISSILES, # 53
+    1: SpellType.DRAIN, # 73
+    2: SpellType.SHIELD, # 113
+    3: SpellType.POISON, # 173
+    4: SpellType.RECHARGE # 229
+}
+
+spell_costs = {spell_key: spell_key_lookup[spell_key].value.mana_cost 
+               for spell_key, spell_type in spell_key_lookup.items()}
+
 @dataclass
 class Spell:
     """ Spells should be created using create_spell_by_type() factory method.
@@ -344,17 +358,12 @@ class Wizard(Player):
         return f"{self._name} (Wizard): hit points={self._hit_points}, " \
                         f"damage={self._damage}, armor={self._armor}, mana={self._mana}"
 
-spell_key_lookup = {
-    0: SpellType.MAGIC_MISSILES, # 53
-    1: SpellType.DRAIN, # 73
-    2: SpellType.SHIELD, # 113
-    3: SpellType.POISON, # 173
-    4: SpellType.RECHARGE # 229
-}
-
-def calculate_combo_mana_cost(attack_combo_lookup: str) -> int:
-    """ Pass in combo str, and return the cost of this attack combo """
-    return sum(spell_key_lookup[int(attack)].value.mana_cost for attack in attack_combo_lookup)
+@cache
+def get_combo_mana_cost(attack_combo_lookup: str) -> int:
+    """ Pass in attack combo lookup str, and return the cost of this attack combo.
+    Ideally, the attack combo lookup should be sorted, because cost doesn't care about attack order;
+    and providing a sorted value, we can use a cache. """
+    return sum(spell_costs[int(attack)] for attack in attack_combo_lookup)
     
 def main():
     # boss stats are determined by an input file
@@ -377,7 +386,7 @@ def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
     attack_combos_lookups = attack_combos_generator(num_attacks, len(spell_key_lookup))
 
     winning_games = {}
-    least_winning_mana = 1000
+    least_winning_mana = 2500
     ignore_combo = "9999999"
     player_has_won = False
     
@@ -387,7 +396,10 @@ def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
         if attack_combo_lookup.startswith(ignore_combo):
             continue
         
-        if calculate_combo_mana_cost(attack_combo_lookup) >= least_winning_mana:
+        # determine if the cost of the current attack is going to be more than an existing
+        # winning solution. (Sort it, so we can cache the attack cost.)
+        sorted_attack = ''.join(sorted(attack_combo_lookup))
+        if get_combo_mana_cost(sorted_attack) >= least_winning_mana:
             continue
         
         # Much faster than a deep copy
@@ -416,7 +428,7 @@ def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
     return winning_games, least_winning_mana
-                 
+
 def to_base_n(number: int, base: int):
     """ Convert any integer number into a base-n string representation of that number.
     E.g. to_base_n(38, 5) = 123
