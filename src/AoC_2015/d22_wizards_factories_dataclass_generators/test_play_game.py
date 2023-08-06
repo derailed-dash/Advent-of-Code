@@ -20,6 +20,7 @@ class TestPlayGame(unittest.TestCase):
         pass
     
     def run(self, result=None):
+        """ Override run method so we can include method name in output """
         method_name = self._testMethodName
         logger.info("Running test: %s", method_name)
         super().run(result)
@@ -61,14 +62,14 @@ class TestPlayGame(unittest.TestCase):
         self.assertEqual(rounds_started, 6)
         
     def test_play_game_34230000_hard_mode(self):
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
         player = Wizard("Bob", hit_points=50, mana=500)
         boss = Player("Boss", hit_points=40, damage=10, armor=0)
         attack_combo = [spell_key_lookup[int(attack)] for attack in "34230000"]
         
         player_won, mana_consumed, rounds_started = play_game(attack_combo, player, boss, hard_mode=True)
         self.assertEqual(player_won, True)
-        self.assertEqual(mana_consumed, 794)
+        self.assertEqual(mana_consumed, 794) # only uses 6 of the 8 attacks, otherwise would be 900
         self.assertEqual(rounds_started, 6)
         
     def test_play_game_224304300300_hard_mode(self):

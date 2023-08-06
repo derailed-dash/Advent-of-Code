@@ -384,10 +384,10 @@ def main():
     logger.info(message)
     logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
 
-def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
+def try_combos(boss_stats: Player, plyr_stats: Wizard, num_attacks):
     # the generator - without list - is faster, but we lose the tqdm progress bar
     logger.info("Boss stats: name=%s, hit_points=%d, damage=%d", boss_stats.name, boss_stats.hit_points, boss_stats.damage)
-    logger.info("Player stats: name=%s, hit_points=%d, mana=%d", player_stats.name, player_stats.hit_points, player_stats.mana)    
+    logger.info("Player stats: name=%s, hit_points=%d, mana=%d", plyr_stats.name, plyr_stats.hit_points, plyr_stats.mana)    
     attack_combos_lookups = attack_combos_generator(num_attacks, len(spell_key_lookup))
 
     winning_games = {}
@@ -409,7 +409,7 @@ def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
         
         # Much faster than a deep copy
         boss = Player(boss_stats.name, boss_stats.hit_points, boss_stats.damage, boss_stats.armor)
-        player = Wizard(player_stats.name, player_stats.hit_points, player_stats.mana)
+        player = Wizard(plyr_stats.name, plyr_stats.hit_points, plyr_stats.mana)
     
         if player_has_won and logger.getEffectiveLevel() == logging.DEBUG:
             logger.debug("Best winning attack: %s. Total mana: %s. Current attack: %s", 
@@ -487,7 +487,7 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
         mana_target (int): optional arg, that specifies a max mana consumed value which triggers a return
 
     Returns:
-        tuple[bool, int, int]: Whether the player won, the amount of mana consumed, and the number of rounds started
+        tuple[bool, int, int]: player won, mana consumed, number of rounds
     """
     game_round = 1
     current_player = player
