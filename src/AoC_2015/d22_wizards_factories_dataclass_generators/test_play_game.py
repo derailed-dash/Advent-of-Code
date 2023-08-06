@@ -7,7 +7,7 @@
 """
 import unittest
 import logging
-from spell_casting_2 import (
+from spell_casting import (
         logger, 
         Player, Wizard, 
         spell_key_lookup, 
