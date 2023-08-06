@@ -39,6 +39,7 @@ from __future__ import annotations
 import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
+from functools import cache
 import operator
 import logging
 import os
@@ -57,6 +58,13 @@ logger.setLevel(logging.DEBUG)
 
 class ColouredFormatter(logging.Formatter):
     """ Custom Formater which adds colour to output, based on logging level """
+
+    level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
+                     "INFO": (Fore.GREEN, "INF"),
+                     "WARNING": (Fore.YELLOW, "WRN"),
+                     "ERROR": (Fore.RED, "ERR"),
+                     "CRITICAL": (Fore.MAGENTA, "CRT")
+    }
     
     def __init__(self, *args, apply_colour=True, shorten_lvl=True, **kwargs) -> None:
         """ Args:
@@ -65,14 +73,7 @@ class ColouredFormatter(logging.Formatter):
         """
         super().__init__(*args, **kwargs)
         self._apply_colour = apply_colour
-        self._shorten_lvl = shorten_lvl
-        
-    level_mapping = {"DEBUG": (Fore.BLUE, "DBG"),
-                  "INFO": (Fore.GREEN, "INF"),
-                  "WARNING": (Fore.YELLOW, "WRN"),
-                  "ERROR": (Fore.RED, "ERR"),
-                  "CRITICAL": (Fore.MAGENTA, "CRT")
-    }
+        self._shorten_lvl = shorten_lvl 
 
     def format(self, record):
         if record.levelname in ColouredFormatter.level_mapping:
@@ -103,10 +104,11 @@ def retrieve_console_logger(script_name):
     """ Create and return a new logger, named after the script """
     a_logger = logging.getLogger(script_name)
     a_logger.addHandler(stream_handler)
+    a_logger.propagate = False
     return a_logger
     
-def setup_file_logging(a_logger: logging.Logger, folder):
-    """ Add a FileHandler to the specified logger.
+def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
+    """ Add a FileHandler to the specified logger. File name is based on the logger name.
 
     Args:
         a_logger (Logger): The existing logger
@@ -128,18 +130,20 @@ class Locations:
     """ Dataclass for storing various location properties """
     script_name: str
     script_dir: Path
+    input_dir: Path
+    output_dir: Path
     sample_input_file: Path
     input_file: Path
-    output_dir: Path
     
 def get_locations(script_file):
     script_name = Path(script_file).stem   # this script file, without .py
     script_dir = Path(script_file).parent  # the folder where this script lives
-    sample_input_file = Path(script_dir, "input/sample_input.txt")
-    input_file = Path(script_dir, "input/input.txt")
+    input_dir = Path(script_dir, "input")
     output_dir = Path(script_dir, "output")
+    input_file = Path(input_dir, "input.txt")
+    sample_input_file = Path(script_dir, "input/sample_input.txt")
     
-    return Locations(script_name, script_dir, sample_input_file, input_file, output_dir)
+    return Locations(script_name, script_dir, input_dir, output_dir, sample_input_file, input_file)
 
 #################################################################
 # POINTS, VECTORS AND GRIDS
@@ -289,7 +293,7 @@ class Grid():
         return ["".join(str(char) for char in col) for col in cols_list]
 
     def __repr__(self) -> str:
-        return f"Grid(score={self.width}*{self.height})"
+        return f"Grid(size={self.width}*{self.height})"
     
     def __str__(self) -> str:
         return "\n".join("".join(map(str, row)) for row in self._array)
@@ -342,12 +346,41 @@ def merge_intervals(intervals: list[list]) -> list[list]:
             stack.append(interval)
       
     return stack
+
+@cache
+def get_factors(num: int) -> set[int]:
+    """ Gets the factors for a given number. Returns a set[int] of factors. 
+        # E.g. when num=8, factors will be 1, 2, 4, 8 """
+    factors = set()
+
+    # Iterate from 1 to sqrt of 8,  
+    # since a larger factor of num must be a multiple of a smaller factor already checked
+    for i in range(1, int(num**0.5) + 1):  # e.g. with num=8, this is range(1, 3)
+        if num % i == 0: # if it is a factor, then dividing num by it will yield no remainder
+            factors.add(i)  # e.g. 1, 2
+            factors.add(num//i)  # i.e. 8//1 = 8, 8//2 = 4
+    
+    return factors
 ```
 
 I've placed the module into a folder called `common`. So we can use it by importing like this:
 
 ```python
 from common.type_defs import Point
+```
+
+Or, to import everything:
+
+```python
+import common.type_defs as td
+```
+
+Then we can do stuff like this:
+
+```python
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.INFO)
 ```
 
 ## Unit Tests
@@ -359,13 +392,16 @@ Here I've created a test module, for testing the `type_defs.py` module:
 ```python
 """ Testing the type_defs module """
 import unittest
+from os import path
 from common.type_defs import (
     Point, 
     Grid, 
     Vectors, 
     VectorDicts, 
     binary_search, 
-    merge_intervals
+    merge_intervals,
+    get_factors,
+    get_locations
 )
 
 class TestTypes(unittest.TestCase):
@@ -388,6 +424,16 @@ class TestTypes(unittest.TestCase):
         
         self.a_point_neighbours = self.a_point.neighbours()   
     
+    def test_locations(self):
+        locations = get_locations(__file__)
+        
+        # use normcase to un-escape and ignore case differences in the paths
+        script_directory = path.normcase(path.dirname(path.realpath(__file__)))
+        self.assertEqual(path.normcase(locations.script_dir), script_directory)
+        
+        this_script = path.splitext(path.basename(__file__))[0]
+        self.assertEqual(locations.script_name, this_script)        
+
     def test_vectors(self):
         self.assertEqual(Vectors.N.value, (0, 1))
         self.assertEqual(Vectors.NW.value, (-1, 1))
@@ -474,6 +520,10 @@ class TestTypes(unittest.TestCase):
         expected = [[1, 7], [8, 15], [18, 20]]
         
         self.assertEqual(merge_intervals(pairs), expected)
+        
+    def test_get_factors(self):
+        expected = {1, 2, 4, 8}
+        self.assertEqual(get_factors(8), expected)
           
 if __name__ == "__main__":
     unittest.main(verbosity=2)
