@@ -19,11 +19,13 @@ Here I'll go into the basics of working with classes and objects in Python. This
 ## Page Contents
 
 - [What is a Class? What is an Object?](#what-is-a-class-what-is-an-object)
+  - [Attributes](#attributes)
+  - [Methods](#methods)
 - [Object-Oriented Programming (OOP)](#object-oriented-programming-oop)
 - [Defining a Class](#defining-a-class)
 - [Instance vs Class](#instance-vs-class)
-  - [Attributes](#attributes)
-  - [Methods](#methods)
+  - [Attributes](#attributes-1)
+  - [Methods](#methods-1)
 - [Comparing Objects and Hashing](#comparing-objects-and-hashing)
 - [Dataclass](#dataclass)
 - [Inheritance](#inheritance)
@@ -472,4 +474,6 @@ print(my_shape)
 
 ## Examples
 
+- [Factory Pattern: 2015 Day 22 - Wizards and Spells](/2015/22)
 - [Factory Pattern: 2022 Day 17 - Tetris!](/2022/17)
+- [Inheritence and constructor chaining: 2015 Day 22 - Wizard class](/2015/22)

@@ -1,4 +1,10 @@
-""" Unit testing for Spell_Casting """
+""" Unit testing for Spell_Casting 
+    0: SpellType.MAGIC_MISSILES, # 53
+    1: SpellType.DRAIN, # 73
+    2: SpellType.SHIELD, # 113
+    3: SpellType.POISON, # 173
+    4: SpellType.RECHARGE # 229
+"""
 import unittest
 import logging
 from spell_casting_2 import (
@@ -19,8 +25,9 @@ class TestPlayGame(unittest.TestCase):
         super().run(result)
         
     def test_play_game_42130(self):
-        """ Test a simple game, in _normal_ diffulty """  
-        logger.setLevel(logging.DEBUG)
+        """ Test a simple game, in _normal_ diffulty.
+        As supplied in the game instructions. """  
+        logger.setLevel(logging.DEBUG) # So we can look at each turn and compare to the instructions
         player = Wizard("Bob", hit_points=10, mana=250)
         boss = Player("Boss", hit_points=14, damage=8, armor=0)
         attack_combo = [spell_key_lookup[int(attack)] for attack in "42130"]
@@ -63,6 +70,17 @@ class TestPlayGame(unittest.TestCase):
         self.assertEqual(player_won, True)
         self.assertEqual(mana_consumed, 794)
         self.assertEqual(rounds_started, 6)
+        
+    def test_play_game_224304300300_hard_mode(self):
+        logger.setLevel(logging.INFO)
+        player = Wizard("Bob", hit_points=50, mana=500)
+        boss = Player("Boss", hit_points=71, damage=10, armor=0)
+        attack_combo = [spell_key_lookup[int(attack)] for attack in "224304300300"]
+        
+        player_won, mana_consumed, rounds_started = play_game(attack_combo, player, boss, hard_mode=True)
+        self.assertEqual(player_won, True)
+        self.assertEqual(mana_consumed, 1468)
+        self.assertEqual(rounds_started, 12)        
     
     def test_calculate_mana_cost(self):
         self.assertEqual(get_combo_mana_cost("42130"), 641)
@@ -78,7 +96,6 @@ class TestPlayGame(unittest.TestCase):
         player = Wizard("Bob", hit_points=50, mana=500)
                 
         winning_games, least_winning_mana = try_combos(boss, player, num_attacks)
-        logger.info("Using %d attacks...", num_attacks)
         logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
         message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
         logger.info(message)

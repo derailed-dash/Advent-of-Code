@@ -36,6 +36,8 @@ from math import ceil
 from dataclasses import dataclass
 from os import path
 from typing import Iterable
+from tqdm import tqdm
+
 import common.type_defs as td
 
 locations = td.get_locations(__file__)
@@ -115,7 +117,7 @@ class SpellAttributes:
     """ Define the attributes of a Spell """
     name: str
     mana_cost: int
-    duration: int
+    effect_duration: int
     is_effect: bool
     heal: int
     damage: int
@@ -155,14 +157,14 @@ class Spell:
     """
     name: str
     mana_cost: int
-    duration: int
+    effect_duration: int
     is_effect: bool
     heal: int = 0
     damage: int = 0
     armor: int = 0
     mana_regen: int = 0
     delay_start: int = 0
-    effect_applied_count = 0
+    effect_applied_count = 0 # track how long an effect has been running
 
     @classmethod
     def check_spell_castable(cls, spell_type: SpellType, wiz: Wizard):
@@ -196,7 +198,7 @@ class Spell:
     
     def __repr__(self) -> str:
         return f"Spell: {self.name}, cost: {self.mana_cost}, " \
-                    f"is effect: {self.is_effect}, remaining duration: {self.duration}"
+                    f"is effect: {self.is_effect}, remaining duration: {self.effect_duration}"
 
     def increment_effect_applied_count(self):
         self.effect_applied_count += 1
@@ -249,12 +251,15 @@ class Wizard(Player):
         Returns:
             int: The mana consumed by this turn
         """
-        self.apply_effects(other_player)
-        self.fade_effects()
+        self._turn(other_player)
         mana_consumed = self.cast_spell(spell_key, other_player)
 
         return mana_consumed
 
+    def _turn(self, other_player: Player):
+        self.apply_effects(other_player)
+        self.fade_effects()        
+        
     def opponent_takes_turn(self, other_player: Player):
         """ An opponent takes their turn.  (Not the wizard.)
         We must apply any Wizard effects on their turn (and fade), before their attack.
@@ -263,8 +268,7 @@ class Wizard(Player):
         Args:
             other_player (Player): [description]
         """
-        self.apply_effects(other_player)
-        self.fade_effects()        
+        self._turn(other_player)
 
     def cast_spell(self, spell_type: SpellType, other_player: Player) -> int:
         """ Casts a spell.
@@ -310,7 +314,7 @@ class Wizard(Player):
     def fade_effects(self):
         effects_to_remove = []
         for effect_name, effect in self._active_effects.items():
-            if effect.effect_applied_count >= effect.duration:
+            if effect.effect_applied_count >= effect.effect_duration:
                 logger.debug("%s: fading effect %s", self._name, effect_name)
                 if effect.armor:
                     # restore armor to pre-effect levels
@@ -331,11 +335,11 @@ class Wizard(Player):
         """
         for effect_name, effect in self._active_effects.items():
             # if effect should be active if we've used it fewer times than the duration
-            if effect.effect_applied_count < effect.duration:
+            if effect.effect_applied_count < effect.effect_duration:
                 effect.increment_effect_applied_count()
                 if logger.getEffectiveLevel() == logging.DEBUG:
                     logger.debug("%s: applying effect %s, leaving %d turns.", 
-                            self._name, effect_name, effect.duration - effect.effect_applied_count)
+                            self._name, effect_name, effect.effect_duration - effect.effect_applied_count)
 
                 if effect.armor:
                     if effect.effect_applied_count == 1:
@@ -358,7 +362,7 @@ class Wizard(Player):
         return f"{self._name} (Wizard): hit points={self._hit_points}, " \
                         f"damage={self._damage}, armor={self._armor}, mana={self._mana}"
 
-@cache
+@cache # I think there are only about 3000 different sorted attacks
 def get_combo_mana_cost(attack_combo_lookup: str) -> int:
     """ Pass in attack combo lookup str, and return the cost of this attack combo.
     Ideally, the attack combo lookup should be sorted, because cost doesn't care about attack order;
@@ -374,8 +378,8 @@ def main():
     test_boss = Player("Test Boss", hit_points=40, damage=10, armor=0) # test boss, which only requires 7 attacks
     player = Wizard("Bob", hit_points=50, mana=500)
 
-    winning_games, least_winning_mana = try_combos(test_boss, player, 9)
-    # winning_games, least_winning_mana = try_combos(actual_boss, player, 14)
+    # winning_games, least_winning_mana = try_combos(test_boss, player, 11)
+    winning_games, least_winning_mana = try_combos(actual_boss, player, 12)
 
     message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
     logger.info(message)
@@ -383,14 +387,16 @@ def main():
 
 def try_combos(boss_stats: Player, player_stats: Wizard, num_attacks):
     # the generator - without list - is faster, but we lose the tqdm progress bar
+    logger.info("Boss stats: name=%s, hit_points=%d, damage=%d", boss_stats.name, boss_stats.hit_points, boss_stats.damage)
+    logger.info("Player stats: name=%s, hit_points=%d, mana=%d", player_stats.name, player_stats.hit_points, player_stats.mana)    
     attack_combos_lookups = attack_combos_generator(num_attacks, len(spell_key_lookup))
 
     winning_games = {}
-    least_winning_mana = 2500
+    least_winning_mana = 2500 # ball-park of what will likely be larger than winning solution
     ignore_combo = "9999999"
     player_has_won = False
     
-    for attack_combo_lookup in attack_combos_lookups: # play the game with this attack combo
+    for attack_combo_lookup in tqdm(list(attack_combos_lookups)): # play the game with this attack combo
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
@@ -557,5 +563,6 @@ def process_boss_input(data:list[str]) -> tuple:
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
+    logger.info("Final cache size: %d", get_combo_mana_cost.cache_info().currsize)
     t2 = time.perf_counter()
     logger.info("Execution time: %.3f seconds", t2 - t1)
