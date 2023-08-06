@@ -457,8 +457,7 @@ def attack_combos_generator(max_attacks: int, count_different_attacks: int, reve
         max_attacks (int): Maximum number of attacks to return before exiting
         count_different_attacks (int): How many different attacks we can make
 
-    Yields:
-        Iterator[Iterable[str]]: Next attack sequence
+    Yields: next attack sequence
     """
     num_attack_combos = count_different_attacks**max_attacks
     for i in range(num_attack_combos):
@@ -485,7 +484,7 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
     Returns:
         tuple[bool, int, int]: Whether the player won, the amount of mana consumed, and the number of rounds started
     """
-    i = 1
+    game_round = 1
     current_player = player
     other_player = boss    
 
@@ -497,7 +496,7 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
             # player (wizard) attack
             if logger.getEffectiveLevel() == logging.DEBUG:
                 logger.debug("")
-                logger.debug("Round %s...", i)
+                logger.debug("Round %s...", game_round)
                 logger.debug("%s's turn:", current_player.name)
     
             if hard_mode:
@@ -507,16 +506,16 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
                     logger.debug("Hard mode killed %s", boss.name)
                     continue
             try:
-                mana_consumed += player.take_turn(attacks[i-1], boss)
+                mana_consumed += player.take_turn(attacks[game_round-1], boss)
                 if mana_target and mana_consumed > mana_target:
                     logger.debug('Mana target %s exceeded; mana consumed=%s.', mana_target, mana_consumed)
-                    return False, mana_consumed, i
+                    return False, mana_consumed, game_round
             except ValueError as err:
                 logger.debug(err)
-                return False, mana_consumed, i
+                return False, mana_consumed, game_round
             except IndexError:
                 logger.debug("No more attacks left.")
-                return False, mana_consumed, i
+                return False, mana_consumed, game_round
 
         else:
             logger.debug("%s's turn:", current_player.name)
@@ -527,7 +526,7 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
                 continue
 
             boss.attack(other_player)
-            i += 1
+            game_round += 1
         
         if logger.getEffectiveLevel() == logging.DEBUG:
             logger.debug("End of turn: %s", player)
@@ -537,7 +536,7 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
         current_player, other_player = other_player, current_player
 
     player_won = player.hit_points > 0
-    return player_won, mana_consumed, i
+    return player_won, mana_consumed, game_round
 
 def process_boss_input(data:list[str]) -> tuple:
     """ Process boss file input and return tuple of hit_points, damage
