@@ -6,21 +6,25 @@ Solving https://adventofcode.com/2015/day/22
 
 Solution:
     Wizard class overrides Player class.
-    We have a SpellFactory, which creates instances of Spell, passing in SpellType dataclasss instances.
+    Spell class has a factory method, to create instances of Spell, passing in SpellType dataclasss instances.
 
 Part 1:
     We need to find the combination of attacks that uses the least mana.
     We use a generator to yield successive attack combos.
+    - The generator is infinite, so we need an exit condition.
+    
     For each combo, we play the game and store the mana used.
-    Games are considered lost if the opponent wins, or a given spell combo is invalid (e.g. not enough mana).
-    As we yield the next combo, we skip any combos that have the same starting sequence as a previous game.
+    - Games are considered lost if the opponent wins, or a given spell combo is invalid (e.g. not enough mana).
+    - As we yield the next combo, we skip any combos that have the same starting sequence as a previous game.
+    - And we skip a combo that has a cost that is greater than a previous attack combo.
+    - Caching the sorted attack_combo_lookup str reduces the overall time by about half.
+    - If we've previously won with an attack of length n, and we couldn't find a better result
+      with attack of length n+1, we're unlikely to find a better solution. So exit here.
     
     It works, but it requires a combo with 12 attacks for the lowest mana win.
     With 5 different attacks, this means 5**12 attack sequences, i.e. 244m different attack combos.
     
-    Caching the sorted attack_combo_lookup str reduces the overall time by about half.
-    
-    This approach currently takes a few minutes.
+    This approach currently takes half an hour.
 
 Part 2:
     Simply deduct one hit point for every player turn in a game.  This reduces the number of winning games.
@@ -35,7 +39,6 @@ from math import ceil
 from dataclasses import dataclass
 from os import path
 from typing import Iterable
-from tqdm import tqdm
 
 import common.type_defs as td
 
@@ -361,13 +364,24 @@ class Wizard(Player):
         return f"{self._name} (Wizard): hit points={self._hit_points}, " \
                         f"damage={self._damage}, armor={self._armor}, mana={self._mana}"
 
+def attack_combos_generator(count_different_attacks: int) -> Iterable[str]:
+    """ Generator that returns the next attack combo. Pass in the number of different attack types.
+    E.g. with 5 different attacks, it will generate...
+    0, 1, 2, 3, 4, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, etc
+    """
+    i = 0
+    while True:
+        # convert i to base-n (where n is the number of attacks we can choose from) 
+        yield td.to_base_n(i, count_different_attacks)
+        i += 1
+
 @cache # I think there are only about 3000 different sorted attacks
 def get_combo_mana_cost(attack_combo_lookup: str) -> int:
     """ Pass in attack combo lookup str, and return the cost of this attack combo.
     Ideally, the attack combo lookup should be sorted, because cost doesn't care about attack order;
     and providing a sorted value, we can use a cache. """
     return sum(spell_costs[int(attack)] for attack in attack_combo_lookup)
-    
+
 def main():
     # boss stats are determined by an input file
     with open(path.join(locations.input_dir, BOSS_FILE), mode="rt") as f:
@@ -378,24 +392,26 @@ def main():
     player = Wizard("Bob", hit_points=50, mana=500)
 
     # winning_games, least_winning_mana = try_combos(test_boss, player, 11)
-    winning_games, least_winning_mana = try_combos(actual_boss, player, 12)
+    winning_games, least_winning_mana = try_combos(actual_boss, player)
 
     message = "Winning solutions:\n" + "\n".join(f"Mana: {k}, Attack: {v}" for k, v in winning_games.items())
     logger.info(message)
     logger.info("We found %d winning solutions. Lowest mana cost was %d.", len(winning_games), least_winning_mana)
 
-def try_combos(boss_stats: Player, plyr_stats: Wizard, num_attacks):
-    # the generator - without list - is faster, but we lose the tqdm progress bar
-    logger.info("Boss stats: name=%s, hit_points=%d, damage=%d", boss_stats.name, boss_stats.hit_points, boss_stats.damage)
-    logger.info("Player stats: name=%s, hit_points=%d, mana=%d", plyr_stats.name, plyr_stats.hit_points, plyr_stats.mana)    
-    attack_combos_lookups = attack_combos_generator(num_attacks, len(spell_key_lookup))
+def try_combos(boss_stats: Player, plyr_stats: Wizard):
+    logger.info(boss_stats)
+    logger.info(plyr_stats)    
 
     winning_games = {}
-    least_winning_mana = 2500 # ball-park of what will likely be larger than winning solution
+    least_winning_mana = 2500 # ball park of what will likely be larger than winning solution
     ignore_combo = "9999999"
     player_has_won = False
+    last_attack_len = 0
     
-    for attack_combo_lookup in tqdm(list(attack_combos_lookups)): # play the game with this attack combo
+    # This is an infinite generator, so we need an exit condition
+    for attack_combo_lookup in attack_combos_generator(len(spell_key_lookup)): 
+        # play the game with this attack combo
+        
         # since attack combos are returned sequentially, 
         # we can ignore any that start with the same attacks as the last failed combo.
         if attack_combo_lookup.startswith(ignore_combo):
@@ -417,41 +433,34 @@ def try_combos(boss_stats: Player, plyr_stats: Wizard, num_attacks):
         else:
             logger.debug("Current attack: %s", attack_combo_lookup)
 
-        # Convert the attack combo to a list of spells. E.g. convert '00002320'
-        # to [<SpellType.MAGIC_MISSILES: ..., <SpellType.MAGIC_MISSILES: ..., 
-        #    ... <SpellType.SHIELD: ..., <SpellType.MAGIC_MISSILES: ... >]
-        attack_combo = [spell_key_lookup[int(attack)] for attack in attack_combo_lookup]
         player_won, mana_consumed, rounds_started = play_game(
-                attack_combo, player, boss, hard_mode=True, mana_target=least_winning_mana)
+                attack_combo_lookup, player, boss, hard_mode=True, mana_target=least_winning_mana)
         
         if player_won:
             player_has_won = True
             winning_games[mana_consumed] = attack_combo_lookup
-            least_winning_mana = min(mana_consumed, least_winning_mana)      
+            least_winning_mana = min(mana_consumed, least_winning_mana)
+            logger.info("Found a winning solution, with attack %s consuming %d", attack_combo_lookup, mana_consumed)
         
+        attack_len = len(attack_combo_lookup)
+        if (attack_len > last_attack_len):
+            if player_has_won:
+                # We can't play forever. Assume that if the last attack length didn't yield a better result
+                # then we're not going to find a better solution.
+                if len(attack_combo_lookup) > len(winning_games[least_winning_mana]) + 1:
+                    logger.info("Probably not getting any better. Exiting.")
+                    break # We're done!
+                
+            logger.info("Trying attacks of length %d", attack_len)
+        
+        last_attack_len = attack_len
+
         # we can ingore any attacks that start with the same attacks as what we tried last time
         ignore_combo = attack_combo_lookup[0:rounds_started]
         
     return winning_games, least_winning_mana
 
-def attack_combos_generator(max_attacks: int, count_different_attacks: int) -> Iterable[str]:
-    """ Generator that returns the next attack combo.
-    E.g. with a max of 3 attacks, and 5 different attacks, 
-    the generator will return a max of 5**3 = 125 different attack combos
-
-    Args:
-        max_attacks (int): Maximum number of attacks to return before exiting
-        count_different_attacks (int): How many different attacks we can make
-
-    Yields: next attack sequence
-    """
-    num_attack_combos = count_different_attacks**max_attacks
-    for i in range(num_attack_combos):
-        # convert i to base-n (where n is the number of attacks we can choose from) 
-        # E.g. 0, 1, 2, 3, 4, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, etc
-        yield td.to_base_n(i, count_different_attacks)
-
-def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kwargs) -> tuple[bool, int, int]:
+def play_game(attack_combo_lookup: str, player: Wizard, boss: Player, hard_mode=False, **kwargs) -> tuple[bool, int, int]:
     """ Play a game, given a player (Wizard) and an opponent (boss)
 
     Args:
@@ -464,6 +473,12 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
     Returns:
         tuple[bool, int, int]: player won, mana consumed, number of rounds
     """
+    
+    # Convert the attack combo to a list of spells. E.g. convert '00002320'
+    # to [<SpellType.MAGIC_MISSILES: ..., <SpellType.MAGIC_MISSILES: ..., 
+    #    ... <SpellType.SHIELD: ..., <SpellType.MAGIC_MISSILES: ... >]
+    attacks = [spell_key_lookup[int(attack)] for attack in attack_combo_lookup]    
+
     game_round = 1
     current_player = player
     other_player = boss    
@@ -520,9 +535,6 @@ def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kw
 
 def process_boss_input(data:list[str]) -> tuple:
     """ Process boss file input and return tuple of hit_points, damage
-
-    Args:
-        data (List[str]): input file lines
 
     Returns:
         tuple: hit_points, damage
