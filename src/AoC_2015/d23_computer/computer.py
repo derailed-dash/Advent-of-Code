@@ -14,8 +14,8 @@ Part 1:
 
 Part 2:
     Same as before, but reg b initalised to 1, rather than 0.
-
 """
+from enum import Enum
 import logging
 import time
 import common.type_defs as td
@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 
 # pylint: disable=logging-fstring-interpolation
 
-class Instructions:
+class Instructions(Enum):
     """Store instruction constants"""
     JMP = "jmp"
     JIO = "jio"
@@ -59,7 +59,8 @@ def main():
         data = f.read().splitlines()
         
     program = process_input(data)
-    logger.debug(program) 
+    for item in program:
+        logger.debug(item)
     
     reg_a = Register()
     reg_b = Register()
@@ -67,8 +68,8 @@ def main():
     
     run_program(program, registers)
     logger.info("PART 1:")
-    for register in registers:
-        logger.info(f"Register {register}: {registers[register].get_value()}")
+    for reg_key, register in registers.items():
+        logger.info(f"Register {reg_key}: {register.get_value()}")
     
     reg_a = Register(1)
     reg_b = Register()
@@ -76,9 +77,8 @@ def main():
     
     run_program(program, registers)
     logger.info("PART 2:")
-    for register in registers:
-        logger.info(f"Register {register}: {registers[register].get_value()}")
-
+    for reg_key, register in registers.items():
+        logger.info(f"Register {reg_key}: {register.get_value()}")
 
 def run_program(program, registers):
     instr_pointer = 0
@@ -87,33 +87,32 @@ def run_program(program, registers):
     while instr_pointer < len(program):
         instr = program[instr_pointer]
         
-        if instr[0] == Instructions.JMP:
+        if instr[0] == Instructions.JMP.value:
             instr_pointer += instr[2]
             continue
         
         # all other instructions have a register argument
         current_reg = registers[instr[1]]
-        if instr[0] == Instructions.JIE:
+        if instr[0] == Instructions.JIE.value:
             # jump if reg is even
             if current_reg.get_value() % 2 == 0:
                 instr_pointer += instr[2]
                 continue
-        elif instr[0] == Instructions.JIO:
+        elif instr[0] == Instructions.JIO.value:
             # jump if reg is ONE
             if current_reg.get_value() == 1:
                 instr_pointer += instr[2]
                 continue
-        elif instr[0] == Instructions.HLF:
+        elif instr[0] == Instructions.HLF.value:
             current_reg.hlf()
-        elif instr[0] == Instructions.TPL:
+        elif instr[0] == Instructions.TPL.value:
             current_reg.tpl()
-        elif instr[0] == Instructions.INC:
+        elif instr[0] == Instructions.INC.value:
             current_reg.inc()
         else:
             raise ValueError(f"Invalid instruction: {instr[0]}") 
 
         instr_pointer += 1
-
 
 def process_input(data: list[str]) -> list:
     """Input is a list of instructions.  Convert to a list of instructions.
@@ -138,7 +137,9 @@ def process_input(data: list[str]) -> list:
         if instr != Instructions.JMP:
             reg = instruction_parts[1][0]
             
-        if instr == Instructions.JMP or instr == Instructions.JIE or instr == Instructions.JIO:
+        if (instr == Instructions.JMP.value 
+                or instr == Instructions.JIE.value 
+                or instr == Instructions.JIO.value):
             offset = int(instruction_parts[-1])
             
         program.append([instr, reg, offset])
