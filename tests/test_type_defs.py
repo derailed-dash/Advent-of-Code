@@ -9,7 +9,8 @@ from common.type_defs import (
     binary_search, 
     merge_intervals,
     get_factors,
-    get_locations
+    get_locations,
+    to_base_n
 )
 
 class TestTypes(unittest.TestCase):
@@ -132,6 +133,13 @@ class TestTypes(unittest.TestCase):
     def test_get_factors(self):
         expected = {1, 2, 4, 8}
         self.assertEqual(get_factors(8), expected)
+        
+    def test_to_base_n(self):
+        self.assertEqual(to_base_n(10, 2), "1010")
+        self.assertEqual(to_base_n(38, 5), "123")
+        self.assertEqual(to_base_n(24, 12), "20")
+        self.assertEqual(to_base_n(0, 12), "0")
+        self.assertEqual(to_base_n(57, 10), "57")
           
 if __name__ == "__main__":
     unittest.main(verbosity=2)

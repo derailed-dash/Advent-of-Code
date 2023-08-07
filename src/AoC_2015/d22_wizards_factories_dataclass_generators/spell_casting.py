@@ -434,26 +434,7 @@ def try_combos(boss_stats: Player, plyr_stats: Wizard, num_attacks):
         
     return winning_games, least_winning_mana
 
-def to_base_n(number: int, base: int):
-    """ Convert any integer number into a base-n string representation of that number.
-    E.g. to_base_n(38, 5) = 123
-
-    Args:
-        number (int): The number to convert
-        base (int): The base to apply
-
-    Returns:
-        [str]: The string representation of the number
-    """
-    ret_str = ""
-    curr_num = number
-    while curr_num:
-        ret_str = str(curr_num % base) + ret_str
-        curr_num //= base
-
-    return ret_str if number > 0 else "0"
-
-def attack_combos_generator(max_attacks: int, count_different_attacks: int, reverse=False) -> Iterable[str]:
+def attack_combos_generator(max_attacks: int, count_different_attacks: int) -> Iterable[str]:
     """ Generator that returns the next attack combo.
     E.g. with a max of 3 attacks, and 5 different attacks, 
     the generator will return a max of 5**3 = 125 different attack combos
@@ -467,14 +448,8 @@ def attack_combos_generator(max_attacks: int, count_different_attacks: int, reve
     num_attack_combos = count_different_attacks**max_attacks
     for i in range(num_attack_combos):
         # convert i to base-n (where n is the number of attacks we can choose from) 
-
-        if reverse:
-            # Pad with zeroes such that str length is the same as total number of attacks.
-            # E.g. 000, 001, 002, 003, 004, 010, 011, 012, 013, 014, 020, 021, 022, 023, 024, etc
-            yield to_base_n(i, count_different_attacks).zfill(max_attacks)
-        else:
-            # E.g. 0, 1, 2, 3, 4, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, etc
-            yield to_base_n(i, count_different_attacks)
+        # E.g. 0, 1, 2, 3, 4, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, etc
+        yield td.to_base_n(i, count_different_attacks)
 
 def play_game(attacks: list, player: Wizard, boss: Player, hard_mode=False, **kwargs) -> tuple[bool, int, int]:
     """ Play a game, given a player (Wizard) and an opponent (boss)

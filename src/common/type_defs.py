@@ -334,3 +334,22 @@ def get_factors(num: int) -> set[int]:
             factors.add(num//i)  # i.e. 8//1 = 8, 8//2 = 4
     
     return factors
+
+def to_base_n(number: int, base: int):
+    """ Convert any integer number into a base-n string representation of that number.
+    E.g. to_base_n(38, 5) = 123
+
+    Args:
+        number (int): The number to convert
+        base (int): The base to apply
+
+    Returns:
+        [str]: The string representation of the number
+    """
+    ret_str = ""
+    curr_num = number
+    while curr_num:
+        ret_str = str(curr_num % base) + ret_str
+        curr_num //= base
+
+    return ret_str if number > 0 else "0"
