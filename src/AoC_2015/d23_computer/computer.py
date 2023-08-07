@@ -4,7 +4,7 @@ Date: 26/04/2021
 
 Solving https://adventofcode.com/2015/day/23
 
-Simulator a simple computer with 2 registers and 6 instructions.
+Simulate a simple computer with 2 registers and 6 instructions.
 
 Part 1:
     Register class stores register state and provides convenience methods.
@@ -17,12 +17,12 @@ Part 2:
 
 """
 import logging
-import os
 import time
+import common.type_defs as td
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.DEBUG)
 
 # pylint: disable=logging-fstring-interpolation
 
@@ -52,35 +52,32 @@ class Register:
         
     def get_value(self):
         return self._value
-        
 
 def main():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(levelname)s:\t%(message)s")
-    # input_file = os.path.join(SCRIPT_DIR, SAMPLE_INPUT_FILE)
-    input_file = os.path.join(SCRIPT_DIR, INPUT_FILE)
-    with open(input_file, mode="rt") as f:
+    # with open(locations.sample_input_file, mode="rt") as f:
+    with open(locations.input_file, mode="rt") as f:
         data = f.read().splitlines()
         
     program = process_input(data)
-    logging.debug(program) 
+    logger.debug(program) 
     
     reg_a = Register()
     reg_b = Register()
     registers = {'a': reg_a, 'b': reg_b}
     
     run_program(program, registers)
-    logging.info("PART 1:")
+    logger.info("PART 1:")
     for register in registers:
-        logging.info(f"Register {register}: {registers[register].get_value()}")
+        logger.info(f"Register {register}: {registers[register].get_value()}")
     
     reg_a = Register(1)
     reg_b = Register()
     registers = {'a': reg_a, 'b': reg_b}
     
     run_program(program, registers)
-    logging.info("PART 2:")
+    logger.info("PART 2:")
     for register in registers:
-        logging.info(f"Register {register}: {registers[register].get_value()}")
+        logger.info(f"Register {register}: {registers[register].get_value()}")
 
 
 def run_program(program, registers):
@@ -148,7 +145,6 @@ def process_input(data: list[str]) -> list:
         
     return program    
             
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
