@@ -15,7 +15,6 @@ Part 1:
 Part 2:
     Same as before, but reg b initalised to 1, rather than 0.
 """
-from enum import Enum
 import logging
 import time
 import common.type_defs as td
@@ -24,7 +23,7 @@ locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
 
-class Instructions(Enum):
+class Instructions():
     """ Define an instruction set, made up of instruction constants """
     JMP = "jmp"
     JIO = "jio"
@@ -32,6 +31,19 @@ class Instructions(Enum):
     HLF = "hlf"
     TPL = "tpl"
     INC = "inc"
+
+    _methods = {
+        HLF: lambda x: x // 2, 
+        TPL: lambda x: x * 3, 
+        INC: lambda x: x + 1
+    }
+
+    @classmethod
+    def execute(cls, instr, x):
+        """ Dispatch to the specified instruction, with the specified value """
+        if instr in cls._methods:
+            return cls._methods[instr](x)
+        raise ValueError(f"Invalid instruction: {instr}") 
   
 class Computer:
     """ Simulate a computer with 2 registers """
@@ -48,15 +60,6 @@ class Computer:
         """ Return the registers """
         return self._registers
     
-    def hlf(self, register: str):
-        self._registers[register] //= 2
-    
-    def tpl(self, register: str):
-        self._registers[register] *= 3
-        
-    def inc(self, register: str, amount: int = 1):
-        self._registers[register] += amount
-    
     def get_register_value(self, register: str):
         return self._registers[register]
     
@@ -64,34 +67,34 @@ class Computer:
         self._registers[register] = val
 
     def run_program(self, program):
+        """ Execute the specified program """
 
         # exit the loop when we reach an instruction that does not exist
         while self._instruction_ptr < len(program):
-            instr = program[self._instruction_ptr]
+            program_line = program[self._instruction_ptr]
+            instr, reg = program_line[0], program_line[1]
             
-            if instr[0] == Instructions.JMP.value:
-                self._instruction_ptr += instr[2]
+            if instr == Instructions.JMP:
+                self._instruction_ptr += program_line[2]
                 continue
             
             # all other instructions have a register argument
-            if instr[0] == Instructions.JIE.value:
+            if instr == Instructions.JIE:
                 # jump if reg is even
-                if self.get_register_value(instr[1]) % 2 == 0:
-                    self._instruction_ptr += instr[2]
+                if self.get_register_value(reg) % 2 == 0:
+                    self._instruction_ptr += program_line[2]
                     continue
-            elif instr[0] == Instructions.JIO.value:
+            elif instr == Instructions.JIO:
                 # jump if reg is ONE
-                if self.get_register_value(instr[1]) == 1:
-                    self._instruction_ptr += instr[2]
+                if self.get_register_value(reg) == 1:
+                    self._instruction_ptr += program_line[2]
                     continue
-            elif instr[0] == Instructions.HLF.value:
-                self.hlf(instr[1])
-            elif instr[0] == Instructions.TPL.value:
-                self.tpl(instr[1])
-            elif instr[0] == Instructions.INC.value:
-                self.inc(instr[1])
             else:
-                raise ValueError(f"Invalid instruction: {instr[0]}") 
+                try:
+                    self.set_register_value(reg, Instructions.execute(instr, self.get_register_value(reg)))
+                except ValueError as e:
+                    e_val = e.args[0] if e.args else str(e)
+                    raise ValueError(f"{e_val} at instruction {self._instruction_ptr}") from e
 
             self._instruction_ptr += 1
 
@@ -111,6 +114,7 @@ def run_part(part_num, program):
     computer = Computer()
     if part_num == 2:
         computer.set_register_value('a', 1)
+        
     computer.run_program(program)
     
     logger.info("PART %d:", part_num)
@@ -141,7 +145,7 @@ def process_input(data: list[str]) -> list:
         if instr != Instructions.JMP:
             reg = instruction_parts[1][0]
             
-        if (instr in (Instructions.JMP.value, Instructions.JIE.value, Instructions.JIO.value)):
+        if (instr in (Instructions.JMP, Instructions.JIE, Instructions.JIO)):
             offset = int(instruction_parts[-1])
             
         program.append([instr, reg, offset])
@@ -150,6 +154,10 @@ def process_input(data: list[str]) -> list:
             
 if __name__ == "__main__":
     t1 = time.perf_counter()
-    main()
+    try:
+        main()   
+    except ValueError as ex:
+        logger.error(ex)
+             
     t2 = time.perf_counter()
     logger.info("Execution time: %.3f seconds", t2 - t1)
