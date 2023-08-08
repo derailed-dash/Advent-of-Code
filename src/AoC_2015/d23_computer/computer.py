@@ -22,12 +22,10 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
-
-# pylint: disable=logging-fstring-interpolation
+logger.setLevel(logging.INFO)
 
 class Instructions(Enum):
-    """Store instruction constants"""
+    """ Define an instruction set, made up of instruction constants """
     JMP = "jmp"
     JIO = "jio"
     JIE = "jie"
@@ -35,23 +33,67 @@ class Instructions(Enum):
     TPL = "tpl"
     INC = "inc"
   
-class Register:
-    """Store register state"""
+class Computer:
+    """ Simulate a computer with 2 registers """
     
     def __init__(self, init_val: int = 0) -> None:
-        self._value = init_val
-        
-    def hlf(self):
-        self._value //= 2
+        self._registers = {
+            'a': init_val,
+            'b': init_val
+        }
+        self._instruction_ptr = 0
     
-    def tpl(self):
-        self._value *= 3
+    @property
+    def registers(self):
+        """ Return the registers """
+        return self._registers
+    
+    def hlf(self, register: str):
+        self._registers[register] //= 2
+    
+    def tpl(self, register: str):
+        self._registers[register] *= 3
         
-    def inc(self, amount: int = 1):
-        self._value += amount
-        
-    def get_value(self):
-        return self._value
+    def inc(self, register: str, amount: int = 1):
+        self._registers[register] += amount
+    
+    def get_register_value(self, register: str):
+        return self._registers[register]
+    
+    def set_register_value(self, register: str, val: int):
+        self._registers[register] = val
+
+    def run_program(self, program):
+
+        # exit the loop when we reach an instruction that does not exist
+        while self._instruction_ptr < len(program):
+            instr = program[self._instruction_ptr]
+            
+            if instr[0] == Instructions.JMP.value:
+                self._instruction_ptr += instr[2]
+                continue
+            
+            # all other instructions have a register argument
+            if instr[0] == Instructions.JIE.value:
+                # jump if reg is even
+                if self.get_register_value(instr[1]) % 2 == 0:
+                    self._instruction_ptr += instr[2]
+                    continue
+            elif instr[0] == Instructions.JIO.value:
+                # jump if reg is ONE
+                if self.get_register_value(instr[1]) == 1:
+                    self._instruction_ptr += instr[2]
+                    continue
+            elif instr[0] == Instructions.HLF.value:
+                self.hlf(instr[1])
+            elif instr[0] == Instructions.TPL.value:
+                self.tpl(instr[1])
+            elif instr[0] == Instructions.INC.value:
+                self.inc(instr[1])
+            else:
+                raise ValueError(f"Invalid instruction: {instr[0]}") 
+
+            self._instruction_ptr += 1
 
 def main():
     # with open(locations.sample_input_file, mode="rt") as f:
@@ -62,69 +104,31 @@ def main():
     for item in program:
         logger.debug(item)
     
-    reg_a = Register()
-    reg_b = Register()
-    registers = {'a': reg_a, 'b': reg_b}
+    run_part(1, program)
+    run_part(2, program)
     
-    run_program(program, registers)
-    logger.info("PART 1:")
-    for reg_key, register in registers.items():
-        logger.info(f"Register {reg_key}: {register.get_value()}")
+def run_part(part_num, program):
+    computer = Computer()
+    if part_num == 2:
+        computer.set_register_value('a', 1)
+    computer.run_program(program)
     
-    reg_a = Register(1)
-    reg_b = Register()
-    registers = {'a': reg_a, 'b': reg_b}
+    logger.info("PART %d:", part_num)
+    for reg_key, reg_val in computer.registers.items():
+        logger.info(f"Register {reg_key}: {reg_val}")
     
-    run_program(program, registers)
-    logger.info("PART 2:")
-    for reg_key, register in registers.items():
-        logger.info(f"Register {reg_key}: {register.get_value()}")
-
-def run_program(program, registers):
-    instr_pointer = 0
-    
-    # exit the loop when we reach an instruction that does not exist
-    while instr_pointer < len(program):
-        instr = program[instr_pointer]
-        
-        if instr[0] == Instructions.JMP.value:
-            instr_pointer += instr[2]
-            continue
-        
-        # all other instructions have a register argument
-        current_reg = registers[instr[1]]
-        if instr[0] == Instructions.JIE.value:
-            # jump if reg is even
-            if current_reg.get_value() % 2 == 0:
-                instr_pointer += instr[2]
-                continue
-        elif instr[0] == Instructions.JIO.value:
-            # jump if reg is ONE
-            if current_reg.get_value() == 1:
-                instr_pointer += instr[2]
-                continue
-        elif instr[0] == Instructions.HLF.value:
-            current_reg.hlf()
-        elif instr[0] == Instructions.TPL.value:
-            current_reg.tpl()
-        elif instr[0] == Instructions.INC.value:
-            current_reg.inc()
-        else:
-            raise ValueError(f"Invalid instruction: {instr[0]}") 
-
-        instr_pointer += 1
+    logger.info(".")
 
 def process_input(data: list[str]) -> list:
-    """Input is a list of instructions.  Convert to a list of instructions.
-    Each instruction takes the format [instr, register, offset]
+    """ Input is a list of instructions.  Convert to a list of instructions.
     Note: Register is None for JMP instructions.
           Offset is None for all non-jump instructions.
 
-    Args:
-        data (List[str]): Input list
-
     Returns:
-        List: List of lists
+        List: Where each item is itself a list of [instr, register, offset]
+        
+    E.g. turns: jio a, +22 
+          into: ['jio', 'a', 22]
     """
     program = []
     
@@ -137,9 +141,7 @@ def process_input(data: list[str]) -> list:
         if instr != Instructions.JMP:
             reg = instruction_parts[1][0]
             
-        if (instr == Instructions.JMP.value 
-                or instr == Instructions.JIE.value 
-                or instr == Instructions.JIO.value):
+        if (instr in (Instructions.JMP.value, Instructions.JIE.value, Instructions.JIO.value)):
             offset = int(instruction_parts[-1])
             
         program.append([instr, reg, offset])
@@ -150,4 +152,4 @@ if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    print(f"Execution time: {t2 - t1:0.4f} seconds")
+    logger.info("Execution time: %.3f seconds", t2 - t1)
