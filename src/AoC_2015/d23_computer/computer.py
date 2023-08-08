@@ -68,6 +68,8 @@ class Computer:
 
     def run_program(self, program):
         """ Execute the specified program """
+        
+        program = Computer.process_input(program) # convert program to correct format
 
         # exit the loop when we reach an instruction that does not exist
         while self._instruction_ptr < len(program):
@@ -97,18 +99,44 @@ class Computer:
                     raise ValueError(f"{e_val} at instruction {self._instruction_ptr}") from e
 
             self._instruction_ptr += 1
+    
+    @staticmethod
+    def process_input(data: list[str]) -> list:
+        """ Input is a list of instructions.  Convert to a list of instructions.
+        Note: Register is None for JMP instructions.
+            Offset is None for all non-jump instructions.
+
+        Returns:
+            List: Where each item is itself a list of [instr, register, offset]
+            
+        E.g. turns: jio a, +22 
+            into: ['jio', 'a', 22]
+        """
+        program = []
+        
+        for line in data:
+            reg = None
+            offset = None
+            
+            instruction_parts = line.split()
+            instr = instruction_parts[0]
+            if instr != Instructions.JMP:
+                reg = instruction_parts[1][0]
+                
+            if (instr in (Instructions.JMP, Instructions.JIE, Instructions.JIO)):
+                offset = int(instruction_parts[-1])
+                
+            program.append([instr, reg, offset])
+            
+        return program   
 
 def main():
     # with open(locations.sample_input_file, mode="rt") as f:
     with open(locations.input_file, mode="rt") as f:
         data = f.read().splitlines()
-        
-    program = process_input(data)
-    for item in program:
-        logger.debug(item)
     
-    run_part(1, program)
-    run_part(2, program)
+    run_part(1, data)
+    run_part(2, data)
     
 def run_part(part_num, program):
     computer = Computer()
@@ -123,35 +151,6 @@ def run_part(part_num, program):
     
     logger.info(".")
 
-def process_input(data: list[str]) -> list:
-    """ Input is a list of instructions.  Convert to a list of instructions.
-    Note: Register is None for JMP instructions.
-          Offset is None for all non-jump instructions.
-
-    Returns:
-        List: Where each item is itself a list of [instr, register, offset]
-        
-    E.g. turns: jio a, +22 
-          into: ['jio', 'a', 22]
-    """
-    program = []
-    
-    for line in data:
-        reg = None
-        offset = None
-        
-        instruction_parts = line.split()
-        instr = instruction_parts[0]
-        if instr != Instructions.JMP:
-            reg = instruction_parts[1][0]
-            
-        if (instr in (Instructions.JMP, Instructions.JIE, Instructions.JIO)):
-            offset = int(instruction_parts[-1])
-            
-        program.append([instr, reg, offset])
-        
-    return program    
-            
 if __name__ == "__main__":
     t1 = time.perf_counter()
     try:
