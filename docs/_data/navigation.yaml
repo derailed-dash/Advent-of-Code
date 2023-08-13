@@ -152,7 +152,10 @@ pages:
     problem: "Wizard Simulator 20XX"  
   - name: 23
     link: /2015/23
-    problem: "Opening the Turing Lock"        
+    problem: "Opening the Turing Lock"
+  - name: 24
+    link: /2015/24
+    problem: "It Hangs in the Balance"         
 - name: "2021"
   link: /2021/
   mainnav: True
