@@ -1,4 +1,4 @@
-# override site.url when running in Docker, since Jekyll sets host to 0.0.0.0
+# Override site.url when running in Docker, since Jekyll sets host to 0.0.0.0
 # to allow the container to be accessible, but this breaks any absolute links in the site
 # Then, be sure to explicitly specify config files when running jekyll serve from a container
 # I.e. jekyll serve --config _config.yml,_config.docker.yml

@@ -32,17 +32,24 @@ class Instructions():
     TPL = "tpl"
     INC = "inc"
 
-    _methods = {
-        HLF: lambda x: x // 2, 
-        TPL: lambda x: x * 3, 
-        INC: lambda x: x + 1
-    }
+    @staticmethod
+    def _hlf(x):
+        return x // 2
+
+    @staticmethod
+    def _tpl(x):
+        return x * 3
+    
+    @staticmethod
+    def _inc(x):
+        return x + 1
 
     @classmethod
     def execute(cls, instr, x):
         """ Dispatch to the specified instruction, with the specified value """
-        if instr in cls._methods:
-            return cls._methods[instr](x)
+        method = getattr(cls, f'_{instr}', None)
+        if method:
+            return method(x)
         raise ValueError(f"Invalid instruction: {instr}") 
   
 class Computer:
@@ -68,28 +75,29 @@ class Computer:
 
     def run_program(self, program):
         """ Execute the specified program """
-        
-        program = Computer.process_input(program) # convert program to correct format
 
         # exit the loop when we reach an instruction that does not exist
         while self._instruction_ptr < len(program):
             program_line = program[self._instruction_ptr]
-            instr, reg = program_line[0], program_line[1]
+            parts = program_line.split(" ", 1) # split at the first space only
+            instr = parts[0]
+            instr_args = [arg.strip() for arg in parts[1].split(',')]
             
-            if instr == Instructions.JMP:
-                self._instruction_ptr += program_line[2]
+            if instr == Instructions.JMP: # e.g. jmp +19
+                self._instruction_ptr += int(instr_args[0])
                 continue
             
             # all other instructions have a register argument
-            if instr == Instructions.JIE:
+            reg = instr_args[0]
+            if instr == Instructions.JIE: # jie a, +4
                 # jump if reg is even
                 if self.get_register_value(reg) % 2 == 0:
-                    self._instruction_ptr += program_line[2]
+                    self._instruction_ptr += int(instr_args[1])
                     continue
-            elif instr == Instructions.JIO:
+            elif instr == Instructions.JIO: # jio a, +8
                 # jump if reg is ONE
                 if self.get_register_value(reg) == 1:
-                    self._instruction_ptr += program_line[2]
+                    self._instruction_ptr += int(instr_args[1])
                     continue
             else:
                 try:
@@ -100,36 +108,6 @@ class Computer:
 
             self._instruction_ptr += 1
     
-    @staticmethod
-    def process_input(data: list[str]) -> list:
-        """ Input is a list of instructions.  Convert to a list of instructions.
-        Note: Register is None for JMP instructions.
-            Offset is None for all non-jump instructions.
-
-        Returns:
-            List: Where each item is itself a list of [instr, register, offset]
-            
-        E.g. turns: jio a, +22 
-            into: ['jio', 'a', 22]
-        """
-        program = []
-        
-        for line in data:
-            reg = None
-            offset = None
-            
-            instruction_parts = line.split()
-            instr = instruction_parts[0]
-            if instr != Instructions.JMP:
-                reg = instruction_parts[1][0]
-                
-            if (instr in (Instructions.JMP, Instructions.JIE, Instructions.JIO)):
-                offset = int(instruction_parts[-1])
-                
-            program.append([instr, reg, offset])
-            
-        return program   
-
 def main():
     # with open(locations.sample_input_file, mode="rt") as f:
     with open(locations.input_file, mode="rt") as f:
