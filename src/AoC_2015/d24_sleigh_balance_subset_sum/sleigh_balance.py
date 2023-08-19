@@ -5,19 +5,25 @@ Date: 02/05/2021
 Solving https://adventofcode.com/2015/day/24
 
 We require three bags of equal weight. 
-   Bag 1 in the passenger compartment, needs to have fewest packages.
-   Bags 2 and 3 to either side.
+    3 groups: one in the middle, and on on each side.
+    We are given a list of package weights.
+    We must distribute packages across the 3 groups, such that each group has the same weight.
+    The central group needs to have the fewest packages.
+    If there is more than one solution with equal minimum number of packages,
+    then return the group of packages with the lowest QE, where QE = product of package weights
    
-Solution:
-   Use subset sum function to work out which combinations of packages adds up to 
-   total weight / number of bags (compartments).
-   The faster subsum is about 3x quicker than the version that uses itertools.combinations.
-   Once we have all combinations for the first bag, sort by the number of packages, 
-   since we want the first bag to have fewest possible packages.
-   
-   We don't care about what's in bags 2, 3...
-   I.e. because we know we will have valid combinations of packages that will add up to the same weight
-
+Solution for Part 1:
+  - Add up the package weights and divide by 3. This is our required weight for each group.
+  - We only care about the middle group. The configurations of the other two groups are irrelevant.
+  - So, try combinations of packages that sum to the required weight.
+    Start with 1 package, then 2, then 3, etc. 
+  - The first returned valid combinations will be of the fewest number of packages.
+  - If more than one valid combo is returned, find the minimum based on QE.
+  
+Solution for Part 2:
+  - Same as before, but use 4 instead of 3. Easy!
+  
+This solution works pretty well... About 0.2s for both parts.
 """
 from __future__ import absolute_import
 import logging
@@ -30,113 +36,54 @@ locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
 
-# pylint: disable=logging-fstring-interpolation
-
 def main():
-    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:\t%(message)s")
-    
     # with open(locations.sample_input_file, mode="rt") as f:
     with open(locations.input_file, mode="rt") as f:
         package_weights = [int(x) for x in f.read().splitlines()]
     
-    logger.info(f"Package weights: {package_weights}")
+    logger.debug(f"Package weights: {package_weights}")
 
-    # Part 1
-    optimum_solution = distribute_packages(package_weights, 3)
-    logger.info(f"Solution found with QE {get_quantum_entanglement(optimum_solution)}")
-    logger.info(f"First bag: {optimum_solution}")
+    run_part(1, package_weights, 3)
+    run_part(2, package_weights, 4)
     
-    # Part 2
-    optimum_solution = distribute_packages(package_weights, 4)
-    logger.info(f"Solution found with QE {get_quantum_entanglement(optimum_solution)}")
-    logger.info(f"First bag: {optimum_solution}")
+def run_part(part: int, package_weights, number_of_groups: int):
+    optimum_solution = distribute_packages(package_weights, number_of_groups)
+    logger.info("Part %d:", part)
+    logger.info(f"First group: {optimum_solution}")
+    logger.info(f"QE: {get_quantum_entanglement(optimum_solution)}")
+    logger.info(".")
 
-def distribute_packages(package_weights, number_of_bags) -> tuple:
-    logger.info(f"Solving for {number_of_bags} bags")
+def distribute_packages(package_weights, number_of_groups) -> tuple:
+    logger.info(f"Solving for {number_of_groups} groups")
     
     package_count = len(package_weights)
     total_weight = sum(package_weights)
-    target_weight_per_bag = total_weight // number_of_bags
+    target_weight_per_group = total_weight // number_of_groups
     
-    logger.debug(f"Total packages: {package_count}, with total weight: {total_weight}")
-    logger.debug(f"Target weight per bag: {target_weight_per_bag}")
+    logger.info(f"Total packages: {package_count}, with total weight: {total_weight}")
+    logger.info(f"Target weight per bag: {target_weight_per_group}")
 
-    # Get all combos for first bag.
-    # Sort by bags in the combo, since the first bag should have fewest packages.    
-    first_bag_combos = faster_subset_sum(package_weights, target_weight_per_bag)
-    first_bag_combos = sorted(first_bag_combos, key=len)
+    # Get all combos for first group.
+    # Try any single package, then any two packages, then any three, etc
+    # Since we need fewest packages that add up to target weight,
+    # there's no point trying more than package_count // number_of_groups
+    valid_combos = None
+    for num_packages in range(1, (package_count // number_of_groups) +1):
+        logger.debug("Trying %d packages...", num_packages)
+        valid_combos = [combo for combo in list(combinations(package_weights, num_packages))
+                              if sum(combo) == target_weight_per_group]
+        if valid_combos: # we've found a solution
+            break
     
-    # store first bag of optimum solution
-    optimum_solution = tuple()
-        
-    for first_bag_combo in first_bag_combos:
-        # First bag must have smallest number of packages
-        # Skip any bag combos that have more packages than a previous solution
-        if len(optimum_solution) > 0:
-            if len(first_bag_combo) > len(optimum_solution):
-                continue
-            
-            # if quantum entanglement of the first bag is higher than an existing solution,
-            # then skip it
-            if get_quantum_entanglement(first_bag_combo) >= get_quantum_entanglement(optimum_solution):
-                continue
-            
-        optimum_solution = first_bag_combo
-        
-    return optimum_solution
-            
+    assert valid_combos, "There should be a matching combo"
+    logger.debug(valid_combos)
 
+    return min(valid_combos, key=get_quantum_entanglement)
+            
 def get_quantum_entanglement(bag: tuple):
+    """ QE = the product of the values in the tuple """
     return prod(bag)
 
-def faster_subset_sum(items: list, target: int, partial=[], results=[]) -> list:
-    """
-    Determine all combinations of list items that add up to the target
-    
-    Args:
-        numbers (list): A list of values
-        target (int): The total that the values need to add up to
-        partial (list, optional): Used by the function. Defaults to [].
-        results (list, optional): Used by the function. Defaults to [].
-
-    Returns:
-        list: The list of valid combinations
-    """
-    total = sum(partial)
-
-    # check if the partial sum is equals to target, and if so
-    # add the current terms to the results list
-    if total == target:
-        results.append(partial)
-        
-    # if the partial sum equals or exceed the target, no point in recursing through remaining terms.
-    if total >= target:
-        return []
-
-    for i, item in enumerate(items):
-        remaining_numbers = items[i + 1:]
-        faster_subset_sum(remaining_numbers, target, partial + [item], results)
-
-    return results
-
-def simple_subset_sum(items, target: int) -> tuple:
-    """ Return a tuple of any combinations of items that adds up to the target
-
-    Args:
-        items (Sequence): List/set of items
-        target (int): The target sum to achieve
-
-    Yields:
-        Iterator[tuple]: Items that achieve the desired sum
-    """
-    # Iterating through all possible subsets of collection from lengths 0 to n:
-    for i in range(len(items)+1):
-        for subset in combinations(items, i):
-              
-            # printing the subset if its sum is x:
-            if sum(subset) == target:
-                yield subset
-                
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()

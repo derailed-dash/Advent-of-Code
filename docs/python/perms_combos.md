@@ -16,10 +16,10 @@ tags:
   - name: Permutations in Python
     link: https://medium.com/geekculture/permutations-in-python-431cd0c75253
 ---
-<script id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
-
+<script
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  type="text/javascript">
+</script>   
 ## Page Contents
 
 - [Overview of Permutations and Combinations](#overview-of-permutations-and-combinations)
