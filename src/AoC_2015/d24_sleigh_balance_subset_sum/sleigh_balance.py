@@ -34,11 +34,11 @@ import common.type_defs as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def main():
-    with open(locations.sample_input_file, mode="rt") as f:
-    # with open(locations.input_file, mode="rt") as f:
+    # with open(locations.sample_input_file, mode="rt") as f:
+    with open(locations.input_file, mode="rt") as f:
         package_weights = [int(x) for x in f.read().splitlines()]
     
     logger.debug(f"Package weights: {package_weights}")
