@@ -12,16 +12,14 @@ Solution:
 
 """
 import logging
-import os
 import time
+import common.type_defs as td
 
-SCRIPT_DIR = os.path.dirname(__file__) 
-INPUT_FILE = "input/input.txt"
-SAMPLE_INPUT_FILE = "input/sample_input.txt"
+locations = td.get_locations(__file__)
+logger = td.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.INFO)
 
 def main():
-    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:\t%(message)s")
-
     code_generator = get_next_code()
     
     target_row = 2947
@@ -44,9 +42,8 @@ def main():
         for col in range(row+1):
             rows[row-col][col] = next(code_generator)   
         
-    print(f"Value at row {target_row}, col {target_col} is: {rows[target_row-1][target_col-1]}")
+    logger.info(f"Value at row {target_row}, col {target_col} is: {rows[target_row-1][target_col-1]}")
     
-
 def get_next_code():
     current_code = 20151125
     yield current_code
@@ -58,9 +55,8 @@ def get_next_code():
         current_code = (current_code * multiplier) % dividend
         yield current_code
 
-
 if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    print(f"Execution time: {t2 - t1:0.4f} seconds")
+    logger.info("Execution time: %.3f seconds", t2 - t1)
