@@ -158,7 +158,14 @@ pages:
     problem: "It Hangs in the Balance"
   - name: 25
     link: /2015/25
-    problem: "Let It Snow"     
+    problem: "Let It Snow"
+- name: "2016"
+  link: /2016/
+  mainnav: True
+  members:
+  - name: 1
+    link: /2016/1
+    problem: "No Time for a Taxicab" 
 - name: "2021"
   link: /2021/
   mainnav: True

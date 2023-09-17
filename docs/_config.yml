@@ -81,6 +81,10 @@ defaults:
     values:
       year: 2015
   - scope:
+      path: "2016"  # only apply to files in this folder
+    values:
+      year: 2016
+  - scope:
       path: "2021"  # only apply to files in this folder
     values:
       year: 2021
