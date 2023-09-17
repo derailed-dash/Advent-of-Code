@@ -10,17 +10,18 @@ Solving https://adventofcode.com/2015/day/25
   - Then 1,0 0,1
   - Then 2,0 1,1 0,2
   - Then 3,0 2,1 1,2 0,3, and so on.
-
+  
 Enter the code at row 2947, column 3029.
 
 Solution:
-  - Create a 2D list of lists, and fill with zeroes.
+  - Create a 2D NumPy array, and fill with zeroes.
     - The row upper bound is row-target + col-target - 1.
     - The col upper bound will be the same value, to complete that diagonal.
   - Then use a generate to allocate values.
 """
 import logging
 import time
+import numpy as np
 import common.type_defs as td
 
 locations = td.get_locations(__file__)
@@ -32,25 +33,18 @@ TARGET_COL = 3029
 
 def main():
     code_generator = get_next_code()
-        
-    coord_max = TARGET_ROW + TARGET_COL - 1 
-    rows = []
+    coord_max = TARGET_ROW + TARGET_COL - 1
     
     # initialise the 2D array.  Fill it with zeroes.
-    for row in range(coord_max):
-        column = []
-        for col in range(coord_max):
-            column.append(0)
-        
-        rows.append(column)
+    my_array = np.zeros((coord_max, coord_max), dtype=np.int32)
     
     # now use the generator to fill the values.
     for row in range(coord_max):
         # the sequence is... 0,0 | 1,0 0,1 | 2,0 1,1 0,2 | 3,0 2,1 1,2 0,3...
         for col in range(row+1):
-            rows[row-col][col] = next(code_generator)
+            my_array[row-col][col] = next(code_generator)
         
-    logger.info(f"Value at row {TARGET_ROW}, col {TARGET_COL} is: {rows[TARGET_ROW-1][TARGET_COL-1]}")
+    logger.info(f"Value at row {TARGET_ROW}, col {TARGET_COL} is: {my_array[TARGET_ROW-1][TARGET_COL-1]}")
 
 def get_next_code():
     current_code = 20151125
@@ -67,5 +61,4 @@ if __name__ == "__main__":
     t1 = time.perf_counter()
     main()
     t2 = time.perf_counter()
-    logger.info("Execution time: %.3f seconds", t2 - t1)
     logger.info("Execution time: %.3f seconds", t2 - t1)

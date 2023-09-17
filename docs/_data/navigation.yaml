@@ -155,7 +155,10 @@ pages:
     problem: "Opening the Turing Lock"
   - name: 24
     link: /2015/24
-    problem: "It Hangs in the Balance"         
+    problem: "It Hangs in the Balance"
+  - name: 25
+    link: /2015/25
+    problem: "Let It Snow"     
 - name: "2021"
   link: /2021/
   mainnav: True
