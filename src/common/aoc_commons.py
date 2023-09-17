@@ -17,6 +17,8 @@ import operator
 import logging
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import requests
 from colorama import Fore
 
 #################################################################
@@ -116,7 +118,40 @@ def get_locations(script_file):
     input_file = Path(input_dir, "input.txt")
     sample_input_file = Path(script_dir, "input/sample_input.txt")
     
-    return Locations(script_name, script_dir, input_dir, output_dir, sample_input_file, input_file)
+    return Locations(script_name, script_dir, 
+                     input_dir, 
+                     output_dir, 
+                     sample_input_file, input_file)
+
+##################################################################
+# Retrieving input data
+##################################################################
+
+def write_puzzle_input_file(year: int, day: int, input_file):
+    if os.path.exists(input_file):
+        logger.debug("%s already exists", os.path.basename(input_file))
+        return
+
+    load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))
+    SESSION_COOKIE = os.getenv('AOC_SESSION_COOKIE')
+    if SESSION_COOKIE:
+        logger.info('Session cookie retrieved.')
+    else:
+        logger.error('Failed to retrieve session cookie')
+        
+    url = f"https://adventofcode.com/{year}/day/{day}/input"
+    cookies = {"session": SESSION_COOKIE}
+    response = requests.get(url, cookies=cookies)
+    data = ""
+    
+    if response.status_code == 200:
+        data = response.text
+    else:
+        data = f"Failed to retrieve puzzle input: {response.status_code}"
+    
+    logger.debug("Writing %s", os.path.basename(input_file))
+    with open(input_file, 'w') as file:
+        file.write(data)
 
 #################################################################
 # POINTS, VECTORS AND GRIDS

@@ -1,2 +1,2 @@
-input.txt filter=git-crypt diff=git-crypt
+input*.txt filter=git-crypt diff=git-crypt
 .env filter=git-crypt diff=git-crypt
