@@ -165,7 +165,10 @@ pages:
   members:
   - name: 1
     link: /2016/1
-    problem: "No Time for a Taxicab" 
+    problem: "No Time for a Taxicab"
+- name: "2017"
+  link: /2017/
+  mainnav: True
 - name: "2021"
   link: /2021/
   mainnav: True
