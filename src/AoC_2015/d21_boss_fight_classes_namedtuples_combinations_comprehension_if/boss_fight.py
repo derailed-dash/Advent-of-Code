@@ -32,7 +32,7 @@ import re
 from os import path
 from itertools import combinations
 from player import Player
-import common.type_defs as td
+import common.aoc_commons as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)

@@ -99,7 +99,7 @@ from pathlib import Path
 import time
 from  colorama import Fore, Style
 
-from common.type_defs import cls
+from common.aoc_commons import cls
 
 SCRIPT_DIR = Path(__file__).parent
 # INPUT_FILE = Path(SCRIPT_DIR, "input/sample_input.txt")

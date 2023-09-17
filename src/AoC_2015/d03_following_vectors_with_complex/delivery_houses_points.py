@@ -21,7 +21,7 @@ Part 2:
 """
 from pathlib import Path
 import time
-from src.common.type_defs import Point, VectorDicts
+from common.aoc_commons import Point, VectorDicts
 
 SCRIPT_DIR = Path(__file__).parent 
 INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")

@@ -1,7 +1,7 @@
 """ Testing the type_defs module """
 import unittest
 from os import path
-from common.type_defs import (
+from common.aoc_commons import (
     Point, 
     Grid, 
     Vectors, 

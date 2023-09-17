@@ -35,7 +35,7 @@ Part 2:
 import time
 from collections import defaultdict
 import logging
-import common.type_defs as td
+import common.aoc_commons as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
