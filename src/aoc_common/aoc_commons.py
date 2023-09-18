@@ -5,8 +5,8 @@ Date: March 2023
 A set of helper functions, reusable classes and attributes used by my AoC solutions 
 Test with tests/test_aoc_commons.py
 
-You could import as follows:
-import common.aoc_commons as td                           
+You can import as follows:
+import aoc_commons as ac                           
 """
 # py -m pip install requests python-dotenv
 from __future__ import annotations
@@ -111,7 +111,8 @@ class Locations:
     sample_input_file: Path
     input_file: Path
     
-def get_locations(script_file):
+def get_locations(script_file) -> Locations:
+    """ Set various paths, based on the location of the calling script. """
     script_name = Path(script_file).stem   # this script file, without .py
     script_dir = Path(script_file).parent  # the folder where this script lives
     input_dir = Path(script_dir, "input")
@@ -128,51 +129,61 @@ def get_locations(script_file):
 # Retrieving input data
 ##################################################################
 
-def write_puzzle_input_file(year: int, day: int, locations: Locations) -> bool:
-    """ Use session key to obtain user's unique data for this year and day.
-    Only retrieve if the input file does not already exist. 
-    Return True if retrieved; False if file exists. 
-    """
-    if os.path.exists(locations.input_file):
-        logger.debug("%s already exists", os.path.basename(locations.input_file))
-        return False
-
-    potential_paths = [
+def get_envs_from_file() -> bool:
+    """ Look for .env files, read variables from it, and store as environment variables """
+    potential_paths = [ # look for .env
         '.env',
         os.path.join('..', '.env'),
         os.path.join('..', '..', '.env'),
     ]
     
-    env_path = ""
     for a_path in potential_paths:
         if os.path.exists(a_path):
             logger.info("Using .env at %s", a_path)
-            env_path = a_path
+            load_dotenv(a_path, verbose=True)
+            return True
+    
+    logger.warning("No .env file found.")
+    return False
 
-    load_dotenv(env_path)
-    SESSION_COOKIE = os.getenv('AOC_SESSION_COOKIE')
-    if SESSION_COOKIE:
+get_envs_from_file() # read env variables from a .env file, if we can find one
+    
+def write_puzzle_input_file(year: int, day: int, locations: Locations) -> bool:
+    """ Use session key to obtain user's unique data for this year and day.
+    Only retrieve if the input file does not already exist. 
+    Return True if successful.
+    Requires env: AOC_SESSION_COOKIE, which can be set from the .env. 
+    """
+    if os.path.exists(locations.input_file):
+        logger.debug("%s already exists", os.path.basename(locations.input_file))
+        return True
+
+    session_cookie = os.getenv('AOC_SESSION_COOKIE')
+    if session_cookie:
         logger.info('Session cookie retrieved.')
+        
+        # Create input folder, if it doesn't exist
+        if not locations.input_dir.exists():
+            locations.input_dir.mkdir(parents=True, exist_ok=True)
+        
+        url = f"https://adventofcode.com/{year}/day/{day}/input"
+        cookies = {"session": session_cookie}
+        response = requests.get(url, cookies=cookies, timeout=5)
+        
+        data = ""
+        if response.status_code == 200:
+            data = response.text
+        else:
+            data = f"Failed to retrieve puzzle input: {response.status_code}"
+        
+        with open(locations.input_file, 'w') as file:
+            logger.debug("Writing input file %s", os.path.basename(locations.input_file))
+            file.write(data)
+            return True
     else:
         logger.error('Failed to retrieve session cookie. Is it in your .env?')
-        
-    url = f"https://adventofcode.com/{year}/day/{day}/input"
-    cookies = {"session": SESSION_COOKIE}
-    response = requests.get(url, cookies=cookies)
-    data = ""
     
-    if response.status_code == 200:
-        data = response.text
-    else:
-        data = f"Failed to retrieve puzzle input: {response.status_code}"
-    
-    if not locations.input_dir.exists():
-        locations.input_dir.mkdir(parents=True, exist_ok=True)
-    logger.debug("Writing %s", os.path.basename(locations.input_file))
-    with open(locations.input_file, 'w') as file:
-        file.write(data)
-    
-    return True
+    return False
 
 #################################################################
 # POINTS, VECTORS AND GRIDS

@@ -40,10 +40,10 @@ from dataclasses import dataclass
 from os import path
 from typing import Iterable
 
-import aoc_common.aoc_commons as td
+import aoc_commons as ac
 
-locations = td.get_locations(__file__)
-logger = td.retrieve_console_logger(locations.script_name)
+locations = ac.get_locations(__file__)
+logger = ac.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
 # td.setup_file_logging(logger, folder=locations.output_dir)
 
@@ -372,7 +372,7 @@ def attack_combos_generator(count_different_attacks: int) -> Iterable[str]:
     i = 0
     while True:
         # convert i to base-n (where n is the number of attacks we can choose from) 
-        yield td.to_base_n(i, count_different_attacks)
+        yield ac.to_base_n(i, count_different_attacks)
         i += 1
 
 @cache # I think there are only about 3000 different sorted attacks

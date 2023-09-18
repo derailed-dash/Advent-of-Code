@@ -8,4 +8,4 @@ pip install dazbo-aoc-commons
 
 ## Use
 
-import aoc_common.aoc_commons as td
+import aoc_commons as ac

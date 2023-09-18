@@ -30,15 +30,15 @@ import logging
 import time
 from math import prod
 from itertools import combinations
-import aoc_common.aoc_commons as td
+import aoc_commons as ac
 
 YEAR = 2015
 DAY = 24
 
-locations = td.get_locations(__file__)
-logger = td.retrieve_console_logger(locations.script_name)
+locations = ac.get_locations(__file__)
+logger = ac.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
-td.write_puzzle_input_file(YEAR, DAY, locations)
+ac.write_puzzle_input_file(YEAR, DAY, locations)
 
 def main():
     # with open(locations.sample_input_file, mode="rt") as f:

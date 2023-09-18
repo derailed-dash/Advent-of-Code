@@ -31,7 +31,7 @@ import logging
 from pathlib import Path
 import time
 from matplotlib import pyplot as plt
-import aoc_common.aoc_commons as td
+import aoc_commons as ac
 from aoc_common.aoc_commons import Point
 
 SCRIPT_NAME = Path(__file__).stem
@@ -42,7 +42,7 @@ INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 logger = logging.getLogger(SCRIPT_NAME)
 logger.setLevel(logging.DEBUG)
-logger.addHandler(td.stream_handler)
+logger.addHandler(ac.stream_handler)
 # td.setup_file_logging(logger, OUTPUT_DIR, SCRIPT_NAME)
 
 class Grid():

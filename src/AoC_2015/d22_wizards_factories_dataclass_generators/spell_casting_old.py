@@ -30,10 +30,10 @@ from math import ceil
 import time
 from os import path
 from typing import Iterable
-import aoc_common.aoc_commons as td
+import aoc_commons as ac
 
-locations = td.get_locations(__file__)
-logger = td.retrieve_console_logger(locations.script_name)
+locations = ac.get_locations(__file__)
+logger = ac.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
 # td.setup_file_logging(logger, folder=locations.script_dir)
 

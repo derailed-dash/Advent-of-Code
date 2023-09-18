@@ -35,10 +35,10 @@ Part 2:
 import time
 from collections import defaultdict
 import logging
-import aoc_common.aoc_commons as td
+import aoc_commons as ac
 
-locations = td.get_locations(__file__)
-logger = td.retrieve_console_logger(locations.script_name)
+locations = ac.get_locations(__file__)
+logger = ac.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.INFO)
 
 TARGET = 36000000
@@ -53,7 +53,7 @@ def main():
     presents_dropped, house_num = 0, 0
     while presents_dropped < TARGET:
         house_num += 1
-        presents_dropped = sum(factor * 10 for factor in td.get_factors(house_num))   
+        presents_dropped = sum(factor * 10 for factor in ac.get_factors(house_num))   
 
     logger.info("Part 1: House=%d, presents dropped=%d", house_num, presents_dropped)
     
@@ -77,7 +77,7 @@ def generate_presents_for_house(per_elf_multiplier: int, elf_visit_limit: int = 
     while True: # iterate for each house, yielding each time
         house_num += 1
         presents_dropped = 0
-        factors_for_house = td.get_factors(house_num)
+        factors_for_house = ac.get_factors(house_num)
         
         # iterate through all the factors for this house
         for factor in factors_for_house:

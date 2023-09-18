@@ -29,7 +29,7 @@ Solution:
 import logging
 from pathlib import Path
 import time
-import aoc_common.aoc_commons as td
+import aoc_commons as ac
 
 SCRIPT_NAME = Path(__file__).stem
 SCRIPT_DIR = Path(__file__).parent
@@ -38,7 +38,7 @@ INPUT_FILE = Path(SCRIPT_DIR, "input/input.txt")
 
 logger = logging.getLogger(SCRIPT_NAME)
 logger.setLevel(logging.DEBUG)
-logger.addHandler(td.stream_handler)
+logger.addHandler(ac.stream_handler)
 
 def main():
     with open(INPUT_FILE, mode="rt") as f:
