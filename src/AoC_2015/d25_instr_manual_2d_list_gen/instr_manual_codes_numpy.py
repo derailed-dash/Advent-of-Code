@@ -22,7 +22,7 @@ Solution:
 import logging
 import time
 import numpy as np
-import common.aoc_commons as td
+import aoc_common.aoc_commons as td
 
 locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)

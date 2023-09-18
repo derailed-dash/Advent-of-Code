@@ -11,7 +11,7 @@ Part 2:
 """
 import logging
 import time
-import common.aoc_commons as td
+import aoc_common.aoc_commons as td
 
 YEAR = 2017
 DAY = 1

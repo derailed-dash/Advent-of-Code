@@ -25,7 +25,7 @@ Part 2:
 import os
 import time
 from itertools import product
-from common.aoc_commons import Vectors
+from aoc_common.aoc_commons import Vectors
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

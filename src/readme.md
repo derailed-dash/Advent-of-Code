@@ -4,6 +4,10 @@ If you'd like to peruse this code along with my solution walkthroughs, then take
 
 # General Notes Relating to AoC
 
+## Installing AOC-Commons
+
+pip install dazbo-aoc-commons
+
 ## Input Files and Encryption
 
 Eric has requested that we do not commit the input data to our repos.  At least, not in plain text.

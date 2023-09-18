@@ -16,7 +16,7 @@ Solution 2 of 2:
 import os
 import time
 from itertools import product
-from common.aoc_commons import Point
+from aoc_common.aoc_commons import Point
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

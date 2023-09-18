@@ -2,7 +2,7 @@
 import unittest
 from shutil import rmtree
 from os import path
-from common.aoc_commons import (
+from aoc_common.aoc_commons import (
     Point, 
     Grid, 
     Vectors, 

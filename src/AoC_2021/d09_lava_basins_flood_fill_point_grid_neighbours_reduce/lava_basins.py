@@ -30,7 +30,7 @@ import time
 from collections import deque
 from functools import reduce
 from PIL import Image
-from common.aoc_commons import Point, Grid
+from aoc_common.aoc_commons import Point, Grid
 
 SCRIPT_DIR = os.path.dirname(__file__) 
 INPUT_FILE = "input/input.txt"

@@ -2,11 +2,11 @@
 Author: Darren
 Date: March 2023
 
-A set of reusable classes and attributes used by my AoC solutions 
-Test with tests/test_type_defs.py
+A set of helper functions, reusable classes and attributes used by my AoC solutions 
+Test with tests/test_aoc_commons.py
 
 You could import as follows:
-import common.type_defs as td                               
+import common.aoc_commons as td                           
 """
 # py -m pip install requests python-dotenv
 from __future__ import annotations
@@ -137,7 +137,19 @@ def write_puzzle_input_file(year: int, day: int, locations: Locations) -> bool:
         logger.debug("%s already exists", os.path.basename(locations.input_file))
         return False
 
-    load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))
+    potential_paths = [
+        '.env',
+        os.path.join('..', '.env'),
+        os.path.join('..', '..', '.env'),
+    ]
+    
+    env_path = ""
+    for a_path in potential_paths:
+        if os.path.exists(a_path):
+            logger.info("Using .env at %s", a_path)
+            env_path = a_path
+
+    load_dotenv(env_path)
     SESSION_COOKIE = os.getenv('AOC_SESSION_COOKIE')
     if SESSION_COOKIE:
         logger.info('Session cookie retrieved.')
