@@ -1,11 +1,13 @@
 """ Testing the type_defs module """
 import unittest
+from shutil import rmtree
 from os import path
 from common.aoc_commons import (
     Point, 
     Grid, 
     Vectors, 
     VectorDicts, 
+    write_puzzle_input_file,
     binary_search, 
     merge_intervals,
     get_factors,
@@ -17,6 +19,9 @@ class TestTypes(unittest.TestCase):
     """ Unit tests of various classes in type_defs """
     
     def setUp(self):
+        self.locations = get_locations(__file__)
+        self.clear_input_file()
+        
         self.points = set()
         self.a_point = Point(5, 5)
         self.b_point = Point(1, 2)
@@ -31,17 +36,41 @@ class TestTypes(unittest.TestCase):
         self.points.add(self.d_point)  
         self.points.add(self.e_point)
         
-        self.a_point_neighbours = self.a_point.neighbours()   
+        self.a_point_neighbours = self.a_point.neighbours()
+
+    def clear_input_file(self):
+        """ Clear the input file """
+        if self.locations.input_dir.exists():
+            print(f"Deleting {self.locations.input_dir}")
+            rmtree(self.locations.input_dir)
     
     def test_locations(self):
-        locations = get_locations(__file__)
-        
+        """ That folder and file names are as expected """   
         # use normcase to un-escape and ignore case differences in the paths
         script_directory = path.normcase(path.dirname(path.realpath(__file__)))
-        self.assertEqual(path.normcase(locations.script_dir), script_directory)
+        self.assertEqual(path.normcase(self.locations.script_dir), script_directory)
         
         this_script = path.splitext(path.basename(__file__))[0]
-        self.assertEqual(locations.script_name, this_script)        
+        self.assertEqual(self.locations.script_name, this_script)        
+
+    def test_write_puzzle_input_file(self):
+        """ We can create an input folder and input file """
+        
+        # Try to retrieve input that does not exist
+        self.assertTrue(write_puzzle_input_file(2010, 1, self.locations))
+        with open(self.locations.input_file, "r") as file:
+            data = file.read()
+        self.assertIn("Failed", data)
+        
+        # Clear the folder and then retrieve legitimate input
+        self.clear_input_file()
+        self.assertTrue(write_puzzle_input_file(2015, 1, self.locations))
+        with open(self.locations.input_file, "r") as file:
+            data = file.read()
+        self.assertIn("(((())))", data)
+        
+        # Does not retrieve file if it already exists
+        self.assertFalse(write_puzzle_input_file(2015, 1, self.locations))
 
     def test_vectors(self):
         self.assertEqual(Vectors.N.value, (0, 1))

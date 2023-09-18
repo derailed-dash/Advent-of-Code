@@ -20,7 +20,7 @@ locations = td.get_locations(__file__)
 logger = td.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.DEBUG)
 # td.setup_file_logging(logger, locations.output_dir)
-td.write_puzzle_input_file(YEAR, DAY, locations.input_file)
+td.write_puzzle_input_file(YEAR, DAY, locations)
 
 def main():
     with open(locations.sample_input_file, mode="rt") as f:

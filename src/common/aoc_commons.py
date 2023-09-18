@@ -8,6 +8,7 @@ Test with tests/test_type_defs.py
 You could import as follows:
 import common.type_defs as td                               
 """
+# py -m pip install requests python-dotenv
 from __future__ import annotations
 import copy
 from dataclasses import asdict, dataclass
@@ -127,17 +128,21 @@ def get_locations(script_file):
 # Retrieving input data
 ##################################################################
 
-def write_puzzle_input_file(year: int, day: int, input_file):
-    if os.path.exists(input_file):
-        logger.debug("%s already exists", os.path.basename(input_file))
-        return
+def write_puzzle_input_file(year: int, day: int, locations: Locations) -> bool:
+    """ Use session key to obtain user's unique data for this year and day.
+    Only retrieve if the input file does not already exist. 
+    Return True if retrieved; False if file exists. 
+    """
+    if os.path.exists(locations.input_file):
+        logger.debug("%s already exists", os.path.basename(locations.input_file))
+        return False
 
     load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))
     SESSION_COOKIE = os.getenv('AOC_SESSION_COOKIE')
     if SESSION_COOKIE:
         logger.info('Session cookie retrieved.')
     else:
-        logger.error('Failed to retrieve session cookie')
+        logger.error('Failed to retrieve session cookie. Is it in your .env?')
         
     url = f"https://adventofcode.com/{year}/day/{day}/input"
     cookies = {"session": SESSION_COOKIE}
@@ -149,9 +154,13 @@ def write_puzzle_input_file(year: int, day: int, input_file):
     else:
         data = f"Failed to retrieve puzzle input: {response.status_code}"
     
-    logger.debug("Writing %s", os.path.basename(input_file))
-    with open(input_file, 'w') as file:
+    if not locations.input_dir.exists():
+        locations.input_dir.mkdir(parents=True, exist_ok=True)
+    logger.debug("Writing %s", os.path.basename(locations.input_file))
+    with open(locations.input_file, 'w') as file:
         file.write(data)
+    
+    return True
 
 #################################################################
 # POINTS, VECTORS AND GRIDS
