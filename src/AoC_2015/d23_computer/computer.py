@@ -17,7 +17,7 @@ Part 2:
 """
 import logging
 import time
-import aoc_commons as ac
+import aoc_common.aoc_commons as ac
 
 locations = ac.get_locations(__file__)
 logger = ac.retrieve_console_logger(locations.script_name)

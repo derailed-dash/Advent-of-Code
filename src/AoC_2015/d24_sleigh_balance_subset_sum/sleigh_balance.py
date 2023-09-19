@@ -30,7 +30,7 @@ import logging
 import time
 from math import prod
 from itertools import combinations
-import aoc_commons as ac
+import aoc_common.aoc_commons as ac
 
 YEAR = 2015
 DAY = 24

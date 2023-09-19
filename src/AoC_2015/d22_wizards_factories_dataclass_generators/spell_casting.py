@@ -40,7 +40,7 @@ from dataclasses import dataclass
 from os import path
 from typing import Iterable
 
-import aoc_commons as ac
+import aoc_common.aoc_commons as ac
 
 locations = ac.get_locations(__file__)
 logger = ac.retrieve_console_logger(locations.script_name)

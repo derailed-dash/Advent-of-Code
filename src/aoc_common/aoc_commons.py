@@ -6,7 +6,7 @@ A set of helper functions, reusable classes and attributes used by my AoC soluti
 Test with tests/test_aoc_commons.py
 
 You can import as follows:
-import aoc_commons as ac                           
+import aoc_common.aoc_commons as ac                           
 """
 # py -m pip install requests python-dotenv
 from __future__ import annotations

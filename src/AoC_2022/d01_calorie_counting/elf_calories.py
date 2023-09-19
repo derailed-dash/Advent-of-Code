@@ -29,7 +29,7 @@ Solution:
 import logging
 from pathlib import Path
 import time
-import aoc_commons as ac
+import aoc_common.aoc_commons as ac
 
 SCRIPT_NAME = Path(__file__).stem
 SCRIPT_DIR = Path(__file__).parent

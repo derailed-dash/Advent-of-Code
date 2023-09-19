@@ -31,7 +31,7 @@ import logging
 from pathlib import Path
 import time
 from matplotlib import pyplot as plt
-import aoc_commons as ac
+import aoc_common.aoc_commons as ac
 from aoc_common.aoc_commons import Point
 
 SCRIPT_NAME = Path(__file__).stem

@@ -4,10 +4,10 @@ from shutil import rmtree
 from os import path
 
 # py -m pip uninstall dazbo-aoc-commons
-# import aoc_common.aoc_commons as ac  # for local testing
+import aoc_common.aoc_commons as ac  # for local testing
 
 # py -m pip install dazbo-aoc-commons
-import aoc_commons as ac           # for testing using installed pip package
+# import aoc_commons as ac           # for testing using installed pip package
 
 class TestTypes(unittest.TestCase):
     """ Unit tests of various classes in type_defs """
