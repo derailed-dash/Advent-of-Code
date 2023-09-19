@@ -131,18 +131,16 @@ def get_locations(script_file) -> Locations:
 
 def get_envs_from_file() -> bool:
     """ Look for .env files, read variables from it, and store as environment variables """
-    potential_paths = [ # look for .env
-        '.env',
-        os.path.join('..', '.env'),
-        os.path.join('..', '..', '.env'),
-    ]
-    
-    for a_path in potential_paths:
-        if os.path.exists(a_path):
-            logger.info("Using .env at %s", a_path)
-            load_dotenv(a_path, verbose=True)
+    potential_path = ".env"
+    for _ in range(3):
+        logger.debug("Trying .env at %s", os.path.realpath(potential_path))
+        if os.path.exists(potential_path):
+            logger.info("Using .env at %s", os.path.realpath(potential_path))
+            load_dotenv(potential_path, verbose=True)
             return True
-    
+        
+        potential_path = os.path.join('..', potential_path)
+   
     logger.warning("No .env file found.")
     return False
 

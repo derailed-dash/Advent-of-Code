@@ -37,13 +37,11 @@ class TestTypes(unittest.TestCase):
         return super().tearDown()
     
     def clear_input_folder(self):
-        """ Clear the input folder """
         if self.locations.input_dir.exists():
             print(f"Deleting {self.locations.input_dir}")
             rmtree(self.locations.input_dir)
     
-    def test_locations(self):
-        """ That folder and file names are as expected """   
+    def test_locations(self): 
         # use normcase to un-escape and ignore case differences in the paths
         script_directory = path.normcase(path.dirname(path.realpath(__file__)))
         self.assertEqual(path.normcase(self.locations.script_dir), script_directory)
@@ -52,8 +50,6 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(self.locations.script_name, this_script)        
 
     def test_write_puzzle_input_file(self):
-        """ We can create an input folder and input file """
-        
         # Try to retrieve input that does not exist
         self.assertTrue(ac.write_puzzle_input_file(2010, 1, self.locations))
         with open(self.locations.input_file, "r") as file:
