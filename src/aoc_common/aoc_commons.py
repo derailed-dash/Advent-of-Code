@@ -22,15 +22,17 @@ from dotenv import load_dotenv
 import requests
 from colorama import Fore
 
-#################################################################
+##########################################################################
 # SETUP LOGGING
-#################################################################
-
+#
 # Create a new instance of "logger" in the client application
 # Set to your preferred logging level
 # And add the stream_handler from this module, if you want coloured output
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+##########################################################################
+
+# logger for aoc_commons only
+logger = logging.getLogger(__name__) # aoc_common.aoc_commons
+logger.setLevel(logging.INFO)
 
 class ColouredFormatter(logging.Formatter):
     """ Custom Formater which adds colour to output, based on logging level """
@@ -77,7 +79,10 @@ stream_handler.setFormatter(stream_fmt)
 logger.addHandler(stream_handler)
 
 def retrieve_console_logger(script_name):
-    """ Create and return a new logger, named after the script """
+    """ Create and return a new logger, named after the script 
+    So, in your calling code, add a line like this: 
+    logger = ac.retrieve_console_logger(locations.script_name) 
+    """
     a_logger = logging.getLogger(script_name)
     a_logger.addHandler(stream_handler)
     a_logger.propagate = False
@@ -85,6 +90,8 @@ def retrieve_console_logger(script_name):
     
 def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
     """ Add a FileHandler to the specified logger. File name is based on the logger name.
+    In calling code, we can add a line like this:
+    td.setup_file_logging(logger, locations.output_dir)
 
     Args:
         a_logger (Logger): The existing logger
