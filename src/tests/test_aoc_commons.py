@@ -1,4 +1,7 @@
-""" Testing the aoc_commons module """
+""" 
+Testing the aoc_commons module 
+Make sure your session cookie value is current
+"""
 import unittest
 from shutil import rmtree
 from os import path
@@ -51,20 +54,15 @@ class TestTypes(unittest.TestCase):
 
     def test_write_puzzle_input_file(self):
         # Try to retrieve input that does not exist
-        self.assertTrue(ac.write_puzzle_input_file(2010, 1, self.locations))
-        with open(self.locations.input_file, "r") as file:
-            data = file.read()
-        self.assertIn("Failed", data)
+        with self.assertRaises(ValueError):
+            ac.write_puzzle_input_file(2010, 1, self.locations)
         
-        # Clear the folder and then retrieve legitimate input
-        self.clear_input_folder()
-        self.assertTrue(ac.write_puzzle_input_file(2015, 1, self.locations))
-        with open(self.locations.input_file, "r") as file:
-            data = file.read()
-        self.assertIn("(((())))", data)
+        # Retrieve legitimate input
+        self.assertIn("(((())))", ac.write_puzzle_input_file(2015, 1, self.locations))
         
-        # Does not retrieve file if it already exists
-        self.assertTrue(ac.write_puzzle_input_file(2015, 1, self.locations))
+        # Does not retrieve file if it already exists - returns existing input file path instead
+        self.assertEqual(path.basename(self.locations.input_file), 
+                         ac.write_puzzle_input_file(2015, 1, self.locations))
 
     def test_vectors(self):
         self.assertEqual(ac.Vectors.N.value, (0, 1))

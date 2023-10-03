@@ -146,42 +146,44 @@ def get_envs_from_file() -> bool:
 
 get_envs_from_file() # read env variables from a .env file, if we can find one
     
-def write_puzzle_input_file(year: int, day: int, locations: Locations) -> bool:
+def write_puzzle_input_file(year: int, day: int, locations: Locations) -> str:
     """ Use session key to obtain user's unique data for this year and day.
     Only retrieve if the input file does not already exist. 
-    Return True if successful.
-    Requires env: AOC_SESSION_COOKIE, which can be set from the .env. 
+    Raises a ValueError if unable to perform request.
+    Requires env: AOC_SESSION_COOKIE, which can be set from the .env.
+    Returns str:
+      - input_file, if the file already exists
+      - otherwise, the data retrieved from the request
     """
     if os.path.exists(locations.input_file):
         logger.debug("%s already exists", os.path.basename(locations.input_file))
-        return True
+        return os.path.basename(locations.input_file)
 
     session_cookie = os.getenv('AOC_SESSION_COOKIE')
-    if session_cookie:
-        logger.info('Session cookie retrieved.')
-        
-        # Create input folder, if it doesn't exist
-        if not locations.input_dir.exists():
-            locations.input_dir.mkdir(parents=True, exist_ok=True)
-        
-        url = f"https://adventofcode.com/{year}/day/{day}/input"
-        cookies = {"session": session_cookie}
-        response = requests.get(url, cookies=cookies, timeout=5)
-        
-        data = ""
-        if response.status_code == 200:
-            data = response.text
-        else:
-            data = f"Failed to retrieve puzzle input: {response.status_code}"
-        
+    if not session_cookie:
+        raise ValueError("Could not retrieve session cookie.")        
+    
+    logger.info('Session cookie retrieved: %s...%s', session_cookie[0:6], session_cookie[-6:])
+    
+    # Create input folder, if it doesn't exist
+    if not locations.input_dir.exists():
+        locations.input_dir.mkdir(parents=True, exist_ok=True)
+    
+    url = f"https://adventofcode.com/{year}/day/{day}/input"
+    cookies = {"session": session_cookie}
+    response = requests.get(url, cookies=cookies, timeout=5)
+    
+    data = ""
+    if response.status_code == 200:
+        data = response.text
+    
         with open(locations.input_file, 'w') as file:
             logger.debug("Writing input file %s", os.path.basename(locations.input_file))
             file.write(data)
-            return True
+            return data
     else:
-        logger.error('Failed to retrieve session cookie. Is it in your .env?')
-    
-    return False
+        raise ValueError(f"Unable to retrieve input data. HTTP response: {response.status_code}")
+
 
 #################################################################
 # POINTS, VECTORS AND GRIDS
