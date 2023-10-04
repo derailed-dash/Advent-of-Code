@@ -32,15 +32,23 @@ Part 2:
 """
 import logging
 import time
-import common.type_defs as td
+import aoc_common.aoc_commons as ac
 
-locations = td.get_locations(__file__)
-logger = td.retrieve_console_logger(locations.script_name)
+YEAR = 2017
+DAY = 1
+
+locations = ac.get_locations(__file__)
+logger = ac.retrieve_console_logger(locations.script_name)
 logger.setLevel(logging.DEBUG)
 # td.setup_file_logging(logger, locations.output_dir)
+try:
+    ac.write_puzzle_input_file(YEAR, DAY, locations)
+except ValueError as e:
+    logger.error(e)
 
 def main():
     with open(locations.sample_input_file, mode="rt") as f:
+    # with open(locations.input_file, mode="rt") as f:        
         data = f.read().splitlines()
         
     logger.debug(data)

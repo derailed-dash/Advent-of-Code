@@ -6,13 +6,10 @@ title: Advent of Code 2017
 
 Welcome to [AoC 2017](https://adventofcode.com/2017){:target="_blank"}!
 
-Walkthroughs coming soon!
+For this year, I decided to do something a bit different. Rather than creating my Python applications locally in [Visual Studio Code](/python/getting-started#development-environment--editor){:target="_blank"}, I decided to write my solutions in a [Jupyter Notebook](/python/jupyter-notebooks){:target="_blank"} instead! This allows me to write the code, but also provide rich documentations and visuals, all in the same place.
 
-## Day Index
+Furthermore, I've decided to create my Notebook in [Google Collaboratory, here](https://colab.research.google.com/drive/1YrZhfXp6ZUnjua12-OeHrmPlxcbtCIxw#scrollTo=9Dgeww1rMrkQ). Rationale:
 
-<ol>
-  {% assign the_year = site.data.navigation.pages | where: 'name', page.year %}
-  {% for member in the_year[0].members %}
-      <li><a href="{{ member.link | absolute_url }}">{{ member.problem }}</a></li>
-  {% endfor %}
-</ol>
+- It's a pre-configured Jupyter Notebook environment, hosted by Google.
+- It's free.
+- It's easy to share it with all of you.

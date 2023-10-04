@@ -79,7 +79,9 @@ pages:
   - name: Reusable Code
     link: /python/reusable_code
   - name: My AoC Template, Version 2
-    link: /python/my-aoc-template2    
+    link: /python/my-aoc-template2
+  - name: Jupyter Notebooks
+    link: /python/jupyter-notebooks    
 - name: "2015"
   link: /2015/
   mainnav: True

@@ -5,16 +5,16 @@ title: Reusable Code
 ## Page Contents
 
 - [Motivation](#motivation)
-- [type_defs.py](#type_defspy)
+- [aoc_commons.py](#aoc_commonspy)
 - [Unit Tests](#unit-tests)
 
 ## Motivation
 
 In Advent of Code, it's common to need to do similar things over and over.  
 In particular, many problems require working with coordinates, or with many points in a grid.
-Rather than repeating the same code in each solution that requires these things, let's create a shared `type_defs.py` module for storing this reusable code.
+Rather than repeating the same code in each solution that requires these things, let's create a shared `aoc_commons.py` module for storing this reusable code.
 
-## type_defs.py
+## aoc_commons.py
 
 In the module below, I've included a few useful things:
 
@@ -29,12 +29,13 @@ In the module below, I've included a few useful things:
 Author: Darren
 Date: March 2023
 
-A set of reusable classes and attributes used by my AoC solutions 
-Test with tests/test_type_defs.py
+A set of helper functions, reusable classes and attributes used by my AoC solutions 
+Test with tests/test_aoc_commons.py
 
-You could import as follows:
-import common.type_defs as td                               
+You can import as follows:
+import aoc_common.aoc_commons as ac                           
 """
+# py -m pip install requests python-dotenv
 from __future__ import annotations
 import copy
 from dataclasses import asdict, dataclass
@@ -44,17 +45,21 @@ import operator
 import logging
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import requests
 from colorama import Fore
 
-#################################################################
+##########################################################################
 # SETUP LOGGING
-#################################################################
-
+#
 # Create a new instance of "logger" in the client application
 # Set to your preferred logging level
 # And add the stream_handler from this module, if you want coloured output
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+##########################################################################
+
+# logger for aoc_commons only
+logger = logging.getLogger(__name__) # aoc_common.aoc_commons
+logger.setLevel(logging.INFO)
 
 class ColouredFormatter(logging.Formatter):
     """ Custom Formater which adds colour to output, based on logging level """
@@ -101,7 +106,10 @@ stream_handler.setFormatter(stream_fmt)
 logger.addHandler(stream_handler)
 
 def retrieve_console_logger(script_name):
-    """ Create and return a new logger, named after the script """
+    """ Create and return a new logger, named after the script 
+    So, in your calling code, add a line like this: 
+    logger = ac.retrieve_console_logger(locations.script_name) 
+    """
     a_logger = logging.getLogger(script_name)
     a_logger.addHandler(stream_handler)
     a_logger.propagate = False
@@ -109,6 +117,8 @@ def retrieve_console_logger(script_name):
     
 def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
     """ Add a FileHandler to the specified logger. File name is based on the logger name.
+    In calling code, we can add a line like this:
+    td.setup_file_logging(logger, locations.output_dir)
 
     Args:
         a_logger (Logger): The existing logger
@@ -135,7 +145,8 @@ class Locations:
     sample_input_file: Path
     input_file: Path
     
-def get_locations(script_file):
+def get_locations(script_file) -> Locations:
+    """ Set various paths, based on the location of the calling script. """
     script_name = Path(script_file).stem   # this script file, without .py
     script_dir = Path(script_file).parent  # the folder where this script lives
     input_dir = Path(script_dir, "input")
@@ -143,7 +154,70 @@ def get_locations(script_file):
     input_file = Path(input_dir, "input.txt")
     sample_input_file = Path(script_dir, "input/sample_input.txt")
     
-    return Locations(script_name, script_dir, input_dir, output_dir, sample_input_file, input_file)
+    return Locations(script_name, script_dir, 
+                     input_dir, 
+                     output_dir, 
+                     sample_input_file, input_file)
+
+##################################################################
+# Retrieving input data
+##################################################################
+
+def get_envs_from_file() -> bool:
+    """ Look for .env files, read variables from it, and store as environment variables """
+    potential_path = ".env"
+    for _ in range(3):
+        logger.debug("Trying .env at %s", os.path.realpath(potential_path))
+        if os.path.exists(potential_path):
+            logger.info("Using .env at %s", os.path.realpath(potential_path))
+            load_dotenv(potential_path, verbose=True)
+            return True
+        
+        potential_path = os.path.join('..', potential_path)
+   
+    logger.warning("No .env file found.")
+    return False
+
+get_envs_from_file() # read env variables from a .env file, if we can find one
+    
+def write_puzzle_input_file(year: int, day: int, locations: Locations) -> str:
+    """ Use session key to obtain user's unique data for this year and day.
+    Only retrieve if the input file does not already exist. 
+    Raises a ValueError if unable to perform request.
+    Requires env: AOC_SESSION_COOKIE, which can be set from the .env.
+    Returns str:
+      - input_file, if the file already exists
+      - otherwise, the data retrieved from the request
+    """
+    if os.path.exists(locations.input_file):
+        logger.debug("%s already exists", os.path.basename(locations.input_file))
+        return os.path.basename(locations.input_file)
+
+    session_cookie = os.getenv('AOC_SESSION_COOKIE')
+    if not session_cookie:
+        raise ValueError("Could not retrieve session cookie.")        
+    
+    logger.info('Session cookie retrieved: %s...%s', session_cookie[0:6], session_cookie[-6:])
+    
+    # Create input folder, if it doesn't exist
+    if not locations.input_dir.exists():
+        locations.input_dir.mkdir(parents=True, exist_ok=True)
+    
+    url = f"https://adventofcode.com/{year}/day/{day}/input"
+    cookies = {"session": session_cookie}
+    response = requests.get(url, cookies=cookies, timeout=5)
+    
+    data = ""
+    if response.status_code == 200:
+        data = response.text
+    
+        with open(locations.input_file, 'w') as file:
+            logger.debug("Writing input file %s", os.path.basename(locations.input_file))
+            file.write(data)
+            return data
+    else:
+        raise ValueError(f"Unable to retrieve input data. HTTP response: {response.status_code}")
+
 
 #################################################################
 # POINTS, VECTORS AND GRIDS
@@ -361,60 +435,89 @@ def get_factors(num: int) -> set[int]:
             factors.add(num//i)  # i.e. 8//1 = 8, 8//2 = 4
     
     return factors
+
+def to_base_n(number: int, base: int):
+    """ Convert any integer number into a base-n string representation of that number.
+    E.g. to_base_n(38, 5) = 123
+
+    Args:
+        number (int): The number to convert
+        base (int): The base to apply
+
+    Returns:
+        [str]: The string representation of the number
+    """
+    ret_str = ""
+    curr_num = number
+    while curr_num:
+        ret_str = str(curr_num % base) + ret_str
+        curr_num //= base
+
+    return ret_str if number > 0 else "0"
 ```
 
-I've placed the module into a folder called `common`. So we can use it by importing like this:
+I've placed the module into a folder called `aoc_commons`. So we can use it by importing like this:
 
 ```python
-from common.type_defs import Point
+from aoc_common.aoc_commons import Point
 ```
 
 Or, to import everything:
 
 ```python
-import common.type_defs as td
+import aoc_common.aoc_commons as ac
 ```
 
 Then we can do stuff like this:
 
 ```python
-locations = td.get_locations(__file__)
-logger = td.retrieve_console_logger(locations.script_name)
-logger.setLevel(logging.INFO)
+locations = ac.get_locations(__file__)
+logger = ac.retrieve_console_logger(locations.script_name)
+logger.setLevel(logging.DEBUG)
+try:
+    ac.write_puzzle_input_file(YEAR, DAY, locations)
+except ValueError as e:
+    logger.error(e)
 ```
 
 ## Unit Tests
 
 We talked about [unit testing](/python/unit_test) before.
 
-Here I've created a test module, for testing the `type_defs.py` module:
+Here I've created a test module, for testing the `type_aoc_commons.py` module:
 
 ```python
-""" Testing the type_defs module """
+""" 
+Testing the aoc_commons module 
+Make sure your session cookie value is current
+"""
+import logging
 import unittest
+from shutil import rmtree
 from os import path
-from common.type_defs import (
-    Point, 
-    Grid, 
-    Vectors, 
-    VectorDicts, 
-    binary_search, 
-    merge_intervals,
-    get_factors,
-    get_locations
-)
+
+# py -m pip uninstall dazbo-aoc-commons
+import aoc_common.aoc_commons as ac  # for local testing
+
+# Set logging level of aoc_commons
+logger = logging.getLogger("aoc_common.aoc_commons")
+logger.setLevel(logging.INFO)
 
 class TestTypes(unittest.TestCase):
     """ Unit tests of various classes in type_defs """
     
     def setUp(self):
+        """ Read locations, clear the input folder, and set up some test data """
+        self.locations = ac.get_locations(__file__)
+        self.clear_input_folder()
+        
         self.points = set()
-        self.a_point = Point(5, 5)
-        self.b_point = Point(1, 2)
-        self.c_point = Point(6, 7)
-        self.d_point = Point(4, 3)
-        self.e_point = Point(3, 6)
-        self.y_invert_point = Point(0, -1)
+        self.a_point = ac.Point(5, 5)
+        self.b_point = ac.Point(1, 2)
+        self.c_point = ac.Point(6, 7)
+        self.d_point = ac.Point(4, 3)
+        self.e_point = ac.Point(3, 6)
+        self.y_invert_point = ac.Point(0, -1)
         
         self.points.add(self.a_point)
         self.points.add(self.b_point)  
@@ -422,53 +525,83 @@ class TestTypes(unittest.TestCase):
         self.points.add(self.d_point)  
         self.points.add(self.e_point)
         
-        self.a_point_neighbours = self.a_point.neighbours()   
+        self.a_point_neighbours = self.a_point.neighbours()
+
+    def tearDown(self) -> None:
+        self.clear_input_folder()  
+        return super().tearDown()
     
-    def test_locations(self):
-        locations = get_locations(__file__)
-        
+    def clear_input_folder(self):
+        if self.locations.input_dir.exists():
+            print(f"Deleting {self.locations.input_dir}")
+            rmtree(self.locations.input_dir)
+    
+    def test_locations(self): 
+        """ Test that the locations and script name are set properly """
         # use normcase to un-escape and ignore case differences in the paths
         script_directory = path.normcase(path.dirname(path.realpath(__file__)))
-        self.assertEqual(path.normcase(locations.script_dir), script_directory)
+        self.assertEqual(path.normcase(self.locations.script_dir), script_directory)
         
         this_script = path.splitext(path.basename(__file__))[0]
-        self.assertEqual(locations.script_name, this_script)        
+        self.assertEqual(self.locations.script_name, this_script)        
+
+    def test_write_puzzle_input_file(self):
+        """ Test that we can retrieve AoC input data.
+        This depends on having a valid session cookie. 
+        The ac attempts to read the session cookie from a .env file. """
+        
+        # Try to retrieve input that does not exist
+        with self.assertRaises(ValueError):
+            ac.write_puzzle_input_file(2010, 1, self.locations)
+        
+        # Retrieve legitimate input
+        self.assertIn("(((())))", ac.write_puzzle_input_file(2015, 1, self.locations))
+        
+        # Does not retrieve file if it already exists - returns existing input file path instead
+        self.assertEqual(path.basename(self.locations.input_file), 
+                         ac.write_puzzle_input_file(2015, 1, self.locations))
 
     def test_vectors(self):
-        self.assertEqual(Vectors.N.value, (0, 1))
-        self.assertEqual(Vectors.NW.value, (-1, 1))
-        self.assertEqual(Vectors.S.value, (0, -1))
-        self.assertEqual(Vectors.E.value, (1, 0))
-        self.assertEqual(Vectors.N.y_inverted, (0, -1))
-        self.assertEqual(Vectors.SW.value, (-1, -1))
+        """ Test our Vector Enums """
+        self.assertEqual(ac.Vectors.N.value, (0, 1))
+        self.assertEqual(ac.Vectors.NW.value, (-1, 1))
+        self.assertEqual(ac.Vectors.S.value, (0, -1))
+        self.assertEqual(ac.Vectors.E.value, (1, 0))
+        self.assertEqual(ac.Vectors.N.y_inverted, (0, -1))
+        self.assertEqual(ac.Vectors.SW.value, (-1, -1))
         
     def test_vector_dicts(self):
-        self.assertEqual(VectorDicts.ARROWS[">"], (1, 0))
-        self.assertEqual(VectorDicts.ARROWS["v"], (0, -1))
-        self.assertEqual(VectorDicts.DIRS["L"], (-1, 0))
-        self.assertEqual(VectorDicts.DIRS["U"], (0, 1))
-        self.assertEqual(VectorDicts.NINE_BOX["tr"], (1, 1))
-        self.assertEqual(VectorDicts.NINE_BOX["bl"], (-1, -1))
+        """ Test our vector dicts using arrow keys """
+        self.assertEqual(ac.VectorDicts.ARROWS[">"], (1, 0))
+        self.assertEqual(ac.VectorDicts.ARROWS["v"], (0, -1))
+        self.assertEqual(ac.VectorDicts.DIRS["L"], (-1, 0))
+        self.assertEqual(ac.VectorDicts.DIRS["U"], (0, 1))
+        self.assertEqual(ac.VectorDicts.NINE_BOX["tr"], (1, 1))
+        self.assertEqual(ac.VectorDicts.NINE_BOX["bl"], (-1, -1))
         
     def test_point_arithmetic(self):
+        """ Test we can add, subtract and multiply points """
         self.assertEqual(self.a_point + self.b_point, self.c_point, "Asserting Point addition")
         self.assertEqual(self.a_point - self.b_point, self.d_point, "Asserting Point subtraction")
-        self.assertEqual(self.b_point * Point(3, 3), self.e_point, "Asserting multiplication")
+        self.assertEqual(self.b_point * ac.Point(3, 3), self.e_point, "Asserting multiplication")
     
     def test_manhattan_distance(self):
-        self.assertEqual(Point.manhattan_distance(self.e_point), 3+6)
+        """ Test Manhattan distance between points, i.e. the sum of the two vectors """
+        self.assertEqual(ac.Point.manhattan_distance(self.e_point), 3+6)
         self.assertEqual(self.c_point.manhattan_distance_from(self.b_point), abs(self.a_point.x)+abs(self.a_point.y))
         
     def test_point_containers(self):
+        """ Test a points neighbours and orthogonal neighbours """
+        
         all_neighbours_count = 8 # point has 8 neighbours
-        diag_neighbours_count = 4 # point has 4 orthogonal neighbours
+        orthog_neighbours_count = 4 # point has 4 orthogonal neighbours
 
         self.assertEqual(len(self.a_point_neighbours), all_neighbours_count, 
                          f"Expect {all_neighbours_count} from all neighbours")
         
-        a_point_diag_neighbours = self.a_point.neighbours(include_diagonals=False)
-        self.assertEqual(len(a_point_diag_neighbours), diag_neighbours_count, 
-                         f"Expect {diag_neighbours_count} orthogonal neighbours")
+        a_point_orthog_neighbours = self.a_point.neighbours(include_diagonals=False)
+        self.assertEqual(len(a_point_orthog_neighbours), orthog_neighbours_count, 
+                         f"Expect {orthog_neighbours_count} orthogonal neighbours")
         self.assertNotIn(self.a_point, self.a_point.neighbours(), 
                          "Check neighbours does not include self")
         self.assertIn(self.a_point, self.a_point.neighbours(include_self=True), 
@@ -477,6 +610,7 @@ class TestTypes(unittest.TestCase):
                          f"All neighbours with self should be {all_neighbours_count+1}")
         
     def test_point_neighbour_generator(self):
+        """ Test we can use a generator to return neighbours """
         gen = self.a_point.yield_neighbours()
         
         for _ in range(len(self.a_point_neighbours)):
@@ -486,6 +620,10 @@ class TestTypes(unittest.TestCase):
             next(gen)
             
     def test_grid(self):
+        """ Test our Grid class.
+        Test height and width, valid locations within the grid, values at a location.
+        Test we can retrieve a row and a column, as str.
+        """
         input_grid = ["5483143223",
                       "2745854711",
                       "5264556173",
@@ -495,20 +633,24 @@ class TestTypes(unittest.TestCase):
                       "2176841721"]
     
         input_array_data = [[int(posn) for posn in row] for row in input_grid]      
-        grid = Grid(input_array_data)
+        grid = ac.Grid(input_array_data)
         self.assertEqual(grid.height, len(input_grid))
         self.assertEqual(grid.width, len(input_grid[0]))
-        self.assertTrue(grid.valid_location(Point(1, 1)))
-        self.assertFalse(grid.valid_location(Point(11,8)))
-        self.assertEqual(grid.value_at_point(Point(1, 1)), 7)
+        self.assertTrue(grid.valid_location(ac.Point(1, 1)))
+        self.assertFalse(grid.valid_location(ac.Point(11,8)))
+        self.assertEqual(grid.value_at_point(ac.Point(1, 1)), 7)
         self.assertEqual(grid.rows_as_str()[0], "5483143223")
         self.assertEqual(grid.cols_as_str()[0], "5256642")
       
     def test_binary_search(self):
-        self.assertEqual(binary_search(225, 0, 20, lambda x: x**2, reverse_search=True), None)
-        self.assertEqual(binary_search(225, 0, 20, lambda x: x**2), 15)
+        """ Test a binary search, 
+        i.e. where we start with a midpoint, evaluate the result of a function,
+        and see if it gives us the result we want. """
+        self.assertEqual(ac.binary_search(225, 0, 20, lambda x: x**2, reverse_search=True), None)
+        self.assertEqual(ac.binary_search(225, 0, 20, lambda x: x**2), 15)
     
     def test_merge_intervals(self):
+        """ Test our ability to take a set of intervals and merge them. """
         pairs = [
             [1, 5],    # Non-overlapping pair
             [3, 7],    # Overlapping pair
@@ -519,12 +661,22 @@ class TestTypes(unittest.TestCase):
         
         expected = [[1, 7], [8, 15], [18, 20]]
         
-        self.assertEqual(merge_intervals(pairs), expected)
+        self.assertEqual(ac.merge_intervals(pairs), expected)
         
     def test_get_factors(self):
-        expected = {1, 2, 4, 8}
-        self.assertEqual(get_factors(8), expected)
+        """ Test that we can retrieve all factors of a number """
+        expected = {1, 2, 4, 8} # factors of 8
+        self.assertEqual(ac.get_factors(8), expected)
+        
+    def test_to_base_n(self):
+        """ Test our abiltiy to obtain the str representation of a number converted to any base """
+        self.assertEqual(ac.to_base_n(10, 2), "1010")
+        self.assertEqual(ac.to_base_n(38, 5), "123")
+        self.assertEqual(ac.to_base_n(24, 12), "20")
+        self.assertEqual(ac.to_base_n(0, 12), "0")
+        self.assertEqual(ac.to_base_n(57, 10), "57")
           
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main(verbosity=2) # if we want to include function names and docstring headers
+    # unittest.main()
 ```
