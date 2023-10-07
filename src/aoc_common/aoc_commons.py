@@ -10,6 +10,7 @@ import aoc_common.aoc_commons as ac
 """
 # py -m pip install requests python-dotenv
 from __future__ import annotations
+import contextlib
 import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
@@ -18,6 +19,7 @@ import operator
 import logging
 import os
 from pathlib import Path
+import time
 from dotenv import load_dotenv
 import requests
 from colorama import Fore
@@ -190,7 +192,7 @@ def write_puzzle_input_file(year: int, day: int, locations: Locations) -> str:
             return data
     else:
         raise ValueError(f"Unable to retrieve input data. HTTP response: {response.status_code}")
-
+       
 #################################################################
 # TESTING
 #################################################################
@@ -439,3 +441,16 @@ def to_base_n(number: int, base: int):
         curr_num //= base
 
     return ret_str if number > 0 else "0"
+
+@contextlib.contextmanager
+def timer(description="Execution time"):
+    """A context manager to measure the time taken by a block of code or function.
+    
+    Args:
+    - description (str): A description for the timing output. 
+      Default is "Execution time".
+    """
+    t1 = time.perf_counter()
+    yield
+    t2 = time.perf_counter()
+    logger.info(f"{description}: {t2 - t1:.3f} seconds")
