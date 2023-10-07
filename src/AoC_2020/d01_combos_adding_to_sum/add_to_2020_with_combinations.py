@@ -14,13 +14,10 @@ Thus, we can generically use the function to any n numbers.
 It is brute force, so not particularly fast.
 """
 
-import sys
 import os
 import time
-import re
-from typing import List, Tuple
 from itertools import combinations
-from math import prod as prod
+from math import prod
 
 INPUT_FILE = "input/expenses.txt"
 
@@ -45,7 +42,7 @@ def main():
     print(f"And the product is: " + str(prod(terms)))
 
 
-def determine_terms(entries: List[int], target: int, num_terms: int) -> tuple:
+def determine_terms(entries: list[int], target: int, num_terms: int) -> tuple:
     """ Determine combination of terms that add up to the target
 
     Args:
@@ -64,7 +61,7 @@ def determine_terms(entries: List[int], target: int, num_terms: int) -> tuple:
     return ()
 
 
-def read_input(a_file) -> List[int]:
+def read_input(a_file) -> list[int]:
     with open(a_file, mode="rt") as f:
         entries_list = [int(x) for x in f.read().splitlines()]
 
