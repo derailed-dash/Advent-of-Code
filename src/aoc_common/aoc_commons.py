@@ -191,6 +191,18 @@ def write_puzzle_input_file(year: int, day: int, locations: Locations) -> str:
     else:
         raise ValueError(f"Unable to retrieve input data. HTTP response: {response.status_code}")
 
+#################################################################
+# TESTING
+#################################################################
+
+def validate(test, answer):
+    """
+    Args:
+        test: the answer given by our solution
+        answer: the expected answer, e.g. from instructions
+    """
+    if test != answer:
+        raise AssertionError(f"{test} != {answer}")
 
 #################################################################
 # POINTS, VECTORS AND GRIDS
