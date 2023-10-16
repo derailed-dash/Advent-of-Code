@@ -73,12 +73,13 @@ class ColouredFormatter(logging.Formatter):
         # If our logging message is not using one of these levels...
         return super().format(record)
 
-# Write to console with threshold of INFO
-stream_handler = logging.StreamHandler()
-stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
-                               datefmt='%H:%M:%S')
-stream_handler.setFormatter(stream_fmt)
-logger.addHandler(stream_handler)
+if not logger.handlers:
+    # Write to console with threshold of INFO
+    stream_handler = logging.StreamHandler()
+    stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+                                datefmt='%H:%M:%S')
+    stream_handler.setFormatter(stream_fmt)
+    logger.addHandler(stream_handler)
 
 def retrieve_console_logger(script_name):
     """ Create and return a new logger, named after the script 
