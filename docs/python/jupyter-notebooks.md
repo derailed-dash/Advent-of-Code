@@ -183,8 +183,6 @@ You don't even need to run Jupyter Notebooks locally!  You can make use of a pre
 
 A couple of options include:
 
-#### Anaconda Cloud
-
 **[Anaconda Notebooks in the Cloud](https://nb.anaconda.cloud/){:target="_blank"}**
 
 ![Anaconda Cloud](/assets/images/anaconda_cloud.png)
@@ -196,8 +194,6 @@ A couple of options include:
 
 - Disadvantages:
   - You get a daily CPU allocation, but it doesn't go very far with the free tier.
-
-#### Google Colab
 
 **[Google Collaboratory](https://colab.research.google.com/){:target="_blank"}**
 
