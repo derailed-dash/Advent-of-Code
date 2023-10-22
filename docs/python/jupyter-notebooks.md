@@ -24,9 +24,9 @@ tags:
 - [Ideal Scenarios for Using Notebooks](#ideal-scenarios-for-using-notebooks)
 - [Jupyter Notebook vs Jupyter Lab](#jupyter-notebook-vs-jupyter-lab)
 - [Options for Running Jupyter Notebooks and Jupyter Labstalling](#options-for-running-jupyter-notebooks-and-jupyter-lab)
-  - [Local Installation with Anaconda](#local-installation-with-anaconda)
-  - [In the Cloud](#in-the-cloud)
+  - [Local Installation](#local-installation)
   - [As a Container!](#as-a-container)
+  - [In the Cloud](#in-the-cloud)
 
 ## What are Jupyter Notebooks?
 
@@ -81,27 +81,127 @@ Here's the same notebook, opened in the Jupyter Lab environment:
 
 ## Options for Running Jupyter Notebooks and Jupyter Lab
 
-There are a few ways to run a Jupyter Notebook.
+There are a few ways to run a Jupyter Notebook. I'll go through a few of them here.
 
-### Local Installation with Anaconda
+### Local Installation
 
-- As a standalone tool, using `pip`:\
-  ```pip install notebook```
-- As part of [Anaconda](https://learning.anaconda.cloud/get-started-with-anaconda?source=install){:target="_blank"}. _Ananconda_ is a bundled set of tools, packages and libraries for data science.
-- As a Docker container. This is my preferred way to run Jupyter Notebooks.  It has the advantage that you can wrap Jupyter with a set of pre-installed packages and libraries, but it is isolated as a Docker container, so there's no risk of the install messing up your Python environment. If you're interested, I actually have my own [Miniconda Custom Image](https://github.com/derailed-dash/dazboconda){:target="_blank"}, which pre-installs a minimal set of data science packages.
+#### Install with Pip
+
+The quickest and easiest way is to install the `notebook` package with `pip`:
+
+```text
+py -m pip install notebook
+```
+
+Then you can launch the notebook like this:
+
+```text
+jupyter-notebook
+```
+
+#### Install with Anaconda
+
+For a more sophisticated and complete experience, you can instead use _Anaconda_ or _Miniconda_.
+
+[Anaconda](https://learning.anaconda.cloud/get-started-with-anaconda?source=install){:target="_blank"} is a fully-fledged data science environment.  When you install [Anaconda](https://www.anaconda.com/download){:target="_blank"}, you get:
+
+- The _Conda_ package and environment manager, designed for installing Python and non-Python tools and packages.
+- _Anaconda Navigator_ - a GUI tool for managing your environments, packages and tools.
+- Over 1500 pre-installed packages that are useful for data science.
+
+Anaconda is pretty _big_, at over 3GB. Alternatively, you can install [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/index.html){:target="_blank"}, which is a cut-down minimal version of Anaconda.
+
+Anaconda is the _de facto_ standard for data science.  It is highly customisable and configurable.
+
+#### Run a Container!
+
+**This is my favourite approach.** 
+
+You can download a pre-configured container image, such as the [Jupyter Notebook Data Science Stack ](https://hub.docker.com/r/jupyter/datascience-notebook){:target="_blank"}.  
+
+Advantages:
+
+- You can pull the image that contains exactly what you need.
+- The images are portable and can be run easily on any machine.
+- The container starts up really quickly.
+- The container is _isolated_. There's no risk of it conflicting with other Python-related software on your machine.
+
+There are a bunch of so-called _Jupyter stacks_ available as Docker images, and they're all documented [here](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html){:target="_blank"}.
+
+For example:
+
+|Stack                |Includes (for example)|Approx Size|
+|---------------------|----------------------|-----------|
+|jupyter/base-notebook|Conda, mamba, notebook, jupyterlab|1.0GB|
+|jupyter/minimal-notebook|As with `base-notebook`, plus some command-line tools and utilities (like `curl`, `git`, `nano`)|1.6GB|
+|jupyter/scipy-notebook|As with `minimal-notebook`, plus a bunch of data science packages and tools (like `bokeh`, `matplotlib`, `pandas`, `scikit-image`, `scikit-learn`, `scipy`, and `seaborn`)|4.1GB|
+|jupyter/tensorflow-notebook|As with `scipy-notebook`, plus `tensorflow`||
+|jupyter/pyspark-notebook|As with `scipy-notebook`, plus libraries for working with `Hadoop` and `Apache Spark`||
+|jupyter/datascience-notebook|Combines everything from `scipy-notebook`, `r-notebook` and `julia-notebook`|4.2GB|
+
+Of course, to run a container, you do need to have Docker installed.
+
+My favourite way to pull the image and run a container is using `docker compose` file. For example, here is my [docker-compose-scipy-lab.yml](https://gist.github.com/derailed-dash/b1d9eb511e336ba837da234518c09842){:target="_blank"}.
+
+```yaml
+version: '3.9'
+services:
+  jupyter:
+    environment:
+      JUPYTER_ENABLE_LAB: yes
+      CHOWN_HOME: yes   # Next three env vars are needed to fix permission issues on WSL
+      CHOWN_HOME_OPTS: '-R'
+      JUPYTER_ALLOW_INSECURE_WRITES: true
+    image: jupyter/scipy-notebook
+    container_name: scipy-lab
+    volumes:
+      - .:/home/jovyan
+    ports:
+      - 8888:8888
+```
+
+To run the above file:
+
+```text
+docker compose -f .\docker-compose-scipy-lab.yml up
+```
+
+And it looks like this:
+
+![Running Docker Compose](/assets/images/docker-compose-as-gif.gif)
 
 ### In the Cloud!
 
-You don't even need to run Jupyter Notebooks locally!  You can make use of a pre-configured cloud service. They are often free, unless you reach a point where you need more power (e.g. with GPUs) or features.
+You don't even need to run Jupyter Notebooks locally!  You can make use of a pre-configured cloud service. They are often free, unless you reach a point where you need more power, capacity or features.
 
-Options include:
+Note: you can always edit your notebooks locally, and then use a cloud-based Jupyter service for sharing your work with others, in a runnable format.
 
-[Anaconda Notebooks in the Cloud](https://nb.anaconda.cloud/){:target="_blank"}:
+A couple of options include:
+
+**[Anaconda Notebooks in the Cloud](https://nb.anaconda.cloud/){:target="_blank"}**
 
 ![Anaconda Cloud](/assets/images/anaconda_cloud.png)
 
-[Google Collaboratory](https://colab.research.google.com/){:target="_blank"}
+- Advantages:
+  - Free cloud-based Jupyter environment.  (With paid options available.)
+  - Full Jupyter Lab environment, with visual debugger, ready-to-go.
+  - Pre-loaded Anaconda stacks.
 
-![Anaconda Cloud](/assets/images/collab.png)
+- Disadvantages:
+  - You get a daily CPU allocation, but it doesn't go very far with the free tier.
 
-### As a Container!
+**[Google Collaboratory](https://colab.research.google.com/){:target="_blank"}**
+
+![Google Colab](/assets/images/collab.png)
+
+- Advantages:
+  - Free cloud-based Jupyter environment.  (With paid options available.)
+  - Seamless integration with the Google ecosystem.  You just need a gmail identity.
+  - Integrates with Google Cloud. E.g. really easy to use, say, Google Secret Manager.
+  - Easily load your notebooks directly from Google Drive or GitHub without having to upload them first.
+  - Really easy to share you notebooks.
+  
+- Disadvantages:
+  - Does not provide Jupyter Lab out-of-the-box. You get Jupyter Notebooks instead.  It is possible to run Jupyter Lab from Google Colab, but it takes a tiny bit of work.
+
+There are others, like Azure Notebooks, and Google Vertex AI Workbench.  But these are paid-for offerings, so I'm not going to get into them here.
