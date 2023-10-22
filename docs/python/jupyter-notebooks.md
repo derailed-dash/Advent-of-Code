@@ -16,6 +16,12 @@ tags:
     link: https://www.dataquest.io/blog/jupyter-notebook-tips-tricks-shortcuts/
   - name: Anaconda
     link: https://learning.anaconda.cloud/get-started-with-anaconda?source=install
+  - name: SciPy Docker Compose
+    link: https://gist.github.com/derailed-dash/b1d9eb511e336ba837da234518c09842
+  - name: Google Colab
+    link: https://colab.research.google.com/
+  - name: Anaconda Cloud
+    link: https://nb.anaconda.cloud/
 ---
 ## Page Contents
 
@@ -23,10 +29,11 @@ tags:
 - [A Few Benefits of Notebooks](#a-few-benefits-of-notebooks)
 - [Ideal Scenarios for Using Notebooks](#ideal-scenarios-for-using-notebooks)
 - [Jupyter Notebook vs Jupyter Lab](#jupyter-notebook-vs-jupyter-lab)
-- [Options for Running Jupyter Notebooks and Jupyter Labstalling](#options-for-running-jupyter-notebooks-and-jupyter-lab)
+- [Options for Running Jupyter Notebooks and Jupyter Labs](#options-for-running-jupyter-notebooks-and-jupyter-lab)
   - [Local Installation](#local-installation)
   - [Run a Container!](#run-a-container)
   - [In the Cloud](#in-the-cloud)
+  - [Sharing with a Cloud Service](#sharing-with-a-cloud-service)
 
 ## What are Jupyter Notebooks?
 
@@ -174,9 +181,9 @@ And it looks like this:
 
 You don't even need to run Jupyter Notebooks locally!  You can make use of a pre-configured cloud service. They are often free, unless you reach a point where you need more power, capacity or features.
 
-Note: you can always edit your notebooks locally, and then use a cloud-based Jupyter service for sharing your work with others, in a runnable format.
-
 A couple of options include:
+
+#### Anaconda Cloud
 
 **[Anaconda Notebooks in the Cloud](https://nb.anaconda.cloud/){:target="_blank"}**
 
@@ -189,6 +196,8 @@ A couple of options include:
 
 - Disadvantages:
   - You get a daily CPU allocation, but it doesn't go very far with the free tier.
+
+#### Google Colab
 
 **[Google Collaboratory](https://colab.research.google.com/){:target="_blank"}**
 
@@ -204,4 +213,16 @@ A couple of options include:
 - Disadvantages:
   - Does not provide Jupyter Lab out-of-the-box. You get Jupyter Notebooks instead.  It is possible to run Jupyter Lab from Google Colab, but it takes a tiny bit of work.
 
+#### Others
+
 There are others, like Azure Notebooks, and Google Vertex AI Workbench.  But these are paid-for offerings, so I'm not going to get into them here.
+
+### Sharing with a Cloud Service
+
+Note: you can always edit your notebooks locally, and then use a cloud-based Jupyter service for sharing your work with others, in a runnable format. For example, here's how you might share notebooks with Google Colab:
+
+- To provide a Colab link that opens your notebook directly from Google Drive, you can use a link like this: \
+`https://colab.research.google.com/drive/some_unique_id`
+- To provide a Colab link that opens your notebook directly from GitHub, you can use a link like this: \
+  `https://colab.research.google.com/github/profile/repo/blob/master/path/to/some_notebook.ipynb` \
+  For example: [Open Advent of Code 2017 Notebook in Google Colab](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2017/Dazbo's_Advent_of_Code_2017.ipynb){:target="_blank"}
