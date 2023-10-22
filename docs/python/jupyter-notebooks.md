@@ -1,5 +1,8 @@
 ---
 title: Jupyter Notebooks
+main_img:
+  name: Jupyter Notebook
+  link: /assets/images/aoc2017-jn.png
 tags: 
   - name: Jupyter
     link: https://jupyter.org/
@@ -19,12 +22,15 @@ tags:
 - [What are Jupyter Notebooks?](#what-are-jupyter-notebooks)
 - [A Few Benefits of Notebooks](#a-few-benefits-of-notebooks)
 - [Ideal Scenarios for Using Notebooks](#ideal-scenarios-for-using-notebooks)
-- [Installing](#installing)
-- [You Can Also Run Jupyter Notebooks In the Cloud!](#you-can-also-run-jupyter-notebooks-in-the-cloud)
+- [Jupyter Notebook vs Jupyter Lab](#jupyter-notebook-vs-jupyter-lab)
+- [Options for Running Jupyter Notebooks and Jupyter Labstalling](#options-for-running-jupyter-notebooks-and-jupyter-lab)
+  - [Local Installation with Anaconda](#local-installation-with-anaconda)
+  - [In the Cloud](#in-the-cloud)
+  - [As a Container!](#as-a-container)
 
 ## What are Jupyter Notebooks?
 
-In the realm of programming, the environment you choose to work in is the foundation that supports the structure of your code. Traditional Integrated Development Environments (IDEs) have been the go-to choice for developers seeking a dedicated space to write, test, and debug their code. However, as data science and machine learning began gaining traction, the need for a more interactive and data-centric environment became evident. Enter Jupyter Notebooks: a web-based application that has redefined the way we interact with code and data.
+Integrated Development Environments (IDEs) have been the go-to choice for developers seeking a dedicated space to write, test, and debug their code. However, as data science and machine learning began gaining traction, there was increasing need for a more interactive and data-centric environment. Enter **Jupyter Notebooks**: a web-based application that has redefined the way we interact with code and data, the way we document our code, and the way we share it.
 
 Unlike traditional IDEs, **Jupyter Notebooks allow for code, data, and multimedia to coexist in a shared space**. With its cell-based structure, users can write and execute code in small chunks, making it easier to test ideas and see results in real-time. This attribute alone sets it apart from the linear approach of traditional coding environments, making Jupyter Notebooks a beloved tool among data scientists and analysts.
 
@@ -32,12 +38,14 @@ Unlike traditional IDEs, **Jupyter Notebooks allow for code, data, and multimedi
 
 - **Interactive computing:** Real-time feedback on code execution, facilitating a more iterative and exploratory approach to problem-solving. Code is organised into _cells_. Cells can be executed and re-executed.  The output of those cells (such as the values assigned to variables) are available to all subsequent cells in the Notebook.  This is useful, since we can run a cell, and then experiment with changes to the cells that come _after_ the cell.
 - **Documentation and sharing:** You have the ability to intertwine code, text, and multimedia. You can place markdown or HTML content alongside your code. This greatly improves your ability to document your solutions and share insights.  And you can structure your Notebook using chapters.
-- **Images and visualisation**: You can include images and visualsations, alongside your code.
+- **Images and visualisation**: You can include images and visualisations, equations, animations and video, alongside your code.
 - **Reproducibility:** Encourages reproducible research by packaging code, data, and narrative into a single document.
 - **Extension ecosystem:** A vast array of extensions and libraries are available, enhancing functionality and integration with other tools.
 - **Run shell commands:** You can run shell commands from within the Notebook! This is useful for running file system commands, or - for example - to pre-install packages with `pip`.
+- **Easy to share:** Since all the code, documentation and output is in a single file, this makes sharing (and collaborating) incredibly easy.
+- **Portable:** Jupyter Notebooks are inherently portable, and can be run on a wide variety of platforms.
 
-Here's an example of a Notebook, with chapter structure, and with a markdown introduction:
+Here's an example of a Notebook, with chapter structure, and with an introduction written in markdown:
 
 ![Notebook Example](/assets/images/notebook-md.png)
 
@@ -52,16 +60,37 @@ And here's an example, where we're dynamically generating an image with code, an
 - **Educational Purposes:** An excellent tool for teaching coding and data science concepts, given its interactive nature and the ability to annotate code with rich text.
 - **Collaborative Research:** Facilitates collaborative efforts by allowing multiple users to interact with the notebook and share their findings seamlessly.
 
-## Installing
+## Jupyter Notebook vs Jupyter Lab
 
-There are a few ways to install and run a Jupyter Notebook.
+Whilst Jupyter Notebooks are great, they lack some of the features that developers have come to expect from an IDE like Visual Studio.  This gap in capability has led to the _next generation of Jupyter notebook environment_, called **Jupyter Lab**.  It builds on the Jupyter notebook environment, but then adds a bunch of extra capabilities, like:
+
+- The ability to run **multiple tabs** within the Lab environment.
+- Integrated file explorer.
+- The ability to run **terminals** alongside your code.
+- The ability to **rearrange and snap** the windows in your view.
+- The ability to show **page navigation** in the same view.
+- The ability to perform **visual debugging**, in the same way you would use a debugger within your favourite IDE.
+
+For example, here's one of my AoC Jupyter Notebooks:
+
+![Jupyter Notebook](/assets/images/aoc2017-jupyter-notebook.png)
+
+Here's the same notebook, opened in the Jupyter Lab environment:
+
+![Jupyter Lab](/assets/images/aoc2017-jupyter-lab.png)
+
+## Options for Running Jupyter Notebooks and Jupyter Lab
+
+There are a few ways to run a Jupyter Notebook.
+
+### Local Installation with Anaconda
 
 - As a standalone tool, using `pip`:\
   ```pip install notebook```
 - As part of [Anaconda](https://learning.anaconda.cloud/get-started-with-anaconda?source=install){:target="_blank"}. _Ananconda_ is a bundled set of tools, packages and libraries for data science.
 - As a Docker container. This is my preferred way to run Jupyter Notebooks.  It has the advantage that you can wrap Jupyter with a set of pre-installed packages and libraries, but it is isolated as a Docker container, so there's no risk of the install messing up your Python environment. If you're interested, I actually have my own [Miniconda Custom Image](https://github.com/derailed-dash/dazboconda){:target="_blank"}, which pre-installs a minimal set of data science packages.
 
-## You Can Also Run Jupyter Notebooks In the Cloud!
+### In the Cloud!
 
 You don't even need to run Jupyter Notebooks locally!  You can make use of a pre-configured cloud service. They are often free, unless you reach a point where you need more power (e.g. with GPUs) or features.
 
@@ -74,3 +103,5 @@ Options include:
 [Google Collaboratory](https://colab.research.google.com/){:target="_blank"}
 
 ![Anaconda Cloud](/assets/images/collab.png)
+
+### As a Container!
