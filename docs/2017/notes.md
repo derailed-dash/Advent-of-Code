@@ -28,6 +28,13 @@
 
 ## Locally
 
-- The easiest way is to install Anaconda.
-- Then you can run Jupyter Lab locally.
+### Anaconda
+
+- With Anaconda. Then you can run Jupyter Lab locally.
 - To run a notebook in GitHub, clone the repo or download the notebook.  Then open it in your Jupyter Lab environment.
+
+### Or with a JupyterLab container
+
+- I like [this one](https://gist.github.com/derailed-dash/771bcd49b469ed7aed974d51c1720815)
+- I.e. JupyterLab container using the jupyter/datascience-notebook image.
+- Fast, and includes visual debugger
