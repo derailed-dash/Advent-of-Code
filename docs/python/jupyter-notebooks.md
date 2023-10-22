@@ -25,7 +25,7 @@ tags:
 - [Jupyter Notebook vs Jupyter Lab](#jupyter-notebook-vs-jupyter-lab)
 - [Options for Running Jupyter Notebooks and Jupyter Labstalling](#options-for-running-jupyter-notebooks-and-jupyter-lab)
   - [Local Installation](#local-installation)
-  - [As a Container!](#as-a-container)
+  - [Run a Container!](#run-a-container)
   - [In the Cloud](#in-the-cloud)
 
 ## What are Jupyter Notebooks?
