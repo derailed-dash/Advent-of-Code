@@ -10,7 +10,7 @@ For this AoC event, I decided to do something a bit different. Up until now, I'v
 
 But wouldn't it be nice if I could write the code, write some pretty documentation, and capture the output, **all at the same time and and in the same place?**
 
-Well of course you can!  The answer is [Jupyter Notebooks](/python/jupyter-notebooks){:target="_blank"}!!
+Well of course you can!  **The answer is [Jupyter Notebooks](/python/jupyter-notebooks){:target="_blank"}!!**
 
 You can check out my Advent of Code 2017 solution in these places:
 - In [GitHub](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2017/Dazbo's_Advent_of_Code_2017.ipynb){:target="_blank"}
