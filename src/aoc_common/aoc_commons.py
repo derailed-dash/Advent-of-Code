@@ -107,6 +107,28 @@ def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
     file_handler.setFormatter(file_fmt)
     a_logger.addHandler(file_handler)
 
+def top_and_tail(data, block_size=5, include_line_numbers=True):
+    """ Print a summary of a large amount of data """
+    if isinstance(data, list):
+        # Get the number of digits of the last item for proper alignment
+        num_digits_last_item = len(str(len(data)))
+
+        # Format the string with line number
+        def format_with_line_number(idx, line):
+            if include_line_numbers:
+                return f"{idx + 1:>{num_digits_last_item}}: {line}"
+            else:
+                return line
+        
+        if len(data) < 11:
+            return "\n".join(format_with_line_number(i, line) for i, line in enumerate(data))
+        else:
+            top = [format_with_line_number(i, line) for i, line in enumerate(data[:block_size])]
+            tail = [format_with_line_number(i, line) for i, line in enumerate(data[-block_size:], start=len(data)-block_size)]
+            return "\n".join(top + ["..."] + tail)
+    else:
+        return data
+    
 #################################################################
 # Paths and Locations
 #################################################################
