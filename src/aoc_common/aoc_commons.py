@@ -20,7 +20,7 @@ import logging
 import os
 from pathlib import Path
 import time
-from dotenv import load_dotenv
+from dotenv import load_dotenv # python-dotenv
 import requests
 from colorama import Fore
 
