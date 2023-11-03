@@ -106,20 +106,29 @@ def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
                                 datefmt='%H:%M:%S')
     file_handler.setFormatter(file_fmt)
     a_logger.addHandler(file_handler)
+    
+def top_and_tail(data, block_size=5, include_line_numbers=True, zero_indexed=False):
+    """ Print a summary of a large amount of data 
 
-def top_and_tail(data, block_size=5, include_line_numbers=True):
-    """ Print a summary of a large amount of data """
+    Args:
+        data (_type_): The data to present in summary form.
+        block_size (int, optional): How many rows to include in the top, and in the tail.
+        include_line_numbers (bool, optional): Prefix with line number. Defaults to True.
+        zero_indexed (bool, optional): Lines start at 0? Defaults to False.
+    """
     if isinstance(data, list):
         # Get the number of digits of the last item for proper alignment
         num_digits_last_item = len(str(len(data)))
 
         # Format the string with line number
         def format_with_line_number(idx, line):
+            start = 0 if zero_indexed else 1
             if include_line_numbers:
-                return f"{idx + 1:>{num_digits_last_item}}: {line}"
+                return f"{idx + start:>{num_digits_last_item}}: {line}"
             else:
                 return line
-        
+
+        start = 0 if zero_indexed else 1
         if len(data) < 11:
             return "\n".join(format_with_line_number(i, line) for i, line in enumerate(data))
         else:
