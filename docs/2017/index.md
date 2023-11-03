@@ -16,3 +16,4 @@ You can check out my Advent of Code 2017 solution in these places:
 - In [GitHub](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2017/Dazbo's_Advent_of_Code_2017.ipynb){:target="_blank"}
 - By running my notebook in the cloud for free, using [Google Collaboratory](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2017/Dazbo's_Advent_of_Code_2017.ipynb){:target="_blank"}.
 
+![2017 Jupyter Notebook in Colab](/assets/images/2017-jn-in-colab.png)
