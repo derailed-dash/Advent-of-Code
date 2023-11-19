@@ -37,6 +37,7 @@ import aoc_common.aoc_commons as ac
 """
 # py -m pip install requests python-dotenv
 from __future__ import annotations
+import contextlib
 import copy
 from dataclasses import asdict, dataclass
 from enum import Enum
@@ -45,7 +46,8 @@ import operator
 import logging
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+import time
+from dotenv import load_dotenv # python-dotenv
 import requests
 from colorama import Fore
 
@@ -98,12 +100,13 @@ class ColouredFormatter(logging.Formatter):
         # If our logging message is not using one of these levels...
         return super().format(record)
 
-# Write to console with threshold of INFO
-stream_handler = logging.StreamHandler()
-stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
-                               datefmt='%H:%M:%S')
-stream_handler.setFormatter(stream_fmt)
-logger.addHandler(stream_handler)
+if not logger.handlers:
+    # Write to console with threshold of INFO
+    stream_handler = logging.StreamHandler()
+    stream_fmt = ColouredFormatter(fmt='%(asctime)s.%(msecs)03d:%(name)s - %(levelname)s: %(message)s', 
+                                datefmt='%H:%M:%S')
+    stream_handler.setFormatter(stream_fmt)
+    logger.addHandler(stream_handler)
 
 def retrieve_console_logger(script_name):
     """ Create and return a new logger, named after the script 
@@ -130,7 +133,38 @@ def setup_file_logging(a_logger: logging.Logger, folder: str|Path=""):
                                 datefmt='%H:%M:%S')
     file_handler.setFormatter(file_fmt)
     a_logger.addHandler(file_handler)
+    
+def top_and_tail(data, block_size=5, include_line_numbers=True, zero_indexed=False):
+    """ Print a summary of a large amount of data 
 
+    Args:
+        data (_type_): The data to present in summary form.
+        block_size (int, optional): How many rows to include in the top, and in the tail.
+        include_line_numbers (bool, optional): Prefix with line number. Defaults to True.
+        zero_indexed (bool, optional): Lines start at 0? Defaults to False.
+    """
+    if isinstance(data, list):
+        # Get the number of digits of the last item for proper alignment
+        num_digits_last_item = len(str(len(data)))
+
+        # Format the string with line number
+        def format_with_line_number(idx, line):
+            start = 0 if zero_indexed else 1
+            if include_line_numbers:
+                return f"{idx + start:>{num_digits_last_item}}: {line}"
+            else:
+                return line
+
+        start = 0 if zero_indexed else 1
+        if len(data) < 11:
+            return "\n".join(format_with_line_number(i, line) for i, line in enumerate(data))
+        else:
+            top = [format_with_line_number(i, line) for i, line in enumerate(data[:block_size])]
+            tail = [format_with_line_number(i, line) for i, line in enumerate(data[-block_size:], start=len(data)-block_size)]
+            return "\n".join(top + ["..."] + tail)
+    else:
+        return data
+    
 #################################################################
 # Paths and Locations
 #################################################################
@@ -217,7 +251,19 @@ def write_puzzle_input_file(year: int, day: int, locations: Locations) -> str:
             return data
     else:
         raise ValueError(f"Unable to retrieve input data. HTTP response: {response.status_code}")
+       
+#################################################################
+# TESTING
+#################################################################
 
+def validate(test, answer):
+    """
+    Args:
+        test: the answer given by our solution
+        answer: the expected answer, e.g. from instructions
+    """
+    if test != answer:
+        raise AssertionError(f"{test} != {answer}")
 
 #################################################################
 # POINTS, VECTORS AND GRIDS
@@ -454,6 +500,19 @@ def to_base_n(number: int, base: int):
         curr_num //= base
 
     return ret_str if number > 0 else "0"
+
+@contextlib.contextmanager
+def timer(description="Execution time"):
+    """A context manager to measure the time taken by a block of code or function.
+    
+    Args:
+    - description (str): A description for the timing output. 
+      Default is "Execution time".
+    """
+    t1 = time.perf_counter()
+    yield
+    t2 = time.perf_counter()
+    logger.info(f"{description}: {t2 - t1:.3f} seconds")
 ```
 
 I've placed the module into a folder called `aoc_commons`. So we can use it by importing like this:
