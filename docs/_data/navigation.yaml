@@ -66,7 +66,7 @@ pages:
     link: /python/eval
   - name: Priority Queues and Heaps
     link: /python/priority_queues
-  - name: Shortest Path Algorithms
+  - name: Shortest Path Algorithms - BFS, Dijkstra, and A*
     link: /python/shortest_paths
   - name: LIFO, FIFO, and deques
     link: /python/lifo_fifo

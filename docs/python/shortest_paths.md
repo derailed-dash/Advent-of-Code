@@ -1,5 +1,5 @@
 ---
-title: Shortest Path Algorithms
+title: Shortest Path Algorithms - BFS, Dijkstra, and A*
 main_img:
   name: Graphs
   link: /assets/images/shortest_path.png
@@ -10,6 +10,8 @@ tags:
     link: /python/networkx
   - name: A* Algorithm
     link: https://www.redblobgames.com/pathfinding/a-star/introduction.html
+  - name: Heapq
+    link: /python/priority_queues
 ---
 
 ## Page Contents
@@ -260,7 +262,77 @@ path.reverse() # optional - depends whether we want start->end or end->start
 
 ## A* Algorithm
 
+The **A* Algorithm** is a lot like BFS.  But instead of expanding frontier in all directions equally - called an _unweighted pathfinder algorithm_ - we **prioritise popping from the frontier in the direction that we believe takes us closer to our goal**. Thus, a _weighted pathfinder algorithm_.
+
+To do this, we need two key changes, compared to the BFS:
+
+1. We need to use a `heapq`. Recall that a `heapq` allows us to pop elements based on a priority.
+1. We need to provide a _heuristic_ function, i.e. a function that computes some sort of _cost_. The _heuristic_ estimates the cost to get from any given node to the goal. This cost is used to determine the priority. Typically, the _heuristic_ will be a function that estimates distance, such as a Manhattan distance function.
+
+### Turning a BFS into an A*
+
+Here's a BFS that creates a breadcrumb path. The priority of the pop is simply the number of steps taken from the starting point.
+
+```python
+def solve_with_bfs(start:Point, goal:Point) -> tuple[int, dict]:
+    queue = []
+    heapq.heappush(queue, (0, start)) # posn, steps
+    came_from = {} # use a dict so we can build a breadcrumb trail
+    came_from[start] = None
+
+    while queue:
+        step_count, curr_posn = heapq.heappop(queue)
+
+        # Check if the target is reached
+        if curr_posn == goal:
+            return step_count, came_from
+
+        # Explore adjacent hexagons
+        for dx, dy in Hex.hex_vectors.values():
+            adjacent = curr_posn + Point(dx, dy)
+            if adjacent not in came_from:
+                came_from[adjacent] = curr_posn
+                heapq.heappush(queue, (step_count + 1, adjacent))
+
+    assert False, "We should never get here."
+```
+
+Here I've changed the code to an A*. Now I'm popping from the `heapq`, using a priority that is sum of the number of steps taken, and the estimated distance to the goal.
+
+```python
+def solve_with_astar(start: Point, goal: Point) -> tuple[int, dict]:
+    """ Obtain the fastest path from origin to goal using A*.
+    Returns: tuple[int, dict]: steps required, breadcrumbs
+    """
+    queue = []
+    came_from = {} # use a dict so we can build a breadcrumb trail
+    came_from[start] = None
+    heapq.heappush(queue, (0, 0, start)) # distance heuristic, steps, posn
+
+    while queue:
+        _, step_count, curr_posn = heapq.heappop(queue)
+
+        # Check if the target is reached
+        if curr_posn == goal:
+            return step_count, came_from
+
+        # Explore adjacent hexagons
+        for dx, dy in Hex.hex_vectors.values():
+            adjacent = curr_posn + Point(dx, dy)
+            if adjacent not in came_from:
+                came_from[adjacent] = curr_posn
+                heuristic_cost = Hex.distance(adjacent, goal)
+                new_cost = step_count + 1 + heuristic_cost # heuristic is combination of distance to goal, and step count
+                heapq.heappush(queue, (new_cost, step_count + 1, adjacent))
+
+    assert False, "We should never get here."
+```
+
+I compared these two solutions when solving 2017 day 11. The BFS took 30 seconds, and the A* took just 20ms!!
+
 ### A* Examples
+
+- [2017 Day 11 - Shortest Path Puzzle](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2017/Dazbo's_Advent_of_Code_2017.ipynb#scrollTo=d4lL3rSAMw0y){:target="_blank"}
 
 ## Credit Where It's Due
 
