@@ -328,4 +328,7 @@ pages:
     problem: "Blizzard Basin"   
   - name: 25
     link: /2022/25
-    problem: "Full of Hot Air"   
+    problem: "Full of Hot Air"
+- name: "2023"
+  link: /2023/
+  mainnav: True
