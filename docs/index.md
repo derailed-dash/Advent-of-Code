@@ -6,7 +6,7 @@ title: Dazbo's Advent of Code Walkthroughs
 
 # Welcome to {{ page.title }}
 
-I've been using [Advent of Code](https://adventofcode.com/){:target="_blank"} as a way to improve my [Python](https://www.python.org/){:target="_blank"} skills. 
+I've been using **[Advent of Code](https://adventofcode.com/){:target="_blank"} as a way to improve my [Python](https://www.python.org/){:target="_blank"} skills.** 
 In this site I have written a number of Python introductory guides, as well as documented my solutions across the various AoC years. 
 My hope is that this site will help others to:
 
@@ -15,6 +15,13 @@ My hope is that this site will help others to:
 - Learn some new libraries and inventive ways of doing things.
 
 Use the navigation above to jump straight into an AoC year. If you're completely new to Python, check out the [Getting Started with Python](python/) page first.
+
+# Page Navigation
+
+- [What Will You Find in the Python Journey?](#what-will-you-find-in-the-python-journey)
+- [What is Advent of Code?](#what-is-advent-of-code)
+- [My Solutions](#my-solutions)
+- [More Stuff From Me](#more-stuff-from-me)
 
 ## What Will You Find in the Python Journey?
 
@@ -46,3 +53,29 @@ Feel free to peruse the [source code]({{ site.github.repository_url }}){:target=
 Each day gets its own folder, which is named for some of the key Python modules and techniques used in that solution.
 
 [<img src="{{ './assets/images/AoC_src_folders.png' | relative_url }}" alt="drawing" style="width:300px;"/>]({{ site.github.repository_url }}/tree/master/src/){:target="_blank"}
+
+## More Stuff From Me
+
+### Medium
+
+If you find this resource useful, you might like to check out some of my other content. On **[Medium](https://medium.com/@derailed.dash){:target="_blank"}** I routinely write articles on blogs on topics such as:
+
+- [Architecture Documentation: Where to Draw the Line](https://medium.com/@derailed.dash/architecture-documentation-where-to-draw-the-line-df73fb5ca85c){:target="_blank"}
+- [My Series on Google Cloud Adoption: from Strategy to Operation](https://medium.com/google-cloud/google-cloud-adoption-for-the-enterprise-from-strategy-to-operation-part-0-overview-9091f5a1ddfc){:target="_blank"}
+- [Google Cloud Landing Zones with Google Cloud Foundation Fabric FAST](https://medium.com/google-cloud/google-cloud-landing-zone-with-terraform-and-cloud-foundation-fabric-fast-part-1-2c7634ac31fd){:target="_blank"}
+- [Terraforming an Application on Google Cloud](https://medium.com/google-cloud/a-sample-application-using-terraform-on-google-cloud-2405c598a60a){:target="_blank"}
+- [Google Cloud Next Summaries, and Announcements](https://medium.com/google-cloud/google-next-2023-experience-and-favourite-sessions-fb00add5f59e){:target="_blank"}
+- [Getting More from ChatGPT](https://medium.com/@derailed.dash/a-couple-of-tools-to-get-more-from-chatgpt-7847e21aac05){:target="_blank"}
+
+I would really appreciate if you would **Follow Me** on Medium, and share any content that you think would be useful to your friends and colleauges.
+
+### Google Cloud Challenge Lab Walkthroughs
+
+Check out my site of [Google Cloud Skillsboost Challenge Lab Wakthroughts](https://derailed-dash.github.io/gcp-challenge-labs/){:target="_blank"}.
+
+### GitHub
+
+Finally, consider:
+
+- [Following me on GitHub](https://github.com/derailed-dash){:target="_blank"}
+- [Adding a Star to my Advent-of-Code GitHub Repo](https://github.com/derailed-dash/Advent-of-Code){:target="_blank"}
