@@ -29,7 +29,7 @@ I've been using [Advent of Code](https://adventofcode.com/) as a way to improve 
 
 ## Use of my Code
 
-This software is shared as open source. However, if you use it in your own solutions and/or incorporate into your own repos, please consider giving acknowledgement to me, and linking back to this repo [walkthrough site](https://aoc.just2good.co.uk/) and [walkthrough site](https://aoc.just2good.co.uk/). That would be really kind!
+This software is shared as open source. However, if you use it in your own solutions and/or incorporate into your own repos, please consider giving acknowledgement to me, and linking back to this repo and [walkthrough site](https://aoc.just2good.co.uk/). That would be really kind!
 
 ## What is Advent of Code?
 
