@@ -4,11 +4,12 @@
 
 ## Overview
 
-- All AoC problems (covering multiple years) solved in Python.
-- All solutions are thoroughly documented in the code.
+- AoC problems (covering multiple years) solved in Python.
+- Solutions are thoroughly documented in the code.
 - Some days have multiple solutions, i.e. to test different approaches, try different frameworks, etc.
 - Each day gets its own folder. The name of the folder indicates some of the techniques and modules that were used.
 - In addition, I have code walkthroughs and solution explanations available [here](https://aoc.just2good.co.uk/).
+- Some solutions and walkthroughs have been created in the form of Jupyter notebooks.
 
 [![Dazbo's AoC Walkthroughs](/docs/assets/images/AoC_site_screenshot.jpg)](https://aoc.just2good.co.uk/)
 
@@ -25,6 +26,10 @@ I've been using [Advent of Code](https://adventofcode.com/) as a way to improve 
 - The solution source code for AoC problems can be found in the `src` folder. This is _probably_ what you're here looking for.
 - The source for the Walkthrough Website content is available in the `docs` folder. This is mostly markdown, rendered into an HTML static site using Jekyll.  You _probably_ wont be interested in this.
 - If you want to look at the walkthrough pages, visit the [site](https://aoc.just2good.co.uk/).
+
+## Use of my Code
+
+This software is shared as open source. However, if you use it in your own solutions and/or incorporate into your own repos, please consider giving acknowledgement to me, and linking back to this repo [walkthrough site](https://aoc.just2good.co.uk/) and [walkthrough site](https://aoc.just2good.co.uk/). That would be really kind!
 
 ## What is Advent of Code?
 
