@@ -223,7 +223,9 @@ def write_puzzle_input_file(year: int, day: int, locations: Locations) -> str:
             file.write(data)
             return data
     else:
-        raise ValueError(f"Unable to retrieve input data. HTTP response: {response.status_code}")
+        raise ValueError(f"Unable to retrieve input data.\n" +
+                         f"HTTP response: {response.status_code}\n" +
+                         f"{response.reason}: {response.content.decode('utf-8').strip()}")
        
 #################################################################
 # TESTING
@@ -348,11 +350,11 @@ class Grid():
         self._width = len(self._array[0])
         self._height = len(self._array)
         
-    def value_at_point(self, point: Point) -> int:
+    def value_at_point(self, point: Point):
         """ The value at this point """
         return self._array[point.y][point.x]
 
-    def set_value_at_point(self, point: Point, value: int):
+    def set_value_at_point(self, point: Point, value):
         self._array[point.y][point.x] = value
         
     def valid_location(self, point: Point) -> bool:
