@@ -81,7 +81,9 @@ pages:
   - name: My AoC Template, Version 2
     link: /python/my-aoc-template2
   - name: Jupyter Notebooks
-    link: /python/jupyter-notebooks    
+    link: /python/jupyter-notebooks
+  - name: Encrypting Your Input
+    link: /python/encrypting
 - name: "2015"
   link: /2015/
   mainnav: True
