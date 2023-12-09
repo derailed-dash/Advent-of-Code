@@ -22,6 +22,7 @@ tags:
   - [Factorial](#factorial)
   - [Counting Leaf Items in a Nested List](#counting-leaf-items-in-a-nested-list)
   - [Fibonacci](#fibonacci)
+  - [Calculating the Next Term in an Nth-Degree Arithmetic Progression](#calculating-the-next-term-in-an-nth-degree-arithmetic-progression)
 - [AoC Examples](#aoc-examples)
 
 ## Introduction
@@ -222,6 +223,61 @@ while True:
 
 Note: this isn't a particularly efficient function. It doesn't scale well!
 
+## Calculating the Next Term in an Nth-Degree Arithmetic Progression
+
+An arithmetic progression (AP) is a sequence of numbers in which the difference of any two successive members is a constant. This difference is commonly referred to as the _"common difference"_. For example:
+
+```text
+Progression: 0   3   6   9  12  15  18
+Common diff:   3   3   3   3   3   3
+```
+
+A second-degree arithmetic progression is one in which the differences between terms is growing, but growing by a constant amount. Thus, _differences of differences_ are common:
+
+Triangle numbers are a common example:
+
+```text
+       Progression: 1   3   6  10  15  21
+          First diff: 2   3   4   5   6
+Second (common) diff:   1   1   1   1
+```
+
+We can extrapolate this to the Nth Degree. I.e. the number of times you have to determine differences, before the differences are common. If you determine the number of degrees after which the differences are common, you can bubble the results back up to the top, in order to determine the next term in the sequence.
+
+So this is a good candidate for a recursive function:
+
+```python
+def recurse_diffs(sequence: np.ndarray, forwards=True) -> int:
+    """
+    Calculate the next value in a numeric sequence based on the pattern of differences.
+
+    Recursively analyses the differences between consecutive elements of the sequence. Recurses until the differences remain constant. It then calculates the next value in the sequence based on this constant difference.
+
+    Parameters:
+        sequence (np.ndarray): A NumPy array representing the sequence.
+        forwards (bool, optional): A flag to determine the direction of progression.
+                                   If True (default), the function calculates the next value. 
+                                   If False, it calculates the previous value in the sequence.
+
+    Returns:
+        int: The next (or previous) value in the sequence
+    """
+    diffs = np.diff(sequence)
+    
+    op = operator.add if forwards else operator.sub
+    term = sequence[-1] if forwards else sequence[0]
+    
+    # Check if all the diffs are constant
+    # If they are, we've reached the deepest point in our recursion, and we know the constant diff
+    if np.all(diffs == diffs[0]):
+        next_val = op(term, diffs[0])
+    else: # if the diffs are not constant, then we need to recurse
+        diff = recurse_diffs(diffs, forwards)
+        next_val = op(term, diff)
+        
+    return int(next_val)
+```
+
 ## AoC Examples
 
 - [Recursively process json - 2015 day 12](/2015/12)
@@ -231,3 +287,4 @@ Note: this isn't a particularly efficient function. It doesn't scale well!
 - [Recursive game states using dynamic programming and lru cache - 2021 day 21](/2021/21)
 - [Recursive directory listing by extending the list - 2022 day 7](/2022/7)
 - [Recursive `__lt__` compare - 2022 day 13](/2022/13)
+- [Recursive arithmetic progressions - 2023 day 9](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
