@@ -89,7 +89,7 @@ Here's some code that will perform a flood fill to explore every valid location 
 
 ```python
 frontier = Queue() # For BFS, we just use a FIFO queue.
-frontier.put(start)
+frontier.append(start)
 explored = set()  # To stop us exploring the same location more than once.
 explored.add(start)
 
@@ -98,7 +98,7 @@ while frontier:
    current = frontier.popleft()  # pop the first item off the FIFO queue
    for next in graph.neighbors(current):  # get all the valid neighbours
       if next not in explored:
-         frontier.put(next) # add it to the frontier
+         frontier.append(next) # add it to the frontier
          explored.add(next)  # mark it as explored
 ```
 
@@ -163,7 +163,7 @@ If we use a `set`:
 frontier = deque() # For BFS, we need a FIFO queue. A deque is perfect.
 frontier.append(start)
 explored = set()  # To stop us exploring the same location more than once.
-explored.append(start)
+explored.add(start)
 
 # keep going until the frontier is empty; i.e. when we've explored all the valid nodes
 while frontier:   
@@ -174,7 +174,7 @@ while frontier:
 
     for next in graph.neighbors(current):  # get all the valid neighbours
         if next not in explored:
-            frontier.put(next) # add it to the frontier
+            frontier.append(next) # add it to the frontier
             explored.add(next)  # mark it as explored
 
 if current != goal:
@@ -189,7 +189,7 @@ If we're only interested in the shortest distance to a point, but we don't need 
 frontier = deque() # For BFS, we need a FIFO queue. A deque is perfect.
 frontier.append(start, 0) # Queue always includes (point, steps)
 explored = set()  # To stop us exploring the same location more than once.
-explored.append(start)
+explored.add(start)
 
 # keep going until the frontier is empty; i.e. when we've explored all the valid nodes
 while frontier:   
@@ -200,7 +200,7 @@ while frontier:
 
     for next in graph.neighbors(current):  # get all the valid neighbours
         if next not in explored:
-            frontier.put(next, steps+1) # add it to the frontier
+            frontier.append(next, steps+1) # add it to the frontier
             explored.add(next)  # mark it as explored
 
 if current != goal:
@@ -227,7 +227,7 @@ while frontier:
 
     for next in graph.neighbors(current):  # get all the valid neighbours
         if next not in came_from:
-            frontier.put(next) # add it to the frontier
+            frontier.append(next) # add it to the frontier
             came_from[next] = current
 ```
 
