@@ -177,7 +177,7 @@ def get_envs_from_file() -> bool:
         logger.debug("Trying .env at %s", os.path.realpath(potential_path))
         if os.path.exists(potential_path):
             logger.info("Using .env at %s", os.path.realpath(potential_path))
-            load_dotenv(potential_path, verbose=True)
+            load_dotenv(potential_path, override=True, verbose=True)
             return True
         
         potential_path = os.path.join('..', potential_path)
@@ -346,16 +346,16 @@ class VectorDicts():
 class Grid():
     """ 2D grid of point values. """
     def __init__(self, grid_array: list) -> None:
-        self._array = grid_array
-        self._width = len(self._array[0])
-        self._height = len(self._array)
+        self.array = grid_array
+        self._width = len(self.array[0])
+        self._height = len(self.array)
         
     def value_at_point(self, point: Point):
         """ The value at this point """
-        return self._array[point.y][point.x]
+        return self.array[point.y][point.x]
 
     def set_value_at_point(self, point: Point, value):
-        self._array[point.y][point.x] = value
+        self.array[point.y][point.x] = value
         
     def valid_location(self, point: Point) -> bool:
         """ Check if a location is within the grid """
@@ -380,18 +380,21 @@ class Grid():
 
     def rows_as_str(self):
         """ Return the grid """
-        return ["".join(str(char) for char in row) for row in self._array]
+        return ["".join(str(char) for char in row) for row in self.array]
         
     def cols_as_str(self):
         """ Render columns as str. Returns: list of str """
-        cols_list = list(zip(*self._array))
+        cols_list = list(zip(*self.array))
         return ["".join(str(char) for char in col) for col in cols_list]
 
+    def transpose(self):
+        return Grid(list(zip(*self.array)))
+        
     def __repr__(self) -> str:
         return f"Grid(size={self.width}*{self.height})"
     
     def __str__(self) -> str:
-        return "\n".join("".join(map(str, row)) for row in self._array)
+        return "\n".join("".join(map(str, row)) for row in self.array)
 
 #################################################################
 # CONSOLE STUFF

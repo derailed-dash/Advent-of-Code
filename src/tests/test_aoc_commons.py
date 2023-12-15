@@ -155,6 +155,9 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(grid.value_at_point(ac.Point(1, 1)), 7)
         self.assertEqual(grid.rows_as_str()[0], "5483143223")
         self.assertEqual(grid.cols_as_str()[0], "5256642")
+        
+        transposed = grid.transpose()
+        self.assertEqual(transposed.rows_as_str()[0], "5256642")
       
     def test_binary_search(self):
         """ Test a binary search, 
