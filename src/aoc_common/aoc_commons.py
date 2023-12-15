@@ -387,8 +387,25 @@ class Grid():
         cols_list = list(zip(*self.array))
         return ["".join(str(char) for char in col) for col in cols_list]
 
-    def transpose(self):
+    def transpose(self) -> Grid:
         return Grid(list(zip(*self.array)))
+    
+    def flip_vertical(self) -> Grid:
+        """ Flip the array about the vertical axis of symmetry """
+        return Grid([row[::-1] for row in self.array])
+    
+    def flip_horizontal(self) -> Grid:
+        """ Flip the array about the horizontal axis of symmetry """
+        return Grid(self.array[::-1])
+    
+    def rotate_90(self, ccw=False) -> Grid:
+        """ Rotates 90 degrees CW. It works by transposing, then flipping. """
+        if ccw:
+            flipped = self.flip_vertical()
+        else:
+            flipped = self.flip_horizontal()
+    
+        return flipped.transpose()
         
     def __repr__(self) -> str:
         return f"Grid(size={self.width}*{self.height})"

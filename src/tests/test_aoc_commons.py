@@ -158,6 +158,18 @@ class TestTypes(unittest.TestCase):
         
         transposed = grid.transpose()
         self.assertEqual(transposed.rows_as_str()[0], "5256642")
+        
+        flipped = grid.flip_vertical()
+        self.assertEqual(flipped.rows_as_str()[0], "3223413845")
+        
+        flipped = grid.flip_horizontal()
+        self.assertEqual(flipped.rows_as_str()[0], "2176841721")    
+        
+        rotated = grid.rotate_90()
+        self.assertEqual(rotated.rows_as_str()[0], "2466525")
+        
+        rotated = grid.rotate_90(ccw=True)
+        self.assertEqual(rotated.rows_as_str()[0], "3136851")
       
     def test_binary_search(self):
         """ Test a binary search, 
