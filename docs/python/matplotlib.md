@@ -45,6 +45,10 @@ tags:
   - [Another Grid Visualisation](#another-grid-visualisation)
   - [Plotting Trajectories](#plotting-trajectories)
   - [Plotting 3D Beacons](#plotting-3d-beacons)
+  - [Plotting a 2D grid from NumPy, with Legend](#plotting-a-2d-grid-from-numpy-with-legend)
+  - [Plotting and Filling a Polygon](#plotting-and-filling-a-polygon)
+  - [Plotting a Perimeter and Marking Contained Points](#plotting-a-perimeter-and-marking-contained-points)
+  - [Creating Squares Around Points](#creating-squares-around-points)
 - [Seaborn](#seaborn)
 
 ## Overview
@@ -705,6 +709,144 @@ def plot(scanner_locations: dict[int, Vector], beacon_locations: set[Vector], ou
 ```
 
 ![Plot of Scanners and Beacons]({{"/assets/images/scanners-and-beacons.png" | relative_url }}){:style="width:700px"}
+
+### Plotting a 2D grid from NumPy, with Legend
+
+Sometimes it can be more effective to convert a 2D array into NumPy format before plotting. E.g.
+
+Taken from [2023 Day 21: Finding Paths](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}:
+
+```python
+def plot(grid):
+    # Map the characters to numbers: S -> 0, # -> 1, . -> 2, O -> 3
+    char_to_num = {'S': 0, '#': 1, '.': 2, 'O': 3}
+    cmap = mcolors.ListedColormap(['black', 'red', 'blue', 'yellow'])
+    numeric_grid = [[char_to_num[char] for char in row] for row in grid]
+        
+    # Convert to a NumPy array for better handling by Matplotlib
+    numeric_grid = np.array(numeric_grid)
+
+    # Create custom patches for the legend
+    labels = ['Start', 'Rock', 'Plot', 'Reachable']
+    colors = ['black', 'red', 'blue', 'yellow']
+    patches = [mpatches.Patch(color=colors[i], label=labels[i]) for i in range(len(colors))]
+
+    plt.imshow(numeric_grid, cmap=cmap)
+    plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    plt.show()
+```
+
+![2023 Day 21 Part 1 Sample](https://aoc.just2good.co.uk/assets/images/2023d21_pt1_sample_plot.png)
+
+### Plotting and Filling a Polygon
+
+Taken from [2023 Day 18: Filling the Lava Lagoon](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}:
+
+```python
+def plot_path(perimeter: list[tuple]):
+    # Extract x and y values from the perimeter
+    perimeter_x_values = [point[0] for point in perimeter]
+    perimeter_y_values = [point[1] for point in perimeter]
+    
+    # Plot the perimeter as a line
+    plt.plot(perimeter_x_values, perimeter_y_values, 
+             marker=MarkerStyle('o'), linestyle='-', color="blue", label="Perimeter")
+
+    # Fill the inside of the perimeter
+    plt.fill(perimeter_x_values, perimeter_y_values, color="red", alpha=0.8)  # Adjust alpha for transparency
+
+    plt.title('Path Plot')
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+    plt.gca().invert_yaxis()  # Invert the y-axis
+    plt.gca().set_aspect('equal', adjustable='box')  # Set equal scale 
+    plt.grid(True)
+    plt.show()
+```
+
+![Dig plan - Part 2](https://aoc.just2good.co.uk/assets/images/lava_lagoon_real_pt2.png)
+
+### Plotting a Perimeter and Marking Contained Points
+
+Taken from [2023 Day 18: Filling the Lava Lagoon](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}:
+
+```python
+def plot_path(path: list[tuple], inside: set[tuple]=set()):
+    # Extract x and y values from the path
+    loop_x_values = [point[0] for point in path]
+    loop_y_values = [point[1] for point in path]
+    
+    # Extract x and y values from the inside set
+    inside_x_values = [point[0] for point in inside]
+    inside_y_values = [point[1] for point in inside]
+
+    # Plot the line and scatter graphs
+    plt.plot(loop_x_values, loop_y_values, 
+             marker=MarkerStyle('o'), linestyle='-', color="blue", label="Loop")
+        
+    plt.scatter(inside_x_values, inside_y_values, 
+                marker=MarkerStyle('x'), color="red", label="Inside")
+    
+    plt.title('Path Plot')
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+    plt.gca().invert_yaxis()  # Invert the y-axis
+    plt.gca().set_aspect('equal', adjustable='box') # set equal scale 
+    plt.grid(True)
+    plt.show()
+```
+
+![Sample data lava lagoon](https://aoc.just2good.co.uk/assets/images/lava_lagoon_sample.png)
+
+### Creating Squares Around Points
+
+Taken from [2023 Day 18: Filling the Lava Lagoon](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}:
+
+```python
+def plot_path(path: list[tuple], inside: set[tuple]=set()):
+    fig, ax = plt.subplots()
+
+    # Function to add a 1x1 square with the point at its center
+    def add_square(x, y, colour, fill=False):
+        square = Rectangle((x - 0.5, y - 0.5), 1, 1, fill=fill, edgecolor=colour, facecolor=colour)
+        ax.add_patch(square)
+
+    # Plot each point in the path as a square
+    for point in path:
+        add_square(point[0], point[1], 'blue')
+
+    # Plot each point in the inside set as a square
+    for point in inside:
+        add_square(point[0], point[1], 'red', fill=True)
+
+    # Extract x and y values for vertices
+    path_x_values = [point[0] for point in path]
+    path_y_values = [point[1] for point in path]
+    inside_x_values = [point[0] for point in inside]
+    inside_y_values = [point[1] for point in inside]
+    
+    # Plot the actual vertex points
+    ax.scatter(path_x_values, path_y_values, color="blue", zorder=5)
+    ax.scatter(inside_x_values, inside_y_values, color="blue", zorder=5)
+    
+    # Set limits for x and y axis
+    all_x_values = [point[0] for point in path] + [point[0] for point in inside]
+    all_y_values = [point[1] for point in path] + [point[1] for point in inside]
+
+    ax.set_xlim(min(all_x_values) - 1, max(all_x_values) + 1)
+    ax.set_ylim(min(all_y_values) - 1, max(all_y_values) + 1)
+
+    plt.title('Path Plot')
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+    plt.gca().invert_yaxis()
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.grid(True)
+    plt.show()
+```
+
+![Dig plan](https://aoc.just2good.co.uk/assets/images/lava_lagoon_1-by-1_squares.png)
+
 
 ## Seaborn
 

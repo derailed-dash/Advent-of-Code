@@ -251,6 +251,8 @@ path.reverse() # optional - depends whether we want start->end or end->start
 - [Path through a map with elevation, plus breadcrumb trail - 2022 Day 12](/2022/12)
 - [BFS path to outside - 2022 Day 18](/2022/18)
 - [BFS with class generating next states - 2022 Day 24](/2022/24)
+- [Branching paths through a grid of mirrors - 2023 Day 16](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
+- [BFS with backtracking, to find number of locations we can reach in n steps - 2023 Day 21](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
 
 ## Dijkstra's Algorithm
 
@@ -259,6 +261,7 @@ path.reverse() # optional - depends whether we want start->end or end->start
 - [Risk maze - with heapq and breadcrumbs - 2021 day 15](/2021/15)
 - [Lowest cost rearranging amphipods - with next state, heapq and breadcrumbs - 2021 day 23](/2021/23)
 - [Hill climbing with NetworkX - 2022 Day 12](/2022/12)
+- [Lowest cost path with turning constraints - 2023 Day 17](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
 
 ## A* Algorithm
 
