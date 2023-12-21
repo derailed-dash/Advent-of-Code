@@ -718,7 +718,7 @@ Sometimes it can be more effective to convert a 2D array into NumPy format befor
 Taken from [2023 Day 21: Finding Paths](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}:
 
 ```python
-def plot(grid):
+def plot(grid, start, visited: set):
     # Map the characters to numbers: S -> 0, # -> 1, . -> 2, O -> 3
     char_to_num = {'S': 0, '#': 1, '.': 2, 'O': 3}
     cmap = mcolors.ListedColormap(['black', 'red', 'blue', 'yellow'])
@@ -727,6 +727,10 @@ def plot(grid):
     # Convert to a NumPy array for better handling by Matplotlib
     numeric_grid = np.array(numeric_grid)
 
+    for (ci,ri) in visited: # update visited
+        numeric_grid[ri][ci] = 3
+    numeric_grid[start[1],start[0]] = 0 # update start
+    
     # Create custom patches for the legend
     labels = ['Start', 'Rock', 'Plot', 'Reachable']
     colors = ['black', 'red', 'blue', 'yellow']
