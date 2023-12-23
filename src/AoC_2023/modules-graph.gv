@@ -1,0 +1,172 @@
+digraph {
+	vh [label=vh]
+	vh -> qc
+	vh -> rr
+	pb [label=pb]
+	pb -> gf
+	pb -> gv
+	pb -> vp
+	pb -> qb
+	pb -> vr
+	pb -> hq
+	pb -> zj
+	zj [label=zj]
+	zj -> kn
+	zj -> pb
+	mm [label=mm]
+	mm -> dj
+	gp [label=gp]
+	gp -> cp
+	dc [label=dc]
+	dc -> ns
+	qc [label=qc]
+	qc -> gp
+	dx [label=dx]
+	dx -> fq
+	dx -> dj
+	tg [label=tg]
+	tg -> nl
+	tg -> ks
+	pr [label=pr]
+	pr -> nl
+	gx [label=gx]
+	gx -> xf
+	hd [label=hd]
+	hd -> lt
+	hd -> nl
+	dq [label=dq]
+	dq -> dj
+	dq -> jc
+	ht [label=ht]
+	ht -> jv
+	bs [label=bs]
+	bs -> pb
+	bs -> rd
+	nl [label=nl]
+	nl -> ks
+	nl -> cq
+	nl -> tc
+	nl -> xf
+	nl -> gx
+	nl -> hd
+	nl -> lt
+	dj [label=dj]
+	dj -> dc
+	dj -> fq
+	dj -> jz
+	dj -> ht
+	dj -> zs
+	dj -> jc
+	rr [label=rr]
+	rr -> gp
+	rr -> rv
+	rr -> jt
+	rr -> qc
+	rr -> sq
+	vr [label=vr]
+	vr -> qb
+	jz [label=jz]
+	jz -> dj
+	jz -> ht
+	hq [label=hq]
+	hq -> nx
+	cf [label=cf]
+	cf -> jg
+	cf -> rr
+	hj [label=hj]
+	hj -> cf
+	hj -> rr
+	mt [label=mt]
+	mt -> rr
+	sq [label=sq]
+	sq -> rr
+	sq -> vh
+	jg [label=jg]
+	jg -> rr
+	jg -> pd
+	gf [label=gf]
+	gf -> gv
+	xv [label=xv]
+	xv -> dj
+	xv -> dx
+	rh [label=rh]
+	rh -> nl
+	rh -> gx
+	broadcaster [label=broadcaster]
+	broadcaster -> hd
+	broadcaster -> zj
+	broadcaster -> sq
+	broadcaster -> jz
+	jv [label=jv]
+	jv -> dj
+	jv -> zs
+	rd [label=rd]
+	rd -> vs
+	rd -> pb
+	pd [label=pd]
+	pd -> rr
+	pd -> mt
+	rv [label=rv]
+	rv -> ns
+	vp [label=vp]
+	vp -> ns
+	vs [label=vs]
+	vs -> pb
+	nx [label=nx]
+	nx -> pb
+	nx -> bs
+	zp [label=zp]
+	zp -> mm
+	zp -> dj
+	ns [label=ns]
+	ns -> rx
+	lt [label=lt]
+	lt -> rh
+	pf [label=pf]
+	pf -> pr
+	pf -> nl
+	tc [label=tc]
+	tc -> qz
+	xz [label=xz]
+	xz -> dj
+	xz -> zp
+	qb [label=qb]
+	qb -> hq
+	rl [label=rl]
+	rl -> pf
+	rl -> nl
+	fq [label=fq]
+	fq -> xz
+	kn [label=kn]
+	kn -> pb
+	kn -> xn
+	xf [label=xf]
+	xf -> tg
+	qz [label=qz]
+	qz -> nl
+	qz -> rl
+	ks [label=ks]
+	ks -> tc
+	jt [label=jt]
+	jt -> kb
+	jc [label=jc]
+	jc -> xv
+	kb [label=kb]
+	kb -> hj
+	kb -> rr
+	zs [label=zs]
+	zs -> dq
+	gv [label=gv]
+	gv -> vr
+	cq [label=cq]
+	cq -> ns
+	cp [label=cp]
+	cp -> rr
+	cp -> jt
+	xn [label=xn]
+	xn -> pb
+	xn -> gf
+	rx [label=rx]
+	button [label=button]
+	button -> broadcaster
+}

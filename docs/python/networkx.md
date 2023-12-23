@@ -208,7 +208,7 @@ Output:
 ### Circular Layout
 
 ```python
-pos = nx.spiral_layout(graph)
+pos = nx.circular_layout(graph)
 nx.draw(graph, pos=pos, edge_color="grey", width=1, with_labels=True)
 ```
 
@@ -219,7 +219,7 @@ Output:
 ### Planar Layout
 
 ```python
-pos = nx.spiral_layout(graph)
+pos = nx.planar_layout(graph)
 nx.draw(graph, pos=pos, edge_color="grey", width=1, with_labels=True)
 ```
 
@@ -230,7 +230,7 @@ Output:
 ### Random Layout
 
 ```python
-pos = nx.spiral_layout(graph)
+pos = nx.random_layout(graph)
 nx.draw(graph, pos=pos, edge_color="grey", width=1, with_labels=True)
 ```
 
