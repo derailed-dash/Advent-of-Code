@@ -54,6 +54,62 @@ for thing in data_things:
     # do something with thing
 ```
 
+### Reading Blocks
+
+Here is an example function taken from [2023 Day 5](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb#scrollTo=jNJnpu7n8ChB){:target="_blank"}.
+
+It is intended to read data like this:
+
+```text
+seeds: 79 14 55 13
+
+seed-to-soil map:
+50 98 2
+52 50 48
+
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
+
+... etc
+```
+
+The goal is to read the first row into one data structure, and then read the rest as _blocks_.
+
+```python
+def parse_data(data: str) -> tuple[list[int], list[GardinerMap]]:
+    """ Parse input data, and convert to:
+    - seeds: list of int
+    - GardinerMap instances: list of GardinerMap 
+    """
+    
+    seeds = []
+    maps = [] # Store our GardinerMap instances
+    
+    # split into blocks. Store the first in seeds_line, and the rest in *blocks
+    seeds_line, *blocks = data.split("\n\n") 
+    assert seeds_line.startswith("seeds"), "First line contains the seeds values"
+    _, seeds_part = seeds_line.split(":")
+    seeds = [int(x) for x in seeds_part.split()]
+    
+    for block in blocks:
+        block_header, *block_record = block.splitlines() # Split the block into a header row and remaining rows
+        map_src_type, _, map_dest_type = block_header.split()[0].split("-")
+        map = GardinerMap(map_src_type, map_dest_type) # initialise our GardinerMap
+        for line in block_record:
+            assert line[0].isdigit(), "Line must start with numbers"
+            dest_start, src_start, interval_len = [int(x) for x in line.split()]
+            map.add_range(src_start=src_start, dest_start=dest_start, range_length=interval_len)
+        
+        map.finalise()
+        maps.append(map)
+            
+    return seeds, maps
+```
+
+The cool trick here is that when we have a function that returns a `list` - like `splitlines()` - then we can unpack the return value across more than one variable. In the example above, one variable is used to receive the first line, and another variable is used to receive all the remaining elements of the returned list.
+
 ### Closing the File
 
 Having read all the data, we should close the file, e.g.
