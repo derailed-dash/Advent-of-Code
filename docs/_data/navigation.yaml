@@ -84,6 +84,8 @@ pages:
     link: /python/jupyter-notebooks
   - name: Encrypting Your Input
     link: /python/encrypting
+  - name: Maths with SymPy
+    link: /python/sympy
 - name: "2015"
   link: /2015/
   mainnav: True
