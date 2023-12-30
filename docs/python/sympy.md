@@ -155,6 +155,8 @@ solutions = sympy.solveset(expressions[-1], x, domain=sympy.S.Reals)
 print(f"There are {len(solutions)} real solutions for x.")
 ```
 
+![Solveset](/assets/images/sympy_solveset.png){:style="width:480px"}
+
 ### Evaluating to Obtain Numeric Values
 
 We can evaluate to obtain the float value of a symbol, and display to an arbitrary level of precision: 
