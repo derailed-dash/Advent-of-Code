@@ -230,13 +230,12 @@ def solve_part2(data: list[str]):
         equations.append(sympy.Eq((xr-x)*(vy-vyr), (yr-y)*(vx-vxr)))
         equations.append(sympy.Eq((yr-y)*(vz-vzr), (zr-z)*(vy-vyr)))
 
-    try:
-        solutions = sympy.solve(equations)[0] # SymPy does the hard work
-    except sympy.core.sympify.SympifyError as e:
-        logger.error(f"Could not find a solution: {e}")
-        return None
-            
-    logger.debug(solutions)
-    x, y, z = solutions[xr], solutions[yr], solutions[zr]
-    logger.info(f"{x=},{y=},{z=}")
+    solutions = sympy.solve(equations, dict=True) # SymPy does the hard work
+    if solutions:
+        solution = solutions[0]
+        logger.info(solution)
+        return sum([solution[xr], solution[yr], solution[zr]])
+    
+    logger.info("No solutions found.")
+    return None
 ```
