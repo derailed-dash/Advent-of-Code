@@ -93,9 +93,49 @@ As a result, complex numbers can make it really convenient to do things like:
 
 - Getting the horizontal (_real_) and vertical (_imaginary_) components of a vector.
 - Adding and subtracting vectors.
-- Calculating the magnitude of the vector (i.e. the hypotenuse)
+- Calculating the magnitude of the vector (i.e. the hypotenuse).
+
+```python
+# Define the points as complex numbers
+point1 = complex(x1, y1)
+point2 = complex(x2, y2)
+
+# Calculate the difference between the two points
+difference = point2 - point1
+
+# Calculate the magnitude of the vector
+distance = abs(difference)
+```
+
 - Calculating the angle of a vector.
+
+```python
+# Calculate the difference (vector) between the two points
+vector = point2 - point1
+
+# Calculate the angle of the vector
+angle_radians = cmath.phase(vector)
+angle_degrees = math.degrees(angle_radians)
+```
+
 - Flipping, scaling and rotating vectors.
+
+```python
+vector = point2 - point1
+
+# Flip over the x-axis
+flip_x = complex(vector.real, -vector.imag)
+flip_y = complex(-vector.real, vector.imag)
+
+# Rotate by theta degrees
+theta = math.radians(degrees)  # Convert degrees to radians
+rotation_factor = cmath.exp(1j * theta)
+rotated_vector = vector * rotation_factor
+
+# Scale by a factor
+scale_factor = 2  # Example scaling factor
+scaled_vector = vector * scale_factor
+```
 
 Just as a quick demo, here's a visualisation using complex numbers and Matplotlib:
 
