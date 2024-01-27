@@ -26,6 +26,7 @@ tags:
   - [Breadcrumb Trail](#breadcrumb-trail)
   - [BFS Examples](#bfs-examples)
 - [Dijkstra's Algorithm](#dijkstras-algorithm)
+  - [How It Works](#how-it-works-1)
   - [Dijkstra's Algorithm Examples](#dijkstras-algorithm-examples)
 - [A* Algorithm](#a-algorithm)
   - [A* Examples](#a-examples)
@@ -256,12 +257,28 @@ path.reverse() # optional - depends whether we want start->end or end->start
 
 ## Dijkstra's Algorithm
 
+This algorithm is like BFS. But instead of expanding the frontier in all directions with equal weight - called an _unweighted pathfinder algorithm_ - we instead **prioritise popping the node that has the lowest overall cost**. 
+
+Dijkstra's algorithm is perfect for:
+
+- Finding the best path through a graph, when the edges of the graph have different weights.
+- Finding the shortest path to every node for any given node. 
+
+### How It Works
+
+- The frontier is implemented using a [priority queue](/python/priority_queues), which we implement using a `heapq`. The `heapq` data structure allows us to efficiently pop the item with the lowest priotity.
+- Our starting node will have a cumulative cost of 0.
+- For each valid adjacent node, we store this node along with the cumulative cost so far.  This is given by the previous cost, plus the cost of this particular edge. This differs from BFS, since in BFS the cost is always constant for every adjacent node.
+- In BFS, we check for duplicates when we insert.  But in Dijkstra's, if we arrive at a node we've arrived at before, then we can skip it if the current cumulative cost is higher than the previous cost to reach this node. I.e. for each node, always store the minimum cost to reach it.
+- In BFS, we typically end when we reach the goal. I.e. because if we've reached the goal, we must have taken the minimum number of steps to get to it. But in Dijkstra's algorithm, there may be different ways to reach the goal, and they may have different costs. So we only _end_ when we _pop_ the _goal_ off the priority queue.  Because once we pop the goal, then there can be no paths to thsi _goal_ with a cheaper cost.
+
 ### Dijkstra's Algorithm Examples
 
 - [Risk maze - with heapq and breadcrumbs - 2021 day 15](/2021/15)
 - [Lowest cost rearranging amphipods - with next state, heapq and breadcrumbs - 2021 day 23](/2021/23)
 - [Hill climbing with NetworkX - 2022 Day 12](/2022/12)
 - [Lowest cost path with turning constraints - 2023 Day 17](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
+- [Dijkstra to find lowest cost path - 2023 Day 17](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
 
 ## A* Algorithm
 
