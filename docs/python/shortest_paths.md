@@ -272,6 +272,10 @@ Dijkstra's algorithm is perfect for:
 - In BFS, we check for duplicates when we insert.  But in Dijkstra's, if we arrive at a node we've arrived at before, then we can skip it if the current cumulative cost is higher than the previous cost to reach this node. I.e. for each node, always store the minimum cost to reach it.
 - In BFS, we typically end when we reach the goal. I.e. because if we've reached the goal, we must have taken the minimum number of steps to get to it. But in Dijkstra's algorithm, there may be different ways to reach the goal, and they may have different costs. So we only _end_ when we _pop_ the _goal_ off the priority queue.  Because once we pop the goal, then there can be no paths to thsi _goal_ with a cheaper cost.
 
+Check out the illustration below, that shows how the algorithm finds our goal, H:
+
+![Dijkstra Walkthrough](/assets/images/dijkstra.png){:style="width: 640px"}
+
 ### Dijkstra's Algorithm Examples
 
 - [Risk maze - with heapq and breadcrumbs - 2021 day 15](/2021/15)
