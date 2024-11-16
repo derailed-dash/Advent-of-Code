@@ -12,6 +12,8 @@ tags:
     link: https://pypi.org/project/regex/
   - name: Regexr
     link: https://regexr.com/
+  - name: Pyrexp
+    link: https://pythonium.net/regex
 ---
 **Regular expressions** (often shortened to **regex**) are a way to look for matching patterns in any text. We can use the pattern to determine where the pattern appears in the text, or to do more sophisticated things like replacing patterns in text.
 
