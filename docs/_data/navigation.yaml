@@ -336,3 +336,6 @@ pages:
 - name: "2023"
   link: /2023/
   mainnav: True
+- name: "2024"
+  link: /2024/
+  mainnav: True
