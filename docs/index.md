@@ -58,20 +58,42 @@ Each day gets its own folder, which is named for some of the key Python modules 
 
 ### Medium
 
-If you find this resource useful, you might like to check out some of my other content. On **[Medium](https://medium.com/@derailed.dash){:target="_blank"}** I routinely write articles on blogs on topics such as:
+If you find this resource useful, you might like to check out some of my other content. On **[Medium](https://medium.com/@derailed.dash){:target="_blank"}** I routinely write articles on Cloud, development, and IT Architecture. I would really appreciate if you would **Follow Me** on Medium, and share any content that you think would be useful to your friends and colleauges.
 
-- [Architecture Documentation: Where to Draw the Line](https://medium.com/@derailed.dash/architecture-documentation-where-to-draw-the-line-df73fb5ca85c){:target="_blank"}
+Here's a list of a few (but not all) of my articles...
+
+#### Coding and Development
+
+- [YouTube Video Downloader with Generative AI and Python: Run Anywhere, Transcribe and Translate](https://medium.com/python-in-plain-english/youtube-video-downloader-with-generative-ai-and-python-run-anywhere-transcribe-and-translate-dec2e593dd58)
+- [Downloading YouTube Videos, Extracting Audio, and Generating Transcripts with Python and Jupyter Notebooks](https://python.plainenglish.io/downloading-youtube-videos-extracting-audio-and-generating-transcripts-with-python-and-jupyter-c3068f82bbe0)
+- [Building a Serverless Image Text Extractor and Translator Using Google Cloud Pre-Trained AI](https://medium.com/google-cloud/building-a-serverless-image-text-extractor-and-translator-using-google-cloud-pre-trained-ai-adfdccdb18d9)
+- [Solving Mathematical Problems in Python with SymPy](https://python.plainenglish.io/solving-mathematical-problems-in-python-with-sympy-5f138c0deaef)
+- [Finding the Coefficients of a Quadratic with SymPy](https://python.plainenglish.io/finding-the-coefficients-of-a-quadratic-with-sympy-777cd9479ea1)
+- [Noob’s Guide to Creating a Pip-Installable Distributable Python Package](https://medium.com/python-in-plain-english/noobs-guide-to-creating-a-pip-installable-distributable-python-package-ed52e03cd4e8)
+- [Six Ways to Run Jupyter Labs and Notebooks](https://medium.com/python-in-plain-english/five-ways-to-run-jupyter-labs-and-notebooks-23209f71e5c0)
+- [Advent of Code: the Best Way to Learn to Code!](https://medium.com/python-in-plain-english/advent-of-code-the-best-way-to-learn-to-code-d86c6478d484)
+
+#### Cloud Adoption / Cloud Strategy / Google Cloud
+
+- [How to Accelerate Cloud Migrations at Scale](https://medium.com/google-cloud/how-to-accelerate-cloud-migrations-at-scale-ecee08a09089)
+- [Tips for Passing the Google Professional Developer (PCD) Exam](https://medium.com/google-cloud/tips-for-passing-the-google-professional-developer-pcd-exam-c2b6d2253d17)
+- [Create a CI/CD Pipeline using GitHub Actions and Google Cloud](https://medium.com/google-cloud/create-a-ci-cd-pipeline-using-github-actions-and-google-cloud-9be20ff50e97)
 - [My Series on Google Cloud Adoption: from Strategy to Operation](https://medium.com/google-cloud/google-cloud-adoption-for-the-enterprise-from-strategy-to-operation-part-0-overview-9091f5a1ddfc){:target="_blank"}
 - [Google Cloud Landing Zones with Google Cloud Foundation Fabric FAST](https://medium.com/google-cloud/google-cloud-landing-zone-with-terraform-and-cloud-foundation-fabric-fast-part-1-2c7634ac31fd){:target="_blank"}
+- [Design your Google Cloud Landing Zone](https://medium.com/google-cloud/design-your-landing-zone-design-considerations-part-1-google-cloud-adoption-series-74978d968fed)
+- [Develop Serverless Applications on Cloud Run: Google Cloud Challenge Lab Walkthrough](https://medium.com/google-cloud/develop-serverless-applications-on-cloud-run-google-cloud-challenge-lab-walkthrough-a62da1c33989)
+- [Optimise Costs for Google Kubernetes Engine: Google Cloud Challenge Lab Walkthrough](https://medium.com/google-cloud/optimise-costs-for-google-kubernetes-engine-google-cloud-challenge-lab-walkthrough-739abfb58ea0)
 - [Terraforming an Application on Google Cloud](https://medium.com/google-cloud/a-sample-application-using-terraform-on-google-cloud-2405c598a60a){:target="_blank"}
 - [Google Cloud Next Summaries, and Announcements](https://medium.com/google-cloud/google-next-2023-experience-and-favourite-sessions-fb00add5f59e){:target="_blank"}
-- [Getting More from ChatGPT](https://medium.com/@derailed.dash/a-couple-of-tools-to-get-more-from-chatgpt-7847e21aac05){:target="_blank"}
 
-I would really appreciate if you would **Follow Me** on Medium, and share any content that you think would be useful to your friends and colleauges.
 
-### Google Cloud Challenge Lab Walkthroughs
+#### Solution / Technical / Enterprise and Cloud Architecture
 
-Check out my site of [Google Cloud Skillsboost Challenge Lab Wakthroughts](https://derailed-dash.github.io/gcp-challenge-labs/){:target="_blank"}.
+- [Architecture Documentation: Where to Draw the Line](https://medium.com/@derailed.dash/architecture-documentation-where-to-draw-the-line-df73fb5ca85c){:target="_blank"}
+
+#### Other
+
+- [Compelling Pitches and Arguments for any Scenario: Top Down Thinking (TDT)](https://medium.com/@derailed.dash/compelling-pitches-and-arguments-for-any-scenario-top-down-thinking-108c9edda6ec)
 
 ### GitHub
 
