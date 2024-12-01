@@ -4,7 +4,7 @@ title: Advent of Code 2024
 ---
 # {{ page.topic}} {{ page.year }}
 
-Welcome to [AoC 2024](https://adventofcode.com/2023){:target="_blank"}!
+Welcome to [AoC 2024](https://adventofcode.com/2024){:target="_blank"}!
 
 For this AoC event I've decided to use [Jupyter Notebooks](/python/jupyter-notebooks){:target="_blank"}!!  That way I can write the code, write some pretty documentation, and capture the output, all at the same time and and in the same place.
 
