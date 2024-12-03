@@ -10,8 +10,8 @@ For this AoC event I've decided to use [Jupyter Notebooks](/python/jupyter-noteb
 
 You can check out my Advent of Code 2024 solution in these places:
 - In [Jupyter Notebook in GitHub](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}
-- By running my notebook in the cloud for free, using [Jupyter Notebook in Google Collaboratory](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}.
+- By running my notebook in the cloud for free, using [Jupyter Notebook in Google Collaboratory](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}.
 
 The great thing about opening the notebook in Google Colab is that you don't have to install anything yourself!  You can take my notebook, look at the code, and run it. If you like, you can make a copy, and then start working on your own AoC notebook!
 
-![2023 Jupyter Notebook in Colab](/assets/images/2017-jn-in-colab.png)
+![2017 Jupyter Notebook in Colab](/assets/images/2017-jn-in-colab.png)
