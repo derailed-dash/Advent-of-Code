@@ -89,6 +89,16 @@ Here, we're:
 - We're mapping all four groups from `str` type to `int` type, since we expect the data to always be numeric.
 - We use the four numbers - which are two pairs of x,y coordinates - to create a Line object. 
 
+## Including Optional Matches
+
+Imagine that the numbers above might contain negative values. This update to the regex expression will allow us to capture both positive and negative values:
+
+```python
+for line in data:
+    x1, y1, x2, y2 = map(int, re.match(r"(-?\d+),(-?\d+) -> (-?\d+),(-?\d+)", line).groups())
+    lines.append(Line(x1, y1, x2, y2))
+```
+
 ## Naming Groups
 
 We can actually name groups in the regex pattern itself. Then, instead of calling `groups()` on a match object, we can instead call `groupdict()`. This returns a dictionary, where the keys are the names of the groups, and the values are the string values from the match.
