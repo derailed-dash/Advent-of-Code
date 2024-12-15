@@ -856,225 +856,103 @@ def plot_path(path: list[tuple], inside: set[tuple]=set()):
 
 E.g.
 
-Taken from [2023 Day 16: Light Paths Through a Grid](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}:
+Taken from [2024 Day 6: Guard Gallivant](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}:
+
+
+My `VisGuardMap` extends `GuardMap`. It animates the path of a guard moving through a grid.
+
+- `create_animation()` sets up the animation using matplotlib's `FuncAnimation`. 
+- It initializes a plot showing obstacles and creates empty scatter plots for each movement direction. 
+- The key is `animate_step`, called for each frame. It iterates through the `_visited` list, which stores visited grid points and their associated directions up to the current frame (`n`). 
+- For each direction, it updates the corresponding scatter plot with the coordinates of newly visited points. 
+- FuncAnimation then compiles these frames into an animation, saved as a video file.
+
+This approach is efficient since we don't recreate the axes with each frame.
 
 ```python
-class LightGrid(Grid):
-    """ Represents a 2D grid containing empty space (.), mirrors, and splitters (- and |).
-    Light passes through empty space. Light is refracted by 90 degrees at a mirror. 
-    Light is split in the two orthogonal directions at a splitter, or allowed to pass through unchanged, 
-    depending on orientation. """
-    
-    MIRROR_DIRECTION_MAP = { # { (current char, current direction): new direction }
-        ("/", Vectors.E.value): Vectors.N.value,
-        ("/", Vectors.S.value): Vectors.W.value,
-        ("/", Vectors.W.value): Vectors.S.value,
-        ("/", Vectors.N.value): Vectors.E.value,
-        ("\\", Vectors.E.value): Vectors.S.value,
-        ("\\", Vectors.S.value): Vectors.E.value,
-        ("\\", Vectors.W.value): Vectors.N.value,
-        ("\\", Vectors.N.value): Vectors.W.value,
-    }
-    
-    VECTORS_TO_ARROWS = { # used for rendering a console representation
-        Vectors.N.value: "^",
-        Vectors.E.value: ">",
-        Vectors.S.value: "v",
-        Vectors.W.value: "<",
-    }
-    
-    def __init__(self, grid_array: list, animating: bool = False, **kwargs) -> None:
-        """ Creates a grid that light beams pass through. """
-       
-        # [ (posn, dirn), ... ]
-        # dirn is the direction we were facing when we arrived at this position
-        self.path_taken: list[tuple[Point, tuple[int,int]]] = []
-        self.energised = defaultdict(set) # { point: {dirn}, }
-        super().__init__(grid_array=grid_array, animating=animating, **kwargs)
-    
-    def animate_step(self, i):
-        """ Update the plot for the ith step in the animation. """
-        if self._frame_index < len(self.path_taken):
-            if self._frame_index % 100 == 0:
-                logger.debug(f"Rendering frame {self._frame_index}")
-                
-            self._render_plot()
-            self._frame_index += 1
-        return []
-    
-    def create_animation(self, output_path='animation.mp4', fps=10):
-        """ Create the animation, by calling the animate_step() method to generate frames. """
-        self._plot_info = self._setup_fig()  # Set up the figure for plotting
-        fig, axes, mkr_size = self._plot_info
+class VisGuardMap(GuardMap):
+    def __init__(self, grid_array: list, animating: bool = True, **kwargs) -> None:
+        super().__init__(grid_array=grid_array, **kwargs)
         
-        logger.debug(f"Creating the animation. We have {len(self.path_taken)} frames to render.")
-        # Creating the animation
-        anim = FuncAnimation(fig, self.animate_step, frames=len(self.path_taken), 
-                             interval=1000/fps, blit=True)
-
-        # Save the animation
-        anim.save(output_path, writer='ffmpeg')
+        self.animating = animating
+        if self.animating:
+            self._plot_info = self._setup_fig()
+            self._frame_index = 0
     
-    def bfs(self, start:tuple[Point,tuple[int,int]]=(Point(0,0), Vectors.E.value)):
-        """ Perform a BFS to build the path that light takes through the grid.
-
-        Args:
-            start (tuple, optional): (point, vector value). Defaults to (Point(0,0), Vectors.E
-        """
-        frontier = deque() # ideal for FIFO
-        frontier.append(start)
-        explored = set()
-        explored.add(start)
-
-        while frontier:
-            posn, dirn = frontier.popleft() # point, vector value
-            self.path_taken.append((posn, dirn))
-            self.energised[posn].add(dirn)       
-            
-            for neighbour in self.next_move(posn, dirn):
-                if self.valid_location(neighbour[0]): # is this next move in the grid?
-                    if neighbour not in explored:
-                        frontier.append(neighbour)
-                        explored.add(neighbour)
-    
-    def next_move(self, posn:Point, dirn:tuple):
-        """ Determine the next moves that are valid from here. Returns each move sequentially, as a generator.
-        For any given current (point, direction), we can move to 1 or 2 adjacent points. 
-        If the current point is a mirror, the new direction will be different.
-        If the current point is a splitter, the new direction will be different if we've hit the splitter
-        from a perpendicular direction.
-
-        Args:
-            posn (Point): Our current location
-            dirn (Vector tuple): The direction we were facing when we landed at this point
-
-        Yields:
-            tuple: (next point, next direction)
-        """
-
-        curr_val = self.value_at_point(posn) # where are we now
-
-        # First, check our "pass through" conditions...
-        if (curr_val == "." or (curr_val == "|" and dirn in (Vectors.N.value, Vectors.S.value))
-                            or (curr_val == "-" and dirn in (Vectors.E.value, Vectors.W.value))):
-            next_dirn = dirn 
-            next_posn = posn + Point(*next_dirn)
-            yield (next_posn, dirn)            
-        elif curr_val in ("/", "\\"): # Now map directions if we're at a mirror
-            next_dirn = LightGrid.MIRROR_DIRECTION_MAP[(curr_val, dirn)]
-            next_posn = posn + Point(*next_dirn)
-            yield (next_posn, next_dirn)                      
-        elif curr_val ==  "|": # split at |, yielding two directions
-            assert dirn in (Vectors.E.value, Vectors.W.value), "We must be going E or W"
-            for next_dirn in (Vectors.N.value, Vectors.S.value):
-                next_posn = posn + Point(*next_dirn)
-                yield (next_posn, next_dirn)
-        else: # split at -, yielding two directions
-            assert curr_val == "-", "We should be at -"
-            assert dirn in (Vectors.N.value, Vectors.S.value), "We must be going N or S"
-            for next_dirn in (Vectors.E.value, Vectors.W.value):
-                next_posn = posn + Point(*next_dirn)
-                yield (next_posn, next_dirn)                    
-        
-    def __str__(self) -> str:
-        """ Generate a str representation of the grid, including the path_taken. """
-        rows = []
-        for row_num, row in enumerate(self.array):
-            repr = []
-            for char_num, char in enumerate(row):
-                point = Point(char_num, row_num)
-                if point in self.energised:
-                    repr.append(Fore.YELLOW)
-                    if char not in ("|", "-", "\\", "/"):
-                        dirs_for_locn = len(self.energised[point])
-                        if dirs_for_locn == 1:
-                            dirn = list(self.energised[point])[0]
-                            repr.append(LightGrid.VECTORS_TO_ARROWS[dirn])                   
-                        else:
-                            repr.append(str(dirs_for_locn))
-                    else:
-                        repr.append(char)
-                    repr.append(Fore.RESET)
-                else:
-                    repr.append(char)
-            
-            rows.append("".join(repr))
-        
-        return "\n".join(rows)
-
     def _setup_fig(self):
-        """ Initialise the plot """      
+        """ Initialise the plot """   
         my_dpi = 120
         fig, axes = plt.subplots(figsize=(1024/my_dpi, 768/my_dpi), dpi=my_dpi, facecolor="white") # set size in pixels
 
         axes.get_xaxis().set_visible(True)
         axes.get_yaxis().set_visible(True)
+        axes.tick_params(axis='both', colors='black')  # Change tick color
+        axes.xaxis.label.set_color('black')  # Change x-axis label color
+        axes.yaxis.label.set_color('black')  # Change y-axis label color
         axes.invert_yaxis()
+        
         axes.set_aspect('equal') # set x and y to equal aspect
         axes.set_facecolor('xkcd:black')
         
-        min_x, max_x = -0.5, self.width - 0.5
-        min_y, max_y = -0.5, self.height - 0.5
+        min_x, max_x = -0.5, self._width - 0.5
+        min_y, max_y = -0.5, self._height - 0.5
         axes.set_xlim(min_x, max_x)
         axes.set_ylim(max_y, min_y)
 
         # dynamically compute the marker size
         fig.canvas.draw()
         mkr_size = ((axes.get_window_extent().width / (max_x-min_x) * (45/fig.dpi)) ** 2)
-        return fig, axes, mkr_size
-    
-    def plot(self):
-        """ Show the current plot """
-        self._render_plot(frame_idx=-1)
-        plt.show()
+
+        # Plot the obstacles
+        obst_x, obst_y = zip(*[(point.x, point.y) for point in self._all_obstacles])
+        axes.scatter(obst_x, obst_y, marker="*", s=mkr_size*0.5, color="xkcd:azure", label="Obstacle")
         
-    def _render_plot(self, frame_idx=None):
-        """ Add each new frame. Note that this method should draw should only draw up to a particular state. 
-        If frame_idx is set, it will render the plot at that particular frame. Use -1 for final state. """
-        fig, axes, mkr_size = self._plot_info
-        axes.clear() # Clear the axes to start fresh for each frame
-        axes.invert_yaxis()
-       
-        dir_sets = [set() for _ in range(4)]
-            
-        # Plot the path
-        # Only plot the path up to the current frame index
-        last_frame = frame_idx if frame_idx else (self._frame_index + 1)
-        for point, dirn in self.path_taken[:last_frame]:
-            for dir_set, arrow in zip(dir_sets, ("^", ">", "v", "<")):
-                if LightGrid.VECTORS_TO_ARROWS[dirn] == arrow:
-                    dir_set.add(point)
-                    continue
-
-        for dir_set, arrow in zip(dir_sets, ("^", ">", "v", "<")):
-            if dir_set:
-                dir_set_x, dir_set_y = zip(*((point.x, point.y) for point in dir_set))
-                axes.scatter(dir_set_x, dir_set_y, marker=arrow, s=mkr_size*0.5, color="white")            
-
-        # Plot the infra
-        vert_splitters, horz_splitters, forw_mirrors, back_mirrors = set(), set(), set(), set()
-        infra_mappings = {
-            '|': vert_splitters, 
-            '-': horz_splitters, 
-            '/': forw_mirrors, 
-            '\\': back_mirrors
-        }
+        # Prepare empty scatter plots - one for each direction
+        visited_scatters = {dirn: axes.scatter([], [], marker=dirn, s=mkr_size * 0.5, color="white", label=f"Visited {dirn}")
+                            for dirn in VisGuardMap.DIRECTIONS}
         
-        for row_num, row in enumerate(self.array):
-            for char_num, char in enumerate(row):
-                point = Point(char_num, row_num)
-                if char in infra_mappings:
-                    infra_mappings[char].add(point)        
-                    
-        for infra_type, marker in [(vert_splitters, r'$\vert$'), 
-                                   (horz_splitters, r'$-$'), 
-                                   (forw_mirrors, r'$\slash$'), 
-                                   (back_mirrors, r'$\backslash$')]:
-            
-            if infra_type: # check not empty
-                x, y = zip(*((point.x, point.y) for point in infra_type))
-                axes.scatter(x, y, marker=marker, s=mkr_size, color="xkcd:azure")        
+        return fig, axes, mkr_size, visited_scatters
 
+    def create_animation(self, output_folder: Path, file_name: str, fps=10):
+        """ Create the animation, by calling the animate_step() method for each frame. """
+        self._plot_info = self._setup_fig()  # Set up the figure for plotting
+        fig, axes, mkr_size, visited_scatter = self._plot_info
+
+        # Creating the animation   
+        logger.debug(f"Creating the animation. We have {len(self._visited_map)} frames to render.")
+        anim = FuncAnimation(fig, 
+                             self.animate_step,
+                             frames=len(self._visited), 
+                             interval=1000/fps, blit=True)
+
+        # Save the animation
+        output_folder.mkdir(exist_ok=True)
+        output_path = Path(locations.output_dir, file_name)
+        anim.save(output_path, writer='ffmpeg')
+        
+        # Close the figure to prevent inline display in Jupyter Notebook
+        plt.close(fig)
+
+    def animate_step(self, n):
+        """ Add a frame for the nth step in the animation. """
+
+        if n > 0:
+            if n % 100 == 0:
+                logger.debug(f"Rendering frame {n}...")
+                
+        # Update each scatter plot with points of the corresponding direction
+        for dirn in VisGuardMap.DIRECTIONS:
+            # Add the points to be shown in this frame, for this direction
+            new_points = [(point.x, point.y) for point, d in self._visited[:n+1] if d == dirn]
+            if new_points:
+                x, y = zip(*new_points)
+                # update the positions of the points in the scatter plot
+                self._plot_info[3][dirn].set_offsets(list(zip(x, y)))
+        
+        return [scatter for scatter in self._plot_info[3].values()]
+```
+
+```python
 # Implementing
 grid = LightGrid(data, animating=True)
 grid.bfs()
@@ -1084,7 +962,10 @@ if animate:
     grid.create_animation(str(output_file), fps=fps)
 ```
 
-![Sample data animation](https://aoc.just2good.co.uk/assets/images/sample_lava_floor.gif)
+<video width="640" controls>
+  <source src="https://aoc.just2good.co.uk/assets/media/anim_2024d06_sample.mp4" type="video/mp4">
+Your browser does not support the video tag.
+</video>
 
 ## Seaborn
 
