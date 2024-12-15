@@ -952,14 +952,17 @@ class VisGuardMap(GuardMap):
         return [scatter for scatter in self._plot_info[3].values()]
 ```
 
+And we can use it like this:
+
 ```python
 # Implementing
-grid = LightGrid(data, animating=True)
-grid.bfs()
-grid.plot()
-if animate:
-    output_file = Path(locations.output_dir, out_name)
-    grid.create_animation(str(output_file), fps=fps)
+guard_map = VisGuardMap(data)
+while guard_map.move():
+    pass
+
+guard_map.create_animation(output_folder=locations.output_dir, 
+                            file_name=name, 
+                            fps=fps)
 ```
 
 <video width="640" controls>
