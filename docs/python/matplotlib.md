@@ -969,6 +969,7 @@ guard_map.create_animation(output_folder=locations.output_dir,
   <source src="https://aoc.just2good.co.uk/assets/media/anim_2024d06_sample.mp4" type="video/mp4">
 Your browser does not support the video tag.
 </video>
+<br>
 
 ## Seaborn
 
