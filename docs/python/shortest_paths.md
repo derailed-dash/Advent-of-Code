@@ -283,6 +283,7 @@ Check out the illustration below, that shows how the algorithm finds our goal, H
 - [Hill climbing with NetworkX - 2022 Day 12](/2022/12)
 - [Lowest cost path with turning constraints - 2023 Day 17](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
 - [Dijkstra to find lowest cost path - 2023 Day 17](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
+- [Finding shortest path through a maze where turns have different cost - 2024 Day 16](https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}
 
 ## A* Algorithm
 
@@ -357,6 +358,7 @@ I compared these two solutions when solving 2017 day 11. The BFS took 30 seconds
 ### A* Examples
 
 - [2017 Day 11 - Shortest Path Puzzle](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2017/Dazbo's_Advent_of_Code_2017.ipynb#scrollTo=d4lL3rSAMw0y){:target="_blank"}
+- [2024 Day 18 - Shortest Path in a Maze](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb#scrollTo=d4lL3rSAMw0y){:target="_blank"}
 
 ## Credit Where It's Due
 
