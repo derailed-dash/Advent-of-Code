@@ -294,6 +294,13 @@ To do this, we need two key changes, compared to the BFS:
 1. We need to use a `heapq`. Recall that a `heapq` allows us to pop elements based on a priority.
 1. We need to provide a _heuristic_ function, i.e. a function that computes some sort of _cost_. The _heuristic_ estimates the cost to get from any given node to the goal. This cost is used to determine the priority. Typically, the _heuristic_ will be a function that estimates distance, such as a Manhattan distance function.
 
+So, an A* implementation requires the combination of:
+
+- Cost of the path from the start point to the current point (e.g. steps so far)
+- A heuristic estimation of the cost for the current point to the end piont (e.g. Manhattan distance)
+
+We need both, because if we only include the distance heuristic, then we end up with a _greedy BFS_ which tries to get closer to the goal without considering the path cost so far.
+
 ### Turning a BFS into an A*
 
 Here's a BFS that creates a breadcrumb path. The priority of the pop is simply the number of steps taken from the starting point.
