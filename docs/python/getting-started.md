@@ -14,6 +14,10 @@ tags:
     link: https://code.visualstudio.com/docs/python/python-tutorial
   - name: Git
     link: https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control
+  - name: Virtual Environment
+    link: https://docs.python.org/3/library/venv.html
+  - name: Conda
+    link: https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html
 ---
 If you're new to Python, then you'll want to start here.  If you're already comfortable using Python, then feel free to dive straight into the AoC walkthroughts, using the links above.
 
@@ -42,6 +46,8 @@ I recommend working through the following, to get started:
 1. Get a [development environment / editor](#development-environment--editor)
 1. [Get Git](#git)
 1. [Learn the Python basics](#python-basics)
+1. [Python Virtual Environments](#python-virtual-environments)
+1. [Using Conda](#using-conda)
 
 ## Getting and Installing Python
 
@@ -99,7 +105,7 @@ Check out the following useful links:
 - [VS Code Getting Started Videos](https://code.visualstudio.com/docs/getstarted/introvideos){:target="_blank"}
 - [Setting Up VS Code](https://code.visualstudio.com/docs/setup/setup-overview){:target="_blank"}
 - [Python in VS Code](https://code.visualstudio.com/docs/languages/python){:target="_blank"}
-- **[Getting started with Python in VS Code Tutorial](https://code.visualstudio.com/docs/python/python-tutorial){:target="_blank"}**
+- [Getting started with Python in VS Code Tutorial](https://code.visualstudio.com/docs/python/python-tutorial){:target="_blank"}
 
 ### Install Useful Extensions
 
@@ -108,8 +114,10 @@ Now you'll want to install some extensions that will make your Python - and gene
 - **Python (Microsoft)** - provides rich support for the Python language, including features such as IntelliSense (provided through Pylance), linting, debugging, code navigation, code formatting, refactoring, variable explorer, test explorer, and more.  Note that when you install this extension, it automatically installs **Pylance** and **Jupyter** (for Jupyter Notebook support).
 - **Better Comments** - a cool plugin that enhances your comments.
 - **Git Graph** - for visualing your Git repos.
+- **Jupyter** - for running Jupyter notebooks inside of VS Code.
 - **Python Docstring Generator** - a cool plugin that helps with the creation of _docstrings_.  If you don't know what these are, then don't worry about this just yet!
 - **Rainbow CSV** - Colourises any CSV files you open in VS Code.
+- **Reload** - Adds a button to reload your VS Code environment.
 - **Python Indent** - auto-identation for Python.
 
 Note: if you've followed the [Getting started with Python in VS Code Tutorial](https://code.visualstudio.com/docs/python/python-tutorial){:target="_blank"}, this will have guided you through installing some of these extensions.
@@ -152,4 +160,76 @@ Finally, if you're completely new to Python, you might want to learn some basics
 - [The w3schools Python Tutorial](https://www.w3schools.com/python/default.asp){:target="_blank"}
 - [Google's Python Class](https://developers.google.com/edu/python/){:target="_blank"}
 
+## Python Virtual Environments
 
+Virtual environments are isolated Python contexts in which we can install Python packages.  This allows specific and explicit combinations of Python runtimes, packages and frameworks, that may be different from other versions installed in the host OS. Basically, it gives us the ability to install packages in one environment without impacting another environment.
+
+**In Python, you should ALWAYS work inside a virtual environment (venv). Always install your packages into a venv, rather than at the global OS level.**
+
+### General Steps for Creating a Virtual Environment
+
+You need to do this once, per project, per development machine you're working with.
+
+```bash
+# From the root of your project folder
+python -m venv .venv # where .venv is the name of the virtual env you are creating
+```
+
+Note that the .venv folder should NOT be checked-in to source control. You will always create the venv on any given development machine.
+
+### Activating the Virtual Environment
+
+A venv must be activated. VS Code will usually detect any virtual environments installed within the project folder that has been opened in VS Code. But outside of VS Code, you activate a venv like this:
+
+```bash
+source .venv/bin/activate # Linux
+.venv\Scripts\activate.ps1 # Windows
+```
+
+### Installing Packages to the Environment
+
+To install packages to an environment for the first time:
+
+```bash
+python -m pip install some-package
+```
+
+But once you've installed packages, you can "freeze" your current package installation, like this:
+
+```bash
+python -m pip freeze > path/to/requirements.txt
+```
+
+This file WILL be checked-in to source control. So we can use this file to repeat the same package installations on any other machine, i.e.
+
+```bash
+python3 -m pip install -r requirements.txt # install application dependencies
+```
+
+## Using Conda
+
+[Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html){:target="_blank"} is a powerful environment and package manager. It has a number of advantages over using pip and Python virtual environments:
+
+- It can install packages and dependencies that are not just pure Python. This can be particularly useful if you're using applications that need to make use of system-level libraries or tools, like ffmpeg and graphviz.
+- It has better dependency management and conflict resolution.
+- It provides pre-compiled and optimised versions of many packages; particularly those related to data science, such as NumPy, Pandas, PyTorch, etc.
+
+A Conda environment is a separate Python installation with a specific set of packages; much like a Python virtual environment. We can work with Conda environments like this:
+
+```bash
+conda env list # see environments and current active env
+
+# Create and activate an environment
+conda create --name .my-conda-env
+conda activate .my-conda-env
+
+# Install some packages
+conda install jupyter jupyterlab ipykernel ipython
+conda install pandas hvplot mathjax matplotlib networkx numpy plotly scipy
+
+# Export the current environment config - for source control
+conda env export > my-conda-env.yml
+
+# To delete a Conda env
+conda remove --name .my-conda-env --all
+```
