@@ -289,3 +289,4 @@ And here we use `findall()`, which circumvents the need to first get the `match`
 - [Using "findall" and "int"](/2022/11)
 - [Using "findall" with "map" and tuple unpacking](/2022/15)
 - [Using "(?:" for non-matchin groups](/2022/19)
+- [Using "finditer" in AoC 2024 Day 3 - Mull It Over](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}
