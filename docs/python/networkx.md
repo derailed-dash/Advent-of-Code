@@ -337,6 +337,120 @@ The visualisation looks like this:
 
 ![Shortest Path]({{"/assets/images/networkx-short-route.png" | relative_url }}){:style="width:600px"}
 
+### Identifying Cliques
+
+This is taken from [AoC 2024 Day 23 - LAN Party](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}
+
+A clique is a subset of vertices such that every two distinct vertices are adjacent. What this means is that there is an **edge between every pair of nodes in the clique**. To put it another way: every node in the subset is directly connected to every other node.
+
+Let's say we have a list of connected nodes:
+
+```text
+kh-tc
+qp-kh
+de-cg
+ka-co
+yn-aq
+qp-ub
+```
+
+We can identify cliques like this:
+
+```python
+def identify_triangle_cliques(data: list[str], real=True):
+    graph = nx.Graph()
+    for line in data:
+        if not line.strip():
+            continue
+        
+        a, b = line.split("-")
+        graph.add_edge(a, b)
+        
+    logger.debug(f"{len(graph)=}, {graph=}")
+    
+    # Find all triangles in the graph
+    # A clique is a set of nodes where every pair is connected
+    triangles = [set(triangle) for triangle in nx.enumerate_all_cliques(graph)
+                               if len(triangle) == 3]
+       
+    logger.debug(f"{len(triangles)=}, {triangles=}")
+    
+    chief_candidates = [triangle for triangle in triangles 
+                                 if any(node.startswith("t") for node in triangle)]
+    logger.debug(f"{len(chief_candidates)=}, {chief_candidates=}")
+
+    visualise_graph(graph, real=real, chief_candidates=chief_candidates)
+    return len(chief_candidates)            
+
+def visualise_graph(graph, real, chief_candidates=None, largest_clique=None):
+    fig, ax = plt.subplots(figsize=(12, 12), dpi=80)
+    
+    if real: 
+        node_size =  50
+        width = 0.5
+        with_labels = False
+        alpha=0.01
+    else:
+        node_size = 500
+        width = 1
+        with_labels = True
+        alpha=0.1
+
+    pos = nx.spring_layout(graph)
+    if chief_candidates:
+        node_color = [('red' if node.startswith("t") else 'skyblue') for node in graph]
+        for triangle in chief_candidates:
+            # Add semi-transparent triangles
+            vertices = [pos[node] for node in triangle]
+            poly = Polygon(vertices, alpha=alpha, facecolor='red', edgecolor='none')
+            ax.add_patch(poly)
+    else:
+        assert largest_clique, "Largest clique not set"
+        node_color = [('red' if node in largest_clique else 'skyblue') for node in graph]
+
+    nx.draw(
+        graph, pos=pos,
+        edge_color="grey", width=width, with_labels=with_labels,
+        node_color=node_color,
+        node_size=node_size,
+    )
+    fig.tight_layout(pad=0)
+
+    ax = plt.gca()
+    ax.set_axis_off()
+    plt.show()
+```
+
+![Cliques]({{"/assets/images/lan-party-trianges.png" | relative_url }}){:style="width:600px"}
+
+### Find Maximal Cliques
+
+This is taken from [AoC 2024 Day 23 - LAN Party](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}
+
+A maximal clique is a clique that cannot be extended by adding more nodes while remaining fully connected. So we can just retrieve all the maximal cliques, and then return the one that is largest. I.e. the largest clique where all nodes are directly connected to each other. 
+
+```python
+def solve_part2(data, real=True):
+    graph = nx.Graph()
+    for line in data:
+        if not line.strip():
+            continue
+        
+        a, b = line.split("-")
+        graph.add_edge(a, b)
+        
+    # Find maximal cliques
+    maximal_cliques = list(nx.find_cliques(graph))
+    largest_clique = max(maximal_cliques, key=len)
+       
+    logger.debug(f"{len(largest_clique)=}, {largest_clique=}")
+    visualise_graph(graph, real=real, largest_clique=largest_clique)
+
+    return ",".join(sorted(largest_clique))
+```
+
+![Largest Clique]({{"/assets/images/largest-clique.png" | relative_url }}){:style="width:600px"}
+
 ## Examples
 
 - [Travelling Salesman - 2015 Day 9](/2015/9)
