@@ -457,3 +457,4 @@ def solve_part2(data, real=True):
 - [Seating arrangement - 2015 Day 13](/2015/13)
 - [Cave navigating and visualisation - 2021 Day 12](/2021/12)
 - [Hillclimbing - shortest path length and multi_source_dijkstra - 2022 Day 12](/2022/12)
+- [LAN Party - AoC 2024 Day 23](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb)
