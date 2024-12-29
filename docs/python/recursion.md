@@ -288,3 +288,4 @@ def recurse_diffs(sequence: np.ndarray, forwards=True) -> int:
 - [Recursive directory listing by extending the list - 2022 day 7](/2022/7)
 - [Recursive `__lt__` compare - 2022 day 13](/2022/13)
 - [Recursive arithmetic progressions - 2023 day 9](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb){:target="_blank"}
+- [Creating a pretty print with recursion and max depth - 2024 day 24](https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2024/Dazbo's_Advent_of_Code_2024.ipynb){:target="_blank"}
