@@ -219,20 +219,22 @@ A Conda environment is a separate Python installation with a specific set of pac
 ```bash
 conda env list # see environments and current active env
 
+export AOC_ENV="aoc-conda-env"
+
 # Create and activate an environment
-conda create --name aoc-conda-env
-conda activate aoc-conda-env
+conda create --name $AOC_ENV
+conda activate $AOC_ENV
 
 # Install some core packages
 # Before trying to run any Python code or Jupyter cells in this env
-conda install python jupyter jupyterlab ipykernel ipython ipywidgets pexpect pygments
+conda install -y -c conda-forge python jupyter jupyterlab
 
 # Additional packages - or we could install these from (say) a Jupyter notebook
 conda install pandas hvplot mathjax matplotlib networkx numpy plotly scipy
 
 # Export the current environment config - for source control
-conda env export > aoc-conda-env.yml
+conda env export > $AOC_ENV.yml
 
 # To delete a Conda env
-conda remove --name aoc-conda-env --all
+conda remove --name $AOC_ENV --all
 ```
