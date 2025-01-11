@@ -72,7 +72,7 @@ Create `.gitattributes` file in the root of your repo (alongside your `.gitignor
 
 For example, say you want to always encrypt your `.env` file, and all your input files are named `input.txt`. Your `.gitattributes` would look like this:
 
-```
+```text
 input*.txt filter=git-crypt diff=git-crypt
 .env filter=git-crypt diff=git-crypt
 ```
@@ -98,7 +98,9 @@ git-crypt lock # lock all files locally. (This happens transparently on push to 
 git-crypt unlock [path/to/keyfile] # unlock all encrypted local files. (Transparent on pull.)
 ```
 
-For a **newly cloned repo** (e.g. on a new machine), you will need to unlock any encrypted files manually.  E.g.
+### Cloning an Exiting Repo with Encrypted Files
+
+For a **newly cloned repo** (e.g. on a new machine), you will need to unlock any encrypted files manually.  You can do this with `git-crypt unlock` and pass in your key. Note: you should do this rather than running `git-crypt init`, when cloning an existing repo.
 
 ```bash
 git-crypt unlock ../git-crypt-key
@@ -121,3 +123,15 @@ Caution: in this case, your git history will still contain the unencrypted versi
 After check-in and push, your input files will be visible in your GitHub repo.  But the contents of the files will not be readable.  You can download them in raw format, but if you open them, they'll look something like this...
 
 <img src="{{'/assets/images/encrypted-input.png' | relative_url }}" alt="Encrypted Input File" style="width:600px;" />
+
+### Some Issues You Might Face
+
+If you happen to change the location of your git-crypt executables, then this will break git-crypt. For example, I've faced this when moving a repo from being managed in my Windows environment to being managed in my WSL environment.
+
+In this scenario you can fix by updating `.git/config` and then updating the git-crypt settings, e.g.
+
+```text
+[filter "git-crypt"]
+	smudge = \"git-crypt\" smudge
+	clean = \"git-crypt\" clean
+```
