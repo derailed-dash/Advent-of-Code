@@ -12,6 +12,8 @@ tags:
     link: https://pypi.org/project/regex/
   - name: Regexr
     link: https://regexr.com/
+  - name: Regex101
+    link: https://regex101.com/
   - name: Pyrexp
     link: https://pythonium.net/regex
 ---
