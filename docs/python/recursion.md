@@ -26,7 +26,7 @@ tags:
   - [Counting Leaf Items in a Nested List](#counting-leaf-items-in-a-nested-list)
   - [Fibonacci](#fibonacci)
 - [Traversal Examples](#traversal-examples)
-  - 
+  - [Tree Traversal](#tree-traversal)
   - [Calculating the Next Term in an Nth-Degree Arithmetic Progression](#calculating-the-next-term-in-an-nth-degree-arithmetic-progression)
 - [AoC Examples](#aoc-examples)
 
